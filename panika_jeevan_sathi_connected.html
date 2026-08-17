@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panika Jeevan Sathi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#fff8f7;color:#242124}
+header{background:#fff;position:sticky;top:0;z-index:10;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;padding:14px 5%;gap:20px}
+.logo{font-size:23px;font-weight:800;color:#b51f55}.logo span{color:#ef7b4d}
+nav{display:flex;gap:20px;align-items:center}nav a{color:#444;text-decoration:none;font-weight:600}
+.btn{border:0;border-radius:24px;padding:11px 20px;font-weight:700;cursor:pointer}.primary{background:#b51f55;color:#fff}.soft{background:#fff0f3;color:#b51f55}
+.hero{padding:70px 5%;background:linear-gradient(135deg,#fff0f3,#fff8ee);display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(38px,5vw,64px);line-height:1.03;margin:10px 0}.hero p{font-size:18px;color:#666;max-width:590px}
+.searchbox{background:#fff;padding:18px;border-radius:18px;box-shadow:0 15px 40px #6d30401a;display:grid;grid-template-columns:repeat(3,1fr) auto;gap:10px;margin-top:25px}
+input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;background:#fff}
+.hero-art{height:360px;border-radius:32px;background:linear-gradient(145deg,#d94872,#f7a46c);display:flex;align-items:center;justify-content:center;color:white;font-size:110px;box-shadow:0 25px 60px #a63d5a33}
+section{padding:55px 5%}.section-title{text-align:center;margin-bottom:28px}.section-title h2{font-size:34px;margin:0 0 8px}.section-title p{color:#777}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}.card{background:#fff;border:1px solid #eee;border-radius:18px;overflow:hidden;box-shadow:0 8px 25px #00000008}.avatar{height:220px;background:linear-gradient(145deg,#f5c2c8,#f5d8b5);display:flex;align-items:center;justify-content:center;font-size:80px}.cardbody{padding:16px}.card h3{margin:0 0 6px}.muted{color:#777;font-size:14px}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tag{background:#fff0f3;color:#9c3154;padding:5px 9px;border-radius:20px;font-size:12px}.actions{display:flex;gap:8px}.actions button{flex:1}
+.how{background:#fff}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.step{padding:25px;border-radius:18px;background:#fff8f7;text-align:center}.num{width:45px;height:45px;border-radius:50%;background:#b51f55;color:white;display:grid;place-items:center;margin:auto;font-weight:800}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:30;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.box{background:white;border-radius:20px;max-width:520px;width:100%;padding:25px}.boxhead{display:flex;justify-content:space-between}.close{border:0;background:#eee;border-radius:50%;width:34px;height:34px}
+.chat{height:330px;overflow:auto;background:#fff8f7;padding:15px;border-radius:14px}.msg{padding:9px 12px;border-radius:15px;margin:8px 0;max-width:75%;background:#eee}.mine{margin-left:auto;background:#b51f55;color:#fff}.chatrow{display:flex;gap:8px;margin-top:10px}
+footer{background:#24151b;color:#ddd;padding:35px 5%;text-align:center}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.searchbox{grid-template-columns:1fr 1fr}.hero-art{height:250px}}
+@media(max-width:560px){nav{display:none}.cards,.steps{grid-template-columns:1fr}.searchbox{grid-template-columns:1fr}.hero{padding-top:45px}section{padding:40px 5%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Panika <span>Jeevan Sathi</span> ❤️</div>
+  <nav><a href="#profiles">Profiles</a><a href="#how">How it works</a><button class="btn soft" onclick="pjsOpenMyProfile()">My Profile</button><button class="btn primary" onclick="pjsOpenRequests()">Requests</button></nav>
+</header>
+
+<main>
+<section class="hero">
+ <div>
+  <div class="tag" style="display:inline-block">Trusted Matrimonial Community</div>
+  <h1>Apne jeevan saathi ko dhoondhiye.</h1>
+  <p>Panika Jeevan Sathi par apni pasand ke profile dekhiye, interest bhejiye aur mutual acceptance ke baad private chat kijiye.</p>
+  <div class="searchbox">
+   <select id="gender"><option value="">Looking for</option><option>Bride</option><option>Groom</option></select>
+   <select id="age"><option value="">Age</option><option>21-25</option><option>26-30</option><option>31-35</option></select>
+   <input id="city" placeholder="City / Location">
+   <button class="btn primary" onclick="filterProfiles()">Search</button>
+  </div>
+ </div>
+ <div class="hero-art">💑</div>
+</section>
+
+<section id="profiles">
+ <div class="section-title"><h2>Featured Profiles</h2><p>Apni pasand ka profile dekhiye aur interest bhejiye.</p></div>
+ <div class="cards" id="cards"></div>
+</section>
+
+<section class="how" id="how">
+ <div class="section-title"><h2>Kaise kaam karta hai?</h2><p>Simple, direct aur easy matrimonial experience.</p></div>
+ <div class="steps">
+  <div class="step"><div class="num">1</div><h3>Profile dekhiye</h3><p>Age, education, profession aur location jaise details dekhiye.</p></div>
+  <div class="step"><div class="num">2</div><h3>Interest bhejiye</h3><p>Pasand aaye to request bhejiye.</p></div>
+  <div class="step"><div class="num">3</div><h3>Match & Chat</h3><p>Request accept hone ke baad private chat shuru kijiye.</p></div>
+ </div>
+</section>
+</main>
+
+<footer>© 2026 Panika Jeevan Sathi · A professional matrimonial community</footer>
+
+<div class="modal" id="modal">
+ <div class="box">
+  <div class="boxhead"><h2 id="modalTitle">Chat</h2><button class="close" onclick="closeModal()">×</button></div>
+  <div id="modalContent"></div>
+ </div>
+</div>
+
+<script>
+const profiles=[
+ {id:1,name:"Anjali Panika",age:27,city:"Guwahati",job:"Teacher",edu:"M.A.",emoji:"👩🏻"},
+ {id:2,name:"Rohan Panika",age:29,city:"Jorhat",job:"Engineer",edu:"B.Tech",emoji:"👨🏻"},
+ {id:3,name:"Priya Panika",age:25,city:"Golaghat",job:"Designer",edu:"B.Des",emoji:"👩🏽"},
+ {id:4,name:"Amit Panika",age:31,city:"Dibrugarh",job:"Business",edu:"MBA",emoji:"👨🏽"}
+];
+let requests=JSON.parse(localStorage.getItem("pjs_requests")||"[]");
+let accepted=JSON.parse(localStorage.getItem("pjs_accepted")||"[]");
+
+function render(list=profiles){
+ const el=document.getElementById("cards");
+ el.innerHTML=list.map(p=>`<article class="card">
+ <div class="avatar">${p.emoji}</div><div class="cardbody">
+ <h3>${p.name}, ${p.age}</h3><div class="muted">${p.city} · ${p.job}</div>
+ <div class="tags"><span class="tag">${p.edu}</span><span class="tag">${p.city}</span></div>
+ <div class="actions"><button class="btn soft" onclick="sendRequest(${p.id})">❤️ Interest</button><button class="btn primary" onclick="viewProfile(${p.id})">View</button></div>
+ </div></article>`).join("");
+}
+function sendRequest(id){
+ if(!requests.includes(id)){requests.push(id);localStorage.setItem("pjs_requests",JSON.stringify(requests));alert("Interest request bhej di gayi ❤️");}
+ else alert("Request pehle hi bheji ja chuki hai.");
+}
+function viewProfile(id){
+ const p=profiles.find(x=>x.id===id);
+ document.getElementById("modalTitle").textContent=p.name;
+ document.getElementById("modalContent").innerHTML=`<p><b>${p.age} years</b> · ${p.city}</p><p>${p.edu} · ${p.job}</p><p class="muted">Profile details yahan future mein aur expand ki ja sakti hain.</p><button class="btn primary" onclick="sendRequest(${id});closeModal()">Send Interest</button>`;
+ document.getElementById("modal").classList.add("open");
+}
+function openRequests(){
+ document.getElementById("modalTitle").textContent="Your Requests";
+ document.getElementById("modalContent").innerHTML=requests.length?requests.map(id=>{
+  const p=profiles.find(x=>x.id===id);
+  return `<div style="padding:12px 0;border-bottom:1px solid #eee"><b>${p.name}</b><br><span class="muted">${p.city} · ${p.job}</span><br><button class="btn primary" style="margin-top:8px" onclick="acceptChat(${id})">${accepted.includes(id)?"Open Chat":"Accept & Chat"}</button></div>`;
+ }).join(""):"<p class='muted'>Abhi koi request nahi hai.</p>";
+ document.getElementById("modal").classList.add("open");
+}
+function acceptChat(id){if(!accepted.includes(id)){accepted.push(id);localStorage.setItem("pjs_accepted",JSON.stringify(accepted));}openChat(id)}
+function openChat(id){
+ const p=profiles.find(x=>x.id===id); document.getElementById("modalTitle").textContent="Chat with "+p.name;
+ document.getElementById("modalContent").innerHTML=`<div class="chat" id="chat"><div class="msg">Namaste! 👋</div></div><div class="chatrow"><input id="chatInput" placeholder="Message likhiye..."><button class="btn primary" onclick="sendMsg()">Send</button></div>`;
+ window.chatPerson=id;
+}
+function sendMsg(){const i=document.getElementById("chatInput"),c=document.getElementById("chat");if(!i.value.trim())return;c.innerHTML+=`<div class="msg mine">${i.value.replace(/</g,"&lt;")}</div>`;i.value="";c.scrollTop=c.scrollHeight}
+function closeModal(){document.getElementById("modal").classList.remove("open")}
+function filterProfiles(){
+ const city=document.getElementById("city").value.toLowerCase(), age=document.getElementById("age").value;
+ const out=profiles.filter(p=>(!city||p.city.toLowerCase().includes(city))&&(!age||(age==="21-25"&&p.age<=25)||(age==="26-30"&&p.age>=26&&p.age<=30)||(age==="31-35"&&p.age>=31)));
+ render(out);
+}
+render();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* Panika Jeevan Sathi - Supabase connection */
+const PJS_URL = "https://lpzuweajkocroyhqdrmu.supabase.co";
+const PJS_KEY = "sb_publishable_zJqX5AhY3dOJjsosVPaI1g_JUGkAEst";
+const PJS_DB = window.supabase.createClient(PJS_URL, PJS_KEY);
+let PJS_ID = localStorage.getItem("pjs_profile_id");
+let PJS_PROFILES = [];
+let PJS_CHAT_WITH = null;
+let PJS_CHAT_TIMER = null;
+
+function pjsEsc(v){return String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function pjsModal(title,html){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalContent").innerHTML=html;
+  document.getElementById("modal").classList.add("open");
+}
+function pjsClose(){
+  document.getElementById("modal").classList.remove("open");
+  if(PJS_CHAT_TIMER){clearInterval(PJS_CHAT_TIMER);PJS_CHAT_TIMER=null;}
+}
+window.pjsOpenMyProfile=function(){
+  const p=PJS_PROFILES.find(x=>x.id===PJS_ID);
+  pjsModal("My Profile",`
+  <div style="padding:10px;background:#fff8e7;border-radius:10px;font-size:13px;margin-bottom:12px">
+  Abhi password/login nahi hai. Aapka profile is browser par save rahega.
+  </div>
+  <input id="pjsName" placeholder="Naam" value="${pjsEsc(p?.name||"")}"><br><br>
+  <input id="pjsAge" type="number" placeholder="Age" value="${pjsEsc(p?.age||"")}"><br><br>
+  <select id="pjsGender"><option value="">Gender</option>
+  <option ${p?.gender==="Bride"?"selected":""}>Bride</option>
+  <option ${p?.gender==="Groom"?"selected":""}>Groom</option></select><br><br>
+  <input id="pjsCity" placeholder="City" value="${pjsEsc(p?.city||"")}"><br><br>
+  <input id="pjsEdu" placeholder="Education" value="${pjsEsc(p?.education||"")}"><br><br>
+  <input id="pjsJob" placeholder="Occupation" value="${pjsEsc(p?.occupation||"")}"><br><br>
+  <textarea id="pjsBio" placeholder="About yourself">${pjsEsc(p?.bio||"")}</textarea><br><br>
+  <button class="btn primary" onclick="pjsSaveProfile()">Save Profile</button>`);
+};
+window.pjsSaveProfile=async function(){
+  const row={
+    name:document.getElementById("pjsName").value.trim(),
+    age:Number(document.getElementById("pjsAge").value)||null,
+    gender:document.getElementById("pjsGender").value,
+    city:document.getElementById("pjsCity").value.trim(),
+    education:document.getElementById("pjsEdu").value.trim(),
+    occupation:document.getElementById("pjsJob").value.trim(),
+    bio:document.getElementById("pjsBio").value.trim()
+  };
+  if(!row.name||!row.age){alert("Naam aur age zaroor bhariye.");return;}
+  let q;
+  if(PJS_ID) q=await PJS_DB.from("profiles").update(row).eq("id",PJS_ID).select().single();
+  else q=await PJS_DB.from("profiles").insert(row).select().single();
+  if(q.error){alert("Profile save nahi hua: "+q.error.message);return;}
+  PJS_ID=q.data.id; localStorage.setItem("pjs_profile_id",PJS_ID);
+  pjsLoadProfiles(); pjsClose(); alert("Profile successfully save ho gaya ❤️");
+};
+async function pjsLoadProfiles(){
+  const q=await PJS_DB.from("profiles").select("*").order("created_at",{ascending:false});
+  if(q.error){console.error(q.error);return;}
+  PJS_PROFILES=q.data||[];
+  window.pjsRender(PJS_PROFILES);
+}
+window.pjsRender=function(list){
+  const el=document.getElementById("cards");
+  if(!list.length){el.innerHTML="<p class='muted'>Abhi profiles available nahi hain.</p>";return;}
+  el.innerHTML=list.map(p=>`
+  <article class="card">
+   <div class="avatar">${p.photo_url?`<img src="${pjsEsc(p.photo_url)}" style="width:100%;height:100%;object-fit:cover">`:"👤"}</div>
+   <div class="cardbody">
+    <h3>${pjsEsc(p.name)}, ${pjsEsc(p.age||"")}</h3>
+    <div class="muted">${pjsEsc(p.city||"")} · ${pjsEsc(p.occupation||"")}</div>
+    <div class="tags"><span class="tag">${pjsEsc(p.education||"")}</span><span class="tag">${pjsEsc(p.gender||"")}</span></div>
+    <div class="actions">
+     <button class="btn soft" onclick="pjsSendInterest('${p.id}')">❤️ Interest</button>
+     <button class="btn primary" onclick="pjsView('${p.id}')">View</button>
+    </div>
+   </div>
+  </article>`).join("");
+};
+window.filterProfiles=function(){
+  const city=document.getElementById("city").value.trim().toLowerCase();
+  const age=document.getElementById("age").value;
+  const gender=document.getElementById("gender").value;
+  const list=PJS_PROFILES.filter(p=>
+    (!city||(p.city||"").toLowerCase().includes(city)) &&
+    (!gender||p.gender===gender) &&
+    (!age ||
+      (age==="21-25"&&p.age>=21&&p.age<=25) ||
+      (age==="26-30"&&p.age>=26&&p.age<=30) ||
+      (age==="31-35"&&p.age>=31&&p.age<=35)));
+  window.pjsRender(list);
+};
+window.pjsView=function(id){
+  const p=PJS_PROFILES.find(x=>x.id===id); if(!p)return;
+  pjsModal(p.name,`
+   <p><b>${pjsEsc(p.age)} years</b> · ${pjsEsc(p.city)}</p>
+   <p>${pjsEsc(p.education)} · ${pjsEsc(p.occupation)}</p>
+   <p>${pjsEsc(p.bio||"")}</p>
+   <button class="btn primary" onclick="pjsSendInterest('${id}');pjsClose()">❤️ Send Interest</button>`);
+};
+window.pjsSendInterest=async function(receiver){
+  if(!PJS_ID){pjsOpenMyProfile();alert("Pehle apna profile create kijiye.");return;}
+  if(receiver===PJS_ID){alert("Apne profile ko interest nahi bhej sakte.");return;}
+  const old=await PJS_DB.from("interests").select("id,status").eq("sender_id",PJS_ID).eq("receiver_id",receiver).maybeSingle();
+  if(old.data){alert("Interest pehle hi bheja ja chuka hai.");return;}
+  const q=await PJS_DB.from("interests").insert({sender_id:PJS_ID,receiver_id:receiver,status:"pending"});
+  if(q.error)alert("Request nahi gayi: "+q.error.message);
+  else alert("Interest request bhej di gayi ❤️");
+};
+window.pjsOpenRequests=async function(){
+  if(!PJS_ID){pjsOpenMyProfile();return;}
+  const q=await PJS_DB.from("interests").select("*").or(`sender_id.eq.${PJS_ID},receiver_id.eq.${PJS_ID}`).order("created_at",{ascending:false});
+  if(q.error){pjsModal("Requests","<p>Requests load nahi ho pa rahi: "+pjsEsc(q.error.message)+"</p>");return;}
+  let html="";
+  for(const r of q.data||[]){
+    const other=r.sender_id===PJS_ID?r.receiver_id:r.sender_id;
+    const p=PJS_PROFILES.find(x=>x.id===other);
+    const name=p?.name||"Profile";
+    if(r.receiver_id===PJS_ID && r.status==="pending"){
+      html+=`<div style="padding:12px 0;border-bottom:1px solid #eee"><b>${pjsEsc(name)}</b><br><span class="muted">Aapko interest bheja hai.</span><br><button class="btn primary" style="margin-top:8px" onclick="pjsAccept(${r.id},'${other}')">Accept & Chat</button></div>`;
+    }else if(r.status==="accepted"){
+      html+=`<div style="padding:12px 0;border-bottom:1px solid #eee"><b>${pjsEsc(name)}</b><br><span class="muted">Accepted</span><br><button class="btn primary" style="margin-top:8px" onclick="pjsChat('${other}')">Open Chat</button></div>`;
+    }else if(r.sender_id===PJS_ID){
+      html+=`<div style="padding:12px 0;border-bottom:1px solid #eee"><b>${pjsEsc(name)}</b><br><span class="muted">Status: ${pjsEsc(r.status)}</span></div>`;
+    }
+  }
+  pjsModal("Requests",html||"<p class='muted'>Abhi koi request nahi hai.</p>");
+};
+window.pjsAccept=async function(id,other){
+  const q=await PJS_DB.from("interests").update({status:"accepted"}).eq("id",id).eq("receiver_id",PJS_ID);
+  if(q.error){alert(q.error.message);return;}
+  pjsChat(other);
+};
+window.pjsChat=async function(other){
+  PJS_CHAT_WITH=other;
+  const p=PJS_PROFILES.find(x=>x.id===other);
+  pjsModal("Chat with "+(p?.name||"Profile"),`
+   <div style="padding:10px;background:#fff8e7;border-radius:10px;font-size:13px;margin-bottom:10px">Private chat opens after mutual acceptance.</div>
+   <div class="chat" id="pjsChatBox"></div>
+   <div class="chatrow"><input id="pjsMsg" placeholder="Message likhiye..."><button class="btn primary" onclick="pjsSendMsg()">Send</button></div>`);
+  await pjsLoadMessages();
+  PJS_CHAT_TIMER=setInterval(pjsLoadMessages,3000);
+};
+async function pjsLoadMessages(){
+  if(!PJS_CHAT_WITH)return;
+  const q=await PJS_DB.from("messages").select("*").or(
+    `and(sender_id.eq.${PJS_ID},receiver_id.eq.${PJS_CHAT_WITH}),and(sender_id.eq.${PJS_CHAT_WITH},receiver_id.eq.${PJS_ID})`
+  ).order("created_at",{ascending:true});
+  const box=document.getElementById("pjsChatBox"); if(!box)return;
+  if(q.error){box.innerHTML="<div class='err'>Messages load nahi hue.</div>";return;}
+  box.innerHTML=(q.data||[]).map(m=>`<div class="msg ${m.sender_id===PJS_ID?"mine":""}">${pjsEsc(m.message)}</div>`).join("")||"<div class='muted'>Chat shuru kijiye 👋</div>";
+  box.scrollTop=box.scrollHeight;
+}
+window.pjsSendMsg=async function(){
+  const input=document.getElementById("pjsMsg"), text=input?.value.trim();
+  if(!text)return;
+  const q=await PJS_DB.from("messages").insert({sender_id:PJS_ID,receiver_id:PJS_CHAT_WITH,message:text});
+  if(q.error){alert("Message send nahi hua: "+q.error.message);return;}
+  input.value="";pjsLoadMessages();
+};
+
+/* Replace the prototype's local-only rendering with database profiles. */
+window.addEventListener("load",()=>{pjsLoadProfiles();});
+</script>
+
+</body>
+</html>
