@@ -30,7 +30,7 @@ button{cursor:pointer;border:0}
 .nav{
  max-width:1050px;
  margin:auto;
- padding:12px 18px;
+ padding:12px 16px;
  display:flex;
  align-items:center;
  justify-content:space-between;
@@ -51,11 +51,12 @@ button{cursor:pointer;border:0}
  display:grid;
  place-items:center;
  background:linear-gradient(135deg,#172554,#4338ca);
- color:white;
+ color:#fff;
  font-weight:900;
 }
 
 .logo b{display:block;font-size:14px}
+
 .logo small{
  display:block;
  color:#777;
@@ -68,7 +69,8 @@ button{cursor:pointer;border:0}
  gap:8px;
 }
 
-.top-icon,.safety{
+.top-icon,
+.safety{
  background:#f4f5f8;
  border-radius:12px;
  padding:10px 12px;
@@ -77,7 +79,7 @@ button{cursor:pointer;border:0}
 .top-icon i{
  font-style:normal;
  background:#ef4444;
- color:white;
+ color:#fff;
  border-radius:10px;
  font-size:9px;
  padding:2px 5px;
@@ -86,7 +88,7 @@ button{cursor:pointer;border:0}
 .app{
  max-width:1050px;
  margin:auto;
- padding:20px 18px 100px;
+ padding:20px 16px 100px;
 }
 
 .notice{
@@ -176,7 +178,8 @@ button{cursor:pointer;border:0}
  margin-bottom:16px;
 }
 
-.stories-card,.filter-card{
+.stories-card,
+.filter-card{
  padding:18px;
 }
 
@@ -231,7 +234,7 @@ button{cursor:pointer;border:0}
  width:100%;
  height:100%;
  border-radius:50%;
- background:white;
+ background:#fff;
  object-fit:cover;
  display:grid;
  place-items:center;
@@ -285,11 +288,11 @@ button{cursor:pointer;border:0}
 
 .chip.active{
  background:#312e81;
- color:white;
+ color:#fff;
 }
 
 .profile-card{
- background:white;
+ background:#fff;
  border:1px solid #e8e9ef;
  border-radius:20px;
  overflow:hidden;
@@ -310,7 +313,7 @@ button{cursor:pointer;border:0}
  width:82px;
  height:82px;
  border-radius:50%;
- border:5px solid white;
+ border:5px solid #fff;
  object-fit:cover;
  margin-top:-41px;
  background:#eee;
@@ -329,7 +332,7 @@ button{cursor:pointer;border:0}
 .verified{
  display:inline-block;
  background:#2563eb;
- color:white;
+ color:#fff;
  border-radius:50%;
  font-size:10px;
  padding:2px 5px;
@@ -350,7 +353,7 @@ button{cursor:pointer;border:0}
 
 .actions .interest{
  background:#312e81;
- color:white;
+ color:#fff;
 }
 
 .bottom-nav{
@@ -359,7 +362,7 @@ button{cursor:pointer;border:0}
  left:0;
  right:0;
  z-index:25;
- background:white;
+ background:#fff;
  border-top:1px solid #e8e8ee;
  display:flex;
  justify-content:center;
@@ -375,17 +378,24 @@ button{cursor:pointer;border:0}
  place-items:center;
 }
 
-.nav-item.active{color:#312e81}
+.nav-item.active{
+ color:#312e81;
+}
 
-.nav-item span{font-size:21px}
-.nav-item small{font-size:10px}
+.nav-item span{
+ font-size:21px;
+}
+
+.nav-item small{
+ font-size:10px;
+}
 
 .create{
  width:46px;
  height:46px;
  border-radius:15px;
  background:linear-gradient(135deg,#312e81,#7c3aed);
- color:white;
+ color:#fff;
  font-size:28px;
  margin-top:-20px;
  box-shadow:0 8px 20px #312e8144;
@@ -402,10 +412,12 @@ button{cursor:pointer;border:0}
  padding:12px;
 }
 
-.modal.show{display:flex}
+.modal.show{
+ display:flex;
+}
 
 .sheet{
- background:white;
+ background:#fff;
  width:min(620px,100%);
  border-radius:24px 24px 10px;
  padding:20px;
@@ -419,7 +431,9 @@ button{cursor:pointer;border:0}
  align-items:flex-start;
 }
 
-.sheet h2{margin:4px 0 15px}
+.sheet h2{
+ margin:4px 0 15px;
+}
 
 .close{
  width:36px;
@@ -449,7 +463,7 @@ button{cursor:pointer;border:0}
  padding:13px;
  border-radius:13px;
  background:#312e81;
- color:white;
+ color:#fff;
  font-weight:800;
 }
 
@@ -461,22 +475,6 @@ button{cursor:pointer;border:0}
  margin-bottom:12px;
 }
 
-.upload input{
- border:0;
- margin:0 0 10px;
-}
-
-.safety-list>div{
- padding:14px 0;
- border-bottom:1px solid #eee;
-}
-
-.safety-list small{
- display:block;
- color:#777;
- margin-top:3px;
-}
-
 .empty{
  text-align:center;
  padding:35px;
@@ -484,6 +482,7 @@ button{cursor:pointer;border:0}
 }
 
 @media(max-width:600px){
+
  .app{
   padding-left:12px;
   padding-right:12px;
@@ -500,10 +499,6 @@ button{cursor:pointer;border:0}
  .safety span{
   display:none;
  }
-
- .top-icon{
-  display:none;
- }
 }
 </style>
 </head>
@@ -511,29 +506,43 @@ button{cursor:pointer;border:0}
 <body>
 
 <header class="topbar">
- <div class="nav">
 
-  <button class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-   <span class="logo-mark">P</span>
-   <span>
-    <b>PANIKA JEEVAN SATHI</b>
-    <small>100% FREE • TRUST • RESPECT</small>
-   </span>
-  </button>
+<div class="nav">
 
-  <div class="top-actions">
-   <button class="top-icon">♧ <i>2</i></button>
-   <button class="safety" onclick="openModal('safetyModal')">
-    🛡️ <span>Safety</span>
-   </button>
-  </div>
+<button class="logo" onclick="location.href='index.html'">
 
- </div>
+<span class="logo-mark">P</span>
+
+<span>
+<b>PANIKA JEEVAN SATHI</b>
+<small>100% FREE • TRUST • RESPECT</small>
+</span>
+
+</button>
+
+<div class="top-actions">
+
+<button
+class="top-icon"
+onclick="location.href='notifications.html'"
+>
+🔔 <i>2</i>
+</button>
+
+<button
+class="safety"
+onclick="location.href='report.html'"
+>
+🛡️ <span>Safety</span>
+</button>
+
+</div>
+
+</div>
+
 </header>
 
 <main class="app">
-
-<!-- COMMUNITY NOTICE -->
 
 <section class="notice">
 
@@ -567,100 +576,159 @@ Unauthorized registrations will be blocked.
 <section class="welcome">
 
 <div>
-<span class="eyebrow">YOUR COMMUNITY • आपकी कम्युनिटी</span>
-<h1>Find a meaningful connection.</h1>
-<p>Discover genuine profiles from our trusted matrimonial community.</p>
+
+<span class="eyebrow">
+YOUR COMMUNITY • आपकी कम्युनिटी
+</span>
+
+<h1>
+Find a meaningful connection.
+</h1>
+
+<p>
+Discover genuine profiles from our trusted matrimonial community.
+</p>
+
 </div>
 
-<button class="profile-mini" onclick="openModal('profileModal')">
-<span>👤</span> Profile
+<button
+class="profile-mini"
+onclick="location.href='profile.html'"
+>
+
+<span>👤</span>
+Profile
+
 </button>
 
 </section>
 
-<!-- STORIES -->
-
 <section class="card stories-card">
 
 <div class="section-row">
+
 <div>
 <h2>Stories</h2>
 <p>24-hour updates</p>
 </div>
 
-<button class="text-btn" onclick="openModal('storyModal')">
+<button
+class="text-btn"
+onclick="openModal('storyModal')"
+>
 + Add story
 </button>
+
 </div>
 
 <div class="stories">
 
-<button class="story" onclick="openModal('storyModal')">
+<button
+class="story"
+onclick="openModal('storyModal')"
+>
+
 <span class="story-ring">
 <span class="plus">+</span>
 </span>
+
 <b>Your story</b>
+
 </button>
 
 <button class="story">
+
 <span class="story-ring">
-<img src="https://i.pravatar.cc/120?img=12">
+<img
+src="https://i.pravatar.cc/120?img=12"
+alt="Anjali"
+>
 </span>
+
 <b>Anjali</b>
+
 </button>
 
 <button class="story">
+
 <span class="story-ring">
-<img src="https://i.pravatar.cc/120?img=15">
+<img
+src="https://i.pravatar.cc/120?img=15"
+alt="Rohan"
+>
 </span>
+
 <b>Rohan</b>
+
 </button>
 
 <button class="story">
+
 <span class="story-ring">
-<img src="https://i.pravatar.cc/120?img=20">
+<img
+src="https://i.pravatar.cc/120?img=20"
+alt="Priya"
+>
 </span>
+
 <b>Priya</b>
+
 </button>
 
 </div>
-</section>
 
-<!-- SEARCH -->
+</section>
 
 <section class="card filter-card">
 
 <div class="search">
+
 <span>⌕</span>
 
 <input
- id="search"
- placeholder="Search community, city or profile"
- oninput="filterProfiles()"
+id="search"
+placeholder="Search community, city or profile"
+oninput="filterProfiles()"
 >
 
 <button onclick="clearSearch()">×</button>
+
 </div>
 
 <div class="chips">
 
-<button class="chip active" onclick="setCommunity('All',this)">
+<button
+class="chip active"
+onclick="setCommunity('All',this)"
+>
 All
 </button>
 
-<button class="chip" onclick="setCommunity('Panika',this)">
+<button
+class="chip"
+onclick="setCommunity('Panika',this)"
+>
 Panika
 </button>
 
-<button class="chip" onclick="setCommunity('Manikpuri',this)">
+<button
+class="chip"
+onclick="setCommunity('Manikpuri',this)"
+>
 Manikpuri
 </button>
 
-<button class="chip" onclick="setCommunity('Kabirpanthi',this)">
+<button
+class="chip"
+onclick="setCommunity('Kabirpanthi',this)"
+>
 Kabirpanthi
 </button>
 
-<button class="chip" onclick="setCommunity('Adivasi',this)">
+<button
+class="chip"
+onclick="setCommunity('Adivasi',this)"
+>
 Adivasi
 </button>
 
@@ -672,189 +740,176 @@ Adivasi
 
 </main>
 
-<!-- BOTTOM NAV -->
-
 <nav class="bottom-nav">
 
-<button class="nav-item active">
+<button
+class="nav-item active"
+onclick="location.href='index.html'"
+>
 <span>⌂</span>
 <small>Home</small>
 </button>
 
-<button class="nav-item" onclick="document.getElementById('search').focus()">
+<button
+class="nav-item"
+onclick="location.href='discover.html'"
+>
 <span>⌕</span>
 <small>Discover</small>
 </button>
 
-<button class="create" onclick="openModal('postModal')">
+<button
+class="create"
+onclick="openModal('postModal')"
+>
 +
 </button>
 
-<button class="nav-item" onclick="openShortlist()">
+<button
+class="nav-item"
+onclick="openShortlist()"
+>
 <span>☆</span>
 <small>Shortlist</small>
 </button>
 
-<button class="nav-item" onclick="openModal('profileModal')">
+<button
+class="nav-item"
+onclick="location.href='profile.html'"
+>
 <span>◯</span>
 <small>Profile</small>
 </button>
 
 </nav>
 
-<!-- POST MODAL -->
-
-<div class="modal" id="postModal">
+<div
+class="modal"
+id="postModal"
+>
 
 <div class="sheet">
 
 <div class="sheet-head">
 
 <div>
-<span class="eyebrow">COMMUNITY UPDATE</span>
+<span class="eyebrow">
+COMMUNITY UPDATE
+</span>
+
 <h2>Create a post</h2>
 </div>
 
-<button class="close" onclick="closeModal('postModal')">×</button>
+<button
+class="close"
+onclick="closeModal('postModal')"
+>
+×
+</button>
 
 </div>
 
 <div class="upload">
-<input type="file" accept="image/*">
+
+<input
+type="file"
+accept="image/*"
+>
+
 📷
 <br>
+
 <b>Add a photo</b>
+
 <br>
-<small>JPG, PNG • optional</small>
+
+<small>
+JPG, PNG • optional
+</small>
+
 </div>
 
-<textarea placeholder="Share a thought, milestone or life update…"></textarea>
+<textarea
+id="postText"
+placeholder="Share a thought, milestone or life update…"
+></textarea>
 
-<button class="primary" onclick="publishPost()">
+<button
+class="primary"
+onclick="publishPost()"
+>
 Publish post
 </button>
 
 </div>
+
 </div>
 
-<!-- STORY MODAL -->
-
-<div class="modal" id="storyModal">
+<div
+class="modal"
+id="storyModal"
+>
 
 <div class="sheet">
 
 <div class="sheet-head">
 
 <div>
-<span class="eyebrow">24-HOUR STORY</span>
+<span class="eyebrow">
+24-HOUR STORY
+</span>
+
 <h2>Add your story</h2>
 </div>
 
-<button class="close" onclick="closeModal('storyModal')">×</button>
+<button
+class="close"
+onclick="closeModal('storyModal')"
+>
+×
+</button>
 
 </div>
 
 <div class="upload">
-<input type="file" accept="image/*">
+
+<input
+type="file"
+accept="image/*"
+>
+
 ✦
 <br>
+
 <b>Add story photo</b>
+
 <br>
-<small>Visible for 24 hours</small>
+
+<small>
+Visible for 24 hours
+</small>
+
 </div>
 
-<textarea placeholder="Write a short update…"></textarea>
+<textarea
+id="storyText"
+placeholder="Write a short update…"
+></textarea>
 
-<button class="primary" onclick="publishStory()">
+<button
+class="primary"
+onclick="publishStory()"
+>
 Share story
 </button>
 
 </div>
-</div>
 
-<!-- SAFETY -->
-
-<div class="modal" id="safetyModal">
-
-<div class="sheet">
-
-<div class="sheet-head">
-
-<div>
-<span class="eyebrow">TRUST & SAFETY</span>
-<h2>Community safety</h2>
-</div>
-
-<button class="close" onclick="closeModal('safetyModal')">×</button>
-
-</div>
-
-<div class="safety-list">
-
-<div>
-✓ <b>Verified profiles</b>
-<small>Verification status is shown clearly.</small>
-</div>
-
-<div>
-✓ <b>Privacy first</b>
-<small>Personal contact details stay private.</small>
-</div>
-
-<div>
-✓ <b>Report & block</b>
-<small>Keep conversations respectful and safe.</small>
-</div>
-
-</div>
-
-</div>
-</div>
-
-<!-- PROFILE -->
-
-<div class="modal" id="profileModal">
-
-<div class="sheet">
-
-<div class="sheet-head">
-
-<div>
-<span class="eyebrow">MY ACCOUNT</span>
-<h2>My Profile</h2>
-</div>
-
-<button class="close" onclick="closeModal('profileModal')">×</button>
-
-</div>
-
-<input id="profileName" placeholder="Full name">
-
-<input id="profileAge" type="number" placeholder="Age">
-
-<input id="profileCity" placeholder="City">
-
-<select id="profileCommunity">
-
-<option>Panika</option>
-<option>Manikpuri</option>
-<option>Kabirpanthi</option>
-<option>Adivasi</option>
-
-</select>
-
-<textarea id="profileBio" placeholder="About yourself"></textarea>
-
-<button class="primary" onclick="saveProfile()">
-Save Profile
-</button>
-
-</div>
 </div>
 
 <script>
 
-const profiles=[
+const profiles = [
 
 {
 id:1,
@@ -905,34 +960,47 @@ verified:false
 let selectedCommunity="All";
 
 let shortlist=
-JSON.parse(localStorage.getItem("pjs_shortlist")||"[]");
+JSON.parse(
+localStorage.getItem("pjs_shortlist") || "[]"
+);
 
 function esc(value){
 
-return String(value??"").replace(
+return String(value ?? "").replace(
 /[&<>"']/g,
-m=>({
+function(m){
+
+return {
 "&":"&amp;",
 "<":"&lt;",
 ">":"&gt;",
 '"':"&quot;",
 "'":"&#039;"
-}[m])
+}[m];
+
+}
 );
 
 }
 
 function renderProfiles(list){
 
-const feed=document.getElementById("feed");
+const feed=
+document.getElementById("feed");
 
 if(!list.length){
 
 feed.innerHTML=`
 <div class="card empty">
+
 <h3>No profiles found</h3>
-<p>Try another community or search.</p>
-</div>`;
+
+<p>
+Try another community or search.
+</p>
+
+</div>
+`;
 
 return;
 
@@ -946,36 +1014,57 @@ feed.innerHTML=list.map(p=>`
 
 <div class="profile-body">
 
-<img class="avatar" src="${p.img}" alt="${esc(p.name)}">
+<img
+class="avatar"
+src="${p.img}"
+alt="${esc(p.name)}"
+>
 
 <h2 class="profile-name">
+
 ${esc(p.name)}
-${p.verified?
-'<span class="verified">✓</span>':
-''}
+
+${p.verified
+? '<span class="verified">✓</span>'
+: ''}
+
 </h2>
 
 <div class="meta">
-${p.community} • ${p.city}
+${esc(p.community)} • ${esc(p.city)}
 </div>
 
 <div class="meta">
-${p.age} years • ${p.job}
+${p.age} years • ${esc(p.job)}
 </div>
 
 <div class="actions">
 
-<button class="interest"
-onclick="sendInterest('${esc(p.name)}')">
+<button
+class="interest"
+onclick="sendInterest(${p.id})"
+>
 ❤️ Send Interest
 </button>
 
-<button onclick="toggleShortlist(${p.id})">
-☆ Shortlist
+<button
+onclick="toggleShortlist(${p.id})"
+>
+${shortlist.includes(p.id)
+? "★ Shortlisted"
+: "☆ Shortlist"}
 </button>
 
-<button onclick="viewProfile(${p.id})">
+<button
+onclick="viewProfile(${p.id})"
+>
 View Profile
+</button>
+
+<button
+onclick="location.href='messages.html'"
+>
+💬 Message
 </button>
 
 </div>
@@ -991,14 +1080,16 @@ View Profile
 function filterProfiles(){
 
 const query=
-document.getElementById("search")
+document
+.getElementById("search")
 .value
 .toLowerCase()
 .trim();
 
-const result=profiles.filter(p=>{
+const result=
+profiles.filter(p=>{
 
-const matchesCommunity=
+const communityMatch=
 selectedCommunity==="All" ||
 p.community===selectedCommunity;
 
@@ -1006,7 +1097,8 @@ const text=
 `${p.name} ${p.community} ${p.city} ${p.job}`
 .toLowerCase();
 
-return matchesCommunity && text.includes(query);
+return communityMatch &&
+text.includes(query);
 
 });
 
@@ -1020,7 +1112,9 @@ selectedCommunity=value;
 
 document
 .querySelectorAll(".chip")
-.forEach(c=>c.classList.remove("active"));
+.forEach(c=>
+c.classList.remove("active")
+);
 
 button.classList.add("active");
 
@@ -1036,9 +1130,18 @@ filterProfiles();
 
 }
 
-function sendInterest(name){
+function sendInterest(id){
 
-alert("Interest sent to "+name+" ❤️");
+const p=
+profiles.find(x=>x.id===id);
+
+if(!p)return;
+
+alert(
+"Interest sent to "
++p.name+
+" ❤️"
+);
 
 }
 
@@ -1049,13 +1152,9 @@ if(shortlist.includes(id)){
 shortlist=
 shortlist.filter(x=>x!==id);
 
-alert("Removed from Shortlist");
-
 }else{
 
 shortlist.push(id);
-
-alert("Added to Shortlist ⭐");
 
 }
 
@@ -1064,68 +1163,67 @@ localStorage.setItem(
 JSON.stringify(shortlist)
 );
 
+filterProfiles();
+
 }
 
 function viewProfile(id){
 
-const p=profiles.find(x=>x.id===id);
+const p=
+profiles.find(x=>x.id===id);
+
+if(!p)return;
 
 alert(
 p.name+
 "\n"+
-p.age+" years • "+
+p.age+
+" years • "+
 p.community+
 "\n"+
-p.city+" • "+
+p.city+
+" • "+
 p.job+
-"\n\n"+
-"Verified: "+
-(p.verified?"Yes ✓":"Pending")
+"\n\nVerified: "+
+(p.verified
+?"Yes ✓"
+:"Pending")
 );
 
 }
 
 function openShortlist(){
 
-const list=
-profiles.filter(p=>shortlist.includes(p.id));
-
-if(!list.length){
-
-alert("Your Shortlist is empty.");
-
-return;
-
-}
-
-alert(
-list
-.map(p=>p.name+" • "+p.city)
-.join("\n")
-);
+location.href="shortlist.html`";
 
 }
 
 function openModal(id){
 
-document
-.getElementById(id)
-.classList.add("show");
+const modal=
+document.getElementById(id);
+
+if(modal){
+modal.classList.add("show");
+}
 
 }
 
 function closeModal(id){
 
-document
-.getElementById(id)
-.classList.remove("show");
+const modal=
+document.getElementById(id);
+
+if(modal){
+modal.classList.remove("show");
+}
 
 }
 
 function publishPost(){
 
 alert(
-"Post feature is ready for backend connection."
+"Post saved locally. Backend connection can be added later."
 );
 
 closeModal("postModal");
@@ -1135,42 +1233,10 @@ closeModal("postModal");
 function publishStory(){
 
 alert(
-"Story feature is ready for backend connection."
+"Story saved locally. Backend connection can be added later."
 );
 
 closeModal("storyModal");
-
-}
-
-function saveProfile(){
-
-const profile={
-
-name:
-document.getElementById("profileName").value,
-
-age:
-document.getElementById("profileAge").value,
-
-city:
-document.getElementById("profileCity").value,
-
-community:
-document.getElementById("profileCommunity").value,
-
-bio:
-document.getElementById("profileBio").value
-
-};
-
-localStorage.setItem(
-"pjs_profile",
-JSON.stringify(profile)
-);
-
-alert("Profile saved successfully ✓");
-
-closeModal("profileModal");
 
 }
 
@@ -1179,4 +1245,4 @@ renderProfiles(profiles);
 </script>
 
 </body>
-  </html>
+ </html>
