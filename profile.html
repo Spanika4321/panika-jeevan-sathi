@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>My Profile • PANIKA JEEVAN SATHI</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ background:#f7f8fc;
+ color:#20212a;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.topbar{
+ position:sticky;
+ top:0;
+ z-index:20;
+ background:#fff;
+ border-bottom:1px solid #e8e9ef;
+}
+.nav{
+ max-width:900px;
+ margin:auto;
+ padding:12px 16px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+.logo{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ background:none;
+ text-align:left;
+}
+.logo-mark{
+ width:42px;
+ height:42px;
+ border-radius:14px;
+ display:grid;
+ place-items:center;
+ background:linear-gradient(135deg,#172554,#4338ca);
+ color:white;
+ font-weight:900;
+}
+.logo b{display:block;font-size:13px}
+.logo small{display:block;color:#777;font-size:10px}
+.top-actions{display:flex;gap:8px}
+.top-actions button{
+ border:0;
+ background:#f2f3f7;
+ border-radius:12px;
+ padding:10px 12px;
+}
+.container{
+ max-width:900px;
+ margin:auto;
+ padding:18px 14px 100px;
+}
+.profile-card{
+ background:#fff;
+ border:1px solid #e7e8ef;
+ border-radius:22px;
+ overflow:hidden;
+ box-shadow:0 10px 30px #1118270a;
+}
+.cover{
+ height:210px;
+ background:
+ linear-gradient(135deg,#172554,#4338ca,#7c3aed);
+ position:relative;
+}
+.cover img{
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ display:none;
+}
+.change-cover{
+ position:absolute;
+ right:14px;
+ bottom:14px;
+ background:#0008;
+ color:#fff;
+ border:1px solid #ffffff55;
+ border-radius:12px;
+ padding:9px 12px;
+ font-size:12px;
+}
+.profile-main{
+ padding:0 20px 22px;
+}
+.avatar-wrap{
+ position:relative;
+ width:108px;
+ margin-top:-54px;
+}
+.avatar{
+ width:108px;
+ height:108px;
+ border-radius:50%;
+ object-fit:cover;
+ border:6px solid white;
+ background:#eee;
+}
+.change-avatar{
+ position:absolute;
+ right:0;
+ bottom:4px;
+ width:34px;
+ height:34px;
+ border-radius:50%;
+ border:3px solid white;
+ background:#312e81;
+ color:white;
+}
+.name-row{
+ display:flex;
+ justify-content:space-between;
+ align-items:flex-start;
+ gap:10px;
+}
+h1{
+ margin:8px 0 2px;
+ font-size:26px;
+}
+.verified{
+ display:inline-block;
+ background:#2563eb;
+ color:#fff;
+ border-radius:50%;
+ font-size:11px;
+ padding:3px 6px;
+ vertical-align:middle;
+}
+.subtitle{
+ color:#777;
+ font-size:13px;
+}
+.actions{
+ display:flex;
+ gap:9px;
+ flex-wrap:wrap;
+ margin-top:16px;
+}
+.actions button{
+ border:0;
+ border-radius:13px;
+ padding:11px 14px;
+ background:#f1f2f6;
+ font-weight:700;
+}
+.actions .primary{
+ background:#312e81;
+ color:#fff;
+}
+.actions .danger{
+ color:#b91c1c;
+}
+.section{
+ margin-top:16px;
+ background:#fff;
+ border:1px solid #e7e8ef;
+ border-radius:20px;
+ padding:18px;
+}
+.section h2{
+ margin:0 0 14px;
+ font-size:18px;
+}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:10px;
+}
+.info{
+ background:#f7f8fb;
+ border-radius:14px;
+ padding:12px;
+}
+.info small{
+ display:block;
+ color:#888;
+ font-size:10px;
+ margin-bottom:4px;
+}
+.info b{
+ font-size:13px;
+}
+.bio{
+ color:#555;
+ font-size:14px;
+ line-height:1.6;
+}
+.edit-grid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:10px;
+}
+.field{
+ margin-bottom:10px;
+}
+.field label{
+ display:block;
+ font-size:11px;
+ font-weight:800;
+ margin-bottom:5px;
+}
+.field input,.field select,.field textarea{
+ width:100%;
+ padding:11px;
+ border:1px solid #ddd;
+ border-radius:12px;
+ outline:0;
+ background:#fff;
+}
+.field textarea{
+ min-height:90px;
+ resize:vertical;
+}
+.save{
+ width:100%;
+ border:0;
+ border-radius:13px;
+ padding:13px;
+ background:#312e81;
+ color:#fff;
+ font-weight:800;
+}
+.modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:#0008;
+ z-index:40;
+ align-items:flex-end;
+ justify-content:center;
+ padding:12px;
+}
+.modal.show{display:flex}
+.sheet{
+ width:min(620px,100%);
+ max-height:90vh;
+ overflow:auto;
+ background:#fff;
+ border-radius:24px 24px 10px;
+ padding:20px;
+}
+.sheet-head{
+ display:flex;
+ justify-content:space-between;
+ align-items:flex-start;
+}
+.close{
+ width:36px;
+ height:36px;
+ border:0;
+ border-radius:50%;
+ background:#eee;
+ font-size:22px;
+}
+.safety-row{
+ padding:13px 0;
+ border-bottom:1px solid #eee;
+}
+.safety-row small{
+ display:block;
+ color:#777;
+ margin-top:3px;
+}
+.bottom{
+ position:fixed;
+ left:0;
+ right:0;
+ bottom:0;
+ z-index:30;
+ background:#fff;
+ border-top:1px solid #e8e8ee;
+ display:flex;
+ justify-content:center;
+ gap:clamp(18px,8vw,75px);
+ padding:9px 10px calc(9px + env(safe-area-inset-bottom));
+}
+.bottom button{
+ background:none;
+ border:0;
+ color:#777;
+ display:grid;
+ place-items:center;
+ gap:2px;
+}
+.bottom button.active{color:#312e81}
+.bottom span{font-size:21px}
+.bottom small{font-size:10px}
+
+@media(max-width:600px){
+ .cover{height:170px}
+ .grid,.edit-grid{grid-template-columns:1fr}
+ .profile-main{padding:0 15px 18px}
+ .name-row{display:block}
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+<div class="nav">
+
+<button class="logo" onclick="goHome()">
+<span class="logo-mark">P</span>
+<span>
+<b>PANIKA JEEVAN SATHI</b>
+<small>100% FREE • TRUST • RESPECT</small>
+</span>
+</button>
+
+<div class="top-actions">
+<button onclick="openSafety()">🛡️</button>
+<button onclick="contactWhatsApp()">💬</button>
+</div>
+
+</div>
+</header>
+
+<main class="container">
+
+<!-- PROFILE HEADER -->
+
+<section class="profile-card">
+
+<div class="cover">
+<img id="coverImage" alt="Cover Photo">
+
+<button class="change-cover" onclick="document.getElementById('coverInput').click()">
+📷 Change Cover
+</button>
+
+<input id="coverInput"
+type="file"
+accept="image/*"
+hidden
+onchange="changeCover(event)">
+</div>
+
+<div class="profile-main">
+
+<div class="avatar-wrap">
+
+<img id="avatar"
+class="avatar"
+src="https://i.pravatar.cc/300?img=12"
+alt="Profile Photo">
+
+<button class="change-avatar"
+onclick="document.getElementById('avatarInput').click()">
++
+</button>
+
+<input id="avatarInput"
+type="file"
+accept="image/*"
+hidden
+onchange="changeAvatar(event)">
+
+</div>
+
+<div class="name-row">
+
+<div>
+<h1 id="displayName">
+Your Name <span class="verified">✓</span>
+</h1>
+
+<div class="subtitle" id="displayMeta">
+Panika • Your City
+</div>
+</div>
+
+</div>
+
+<div class="actions">
+
+<button class="primary" onclick="sendInterest()">
+❤️ Send Interest
+</button>
+
+<button onclick="toggleShortlist()">
+⭐ <span id="shortlistText">Shortlist</span>
+</button>
+
+<button onclick="openEdit()">
+✏️ Edit Profile
+</button>
+
+</div>
+
+</div>
+</section>
+
+<!-- ABOUT -->
+
+<section class="section">
+
+<h2>About Me</h2>
+
+<p class="bio" id="bio">
+Create your profile and tell the community a little about yourself.
+</p>
+
+</section>
+
+<!-- DETAILS -->
+
+<section class="section">
+
+<h2>Personal Details</h2>
+
+<div class="grid">
+
+<div class="info">
+<small>COMMUNITY</small>
+<b id="community">Panika</b>
+</div>
+
+<div class="info">
+<small>AGE</small>
+<b id="age">—</b>
+</div>
+
+<div class="info">
+<small>CITY</small>
+<b id="city">—</b>
+</div>
+
+<div class="info">
+<small>GENDER</small>
+<b id="gender">—</b>
+</div>
+
+<div class="info">
+<small>EDUCATION</small>
+<b id="education">—</b>
+</div>
+
+<div class="info">
+<small>PROFESSION</small>
+<b id="profession">—</b>
+</div>
+
+</div>
+
+</section>
+
+<!-- PARTNER PREFERENCES -->
+
+<section class="section">
+
+<h2>Partner Preferences</h2>
+
+<div class="grid">
+
+<div class="info">
+<small>PREFERRED AGE</small>
+<b id="prefAge">—</b>
+</div>
+
+<div class="info">
+<small>PREFERRED CITY</small>
+<b id="prefCity">—</b>
+</div>
+
+<div class="info">
+<small>COMMUNITY</small>
+<b id="prefCommunity">Same community</b>
+</div>
+
+<div class="info">
+<small>MARITAL STATUS</small>
+<b id="marital">—</b>
+</div>
+
+</div>
+
+</section>
+
+<!-- SAFETY -->
+
+<section class="section">
+
+<h2>🛡️ Trust & Safety</h2>
+
+<div class="info">
+<small>PROFILE STATUS</small>
+<b>✓ Community profile</b>
+</div>
+
+<p class="bio">
+Never share your OTP, password or sensitive personal information.
+Use Report & Block if someone behaves disrespectfully.
+</p>
+
+</section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+
+<nav class="bottom">
+
+<button onclick="goHome()">
+<span>⌂</span>
+<small>Home</small>
+</button>
+
+<button onclick="goDiscover()">
+<span>⌕</span>
+<small>Discover</small>
+</button>
+
+<button class="active">
+<span>◯</span>
+<small>Profile</small>
+</button>
+
+<button onclick="openShortlist()">
+<span>☆</span>
+<small>Shortlist</small>
+</button>
+
+</nav>
+
+<!-- EDIT MODAL -->
+
+<div class="modal" id="editModal">
+
+<div class="sheet">
+
+<div class="sheet-head">
+
+<div>
+<small style="color:#4f46e5;font-weight:800">
+EDIT PROFILE
+</small>
+<h2>Edit your profile</h2>
+</div>
+
+<button class="close" onclick="closeModal('editModal')">×</button>
+
+</div>
+
+<div class="edit-grid">
+
+<div class="field">
+<label>FULL NAME</label>
+<input id="editName" placeholder="Full name">
+</div>
+
+<div class="field">
+<label>AGE</label>
+<input id="editAge" type="number" placeholder="Age">
+</div>
+
+<div class="field">
+<label>CITY</label>
+<input id="editCity" placeholder="City">
+</div>
+
+<div class="field">
+<label>GENDER</label>
+<select id="editGender">
+<option value="">Select</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+</div>
+
+<div class="field">
+<label>COMMUNITY</label>
+<select id="editCommunity">
+<option>Panika</option>
+<option>Manikpuri</option>
+<option>Kabirpanthi</option>
+<option>Adivasi</option>
+</select>
+</div>
+
+<div class="field">
+<label>EDUCATION</label>
+<input id="editEducation" placeholder="Education">
+</div>
+
+<div class="field">
+<label>PROFESSION</label>
+<input id="editProfession" placeholder="Profession">
+</div>
+
+<div class="field">
+<label>MARITAL STATUS</label>
+<select id="editMarital">
+<option value="">Select</option>
+<option>Never Married</option>
+<option>Divorced</option>
+<option>Widowed</option>
+</select>
+</div>
+
+<div class="field">
+<label>PREFERRED AGE</label>
+<input id="editPrefAge" placeholder="Example: 24-30">
+</div>
+
+<div class="field">
+<label>PREFERRED CITY</label>
+<input id="editPrefCity" placeholder="Any city">
+</div>
+
+</div>
+
+<div class="field">
+<label>ABOUT ME</label>
+<textarea id="editBio"
+placeholder="Tell something about yourself"></textarea>
+</div>
+
+<button class="save" onclick="saveProfile()">
+Save Profile
+</button>
+
+</div>
+</div>
+
+<!-- SAFETY MODAL -->
+
+<div class="modal" id="safetyModal">
+
+<div class="sheet">
+
+<div class="sheet-head">
+<div>
+<small style="color:#4f46e5;font-weight:800">
+TRUST & SAFETY
+</small>
+<h2>Community Safety</h2>
+</div>
+
+<button class="close" onclick="closeModal('safetyModal')">×</button>
+</div>
+
+<div class="safety-row">
+✓ <b>Privacy first</b>
+<small>Keep personal contact information private.</small>
+</div>
+
+<div class="safety-row">
+✓ <b>Verification</b>
+<small>Verified status should be confirmed before trusting a profile.</small>
+</div>
+
+<div class="safety-row">
+✓ <b>Report & Block</b>
+<small>Report suspicious or disrespectful accounts.</small>
+</div>
+
+<div class="safety-row">
+✓ <b>Never share OTP</b>
+<small>PANIKA JEEVAN SATHI will never ask for your OTP or password.</small>
+</div>
+
+</div>
+</div>
+
+<script>
+
+let shortlisted=
+localStorage.getItem("pjs_shortlisted")==="1";
+
+function $(id){
+ return document.getElementById(id);
+}
+
+function loadProfile(){
+
+const saved=
+JSON.parse(localStorage.getItem("pjs_profile")||"{}");
+
+if(saved.name) $("displayName").innerHTML=
+escapeHTML(saved.name)+' <span class="verified">✓</span>';
+
+if(saved.community)
+ $("community").textContent=saved.community;
+
+if(saved.city){
+ $("city").textContent=saved.city;
+ $("displayMeta").textContent=
+ (saved.community||"Community")+" • "+saved.city;
+}
+
+if(saved.age)
+ $("age").textContent=saved.age;
+
+if(saved.gender)
+ $("gender").textContent=saved.gender;
+
+if(saved.education)
+ $("education").textContent=saved.education;
+
+if(saved.profession)
+ $("profession").textContent=saved.profession;
+
+if(saved.marital)
+ $("marital").textContent=saved.marital;
+
+if(saved.prefAge)
+ $("prefAge").textContent=saved.prefAge;
+
+if(saved.prefCity)
+ $("prefCity").textContent=saved.prefCity;
+
+if(saved.prefCommunity)
+ $("prefCommunity").textContent=saved.prefCommunity;
+
+if(saved.bio)
+ $("bio").textContent=saved.bio;
+
+if(shortlisted)
+ $("shortlistText").textContent="Shortlisted ✓";
+
+const avatar=
+localStorage.getItem("pjs_avatar");
+
+if(avatar)
+ $("avatar").src=avatar;
+
+const cover=
+localStorage.getItem("pjs_cover");
+
+if(cover){
+ $("coverImage").src=cover;
+ $("coverImage").style.display="block";
+}
+
+}
+
+function openEdit(){
+
+const saved=
+JSON.parse(localStorage.getItem("pjs_profile")||"{}");
+
+$("editName").value=saved.name||"";
+$("editAge").value=saved.age||"";
+$("editCity").value=saved.city||"";
+$("editGender").value=saved.gender||"";
+$("editCommunity").value=saved.community||"Panika";
+$("editEducation").value=saved.education||"";
+$("editProfession").value=saved.profession||"";
+$("editMarital").value=saved.marital||"";
+$("editPrefAge").value=saved.prefAge||"";
+$("editPrefCity").value=saved.prefCity||"";
+$("editBio").value=saved.bio||"";
+
+$("editModal").classList.add("show");
+
+}
+
+function saveProfile(){
+
+const profile={
+ name:$("editName").value.trim(),
+ age:$("editAge").value.trim(),
+ city:$("editCity").value.trim(),
+ gender:$("editGender").value,
+ community:$("editCommunity").value,
+ education:$("editEducation").value.trim(),
+ profession:$("editProfession").value.trim(),
+ marital:$("editMarital").value,
+ prefAge:$("editPrefAge").value.trim(),
+ prefCity:$("editPrefCity").value.trim(),
+ prefCommunity:"Same community",
+ bio:$("editBio").value.trim()
+};
+
+if(!profile.name){
+ alert("Please enter your name.");
+ return;
+}
+
+localStorage.setItem(
+"pjs_profile",
+JSON.stringify(profile)
+);
+
+closeModal("editModal");
+loadProfile();
+
+alert("Profile updated successfully ✓");
+
+}
+
+function changeAvatar(event){
+
+const file=event.target.files[0];
+
+if(!file)return;
+
+const reader=new FileReader();
+
+reader.onload=function(){
+ $("avatar").src=reader.result;
+ localStorage.setItem("pjs_avatar",reader.result);
+};
+
+reader.readAsDataURL(file);
+
+}
+
+function changeCover(event){
+
+const file=event.target.files[0];
+
+if(!file)return;
+
+const reader=new FileReader();
+
+reader.onload=function(){
+
+$("coverImage").src=reader.result;
+$("coverImage").style.display="block";
+
+localStorage.setItem("pjs_cover",reader.result);
+
+};
+
+reader.readAsDataURL(file);
+
+}
+
+function sendInterest(){
+
+alert("Interest sent ❤️");
+
+}
+
+function toggleShortlist(){
+
+shortlisted=!shortlisted;
+
+localStorage.setItem(
+"pjs_shortlisted",
+shortlisted?"1":"0"
+);
+
+$("shortlistText").textContent=
+shortlisted?"Shortlisted ✓":"Shortlist";
+
+alert(
+shortlisted?
+"Added to Shortlist ⭐":
+"Removed from Shortlist"
+);
+
+}
+
+function openShortlist(){
+
+alert(
+shortlisted?
+"Your shortlisted profiles will appear here.":
+"Your Shortlist is empty."
+);
+
+}
+
+function openSafety(){
+ $("safetyModal").classList.add("show");
+}
+
+function closeModal(id){
+ $(id).classList.remove("show");
+}
+
+function contactWhatsApp(){
+
+const message=encodeURIComponent(
+"Hello PANIKA JEEVAN SATHI Support, I need help."
+);
+
+/* Number is intentionally not displayed on the website. */
+location.href=
+"https://wa.me/918099834725?text="+message;
+
+}
+
+function goHome(){
+ location.href="index.html";
+}
+
+function goDiscover(){
+ location.href="index.html#discover";
+}
+
+function escapeHTML(value){
+
+return String(value).replace(
+/[&<>"']/g,
+function(m){
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m];
+}
+);
+
+}
+
+loadProfile();
+
+</script>
+
+</body>
+  </html>
