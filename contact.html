@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>Contact & Safety • PANIKA JEEVAN SATHI</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#f7f8fc;
+ color:#20212a;
+ font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,textarea{font:inherit}
+button{cursor:pointer}
+
+.top{
+ position:sticky;
+ top:0;
+ z-index:20;
+ background:#fff;
+ border-bottom:1px solid #e6e7ed;
+}
+.nav{
+ max-width:900px;
+ margin:auto;
+ padding:12px 15px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+.logo{
+ display:flex;
+ gap:9px;
+ align-items:center;
+ background:none;
+ border:0;
+ text-align:left;
+}
+.mark{
+ width:42px;
+ height:42px;
+ border-radius:14px;
+ background:linear-gradient(135deg,#172554,#4338ca);
+ color:#fff;
+ display:grid;
+ place-items:center;
+ font-weight:900;
+}
+.logo b{display:block;font-size:13px}
+.logo small{display:block;color:#777;font-size:10px}
+
+.back{
+ border:0;
+ background:#f1f2f6;
+ border-radius:12px;
+ padding:10px 13px;
+}
+
+.wrap{
+ max-width:700px;
+ margin:auto;
+ padding:20px 14px 100px;
+}
+
+.hero{
+ text-align:center;
+ padding:15px 5px 20px;
+}
+.hero .icon{
+ font-size:42px;
+}
+.hero h1{
+ margin:7px 0;
+ font-size:28px;
+}
+.hero p{
+ margin:0;
+ color:#777;
+ font-size:13px;
+ line-height:1.6;
+}
+
+.card{
+ background:#fff;
+ border:1px solid #e5e6ed;
+ border-radius:21px;
+ padding:18px;
+ margin-bottom:13px;
+ box-shadow:0 8px 25px #11182708;
+}
+.card h2{
+ margin:0 0 7px;
+ font-size:18px;
+}
+.card p{
+ color:#666;
+ font-size:13px;
+ line-height:1.6;
+}
+
+.whatsapp{
+ width:100%;
+ border:0;
+ border-radius:14px;
+ background:#312e81;
+ color:#fff;
+ padding:14px;
+ font-weight:800;
+ margin-top:8px;
+}
+
+.reason{
+ width:100%;
+ border:1px solid #ddd;
+ background:#fff;
+ border-radius:13px;
+ padding:12px;
+ margin-top:8px;
+ text-align:left;
+}
+
+textarea{
+ width:100%;
+ min-height:110px;
+ border:1px solid #ddd;
+ border-radius:13px;
+ padding:12px;
+ resize:vertical;
+ outline:none;
+}
+
+.send{
+ width:100%;
+ border:0;
+ background:#312e81;
+ color:#fff;
+ border-radius:13px;
+ padding:13px;
+ font-weight:800;
+ margin-top:9px;
+}
+
+.item{
+ padding:13px 0;
+ border-bottom:1px solid #eee;
+}
+.item:last-child{border-bottom:0}
+.item b{font-size:13px}
+.item p{margin:5px 0 0}
+
+.footer{
+ text-align:center;
+ color:#888;
+ font-size:11px;
+ padding:15px;
+}
+
+.bottom{
+ position:fixed;
+ left:0;
+ right:0;
+ bottom:0;
+ z-index:15;
+ background:#fff;
+ border-top:1px solid #e5e6ed;
+ display:flex;
+ justify-content:center;
+ gap:clamp(18px,8vw,75px);
+ padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+.bottom button{
+ border:0;
+ background:none;
+ color:#777;
+ display:grid;
+ place-items:center;
+}
+.bottom .active{color:#312e81}
+.bottom span{font-size:21px}
+.bottom small{font-size:10px}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+<div class="nav">
+
+<button class="logo" onclick="home()">
+<span class="mark">P</span>
+<span>
+<b>PANIKA JEEVAN SATHI</b>
+<small>100% FREE • TRUST • RESPECT</small>
+</span>
+</button>
+
+<button class="back" onclick="home()">⌂ Home</button>
+
+</div>
+</header>
+
+<main class="wrap">
+
+<section class="hero">
+<div class="icon">🛡️</div>
+<h1>Contact & Safety</h1>
+<p>
+We're here to help keep PANIKA JEEVAN SATHI
+safe, respectful and trusted.
+</p>
+</section>
+
+<section class="card">
+
+<h2>💬 Contact Support</h2>
+
+<p>
+Need help with your account, profile, verification
+or another issue? Contact our support team.
+</p>
+
+<button class="whatsapp" onclick="openWhatsApp()">
+💬 Contact Us on WhatsApp
+</button>
+
+</section>
+
+<section class="card">
+
+<h2>🚨 Report a Profile</h2>
+
+<p>
+If someone is behaving suspiciously, sending unwanted
+messages, pretending to be someone else, or violating
+community rules, please report them.
+</p>
+
+<select id="reason" class="reason">
+<option value="">Select report reason</option>
+<option>Fake profile</option>
+<option>Harassment or abuse</option>
+<option>Scam or suspicious behaviour</option>
+<option>Inappropriate content</option>
+<option>Other</option>
+</select>
+
+<textarea id="reportText"
+placeholder="Tell us briefly what happened..."></textarea>
+
+<button class="send" onclick="reportProfile()">
+🚨 Submit Report
+</button>
+
+</section>
+
+<section class="card">
+
+<h2>🔒 Safety Rules</h2>
+
+<div class="item">
+<b>✓ Never share OTP or password</b>
+<p>Keep your login credentials private.</p>
+</div>
+
+<div class="item">
+<b>✓ Don't send money to strangers</b>
+<p>Never transfer money because someone you met online asks you to.</p>
+</div>
+
+<div class="item">
+<b>✓ Protect personal information</b>
+<p>Avoid publicly sharing your address, financial details or documents.</p>
+</div>
+
+<div class="item">
+<b>✓ Meet safely</b>
+<p>For an offline meeting, choose a public place and inform someone you trust.</p>
+</div>
+
+<div class="item">
+<b>✓ Report suspicious accounts</b>
+<p>Use the reporting option whenever something feels unsafe.</p>
+</div>
+
+</section>
+
+<section class="card">
+
+<h2>❓ Frequently Asked Questions</h2>
+
+<div class="item">
+<b>Is PANIKA JEEVAN SATHI free?</b>
+<p>Yes. The platform is intended to provide a free community matrimonial experience.</p>
+</div>
+
+<div class="item">
+<b>Who can register?</b>
+<p>The platform is intended for Panika, Manikpuri, Kabirpanthi and Adivasi communities/surnames.</p>
+</div>
+
+<div class="item">
+<b>Can I remove someone from my shortlist?</b>
+<p>Yes. Open Shortlist and use the remove option.</p>
+</div>
+
+<div class="item">
+<b>How do I get help?</b>
+<p>Use the Contact Us button above to reach support.</p>
+</div>
+
+</section>
+
+<footer class="footer">
+PANIKA JEEVAN SATHI<br>
+100% FREE • TRUST • RESPECT
+</footer>
+
+</main>
+
+<nav class="bottom">
+
+<button onclick="home()">
+<span>⌂</span>
+<small>Home</small>
+</button>
+
+<button onclick="discover()">
+<span>⌕</span>
+<small>Discover</small>
+</button>
+
+<button onclick="profile()">
+<span>◯</span>
+<small>Profile</small>
+</button>
+
+<button class="active">
+<span>🛡️</span>
+<small>Safety</small>
+</button>
+
+</nav>
+
+<script>
+
+function openWhatsApp(){
+
+const message=encodeURIComponent(
+"Hello PANIKA JEEVAN SATHI Support, I need help."
+);
+
+/*
+The support number is intentionally NOT displayed
+as text anywhere on the website.
+*/
+
+location.href=
+"https://wa.me/918099834725?text="+message;
+
+}
+
+function reportProfile(){
+
+const reason=document.getElementById("reason").value;
+const details=document.getElementById("reportText").value.trim();
+
+if(!reason){
+ alert("Please select a report reason.");
+ return;
+}
+
+if(!details){
+ alert("Please describe the issue briefly.");
+ return;
+}
+
+/*
+No personal phone number is shown.
+The report is prepared for support through WhatsApp.
+*/
+
+const message=encodeURIComponent(
+"PANIKA JEEVAN SATHI REPORT\n\n"+
+"Reason: "+reason+
+"\n\nDetails: "+details
+);
+
+location.href=
+"https://wa.me/918099834725?text="+message;
+
+}
+
+function home(){
+ location.href="index.html";
+}
+
+function discover(){
+ location.href="discover.html";
+}
+
+function profile(){
+ location.href="profile.html";
+}
+
+</script>
+
+</body>
+</html>
