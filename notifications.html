@@ -1,274 +1,116 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
-<title>Notifications • PANIKA JEEVAN SATHI</title>
-
-<style>
-*{box-sizing:border-box}
-
-body{
- margin:0;
- font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
- background:#f7f8fc;
- color:#20212a;
+text:"Never share OTP, password or sensitive personal information.",
+time:"Today",
+unread:true
+},
+{
+ id:3,
+ icon:"✓",
+ title:"Community verification",
+ text:"Keep your profile information accurate for a trusted community.",
+ time:"Today",
+ unread:false
+},
+{
+ id:4,
+ icon:"💬",
+ title:"Messaging available",
+ text:"Connect respectfully after mutual interest.",
+ time:"Today",
+ unread:false
 }
+];
 
-button{
- font:inherit;
- cursor:pointer;
- border:0;
-}
+function renderNotifications(){
 
-.topbar{
- position:sticky;
- top:0;
- z-index:10;
- background:#fff;
- border-bottom:1px solid #e8e9ef;
-}
+ const box=document.getElementById("notificationList");
 
-.nav{
- max-width:760px;
- margin:auto;
- padding:12px 16px;
- display:flex;
- align-items:center;
- gap:12px;
-}
+ if(!notifications.length){
 
-.back{
- width:42px;
- height:42px;
- border-radius:13px;
- background:#f4f5f8;
- font-size:22px;
-}
+  box.innerHTML=`
+   <div class="empty">
+    <div class="empty-icon">🔔</div>
+    <b>No notifications</b>
+    <p>You are all caught up.</p>
+   </div>
+  `;
 
-.title{
- flex:1;
-}
-
-.title b{
- display:block;
- font-size:16px;
-}
-
-.title small{
- color:#777;
- font-size:10px;
-}
-
-.app{
- max-width:760px;
- margin:auto;
- padding:18px 14px 40px;
-}
-
-.hero{
- background:linear-gradient(135deg,#eef2ff,#faf5ff);
- border:1px solid #dfe3ff;
- border-radius:20px;
- padding:18px;
- margin-bottom:16px;
-}
-
-.eyebrow{
- color:#4f46e5;
- font-size:10px;
- font-weight:900;
- letter-spacing:.08em;
-}
-
-.hero h1{
- margin:6px 0;
- font-size:28px;
-}
-
-.hero p{
- margin:0;
- color:#666;
- font-size:13px;
- line-height:1.5;
-}
-
-.actions{
- display:flex;
- gap:8px;
- margin-top:14px;
-}
-
-.action{
- padding:9px 12px;
- border-radius:12px;
- background:#fff;
- color:#312e81;
- font-weight:700;
-}
-
-.card{
- background:#fff;
- border:1px solid #e8e9ef;
- border-radius:18px;
- overflow:hidden;
- box-shadow:0 7px 25px #11182708;
-}
-
-.notification{
- display:flex;
- gap:12px;
- padding:16px;
- border-bottom:1px solid #eee;
- position:relative;
-}
-
-.notification:last-child{
- border-bottom:0;
-}
-
-.notification.unread{
- background:#fafaff;
-}
-
-.icon{
- width:44px;
- height:44px;
- flex:0 0 44px;
- border-radius:14px;
- display:grid;
- place-items:center;
- background:#eef2ff;
- font-size:20px;
-}
-
-.content{
- flex:1;
- min-width:0;
-}
-
-.content b{
- font-size:14px;
-}
-
-.content p{
- margin:4px 0;
- color:#666;
- font-size:13px;
- line-height:1.4;
-}
-
-.time{
- color:#999;
- font-size:11px;
-}
-
-.dot{
- width:8px;
- height:8px;
- border-radius:50%;
- background:#4f46e5;
- position:absolute;
- right:14px;
- top:18px;
-}
-
-.empty{
- text-align:center;
- padding:45px 20px;
- color:#777;
-}
-
-.empty-icon{
- font-size:40px;
- margin-bottom:8px;
-}
-
-.clear{
- margin-left:auto;
- background:none;
- color:#4338ca;
- font-size:12px;
- font-weight:800;
-}
-
-@media(max-width:600px){
- .app{
-  padding-left:10px;
-  padding-right:10px;
+  return;
  }
 
- .hero h1{
-  font-size:25px;
- }
+ box.innerHTML=notifications.map(n=>`
+
+  <article class="notification ${n.unread ? "unread" : ""}">
+
+   <div class="icon">
+    ${n.icon}
+   </div>
+
+   <div class="content">
+
+    <b>${escapeHtml(n.title)}</b>
+
+    <p>${escapeHtml(n.text)}</p>
+
+    <span class="time">
+     ${escapeHtml(n.time)}
+    </span>
+
+   </div>
+
+   ${n.unread ? '<span class="dot"></span>' : ''}
+
+  </article>
+
+ `).join("");
 }
-</style>
-</head>
 
-<body>
+function markAllRead(){
 
-<header class="topbar">
- <div class="nav">
+ notifications.forEach(n=>{
+  n.unread=false;
+ });
 
-  <button class="back" onclick="goBack()" aria-label="Go back">
-   ←
-  </button>
+ renderNotifications();
 
-  <div class="title">
-   <b>Notifications</b>
-   <small>PANIKA JEEVAN SATHI</small>
-  </div>
+}
 
-  <button class="clear" onclick="markAllRead()">
-   Mark all read
-  </button>
+function escapeHtml(value){
 
- </div>
-</header>
+ return String(value ?? "").replace(
+  /[&<>"']/g,
+  function(match){
 
-<main class="app">
+   return {
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+   }[match];
 
-<section class="hero">
+  }
+ );
 
- <span class="eyebrow">COMMUNITY UPDATES</span>
+}
 
- <h1>Your Notifications 🔔</h1>
+function goBack(){
 
- <p>
- Stay updated about interests, shortlist activity,
- profile verification and important community updates.
- </p>
+ if(document.referrer &&
+    document.referrer.indexOf(location.origin)===0){
 
- <div class="actions">
-  <button class="action" onclick="location.href='index.html'">
-   🏠 Home
-  </button>
+  history.back();
 
-  <button class="action" onclick="location.href='profile.html'">
-   👤 Profile
-  </button>
- </div>
+ }else{
 
-</section>
+  location.href="index.html";
 
-<section class="card" id="notificationList"></section>
+ }
 
-</main>
+}
 
-<script>
+renderNotifications();
 
-const notifications = [
- {
-  id:1,
-  icon:"❤️",
-  title:"Welcome to Panika Jeevan Sathi",
-  text:"Your matrimonial community account is ready.",
-  time:"Just now",
-  unread:true
- },
- {
-  id:2,
-  icon:"🛡️",
-  title:"Safety reminder",
-  text:"Never share
+</script>
+
+</body>
+    </html>
