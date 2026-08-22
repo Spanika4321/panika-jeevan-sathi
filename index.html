@@ -1,336 +1,1182 @@
-<!DOCTYPE html>
-<html lang="hi">
+<!doctype html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Panika Jeevan Sathi</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>PANIKA JEEVAN SATHI</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#fff7f8;
-  color:#333;
+ margin:0;
+ font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ background:#f7f8fc;
+ color:#20212a;
 }
 
-header{
-  background:linear-gradient(135deg,#8e24aa,#e91e63);
-  color:white;
-  text-align:center;
-  padding:28px 15px;
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border:0}
+
+.topbar{
+ position:sticky;
+ top:0;
+ z-index:20;
+ background:#fff;
+ border-bottom:1px solid #e8e9ef;
 }
 
-header h1{
-  margin:0;
-  font-size:30px;
+.nav{
+ max-width:1050px;
+ margin:auto;
+ padding:12px 18px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
 }
 
-header p{
-  margin:8px 0 0;
-  font-size:16px;
+.logo{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ background:none;
+ text-align:left;
 }
 
-.container{
-  max-width:700px;
-  margin:auto;
-  padding:20px 15px;
+.logo-mark{
+ width:42px;
+ height:42px;
+ border-radius:14px;
+ display:grid;
+ place-items:center;
+ background:linear-gradient(135deg,#172554,#4338ca);
+ color:white;
+ font-weight:900;
+}
+
+.logo b{display:block;font-size:14px}
+.logo small{
+ display:block;
+ color:#777;
+ font-size:10px;
+ margin-top:2px;
+}
+
+.top-actions{
+ display:flex;
+ gap:8px;
+}
+
+.top-icon,.safety{
+ background:#f4f5f8;
+ border-radius:12px;
+ padding:10px 12px;
+}
+
+.top-icon i{
+ font-style:normal;
+ background:#ef4444;
+ color:white;
+ border-radius:10px;
+ font-size:9px;
+ padding:2px 5px;
+}
+
+.app{
+ max-width:1050px;
+ margin:auto;
+ padding:20px 18px 100px;
+}
+
+.notice{
+ background:linear-gradient(135deg,#eef2ff,#faf5ff);
+ border:1px solid #dfe3ff;
+ border-radius:18px;
+ padding:16px;
+ margin-bottom:18px;
+}
+
+.notice strong{
+ display:block;
+ color:#312e81;
+ margin-bottom:7px;
+}
+
+.notice p{
+ margin:5px 0;
+ font-size:13px;
+ line-height:1.5;
+}
+
+.allowed{
+ display:flex;
+ flex-wrap:wrap;
+ gap:7px;
+ margin-top:10px;
+}
+
+.allowed span{
+ background:#fff;
+ border:1px solid #dddff0;
+ border-radius:20px;
+ padding:6px 10px;
+ font-size:11px;
+ font-weight:700;
+}
+
+.welcome{
+ display:flex;
+ justify-content:space-between;
+ gap:20px;
+ align-items:center;
+ padding:12px 4px 24px;
+}
+
+.eyebrow{
+ font-size:11px;
+ font-weight:800;
+ letter-spacing:.08em;
+ color:#4f46e5;
+}
+
+.welcome h1{
+ font-size:clamp(28px,5vw,46px);
+ margin:7px 0;
+ line-height:1.05;
+}
+
+.welcome p{
+ color:#666;
+ margin:0;
+}
+
+.profile-mini{
+ background:#fff;
+ border:1px solid #e5e7eb;
+ border-radius:14px;
+ padding:10px 14px;
+}
+
+.profile-mini span{
+ display:inline-grid;
+ place-items:center;
+ width:28px;
+ height:28px;
+ border-radius:50%;
+ background:#e0e7ff;
+ margin-right:5px;
 }
 
 .card{
-  background:white;
-  padding:20px;
-  margin-bottom:18px;
-  border-radius:15px;
-  box-shadow:0 3px 12px rgba(0,0,0,.10);
+ background:#fff;
+ border:1px solid #e8e9ef;
+ border-radius:20px;
+ box-shadow:0 8px 28px #11182708;
+ margin-bottom:16px;
 }
 
-.card h2{
-  margin-top:0;
-  color:#8e24aa;
+.stories-card,.filter-card{
+ padding:18px;
 }
 
-input,
-select,
-textarea{
-  width:100%;
-  padding:13px;
-  margin:7px 0 14px;
-  border:1px solid #ddd;
-  border-radius:9px;
-  font-size:16px;
+.section-row{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
 }
 
-textarea{
-  min-height:110px;
-  resize:vertical;
+.section-row h2{
+ margin:0;
+ font-size:18px;
 }
 
-button{
-  width:100%;
-  padding:14px;
-  border:0;
-  border-radius:9px;
-  background:#e91e63;
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
+.section-row p{
+ margin:3px 0 0;
+ color:#888;
+ font-size:12px;
 }
 
-button:hover{
-  opacity:.9;
+.text-btn{
+ background:none;
+ color:#4338ca;
+ font-weight:800;
 }
 
-.profile{
-  border:1px solid #eee;
-  padding:15px;
-  border-radius:12px;
-  margin-top:12px;
+.stories{
+ display:flex;
+ gap:14px;
+ overflow:auto;
+ padding-top:14px;
 }
 
-.profile h3{
-  margin:0 0 8px;
-  color:#8e24aa;
+.story{
+ min-width:70px;
+ background:none;
 }
 
-footer{
-  text-align:center;
-  padding:20px;
-  color:#777;
-  font-size:14px;
+.story-ring{
+ width:58px;
+ height:58px;
+ border-radius:50%;
+ display:grid;
+ place-items:center;
+ margin:auto;
+ background:linear-gradient(135deg,#4338ca,#ec4899);
+ padding:3px;
+}
+
+.story-ring img,
+.story-ring .plus{
+ width:100%;
+ height:100%;
+ border-radius:50%;
+ background:white;
+ object-fit:cover;
+ display:grid;
+ place-items:center;
+}
+
+.story b{
+ font-size:11px;
+ display:block;
+ margin-top:5px;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+.search{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ background:#f6f7fa;
+ border-radius:14px;
+ padding:3px 10px;
+}
+
+.search input{
+ border:0;
+ outline:0;
+ background:transparent;
+ width:100%;
+ padding:11px;
+}
+
+.search button{
+ background:none;
+ color:#777;
+}
+
+.chips{
+ display:flex;
+ gap:8px;
+ overflow:auto;
+ padding-top:12px;
+}
+
+.chip{
+ padding:8px 13px;
+ border-radius:20px;
+ background:#f0f1f5;
+ color:#555;
+ white-space:nowrap;
+}
+
+.chip.active{
+ background:#312e81;
+ color:white;
+}
+
+.profile-card{
+ background:white;
+ border:1px solid #e8e9ef;
+ border-radius:20px;
+ overflow:hidden;
+ margin-bottom:18px;
+ box-shadow:0 8px 28px #11182708;
+}
+
+.cover{
+ height:145px;
+ background:linear-gradient(135deg,#172554,#4f46e5,#7c3aed);
+}
+
+.profile-body{
+ padding:0 16px 18px;
+}
+
+.avatar{
+ width:82px;
+ height:82px;
+ border-radius:50%;
+ border:5px solid white;
+ object-fit:cover;
+ margin-top:-41px;
+ background:#eee;
+}
+
+.profile-name{
+ margin:8px 0 2px;
+ font-size:20px;
+}
+
+.meta{
+ color:#777;
+ font-size:13px;
+}
+
+.verified{
+ display:inline-block;
+ background:#2563eb;
+ color:white;
+ border-radius:50%;
+ font-size:10px;
+ padding:2px 5px;
+}
+
+.actions{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+ margin-top:13px;
+}
+
+.actions button{
+ background:#f4f4f7;
+ border-radius:12px;
+ padding:9px 12px;
+}
+
+.actions .interest{
+ background:#312e81;
+ color:white;
+}
+
+.bottom-nav{
+ position:fixed;
+ bottom:0;
+ left:0;
+ right:0;
+ z-index:25;
+ background:white;
+ border-top:1px solid #e8e8ee;
+ display:flex;
+ justify-content:center;
+ gap:clamp(12px,7vw,70px);
+ padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+
+.nav-item{
+ background:none;
+ color:#777;
+ display:grid;
+ gap:2px;
+ place-items:center;
+}
+
+.nav-item.active{color:#312e81}
+
+.nav-item span{font-size:21px}
+.nav-item small{font-size:10px}
+
+.create{
+ width:46px;
+ height:46px;
+ border-radius:15px;
+ background:linear-gradient(135deg,#312e81,#7c3aed);
+ color:white;
+ font-size:28px;
+ margin-top:-20px;
+ box-shadow:0 8px 20px #312e8144;
+}
+
+.modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:#0008;
+ z-index:40;
+ align-items:flex-end;
+ justify-content:center;
+ padding:12px;
+}
+
+.modal.show{display:flex}
+
+.sheet{
+ background:white;
+ width:min(620px,100%);
+ border-radius:24px 24px 10px;
+ padding:20px;
+ max-height:90vh;
+ overflow:auto;
+}
+
+.sheet-head{
+ display:flex;
+ justify-content:space-between;
+ align-items:flex-start;
+}
+
+.sheet h2{margin:4px 0 15px}
+
+.close{
+ width:36px;
+ height:36px;
+ border-radius:50%;
+ background:#eee;
+ font-size:22px;
+}
+
+.sheet input,
+.sheet textarea,
+.sheet select{
+ width:100%;
+ border:1px solid #ddd;
+ border-radius:13px;
+ padding:12px;
+ margin-bottom:10px;
+}
+
+.sheet textarea{
+ min-height:100px;
+ resize:vertical;
+}
+
+.primary{
+ width:100%;
+ padding:13px;
+ border-radius:13px;
+ background:#312e81;
+ color:white;
+ font-weight:800;
+}
+
+.upload{
+ border:2px dashed #d9d9e2;
+ border-radius:16px;
+ padding:25px;
+ text-align:center;
+ margin-bottom:12px;
+}
+
+.upload input{
+ border:0;
+ margin:0 0 10px;
+}
+
+.safety-list>div{
+ padding:14px 0;
+ border-bottom:1px solid #eee;
+}
+
+.safety-list small{
+ display:block;
+ color:#777;
+ margin-top:3px;
+}
+
+.empty{
+ text-align:center;
+ padding:35px;
+ color:#777;
+}
+
+@media(max-width:600px){
+ .app{
+  padding-left:12px;
+  padding-right:12px;
+ }
+
+ .welcome{
+  align-items:flex-start;
+ }
+
+ .welcome h1{
+  font-size:30px;
+ }
+
+ .safety span{
+  display:none;
+ }
+
+ .top-icon{
+  display:none;
+ }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>💞 Panika Jeevan Sathi</h1>
-  <p>जीवनसाथी की तलाश का अपना भरोसेमंद मंच</p>
+<header class="topbar">
+ <div class="nav">
+
+  <button class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+   <span class="logo-mark">P</span>
+   <span>
+    <b>PANIKA JEEVAN SATHI</b>
+    <small>100% FREE • TRUST • RESPECT</small>
+   </span>
+  </button>
+
+  <div class="top-actions">
+   <button class="top-icon">♧ <i>2</i></button>
+   <button class="safety" onclick="openModal('safetyModal')">
+    🛡️ <span>Safety</span>
+   </button>
+  </div>
+
+ </div>
 </header>
 
-<div class="container">
+<main class="app">
 
-  <div class="card">
-    <h2>🌸 अपना Profile बनाएं</h2>
+<!-- COMMUNITY NOTICE -->
 
-    <input
-      id="name"
-      type="text"
-      placeholder="पूरा नाम">
+<section class="notice">
 
-    <input
-      id="age"
-      type="number"
-      placeholder="उम्र">
+<strong>🙏 Important Community Notice</strong>
 
-    <select id="gender">
-      <option value="">लिंग चुनें</option>
-      <option value="पुरुष">पुरुष</option>
-      <option value="महिला">महिला</option>
-    </select>
+<p>
+<b>English:</b>
+This website is exclusively for people belonging to
+Panika, Manikpuri, Kabirpanthi and Adivasi communities/surnames.
+If you have any other surname or community, please do not sign up or log in.
+Unauthorized registrations will be blocked.
+</p>
 
-    <input
-      id="city"
-      type="text"
-      placeholder="शहर">
+<p>
+<b>हिंदी:</b>
+यह वेबसाइट केवल पनिका, मानिकपुरी, कबीरपंथी और आदिवासी
+समुदाय/उपनाम के लोगों के लिए है। यदि आपका उपनाम या समुदाय इनमें से कोई नहीं है,
+तो कृपया साइन अप या लॉगिन न करें। अनधिकृत पंजीकरण ब्लॉक कर दिया जाएगा।
+धन्यवाद 🙏
+</p>
 
-    <input
-      id="education"
-      type="text"
-      placeholder="शिक्षा">
+<div class="allowed">
+<span>✓ Panika</span>
+<span>✓ Manikpuri</span>
+<span>✓ Kabirpanthi</span>
+<span>✓ Adivasi</span>
+</div>
 
-    <input
-      id="occupation"
-      type="text"
-      placeholder="व्यवसाय / नौकरी">
+</section>
 
-    <textarea
-      id="bio"
-      placeholder="अपने बारे में लिखें"></textarea>
+<section class="welcome">
 
-    <button onclick="saveProfile()">
-      💾 Profile Save करें
-    </button>
-  </div>
+<div>
+<span class="eyebrow">YOUR COMMUNITY • आपकी कम्युनिटी</span>
+<h1>Find a meaningful connection.</h1>
+<p>Discover genuine profiles from our trusted matrimonial community.</p>
+</div>
 
-  <div class="card">
-    <h2>🔎 Profile खोजें</h2>
+<button class="profile-mini" onclick="openModal('profileModal')">
+<span>👤</span> Profile
+</button>
 
-    <input
-      id="search"
-      type="text"
-      placeholder="नाम या शहर से खोजें"
-      oninput="searchProfiles()">
+</section>
 
-    <div id="profiles">
-      <p>अभी कोई profile नहीं है।</p>
-    </div>
-  </div>
+<!-- STORIES -->
+
+<section class="card stories-card">
+
+<div class="section-row">
+<div>
+<h2>Stories</h2>
+<p>24-hour updates</p>
+</div>
+
+<button class="text-btn" onclick="openModal('storyModal')">
++ Add story
+</button>
+</div>
+
+<div class="stories">
+
+<button class="story" onclick="openModal('storyModal')">
+<span class="story-ring">
+<span class="plus">+</span>
+</span>
+<b>Your story</b>
+</button>
+
+<button class="story">
+<span class="story-ring">
+<img src="https://i.pravatar.cc/120?img=12">
+</span>
+<b>Anjali</b>
+</button>
+
+<button class="story">
+<span class="story-ring">
+<img src="https://i.pravatar.cc/120?img=15">
+</span>
+<b>Rohan</b>
+</button>
+
+<button class="story">
+<span class="story-ring">
+<img src="https://i.pravatar.cc/120?img=20">
+</span>
+<b>Priya</b>
+</button>
+
+</div>
+</section>
+
+<!-- SEARCH -->
+
+<section class="card filter-card">
+
+<div class="search">
+<span>⌕</span>
+
+<input
+ id="search"
+ placeholder="Search community, city or profile"
+ oninput="filterProfiles()"
+>
+
+<button onclick="clearSearch()">×</button>
+</div>
+
+<div class="chips">
+
+<button class="chip active" onclick="setCommunity('All',this)">
+All
+</button>
+
+<button class="chip" onclick="setCommunity('Panika',this)">
+Panika
+</button>
+
+<button class="chip" onclick="setCommunity('Manikpuri',this)">
+Manikpuri
+</button>
+
+<button class="chip" onclick="setCommunity('Kabirpanthi',this)">
+Kabirpanthi
+</button>
+
+<button class="chip" onclick="setCommunity('Adivasi',this)">
+Adivasi
+</button>
 
 </div>
 
-<footer>
-  © 2026 Panika Jeevan Sathi
-</footer>
+</section>
+
+<section id="feed"></section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+
+<nav class="bottom-nav">
+
+<button class="nav-item active">
+<span>⌂</span>
+<small>Home</small>
+</button>
+
+<button class="nav-item" onclick="document.getElementById('search').focus()">
+<span>⌕</span>
+<small>Discover</small>
+</button>
+
+<button class="create" onclick="openModal('postModal')">
++
+</button>
+
+<button class="nav-item" onclick="openShortlist()">
+<span>☆</span>
+<small>Shortlist</small>
+</button>
+
+<button class="nav-item" onclick="openModal('profileModal')">
+<span>◯</span>
+<small>Profile</small>
+</button>
+
+</nav>
+
+<!-- POST MODAL -->
+
+<div class="modal" id="postModal">
+
+<div class="sheet">
+
+<div class="sheet-head">
+
+<div>
+<span class="eyebrow">COMMUNITY UPDATE</span>
+<h2>Create a post</h2>
+</div>
+
+<button class="close" onclick="closeModal('postModal')">×</button>
+
+</div>
+
+<div class="upload">
+<input type="file" accept="image/*">
+📷
+<br>
+<b>Add a photo</b>
+<br>
+<small>JPG, PNG • optional</small>
+</div>
+
+<textarea placeholder="Share a thought, milestone or life update…"></textarea>
+
+<button class="primary" onclick="publishPost()">
+Publish post
+</button>
+
+</div>
+</div>
+
+<!-- STORY MODAL -->
+
+<div class="modal" id="storyModal">
+
+<div class="sheet">
+
+<div class="sheet-head">
+
+<div>
+<span class="eyebrow">24-HOUR STORY</span>
+<h2>Add your story</h2>
+</div>
+
+<button class="close" onclick="closeModal('storyModal')">×</button>
+
+</div>
+
+<div class="upload">
+<input type="file" accept="image/*">
+✦
+<br>
+<b>Add story photo</b>
+<br>
+<small>Visible for 24 hours</small>
+</div>
+
+<textarea placeholder="Write a short update…"></textarea>
+
+<button class="primary" onclick="publishStory()">
+Share story
+</button>
+
+</div>
+</div>
+
+<!-- SAFETY -->
+
+<div class="modal" id="safetyModal">
+
+<div class="sheet">
+
+<div class="sheet-head">
+
+<div>
+<span class="eyebrow">TRUST & SAFETY</span>
+<h2>Community safety</h2>
+</div>
+
+<button class="close" onclick="closeModal('safetyModal')">×</button>
+
+</div>
+
+<div class="safety-list">
+
+<div>
+✓ <b>Verified profiles</b>
+<small>Verification status is shown clearly.</small>
+</div>
+
+<div>
+✓ <b>Privacy first</b>
+<small>Personal contact details stay private.</small>
+</div>
+
+<div>
+✓ <b>Report & block</b>
+<small>Keep conversations respectful and safe.</small>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<!-- PROFILE -->
+
+<div class="modal" id="profileModal">
+
+<div class="sheet">
+
+<div class="sheet-head">
+
+<div>
+<span class="eyebrow">MY ACCOUNT</span>
+<h2>My Profile</h2>
+</div>
+
+<button class="close" onclick="closeModal('profileModal')">×</button>
+
+</div>
+
+<input id="profileName" placeholder="Full name">
+
+<input id="profileAge" type="number" placeholder="Age">
+
+<input id="profileCity" placeholder="City">
+
+<select id="profileCommunity">
+
+<option>Panika</option>
+<option>Manikpuri</option>
+<option>Kabirpanthi</option>
+<option>Adivasi</option>
+
+</select>
+
+<textarea id="profileBio" placeholder="About yourself"></textarea>
+
+<button class="primary" onclick="saveProfile()">
+Save Profile
+</button>
+
+</div>
+</div>
 
 <script>
 
-let profiles =
-  JSON.parse(localStorage.getItem("panikaProfiles")) || [];
+const profiles=[
+
+{
+id:1,
+name:"Anjali Panika",
+community:"Panika",
+city:"Guwahati",
+age:27,
+job:"Teacher",
+img:"https://i.pravatar.cc/500?img=12",
+verified:true
+},
+
+{
+id:2,
+name:"Rohan Panika",
+community:"Panika",
+city:"Jorhat",
+age:29,
+job:"Engineer",
+img:"https://i.pravatar.cc/500?img=15",
+verified:true
+},
+
+{
+id:3,
+name:"Priya Manikpuri",
+community:"Manikpuri",
+city:"Golaghat",
+age:25,
+job:"Designer",
+img:"https://i.pravatar.cc/500?img=20",
+verified:true
+},
+
+{
+id:4,
+name:"Amit Kabirpanthi",
+community:"Kabirpanthi",
+city:"Dibrugarh",
+age:31,
+job:"Business",
+img:"https://i.pravatar.cc/500?img=11",
+verified:false
+}
+
+];
+
+let selectedCommunity="All";
+
+let shortlist=
+JSON.parse(localStorage.getItem("pjs_shortlist")||"[]");
+
+function esc(value){
+
+return String(value??"").replace(
+/[&<>"']/g,
+m=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m])
+);
+
+}
+
+function renderProfiles(list){
+
+const feed=document.getElementById("feed");
+
+if(!list.length){
+
+feed.innerHTML=`
+<div class="card empty">
+<h3>No profiles found</h3>
+<p>Try another community or search.</p>
+</div>`;
+
+return;
+
+}
+
+feed.innerHTML=list.map(p=>`
+
+<article class="profile-card">
+
+<div class="cover"></div>
+
+<div class="profile-body">
+
+<img class="avatar" src="${p.img}" alt="${esc(p.name)}">
+
+<h2 class="profile-name">
+${esc(p.name)}
+${p.verified?
+'<span class="verified">✓</span>':
+''}
+</h2>
+
+<div class="meta">
+${p.community} • ${p.city}
+</div>
+
+<div class="meta">
+${p.age} years • ${p.job}
+</div>
+
+<div class="actions">
+
+<button class="interest"
+onclick="sendInterest('${esc(p.name)}')">
+❤️ Send Interest
+</button>
+
+<button onclick="toggleShortlist(${p.id})">
+☆ Shortlist
+</button>
+
+<button onclick="viewProfile(${p.id})">
+View Profile
+</button>
+
+</div>
+
+</div>
+
+</article>
+
+`).join("");
+
+}
+
+function filterProfiles(){
+
+const query=
+document.getElementById("search")
+.value
+.toLowerCase()
+.trim();
+
+const result=profiles.filter(p=>{
+
+const matchesCommunity=
+selectedCommunity==="All" ||
+p.community===selectedCommunity;
+
+const text=
+`${p.name} ${p.community} ${p.city} ${p.job}`
+.toLowerCase();
+
+return matchesCommunity && text.includes(query);
+
+});
+
+renderProfiles(result);
+
+}
+
+function setCommunity(value,button){
+
+selectedCommunity=value;
+
+document
+.querySelectorAll(".chip")
+.forEach(c=>c.classList.remove("active"));
+
+button.classList.add("active");
+
+filterProfiles();
+
+}
+
+function clearSearch(){
+
+document.getElementById("search").value="";
+
+filterProfiles();
+
+}
+
+function sendInterest(name){
+
+alert("Interest sent to "+name+" ❤️");
+
+}
+
+function toggleShortlist(id){
+
+if(shortlist.includes(id)){
+
+shortlist=
+shortlist.filter(x=>x!==id);
+
+alert("Removed from Shortlist");
+
+}else{
+
+shortlist.push(id);
+
+alert("Added to Shortlist ⭐");
+
+}
+
+localStorage.setItem(
+"pjs_shortlist",
+JSON.stringify(shortlist)
+);
+
+}
+
+function viewProfile(id){
+
+const p=profiles.find(x=>x.id===id);
+
+alert(
+p.name+
+"\n"+
+p.age+" years • "+
+p.community+
+"\n"+
+p.city+" • "+
+p.job+
+"\n\n"+
+"Verified: "+
+(p.verified?"Yes ✓":"Pending")
+);
+
+}
+
+function openShortlist(){
+
+const list=
+profiles.filter(p=>shortlist.includes(p.id));
+
+if(!list.length){
+
+alert("Your Shortlist is empty.");
+
+return;
+
+}
+
+alert(
+list
+.map(p=>p.name+" • "+p.city)
+.join("\n")
+);
+
+}
+
+function openModal(id){
+
+document
+.getElementById(id)
+.classList.add("show");
+
+}
+
+function closeModal(id){
+
+document
+.getElementById(id)
+.classList.remove("show");
+
+}
+
+function publishPost(){
+
+alert(
+"Post feature is ready for backend connection."
+);
+
+closeModal("postModal");
+
+}
+
+function publishStory(){
+
+alert(
+"Story feature is ready for backend connection."
+);
+
+closeModal("storyModal");
+
+}
 
 function saveProfile(){
 
-  const name =
-    document.getElementById("name").value.trim();
+const profile={
 
-  const age =
-    document.getElementById("age").value;
+name:
+document.getElementById("profileName").value,
 
-  const gender =
-    document.getElementById("gender").value;
+age:
+document.getElementById("profileAge").value,
 
-  const city =
-    document.getElementById("city").value.trim();
+city:
+document.getElementById("profileCity").value,
 
-  const education =
-    document.getElementById("education").value.trim();
+community:
+document.getElementById("profileCommunity").value,
 
-  const occupation =
-    document.getElementById("occupation").value.trim();
+bio:
+document.getElementById("profileBio").value
 
-  const bio =
-    document.getElementById("bio").value.trim();
+};
 
-  if(!name || !age || !gender || !city){
+localStorage.setItem(
+"pjs_profile",
+JSON.stringify(profile)
+);
 
-    alert("कृपया नाम, उम्र, लिंग और शहर भरें।");
+alert("Profile saved successfully ✓");
 
-    return;
-  }
+closeModal("profileModal");
 
-  const profile = {
-    id:Date.now(),
-    name:name,
-    age:age,
-    gender:gender,
-    city:city,
-    education:education,
-    occupation:occupation,
-    bio:bio
-  };
-
-  profiles.push(profile);
-
-  localStorage.setItem(
-    "panikaProfiles",
-    JSON.stringify(profiles)
-  );
-
-  alert("✅ आपका Profile सफलतापूर्वक Save हो गया।");
-
-  document.getElementById("name").value="";
-  document.getElementById("age").value="";
-  document.getElementById("gender").value="";
-  document.getElementById("city").value="";
-  document.getElementById("education").value="";
-  document.getElementById("occupation").value="";
-  document.getElementById("bio").value="";
-
-  displayProfiles(profiles);
 }
 
-function displayProfiles(list){
-
-  const box =
-    document.getElementById("profiles");
-
-  if(list.length === 0){
-
-    box.innerHTML =
-      "<p>कोई profile नहीं मिली।</p>";
-
-    return;
-  }
-
-  box.innerHTML =
-    list.map(p => `
-
-      <div class="profile">
-
-        <h3>💗 ${escapeHTML(p.name)}</h3>
-
-        <p>
-          <b>उम्र:</b>
-          ${escapeHTML(p.age)}
-        </p>
-
-        <p>
-          <b>लिंग:</b>
-          ${escapeHTML(p.gender)}
-        </p>
-
-        <p>
-          <b>शहर:</b>
-          ${escapeHTML(p.city)}
-        </p>
-
-        <p>
-          <b>शिक्षा:</b>
-          ${escapeHTML(p.education || "—")}
-        </p>
-
-        <p>
-          <b>व्यवसाय:</b>
-          ${escapeHTML(p.occupation || "—")}
-        </p>
-
-        <p>
-          <b>About:</b>
-          ${escapeHTML(p.bio || "—")}
-        </p>
-
-      </div>
-
-    `).join("");
-}
-
-function searchProfiles(){
-
-  const keyword =
-    document
-      .getElementById("search")
-      .value
-      .toLowerCase()
-      .trim();
-
-  const result =
-    profiles.filter(p =>
-      p.name.toLowerCase().includes(keyword) ||
-      p.city.toLowerCase().includes(keyword)
-    );
-
-  displayProfiles(result);
-}
-
-function escapeHTML(value){
-
-  return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-displayProfiles(profiles);
+renderProfiles(profiles);
 
 </script>
 
 </body>
-</html>
+  </html>
