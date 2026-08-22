@@ -5,257 +5,45 @@ here<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#312e81">
 <title>Profile • PANIKA JEEVAN SATHI</title>
-
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:#f7f8fc;
-  color:#20212a;
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
-}
-button,input,select{font:inherit}
+body{margin:0;background:#f7f8fc;color:#20212a;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-
-.top{
-  position:sticky;
-  top:0;
-  z-index:20;
-  background:#fff;
-  border-bottom:1px solid #e5e6ed
-}
-
-.nav{
-  max-width:900px;
-  margin:auto;
-  padding:10px 14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center
-}
-
-.logo{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  border:0;
-  background:none;
-  text-align:left
-}
-
-.mark{
-  width:42px;
-  height:42px;
-  border-radius:14px;
-  background:linear-gradient(135deg,#172554,#4338ca);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-weight:900
-}
-
-.logo b{display:block;font-size:13px}
-.logo small{display:block;color:#777;font-size:10px}
-
-.back{
-  border:0;
-  background:#f1f2f6;
-  border-radius:11px;
-  padding:9px 12px
-}
-
-.wrap{
-  max-width:900px;
-  margin:auto;
-  padding:15px 12px 100px
-}
-
-.cover{
-  height:220px;
-  border-radius:22px 22px 0 0;
-  overflow:hidden;
-  background:#ddd;
-  position:relative
-}
-
-.cover img{
-  width:100%;
-  height:100%;
-  object-fit:cover
-}
-
-.profile-card{
-  background:#fff;
-  border:1px solid #e5e6ed;
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:0 8px 25px #11182708
-}
-
-.avatar{
-  width:112px;
-  height:112px;
-  border-radius:50%;
-  border:5px solid #fff;
-  object-fit:cover;
-  margin-top:-56px;
-  position:relative;
-  background:#eee
-}
-
-.identity{
-  padding:0 17px 18px;
-  text-align:center
-}
-
-.identity h1{
-  margin:8px 0 3px;
-  font-size:24px
-}
-
-.meta{
-  color:#777;
-  font-size:12px;
-  line-height:1.7
-}
-
-.badge{
-  display:inline-block;
-  margin-top:7px;
-  padding:5px 9px;
-  border-radius:20px;
-  background:#eef2ff;
-  color:#312e81;
-  font-size:10px;
-  font-weight:800
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-  margin-top:14px
-}
-
-.actions button{
-  flex:1;
-  border:0;
-  border-radius:12px;
-  padding:12px;
-  font-weight:800
-}
-
-.primary{
-  background:#312e81;
-  color:#fff
-}
-
-.secondary{
-  background:#f0f1f6;
-  color:#333
-}
-
-.card{
-  background:#fff;
-  border:1px solid #e5e6ed;
-  border-radius:20px;
-  padding:17px;
-  margin-top:13px
-}
-
-.card h2{
-  margin:0 0 10px;
-  font-size:17px
-}
-
-.info{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px
-}
-
-.item{
-  background:#f7f7fb;
-  border-radius:13px;
-  padding:11px
-}
-
-.item small{
-  display:block;
-  color:#888;
-  font-size:10px
-}
-
-.item b{
-  display:block;
-  margin-top:3px;
-  font-size:12px
-}
-
-textarea,input,select{
-  width:100%;
-  border:1px solid #ddd;
-  border-radius:12px;
-  padding:11px;
-  outline:none;
-  background:#fff
-}
-
-label{
-  display:block;
-  font-size:11px;
-  font-weight:800;
-  margin:11px 0 5px
-}
-
-.save{
-  width:100%;
-  border:0;
-  background:#312e81;
-  color:#fff;
-  border-radius:13px;
-  padding:13px;
-  font-weight:800;
-  margin-top:13px
-}
-
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e5e6ed}
+.nav{max-width:900px;margin:auto;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:9px;border:0;background:none;text-align:left}
+.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#172554,#4338ca);color:#fff;display:grid;place-items:center;font-weight:900}
+.logo b{display:block;font-size:13px}.logo small{display:block;color:#777;font-size:10px}
+.back{border:0;background:#f1f2f6;border-radius:11px;padding:9px 12px}
+.wrap{max-width:900px;margin:auto;padding:15px 12px 100px}
+.card{background:#fff;border:1px solid #e5e6ed;border-radius:20px;padding:17px;margin-top:13px;box-shadow:0 8px 25px #11182708}
+.cover{height:210px;border-radius:20px 20px 0 0;overflow:hidden;background:#ddd}
+.cover img{width:100%;height:100%;object-fit:cover}
+.profile{background:#fff;border:1px solid #e5e6ed;border-radius:20px;overflow:hidden}
+.identity{text-align:center;padding:0 16px 18px}
+.avatar{width:110px;height:110px;border-radius:50%;border:5px solid #fff;object-fit:cover;margin-top:-55px;background:#eee}
+h1{font-size:23px;margin:8px 0 4px}
+.meta{font-size:12px;color:#777;line-height:1.7}
+.badge{display:inline-block;background:#eef2ff;color:#312e81;border-radius:20px;padding:5px 9px;font-size:10px;font-weight:800;margin-top:7px}
+.actions{display:flex;gap:7px;margin-top:14px}
+.actions button{flex:1;border:0;border-radius:12px;padding:11px;font-weight:800}
+.primary{background:#312e81;color:white}.secondary{background:#f0f1f6}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.item{background:#f7f7fb;border-radius:13px;padding:11px}
+.item small{display:block;color:#888;font-size:10px}
+.item b{display:block;font-size:12px;margin-top:3px}
+.card h2{margin:0 0 10px;font-size:17px}
+label{display:block;font-size:11px;font-weight:800;margin:10px 0 5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:11px;background:#fff}
+textarea{min-height:90px;resize:vertical}
+.save{width:100%;border:0;background:#312e81;color:#fff;border-radius:13px;padding:13px;font-weight:800;margin-top:13px}
 .hidden{display:none}
-
-.empty{
-  text-align:center;
-  padding:35px 15px;
-  color:#777
-}
-
-.bottom{
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  z-index:30;
-  background:#fff;
-  border-top:1px solid #e5e6ed;
-  display:flex;
-  justify-content:center;
-  gap:clamp(18px,8vw,75px);
-  padding:8px 10px calc(8px + env(safe-area-inset-bottom))
-}
-
-.bottom button{
-  border:0;
-  background:none;
-  color:#777;
-  display:grid;
-  place-items:center
-}
-
-.bottom .active{color:#312e81}
-.bottom span{font-size:21px}
-.bottom small{font-size:10px}
-
-@media(max-width:600px){
-  .cover{height:180px}
-  .info{grid-template-columns:1fr 1fr}
-}
+.empty{text-align:center;color:#777;padding:35px 15px}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid #e5e6ed;display:flex;justify-content:center;gap:clamp(18px,8vw,70px);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+.bottom button{border:0;background:none;color:#777;display:grid;place-items:center}
+.bottom .active{color:#312e81}.bottom span{font-size:21px}.bottom small{font-size:10px}
+@media(max-width:600px){.cover{height:180px}.info{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 
@@ -263,126 +51,71 @@ label{
 
 <header class="top">
 <div class="nav">
-
 <button class="logo" onclick="goHome()">
 <span class="mark">P</span>
-<span>
-<b>PANIKA JEEVAN SATHI</b>
-<small>100% FREE • TRUST • RESPECT</small>
-</span>
+<span><b>PANIKA JEEVAN SATHI</b><small>100% FREE • TRUST • RESPECT</small></span>
 </button>
-
 <button class="back" onclick="goBack()">‹ Back</button>
-
 </div>
 </header>
 
 <main class="wrap">
 
-<section class="profile-card">
-
+<section class="profile" id="profileCard">
 <div class="cover">
-<img id="coverPhoto"
-src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
-alt="Profile cover">
+<img id="coverPhoto" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80" alt="Cover">
 </div>
 
 <div class="identity">
-
-<img id="profilePhoto"
-class="avatar"
-src="https://i.pravatar.cc/500?img=12"
-alt="Profile photo">
+<img id="profilePhoto" class="avatar" src="https://i.pravatar.cc/500?img=12" alt="Profile">
 
 <h1 id="profileName">My Profile</h1>
 
-<div id="profileMeta" class="meta">
-Complete your profile to help members know you better.
-</div>
+<div id="profileMeta" class="meta">Complete your profile</div>
 
-<div id="verifiedBadge" class="badge hidden">
-✓ VERIFIED PROFILE
-</div>
+<div id="verified" class="badge hidden">✓ VERIFIED PROFILE</div>
 
 <div class="actions">
-
-<button class="primary" id="interestBtn" onclick="sendInterest()">
-❤️ Interest
-</button>
-
-<button class="secondary" onclick="openShortlist()">
-⭐ Shortlist
-</button>
-
-<button class="secondary" onclick="openContact()">
-💬 Contact
-</button>
-
+<button id="interestBtn" class="primary" onclick="sendInterest()">❤️ Interest</button>
+<button class="secondary" onclick="openShortlist()">⭐ Shortlist</button>
+<button class="secondary" onclick="contact()">💬 Contact</button>
 </div>
-
 </div>
 </section>
-
 
 <section class="card">
 <h2>👤 Profile Details</h2>
 
 <div class="info">
-
-<div class="item">
-<small>Age</small>
-<b id="age">—</b>
-</div>
-
-<div class="item">
-<small>Gender</small>
-<b id="gender">—</b>
-</div>
-
-<div class="item">
-<small>City</small>
-<b id="city">—</b>
-</div>
-
-<div class="item">
-<small>Community</small>
-<b id="community">—</b>
-</div>
-
-<div class="item">
-<small>Education</small>
-<b id="education">—</b>
-</div>
-
-<div class="item">
-<small>Profession</small>
-<b id="profession">—</b>
-</div>
-
+<div class="item"><small>Age</small><b id="age">—</b></div>
+<div class="item"><small>Gender</small><b id="gender">—</b></div>
+<div class="item"><small>City</small><b id="city">—</b></div>
+<div class="item"><small>Community</small><b id="community">—</b></div>
+<div class="item"><small>Education</small><b id="education">—</b></div>
+<div class="item"><small>Profession</small><b id="profession">—</b></div>
 </div>
 </section>
 
-
-<section id="aboutCard" class="card">
+<section class="card">
 <h2>❤️ About</h2>
-<p id="aboutText">
-Looking for a respectful and meaningful relationship.
-</p>
+<p id="about">Looking for a respectful and meaningful relationship.</p>
 </section>
 
+<section class="card" id="editButton">
+<button class="save" onclick="showEditor()">✏️ Edit My Profile</button>
+</section>
 
-<section id="editCard" class="card hidden">
-
+<section class="card hidden" id="editor">
 <h2>✏️ Edit My Profile</h2>
 
 <label>Full Name</label>
-<input id="editName" placeholder="Your name">
+<input id="eName" placeholder="Full name">
 
 <label>Age</label>
-<input id="editAge" type="number" min="18" max="100" placeholder="Age">
+<input id="eAge" type="number" min="18" max="100" placeholder="Age">
 
 <label>Gender</label>
-<select id="editGender">
+<select id="eGender">
 <option value="">Select</option>
 <option>Male</option>
 <option>Female</option>
@@ -390,10 +123,10 @@ Looking for a respectful and meaningful relationship.
 </select>
 
 <label>City</label>
-<input id="editCity" placeholder="City">
+<input id="eCity" placeholder="City">
 
 <label>Community</label>
-<select id="editCommunity">
+<select id="eCommunity">
 <option value="">Select</option>
 <option>Panika</option>
 <option>Manikpuri</option>
@@ -402,551 +135,252 @@ Looking for a respectful and meaningful relationship.
 </select>
 
 <label>Education</label>
-<input id="editEducation" placeholder="Education">
+<input id="eEducation" placeholder="Education">
 
 <label>Profession</label>
-<input id="editProfession" placeholder="Profession">
+<input id="eProfession" placeholder="Profession">
 
 <label>About</label>
-<textarea id="editAbout" placeholder="Tell something about yourself"></textarea>
+<textarea id="eAbout" placeholder="About yourself"></textarea>
 
 <label>Profile Photo URL</label>
-<input id="editPhoto" placeholder="Image URL">
+<input id="ePhoto" placeholder="Image URL">
 
 <label>Cover Photo URL</label>
-<input id="editCover" placeholder="Cover image URL">
+<input id="eCover" placeholder="Image URL">
 
-<button class="save" onclick="saveMyProfile()">
-💾 Save Profile
-</button>
-
+<button class="save" onclick="saveProfile()">💾 Save Profile</button>
 </section>
 
-
-<section id="editButtonCard" class="card">
-<button class="save" onclick="showEditor()">
-✏️ Edit My Profile
-</button>
-</section>
-
-
-<div id="notFound" class="card empty hidden">
+<section class="card empty hidden" id="notFound">
 <h2>Profile not found</h2>
-<p>This profile could not be loaded.</p>
-<button class="save" onclick="discover()">
-🔎 Discover Profiles
-</button>
-</div>
+<p>This profile does not exist.</p>
+<button class="save" onclick="discover()">🔎 Discover Profiles</button>
+</section>
 
 </main>
 
-
 <nav class="bottom">
-
-<button onclick="goHome()">
-<span>⌂</span>
-<small>Home</small>
-</button>
-
-<button onclick="discover()">
-<span>⌕</span>
-<small>Discover</small>
-</button>
-
-<button onclick="openShortlist()">
-<span>☆</span>
-<small>Shortlist</small>
-</button>
-
-<button class="active">
-<span>◯</span>
-<small>Profile</small>
-</button>
-
-<button onclick="openContact()">
-<span>🛡️</span>
-<small>Safety</small>
-</button>
-
+<button onclick="goHome()"><span>⌂</span><small>Home</small></button>
+<button onclick="discover()"><span>⌕</span><small>Discover</small></button>
+<button onclick="openShortlist()"><span>☆</span><small>Shortlist</small></button>
+<button class="active"><span>◯</span><small>Profile</small></button>
+<button onclick="contact()"><span>🛡️</span><small>Safety</small></button>
 </nav>
-
 
 <script>
 
-/* ---------------------------------
-   DEMO / DISCOVER PROFILES
----------------------------------- */
-
-const profiles = [
-
+const profiles=[
 {
-id:1,
-name:"Anjali Panika",
-age:25,
-gender:"Female",
-city:"Silchar",
-community:"Panika",
-education:"Graduate",
-profession:"Teacher",
+id:1,name:"Anjali Panika",age:25,gender:"Female",city:"Silchar",
+community:"Panika",education:"Graduate",profession:"Teacher",
 img:"https://i.pravatar.cc/500?img=47",
 cover:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
-about:"Simple, caring and family-oriented. Looking for a respectful life partner.",
-verified:true
+about:"Simple, caring and family-oriented.",verified:true
 },
-
 {
-id:2,
-name:"Rohan Panika",
-age:28,
-gender:"Male",
-city:"Guwahati",
-community:"Panika",
-education:"Graduate",
-profession:"Business",
+id:2,name:"Rohan Panika",age:28,gender:"Male",city:"Guwahati",
+community:"Panika",education:"Graduate",profession:"Business",
 img:"https://i.pravatar.cc/500?img=12",
 cover:"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-about:"Responsible and family-oriented. Looking for a meaningful relationship.",
-verified:true
+about:"Responsible and family-oriented.",verified:true
 },
-
 {
-id:3,
-name:"Priya Manikpuri",
-age:26,
-gender:"Female",
-city:"Raipur",
-community:"Manikpuri",
-education:"Post Graduate",
-profession:"Designer",
+id:3,name:"Priya Manikpuri",age:26,gender:"Female",city:"Raipur",
+community:"Manikpuri",education:"Post Graduate",profession:"Designer",
 img:"https://i.pravatar.cc/500?img=44",
 cover:"https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80",
-about:"Creative, positive and respectful.",
-verified:true
+about:"Creative, positive and respectful.",verified:true
 },
-
 {
-id:4,
-name:"Amit Manikpuri",
-age:30,
-gender:"Male",
-city:"Bilaspur",
-community:"Manikpuri",
-education:"Graduate",
-profession:"Engineer",
+id:4,name:"Amit Manikpuri",age:30,gender:"Male",city:"Bilaspur",
+community:"Manikpuri",education:"Graduate",profession:"Engineer",
 img:"https://i.pravatar.cc/500?img=13",
 cover:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-about:"Professional and family-oriented.",
-verified:false
+about:"Professional and family-oriented.",verified:false
 },
-
 {
-id:5,
-name:"Kavita Kabirpanthi",
-age:27,
-gender:"Female",
-city:"Kolkata",
-community:"Kabirpanthi",
-education:"Graduate",
-profession:"Accountant",
+id:5,name:"Kavita Kabirpanthi",age:27,gender:"Female",city:"Kolkata",
+community:"Kabirpanthi",education:"Graduate",profession:"Accountant",
 img:"https://i.pravatar.cc/500?img=49",
 cover:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
-about:"Calm, caring and respectful.",
-verified:true
+about:"Calm, caring and respectful.",verified:true
 },
-
 {
-id:6,
-name:"Suresh Adivasi",
-age:29,
-gender:"Male",
-city:"Jorhat",
-community:"Adivasi",
-education:"Graduate",
-profession:"Government Employee",
+id:6,name:"Suresh Adivasi",age:29,gender:"Male",city:"Jorhat",
+community:"Adivasi",education:"Graduate",profession:"Government Employee",
 img:"https://i.pravatar.cc/500?img=14",
 cover:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
-about:"Honest, responsible and family-oriented.",
-verified:true
+about:"Honest, responsible and family-oriented.",verified:true
 }
-
 ];
 
+const params=new URLSearchParams(location.search);
+const id=Number(params.get("id"));
+let own=!id;
+let current=null;
 
-/* ---------------------------------
-   GET PROFILE ID FROM URL
----------------------------------- */
+function load(){
 
-const params = new URLSearchParams(location.search);
-const profileId = Number(params.get("id"));
+if(own){
 
-let viewingOwnProfile = !profileId;
+const saved=JSON.parse(localStorage.getItem("pjs_profile")||"null");
 
-let currentProfile = null;
-
-
-/* ---------------------------------
-   LOAD PROFILE
----------------------------------- */
-
-function loadProfile(){
-
-if(viewingOwnProfile){
-
-const saved =
-JSON.parse(localStorage.getItem("pjs_profile") || "null");
-
-if(saved){
-
-currentProfile = {
-
+current=saved?{
 id:0,
-
-name:saved.name || "My Profile",
-
-age:saved.age || "—",
-
-gender:saved.gender || "—",
-
-city:saved.city || saved.city || "—",
-
-community:saved.community || "—",
-
-education:saved.education || "—",
-
-profession:saved.profession || "—",
-
-img:saved.img || saved.photo || "https://i.pravatar.cc/500?img=12",
-
-cover:saved.cover || "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
-
-about:saved.about || "Complete your profile to tell members about yourself.",
-
+name:saved.name||"My Profile",
+age:saved.age||"—",
+gender:saved.gender||"—",
+city:saved.city||"—",
+community:saved.community||"—",
+education:saved.education||"—",
+profession:saved.profession||"—",
+img:saved.img||"https://i.pravatar.cc/500?img=12",
+cover:saved.cover||"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+about:saved.about||"Complete your profile.",
 verified:false
-
-};
-
-}else{
-
-currentProfile = {
-
-id:0,
-
-name:"My Profile",
-
-age:"—",
-
-gender:"—",
-
-city:"—",
-
-community:"—",
-
-education:"—",
-
-profession:"—",
-
+}:{
+id:0,name:"My Profile",age:"—",gender:"—",city:"—",
+community:"—",education:"—",profession:"—",
 img:"https://i.pravatar.cc/500?img=12",
-
 cover:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
-
-about:"Complete your profile to tell members about yourself.",
-
-verified:false
-
+about:"Complete your profile.",verified:false
 };
-
-}
 
 }else{
 
-currentProfile =
-profiles.find(p => p.id === profileId);
+current=profiles.find(p=>p.id===id);
 
-if(!currentProfile){
+if(!current){
 
-document.querySelector(".profile-card").classList.add("hidden");
-document.querySelectorAll(".card").forEach(x=>{
-if(x.id !== "notFound") x.classList.add("hidden");
-});
-
+document.getElementById("profileCard").classList.add("hidden");
 document.getElementById("notFound").classList.remove("hidden");
-
 return;
-
 }
 
 }
 
-renderProfile();
-
+render();
 }
 
+function render(){
 
-/* ---------------------------------
-   RENDER PROFILE
----------------------------------- */
+const p=current;
 
-function renderProfile(){
-
-const p=currentProfile;
-
-document.title =
-p.name + " • PANIKA JEEVAN SATHI";
+document.title=p.name+" • PANIKA JEEVAN SATHI";
 
 document.getElementById("profileName").textContent=p.name;
-
 document.getElementById("profilePhoto").src=p.img;
-
 document.getElementById("coverPhoto").src=p.cover;
 
-document.getElementById("age").textContent=p.age || "—";
+document.getElementById("age").textContent=p.age||"—";
+document.getElementById("gender").textContent=p.gender||"—";
+document.getElementById("city").textContent=p.city||"—";
+document.getElementById("community").textContent=p.community||"—";
+document.getElementById("education").textContent=p.education||"—";
+document.getElementById("profession").textContent=p.profession||"—";
+document.getElementById("about").textContent=p.about||"—";
 
-document.getElementById("gender").textContent=p.gender || "—";
-
-document.getElementById("city").textContent=p.city || "—";
-
-document.getElementById("community").textContent=p.community || "—";
-
-document.getElementById("education").textContent=p.education || "—";
-
-document.getElementById("profession").textContent=p.profession || "—";
-
-document.getElementById("aboutText").textContent=p.about || "—";
-
-document.getElementById("profileMeta").textContent =
-[p.age ? p.age+" years" : "",
-p.gender || "",
-p.city ? "📍 "+p.city : "",
-p.community ? "✓ "+p.community : ""]
-.filter(Boolean)
-.join(" • ");
+document.getElementById("profileMeta").textContent=
+[p.age&&p.age!=="—"?p.age+" years":"",
+p.gender&&p.gender!=="—"?p.gender:"",
+p.city&&p.city!=="—"?"📍 "+p.city:"",
+p.community&&p.community!=="—"?"✓ "+p.community:""]
+.filter(Boolean).join(" • ");
 
 if(p.verified){
-
-document.getElementById("verifiedBadge")
-.classList.remove("hidden");
-
+document.getElementById("verified").classList.remove("hidden");
 }
 
-if(viewingOwnProfile){
-
-document.getElementById("interestBtn")
-.classList.add("hidden");
-
-document.getElementById("editButtonCard")
-.classList.remove("hidden");
-
+if(own){
+document.getElementById("interestBtn").classList.add("hidden");
+document.getElementById("editButton").classList.remove("hidden");
 }else{
-
-document.getElementById("editButtonCard")
-.classList.add("hidden");
-
+document.getElementById("editButton").classList.add("hidden");
 }
 
 }
-
-
-/* ---------------------------------
-   SHORTLIST
----------------------------------- */
 
 function openShortlist(){
-
 location.href="shortlist.html";
-
 }
-
-
-/* ---------------------------------
-   ADD TO SHORTLIST
----------------------------------- */
-
-function addToShortlist(){
-
-if(!currentProfile || !currentProfile.id){
-
-alert("Open a member profile first.");
-
-return;
-
-}
-
-let saved =
-JSON.parse(localStorage.getItem("pjs_discover_shortlist") || "[]");
-
-if(!saved.includes(currentProfile.id)){
-
-saved.push(currentProfile.id);
-
-localStorage.setItem(
-"pjs_discover_shortlist",
-JSON.stringify(saved)
-);
-
-alert("Added to shortlist ⭐");
-
-}else{
-
-alert("Already in your shortlist ⭐");
-
-}
-
-}
-
-
-/* ---------------------------------
-   INTEREST
----------------------------------- */
 
 function sendInterest(){
 
-if(viewingOwnProfile){
+if(own)return;
 
-return;
-
-}
-
-alert(
-"Interest sent to " +
-currentProfile.name +
-" ❤️"
-);
+alert("Interest sent to "+current.name+" ❤️");
 
 }
 
-
-/* ---------------------------------
-   CONTACT
----------------------------------- */
-
-function openContact(){
-
+function contact(){
 location.href="contact.html";
-
 }
 
+function discover(){
+location.href="discover.html";
+}
 
-/* ---------------------------------
-   EDITOR
----------------------------------- */
+function goHome(){
+location.href="index.html";
+}
+
+function goBack(){
+
+if(document.referrer){
+history.back();
+}else{
+location.href="discover.html";
+}
+
+}
 
 function showEditor(){
 
-if(!viewingOwnProfile){
+if(!own)return;
 
-return;
+document.getElementById("editor").classList.remove("hidden");
+document.getElementById("editButton").classList.add("hidden");
 
-}
-
-document.getElementById("editCard")
-.classList.remove("hidden");
-
-document.getElementById("editButtonCard")
-.classList.add("hidden");
-
-const p=currentProfile;
-
-document.getElementById("editName").value=p.name || "";
-
-document.getElementById("editAge").value=
-p.age !== "—" ? p.age : "";
-
-document.getElementById("editGender").value=
-p.gender !== "—" ? p.gender : "";
-
-document.getElementById("editCity").value=
-p.city !== "—" ? p.city : "";
-
-document.getElementById("editCommunity").value=
-p.community !== "—" ? p.community : "";
-
-document.getElementById("editEducation").value=
-p.education !== "—" ? p.education : "";
-
-document.getElementById("editProfession").value=
-p.profession !== "—" ? p.profession : "";
-
-document.getElementById("editAbout").value=
-p.about || "";
-
-document.getElementById("editPhoto").value=
-p.img || "";
-
-document.getElementById("editCover").value=
-p.cover || "";
+document.getElementById("eName").value=current.name==="My Profile"?"":current.name;
+document.getElementById("eAge").value=current.age==="—"?"":current.age;
+document.getElementById("eGender").value=current.gender==="—"?"":current.gender;
+document.getElementById("eCity").value=current.city==="—"?"":current.city;
+document.getElementById("eCommunity").value=current.community==="—"?"":current.community;
+document.getElementById("eEducation").value=current.education==="—"?"":current.education;
+document.getElementById("eProfession").value=current.profession==="—"?"":current.profession;
+document.getElementById("eAbout").value=current.about||"";
+document.getElementById("ePhoto").value=current.img||"";
+document.getElementById("eCover").value=current.cover||"";
 
 }
 
+function saveProfile(){
 
-/* ---------------------------------
-   SAVE PROFILE
----------------------------------- */
+const name=document.getElementById("eName").value.trim();
+const community=document.getElementById("eCommunity").value;
 
-function saveMyProfile(){
-
-const name =
-document.getElementById("editName").value.trim();
-
-const age =
-document.getElementById("editAge").value.trim();
-
-const gender =
-document.getElementById("editGender").value;
-
-const city =
-document.getElementById("editCity").value.trim();
-
-const community =
-document.getElementById("editCommunity").value;
-
-const education =
-document.getElementById("editEducation").value.trim();
-
-const profession =
-document.getElementById("editProfession").value.trim();
-
-const about =
-document.getElementById("editAbout").value.trim();
-
-const img =
-document.getElementById("editPhoto").value.trim();
-
-const cover =
-document.getElementById("editCover").value.trim();
-
-if(!name || !community){
+if(!name||!community){
 
 alert("Please enter your name and community.");
-
 return;
 
 }
 
-const saved={
-
-name,
-age,
-gender,
-city,
-community,
-education,
-profession,
-about,
-
-img:
-img ||
-"https://i.pravatar.cc/500?img=12",
-
-cover:
-cover ||
-"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
-
+const data={
+name:name,
+age:document.getElementById("eAge").value.trim(),
+gender:document.getElementById("eGender").value,
+city:document.getElementById("eCity").value.trim(),
+community:community,
+education:document.getElementById("eEducation").value.trim(),
+profession:document.getElementById("eProfession").value.trim(),
+about:document.getElementById("eAbout").value.trim(),
+img:document.getElementById("ePhoto").value.trim()||"https://i.pravatar.cc/500?img=12",
+cover:document.getElementById("eCover").value.trim()||"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
 };
 
-localStorage.setItem(
-"pjs_profile",
-JSON.stringify(saved)
-);
+localStorage.setItem("pjs_profile",JSON.stringify(data));
 
 alert("Profile saved successfully ❤️");
 
@@ -954,45 +388,9 @@ location.href="profile.html";
 
 }
 
-
-/* ---------------------------------
-   NAVIGATION
----------------------------------- */
-
-function goHome(){
-
-location.href="index.html";
-
-}
-
-function discover(){
-
-location.href="discover.html";
-
-}
-
-function goBack(){
-
-if(document.referrer){
-
-history.back();
-
-}else{
-
-location.href="discover.html";
-
-}
-
-}
-
-
-/* ---------------------------------
-   START
----------------------------------- */
-
-loadProfile();
+load();
 
 </script>
 
 </body>
- </html>
+</html>
