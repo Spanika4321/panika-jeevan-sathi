@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>Report & Safety • PANIKA JEEVAN SATHI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f8fc;color:#20212a;font-family:Inter,system-ui,sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.top{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e6ed;z-index:10}
+.nav{max-width:700px;margin:auto;padding:12px 15px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;gap:9px;align-items:center;background:none;border:0;text-align:left}
+.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#172554,#4338ca);color:#fff;display:grid;place-items:center;font-weight:900}
+.logo b{display:block;font-size:13px}.logo small{display:block;color:#777;font-size:10px}
+.back{border:0;background:#f1f2f6;border-radius:11px;padding:9px 12px}
+.wrap{max-width:700px;margin:auto;padding:20px 14px 100px}
+h1{margin:0;font-size:27px}
+.sub{color:#777;font-size:13px;line-height:1.5;margin:5px 0 17px}
+.card{background:#fff;border:1px solid #e5e6ed;border-radius:20px;padding:17px;margin-bottom:13px}
+.card h2{font-size:17px;margin:0 0 8px}
+.card p{font-size:12px;color:#666;line-height:1.6;margin:5px 0}
+.reason{width:100%;display:flex;align-items:center;gap:10px;text-align:left;border:1px solid #e5e6ed;background:#fff;border-radius:13px;padding:12px;margin-top:8px}
+.reason.active{border-color:#312e81;background:#f5f3ff}
+.reason span:first-child{font-size:19px}
+.reason b{font-size:12px}
+textarea{width:100%;min-height:100px;resize:vertical;border:1px solid #dddfe7;border-radius:13px;padding:12px;outline:none;margin-top:10px}
+.primary{width:100%;border:0;border-radius:13px;padding:14px;background:#312e81;color:#fff;font-weight:800;margin-top:12px}
+.block{width:100%;border:1px solid #fecaca;border-radius:13px;padding:13px;background:#fff;color:#dc2626;font-weight:800;margin-top:8px}
+.safety{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #eee}
+.safety:last-child{border-bottom:0}
+.safety-icon{font-size:20px}
+.safety b{display:block;font-size:12px}
+.safety small{display:block;color:#777;font-size:11px;line-height:1.4;margin-top:3px}
+.message{text-align:center;min-height:20px;font-size:11px;margin-top:9px}
+.footer{text-align:center;color:#999;font-size:10px;line-height:1.6;margin-top:18px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5e6ed;display:flex;justify-content:center;gap:clamp(18px,8vw,75px);padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:20}
+.bottom button{border:0;background:none;color:#777;display:grid;place-items:center}
+.bottom .active{color:#312e81}
+.bottom span{font-size:21px}.bottom small{font-size:10px}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+<div class="nav">
+<button class="logo" onclick="home()">
+<span class="mark">P</span>
+<span><b>PANIKA JEEVAN SATHI</b><small>100% FREE • TRUST • RESPECT</small></span>
+</button>
+<button class="back" onclick="back()">‹ Back</button>
+</div>
+</header>
+
+<main class="wrap">
+
+<h1>Report & Safety 🛡️</h1>
+
+<p class="sub">
+Your safety matters. Report suspicious, abusive or inappropriate behaviour.
+</p>
+
+<section class="card">
+
+<h2>Why are you reporting?</h2>
+
+<button class="reason" onclick="choose(this,'Fake or suspicious profile')">
+<span>🚨</span>
+<b>Fake or suspicious profile</b>
+</button>
+
+<button class="reason" onclick="choose(this,'Harassment or abuse')">
+<span>⚠️</span>
+<b>Harassment or abuse</b>
+</button>
+
+<button class="reason" onclick="choose(this,'Inappropriate content')">
+<span>🚫</span>
+<b>Inappropriate content</b>
+</button>
+
+<button class="reason" onclick="choose(this,'Scam or asking for money')">
+<span>💰</span>
+<b>Scam or asking for money</b>
+</button>
+
+<button class="reason" onclick="choose(this,'Impersonation')">
+<span>🎭</span>
+<b>Impersonation / someone pretending to be another person</b>
+</button>
+
+<button class="reason" onclick="choose(this,'Other')">
+<span>📝</span>
+<b>Other safety concern</b>
+</button>
+
+<textarea id="details" placeholder="Describe the problem (optional)..."></textarea>
+
+<button class="primary" onclick="submitReport()">
+Submit Report
+</button>
+
+<p id="message" class="message"></p>
+
+</section>
+
+<section class="card">
+
+<h2>🚫 Block a Member</h2>
+
+<p>
+If someone is making you uncomfortable, you can stop communicating with them.
+</p>
+
+<button class="block" onclick="blockMember()">
+Block This Member
+</button>
+
+</section>
+
+<section class="card">
+
+<h2>Stay Safe Online</h2>
+
+<div class="safety">
+<div class="safety-icon">🔐</div>
+<div>
+<b>Keep personal information private</b>
+<small>Do not share your OTP, password, address or sensitive documents.</small>
+</div>
+</div>
+
+<div class="safety">
+<div class="safety-icon">💳</div>
+<div>
+<b>Never send money</b>
+<small>Do not transfer money to someone you met through the platform.</small>
+</div>
+</div>
+
+<div class="safety">
+<div class="safety-icon">📱</div>
+<div>
+<b>Take your time</b>
+<small>Build trust gradually before sharing personal contact information.</small>
+</div>
+</div>
+
+<div class="safety">
+<div class="safety-icon">🛡️</div>
+<div>
+<b>Report suspicious behaviour</b>
+<small>Use this page whenever something feels unsafe or inappropriate.</small>
+</div>
+</div>
+
+</section>
+
+<section class="card">
+
+<h2>Need Support?</h2>
+
+<p>
+For general questions or platform support, visit our Contact page.
+</p>
+
+<button class="primary" onclick="contact()">
+Contact Support
+</button>
+
+</section>
+
+<div class="footer">
+PANIKA JEEVAN SATHI<br>
+100% FREE • TRUST • RESPECT
+</div>
+
+</main>
+
+<nav class="bottom">
+
+<button onclick="home()">
+<span>⌂</span><small>Home</small>
+</button>
+
+<button onclick="discover()">
+<span>⌕</span><small>Discover</small>
+</button>
+
+<button onclick="messages()">
+<span>💬</span><small>Messages</small>
+</button>
+
+<button class="active">
+<span>🛡️</span><small>Safety</small>
+</button>
+
+<button onclick="profile()">
+<span>◯</span><small>Profile</small>
+</button>
+
+</nav>
+
+<script>
+
+let selectedReason="";
+
+function choose(button,reason){
+
+document.querySelectorAll(".reason").forEach(x=>{
+x.classList.remove("active");
+});
+
+button.classList.add("active");
+selectedReason=reason;
+
+}
+
+function submitReport(){
+
+const message=document.getElementById("message");
+
+if(!selectedReason){
+message.style.color="#dc2626";
+message.textContent="Please select a reason first.";
+return;
+}
+
+message.style.color="#15803d";
+message.textContent="Report submitted. Thank you for helping keep our community safe. 🛡️";
+
+document.getElementById("details").value="";
+
+}
+
+function blockMember(){
+
+if(confirm("Block this member? You will no longer receive messages from them.")){
+alert("Member blocked successfully. 🛡️");
+}
+
+}
+
+function home(){location.href="index.html"}
+function back(){history.back()}
+function discover(){location.href="discover.html"}
+function messages(){location.href="messages.html"}
+function profile(){location.href="profile.html"}
+function contact(){location.href="contact.html"}
+
+</script>
+
+</body>
+</html>
