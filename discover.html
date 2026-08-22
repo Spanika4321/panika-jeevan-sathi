@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>Discover • PANIKA JEEVAN SATHI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f8fc;color:#20212a;font-family:Inter,system-ui,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.top{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e7e8ef}
+.nav{max-width:900px;margin:auto;padding:12px 15px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:9px;background:none;border:0;text-align:left}
+.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#172554,#4338ca);display:grid;place-items:center;color:#fff;font-weight:900}
+.logo b{display:block;font-size:13px}.logo small{display:block;color:#777;font-size:10px}
+.actions{display:flex;gap:7px}.actions button{border:0;background:#f1f2f6;border-radius:12px;padding:10px}
+.wrap{max-width:900px;margin:auto;padding:18px 14px 100px}
+.hero{margin-bottom:16px}.hero h1{margin:0;font-size:28px}.hero p{color:#777;font-size:13px}
+.search{display:flex;gap:7px;background:#fff;border:1px solid #e2e3ea;border-radius:15px;padding:6px;margin-bottom:10px}
+.search input{border:0;outline:0;flex:1;padding:8px;background:transparent}
+.search button{border:0;background:#f0f1f5;border-radius:10px}
+.filters{display:flex;gap:7px;overflow:auto;padding-bottom:5px}
+.chip{white-space:nowrap;border:1px solid #ddd;background:#fff;border-radius:20px;padding:8px 13px;font-size:12px;font-weight:700}
+.chip.active{background:#312e81;color:#fff;border-color:#312e81}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}
+.card{background:#fff;border:1px solid #e5e6ed;border-radius:20px;overflow:hidden;box-shadow:0 8px 25px #11182708}
+.photo{height:220px;background:#e5e7eb;position:relative}
+.photo img{width:100%;height:100%;object-fit:cover}
+.badge{position:absolute;top:10px;left:10px;background:#2563eb;color:#fff;border-radius:10px;padding:5px 8px;font-size:10px;font-weight:800}
+.heart{position:absolute;right:10px;top:10px;width:35px;height:35px;border:0;border-radius:50%;background:#ffffffe8;font-size:18px}
+.info{padding:13px}.info h3{margin:0 0 3px;font-size:16px}
+.meta{font-size:11px;color:#777;line-height:1.5}
+.actions2{display:flex;gap:6px;margin-top:11px}.actions2 button{flex:1;border:0;border-radius:10px;padding:9px;font-size:11px;font-weight:800}
+.interest{background:#312e81;color:#fff}.short{background:#f0f1f5}
+.empty{background:#fff;border:1px solid #e5e6ed;border-radius:20px;text-align:center;padding:35px;margin-top:15px;color:#777}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:30;align-items:flex-end;padding:12px}
+.modal.show{display:flex}.sheet{background:#fff;width:min(600px,100%);margin:auto;border-radius:24px;padding:20px}
+.sheet h2{margin-top:0}.field{margin:10px 0}.field label{display:block;font-size:11px;font-weight:800;margin-bottom:5px}
+.field select{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.save{width:100%;padding:13px;border:0;border-radius:13px;background:#312e81;color:#fff;font-weight:800}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e6ed;display:flex;justify-content:center;gap:clamp(18px,8vw,75px);padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:20}
+.bottom button{border:0;background:none;color:#777;display:grid;place-items:center}.bottom .active{color:#312e81}.bottom span{font-size:21px}.bottom small{font-size:10px}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.photo{height:190px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+<div class="nav">
+<button class="logo" onclick="home()">
+<span class="mark">P</span>
+<span><b>PANIKA JEEVAN SATHI</b><small>100% FREE • TRUST • RESPECT</small></span>
+</button>
+<div class="actions">
+<button onclick="openFilters()">⚙️</button>
+<button onclick="contact()">💬</button>
+</div>
+</div>
+</header>
+
+<main class="wrap">
+
+<section class="hero">
+<h1>Discover ❤️</h1>
+<p>Find meaningful connections from your trusted community.</p>
+</section>
+
+<div class="search">
+<span>⌕</span>
+<input id="search" placeholder="Search name, city or community" oninput="render()">
+<button onclick="clearSearch()">×</button>
+</div>
+
+<div class="filters">
+<button class="chip active" onclick="setCommunity('All',this)">All</button>
+<button class="chip" onclick="setCommunity('Panika',this)">Panika</button>
+<button class="chip" onclick="setCommunity('Manikpuri',this)">Manikpuri</button>
+<button class="chip" onclick="setCommunity('Kabirpanthi',this)">Kabirpanthi</button>
+<button class="chip" onclick="setCommunity('Adivasi',this)">Adivasi</button>
+</div>
+
+<section id="profiles" class="grid"></section>
+
+</main>
+
+<nav class="bottom">
+<button onclick="home()"><span>⌂</span><small>Home</small></button>
+<button class="active"><span>⌕</span><small>Discover</small></button>
+<button onclick="profile()"><span>◯</span><small>Profile</small></button>
+<button onclick="shortlist()"><span>☆</span><small>Shortlist</small></button>
+</nav>
+
+<div class="modal" id="filterModal">
+<div class="sheet">
+<h2>Filter Profiles</h2>
+
+<div class="field">
+<label>COMMUNITY</label>
+<select id="filterCommunity">
+<option>All</option>
+<option>Panika</option>
+<option>Manikpuri</option>
+<option>Kabirpanthi</option>
+<option>Adivasi</option>
+</select>
+</div>
+
+<div class="field">
+<label>GENDER</label>
+<select id="filterGender">
+<option>All</option>
+<option>Male</option>
+<option>Female</option>
+</select>
+</div>
+
+<div class="field">
+<label>MARITAL STATUS</label>
+<select id="filterMarital">
+<option>All</option>
+<option>Never Married</option>
+<option>Divorced</option>
+<option>Widowed</option>
+</select>
+</div>
+
+<button class="save" onclick="applyFilters()">Apply Filters</button>
+</div>
+</div>
+
+<script>
+
+const profiles=[
+{
+id:1,name:"Anjali Panika",age:25,gender:"Female",
+city:"Silchar",community:"Panika",
+education:"Graduate",profession:"Teacher",
+marital:"Never Married",img:"https://i.pravatar.cc/500?img=47",verified:true
+},
+{
+id:2,name:"Rohan Panika",age:28,gender:"Male",
+city:"Guwahati",community:"Panika",
+education:"Graduate",profession:"Business",
+marital:"Never Married",img:"https://i.pravatar.cc/500?img=12",verified:true
+},
+{
+id:3,name:"Priya Manikpuri",age:26,gender:"Female",
+city:"Raipur",community:"Manikpuri",
+education:"Post Graduate",profession:"Designer",
+marital:"Never Married",img:"https://i.pravatar.cc/500?img=44",verified:true
+},
+{
+id:4,name:"Amit Manikpuri",age:30,gender:"Male",
+city:"Bilaspur",community:"Manikpuri",
+education:"Graduate",profession:"Engineer",
+marital:"Never Married",img:"https://i.pravatar.cc/500?img=13",verified:false
+},
+{
+id:5,name:"Kavita Kabirpanthi",age:27,gender:"Female",
+city:"Kolkata",community:"Kabirpanthi",
+education:"Graduate",profession:"Accountant",
+marital:"Never Married",img:"https://i.pravatar.cc/500?img=49",verified:true
+},
+{
+id:6,name:"Suresh Adivasi",age:29,gender:"Male",
+city:"Jorhat",community:"Adivasi",
+education:"Graduate",profession:"Government Employee",
+marital:"Never Married",img:"https://i.pravatar.cc/500?img=14",verified:true
+}
+];
+
+let selectedCommunity="All";
+let selectedGender="All";
+let selectedMarital="All";
+let shortlisted=JSON.parse(localStorage.getItem("pjs_discover_shortlist")||"[]");
+
+function render(){
+
+const q=document.getElementById("search").value.toLowerCase().trim();
+
+const result=profiles.filter(p=>{
+
+const text=(p.name+" "+p.city+" "+p.community).toLowerCase();
+
+return (!q||text.includes(q))
+&& (selectedCommunity==="All"||p.community===selectedCommunity)
+&& (selectedGender==="All"||p.gender===selectedGender)
+&& (selectedMarital==="All"||p.marital===selectedMarital);
+
+});
+
+const box=document.getElementById("profiles");
+
+if(!result.length){
+
+box.className="";
+box.innerHTML=`
+<div class="empty">
+<h3>No profiles found</h3>
+<p>Try another name, city or filter.</p>
+</div>`;
+
+return;
+}
+
+box.className="grid";
+
+box.innerHTML=result.map(p=>`
+
+<article class="card">
+
+<div class="photo">
+
+<img src="${p.img}" alt="${p.name}">
+
+${p.verified?'<span class="badge">✓ VERIFIED</span>':''}
+
+<button class="heart"
+onclick="toggleShortlist(${p.id})">
+${shortlisted.includes(p.id)?"❤️":"♡"}
+</button>
+
+</div>
+
+<div class="info">
+
+<h3>
+${escapeHTML(p.name)}
+${p.verified?'<span style="color:#2563eb">✓</span>':''}
+</h3>
+
+<div class="meta">
+${p.age} years • ${p.gender}<br>
+📍 ${escapeHTML(p.city)}<br>
+✓ ${escapeHTML(p.community)}<br>
+🎓 ${escapeHTML(p.education)} • 💼 ${escapeHTML(p.profession)}
+</div>
+
+<div class="actions2">
+
+<button class="interest"
+onclick="interest('${escapeHTML(p.name)}')">
+❤️ Interest
+</button>
+
+<button class="short"
+onclick="toggleShortlist(${p.id})">
+☆ ${shortlisted.includes(p.id)?"Saved":"Save"}
+</button>
+
+</div>
+
+</div>
+
+</article>
+
+`).join("");
+
+}
+
+function setCommunity(value,button){
+
+selectedCommunity=value;
+
+document.querySelectorAll(".chip")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+render();
+
+}
+
+function toggleShortlist(id){
+
+if(shortlisted.includes(id))
+shortlisted=shortlisted.filter(x=>x!==id);
+else
+shortlisted.push(id);
+
+localStorage.setItem(
+"pjs_discover_shortlist",
+JSON.stringify(shortlisted)
+);
+
+render();
+
+}
+
+function interest(name){
+
+alert("Interest sent to "+name+" ❤️");
+
+}
+
+function clearSearch(){
+
+document.getElementById("search").value="";
+render();
+
+}
+
+function openFilters(){
+
+document.getElementById("filterModal").classList.add("show");
+
+}
+
+function applyFilters(){
+
+selectedCommunity=document.getElementById("filterCommunity").value;
+selectedGender=document.getElementById("filterGender").value;
+selectedMarital=document.getElementById("filterMarital").value;
+
+document.getElementById("filterModal").classList.remove("show");
+
+render();
+
+}
+
+function contact(){
+
+const message=encodeURIComponent(
+"Hello PANIKA JEEVAN SATHI Support, I need help."
+);
+
+location.href="https://wa.me/918099834725?text="+message;
+
+}
+
+function home(){location.href="index.html"}
+function profile(){location.href="profile.html"}
+function shortlist(){location.href="shortlist.html"}
+
+function escapeHTML(v){
+
+return String(v).replace(/[&<>"']/g,m=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m]));
+
+}
+
+render();
+
+</script>
+</body>
+  </html>
