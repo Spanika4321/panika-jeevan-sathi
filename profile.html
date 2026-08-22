@@ -1,401 +1,321 @@
-<!doctype html>
+here<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#312e81">
-<title>My Profile • PANIKA JEEVAN SATHI</title>
+<title>Profile • PANIKA JEEVAN SATHI</title>
 
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;
- font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
- background:#f7f8fc;
- color:#20212a;
+  margin:0;
+  background:#f7f8fc;
+  color:#20212a;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 }
-button,input,textarea,select{font:inherit}
+button,input,select{font:inherit}
 button{cursor:pointer}
-.topbar{
- position:sticky;
- top:0;
- z-index:20;
- background:#fff;
- border-bottom:1px solid #e8e9ef;
+
+.top{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:#fff;
+  border-bottom:1px solid #e5e6ed
 }
+
 .nav{
- max-width:900px;
- margin:auto;
- padding:12px 16px;
- display:flex;
- justify-content:space-between;
- align-items:center;
+  max-width:900px;
+  margin:auto;
+  padding:10px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
 }
+
 .logo{
- display:flex;
- align-items:center;
- gap:10px;
- background:none;
- text-align:left;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  border:0;
+  background:none;
+  text-align:left
 }
-.logo-mark{
- width:42px;
- height:42px;
- border-radius:14px;
- display:grid;
- place-items:center;
- background:linear-gradient(135deg,#172554,#4338ca);
- color:white;
- font-weight:900;
+
+.mark{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#172554,#4338ca);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-weight:900
 }
+
 .logo b{display:block;font-size:13px}
 .logo small{display:block;color:#777;font-size:10px}
-.top-actions{display:flex;gap:8px}
-.top-actions button{
- border:0;
- background:#f2f3f7;
- border-radius:12px;
- padding:10px 12px;
+
+.back{
+  border:0;
+  background:#f1f2f6;
+  border-radius:11px;
+  padding:9px 12px
 }
-.container{
- max-width:900px;
- margin:auto;
- padding:18px 14px 100px;
+
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:15px 12px 100px
 }
-.profile-card{
- background:#fff;
- border:1px solid #e7e8ef;
- border-radius:22px;
- overflow:hidden;
- box-shadow:0 10px 30px #1118270a;
-}
+
 .cover{
- height:210px;
- background:
- linear-gradient(135deg,#172554,#4338ca,#7c3aed);
- position:relative;
+  height:220px;
+  border-radius:22px 22px 0 0;
+  overflow:hidden;
+  background:#ddd;
+  position:relative
 }
+
 .cover img{
- width:100%;
- height:100%;
- object-fit:cover;
- display:none;
+  width:100%;
+  height:100%;
+  object-fit:cover
 }
-.change-cover{
- position:absolute;
- right:14px;
- bottom:14px;
- background:#0008;
- color:#fff;
- border:1px solid #ffffff55;
- border-radius:12px;
- padding:9px 12px;
- font-size:12px;
+
+.profile-card{
+  background:#fff;
+  border:1px solid #e5e6ed;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 8px 25px #11182708
 }
-.profile-main{
- padding:0 20px 22px;
-}
-.avatar-wrap{
- position:relative;
- width:108px;
- margin-top:-54px;
-}
+
 .avatar{
- width:108px;
- height:108px;
- border-radius:50%;
- object-fit:cover;
- border:6px solid white;
- background:#eee;
+  width:112px;
+  height:112px;
+  border-radius:50%;
+  border:5px solid #fff;
+  object-fit:cover;
+  margin-top:-56px;
+  position:relative;
+  background:#eee
 }
-.change-avatar{
- position:absolute;
- right:0;
- bottom:4px;
- width:34px;
- height:34px;
- border-radius:50%;
- border:3px solid white;
- background:#312e81;
- color:white;
+
+.identity{
+  padding:0 17px 18px;
+  text-align:center
 }
-.name-row{
- display:flex;
- justify-content:space-between;
- align-items:flex-start;
- gap:10px;
+
+.identity h1{
+  margin:8px 0 3px;
+  font-size:24px
 }
-h1{
- margin:8px 0 2px;
- font-size:26px;
+
+.meta{
+  color:#777;
+  font-size:12px;
+  line-height:1.7
 }
-.verified{
- display:inline-block;
- background:#2563eb;
- color:#fff;
- border-radius:50%;
- font-size:11px;
- padding:3px 6px;
- vertical-align:middle;
+
+.badge{
+  display:inline-block;
+  margin-top:7px;
+  padding:5px 9px;
+  border-radius:20px;
+  background:#eef2ff;
+  color:#312e81;
+  font-size:10px;
+  font-weight:800
 }
-.subtitle{
- color:#777;
- font-size:13px;
-}
+
 .actions{
- display:flex;
- gap:9px;
- flex-wrap:wrap;
- margin-top:16px;
+  display:flex;
+  gap:8px;
+  margin-top:14px
 }
+
 .actions button{
- border:0;
- border-radius:13px;
- padding:11px 14px;
- background:#f1f2f6;
- font-weight:700;
+  flex:1;
+  border:0;
+  border-radius:12px;
+  padding:12px;
+  font-weight:800
 }
-.actions .primary{
- background:#312e81;
- color:#fff;
+
+.primary{
+  background:#312e81;
+  color:#fff
 }
-.actions .danger{
- color:#b91c1c;
+
+.secondary{
+  background:#f0f1f6;
+  color:#333
 }
-.section{
- margin-top:16px;
- background:#fff;
- border:1px solid #e7e8ef;
- border-radius:20px;
- padding:18px;
+
+.card{
+  background:#fff;
+  border:1px solid #e5e6ed;
+  border-radius:20px;
+  padding:17px;
+  margin-top:13px
 }
-.section h2{
- margin:0 0 14px;
- font-size:18px;
+
+.card h2{
+  margin:0 0 10px;
+  font-size:17px
 }
-.grid{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px;
-}
+
 .info{
- background:#f7f8fb;
- border-radius:14px;
- padding:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px
 }
-.info small{
- display:block;
- color:#888;
- font-size:10px;
- margin-bottom:4px;
+
+.item{
+  background:#f7f7fb;
+  border-radius:13px;
+  padding:11px
 }
-.info b{
- font-size:13px;
+
+.item small{
+  display:block;
+  color:#888;
+  font-size:10px
 }
-.bio{
- color:#555;
- font-size:14px;
- line-height:1.6;
+
+.item b{
+  display:block;
+  margin-top:3px;
+  font-size:12px
 }
-.edit-grid{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px;
+
+textarea,input,select{
+  width:100%;
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:11px;
+  outline:none;
+  background:#fff
 }
-.field{
- margin-bottom:10px;
+
+label{
+  display:block;
+  font-size:11px;
+  font-weight:800;
+  margin:11px 0 5px
 }
-.field label{
- display:block;
- font-size:11px;
- font-weight:800;
- margin-bottom:5px;
-}
-.field input,.field select,.field textarea{
- width:100%;
- padding:11px;
- border:1px solid #ddd;
- border-radius:12px;
- outline:0;
- background:#fff;
-}
-.field textarea{
- min-height:90px;
- resize:vertical;
-}
+
 .save{
- width:100%;
- border:0;
- border-radius:13px;
- padding:13px;
- background:#312e81;
- color:#fff;
- font-weight:800;
+  width:100%;
+  border:0;
+  background:#312e81;
+  color:#fff;
+  border-radius:13px;
+  padding:13px;
+  font-weight:800;
+  margin-top:13px
 }
-.modal{
- display:none;
- position:fixed;
- inset:0;
- background:#0008;
- z-index:40;
- align-items:flex-end;
- justify-content:center;
- padding:12px;
+
+.hidden{display:none}
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  color:#777
 }
-.modal.show{display:flex}
-.sheet{
- width:min(620px,100%);
- max-height:90vh;
- overflow:auto;
- background:#fff;
- border-radius:24px 24px 10px;
- padding:20px;
-}
-.sheet-head{
- display:flex;
- justify-content:space-between;
- align-items:flex-start;
-}
-.close{
- width:36px;
- height:36px;
- border:0;
- border-radius:50%;
- background:#eee;
- font-size:22px;
-}
-.safety-row{
- padding:13px 0;
- border-bottom:1px solid #eee;
-}
-.safety-row small{
- display:block;
- color:#777;
- margin-top:3px;
-}
+
 .bottom{
- position:fixed;
- left:0;
- right:0;
- bottom:0;
- z-index:30;
- background:#fff;
- border-top:1px solid #e8e8ee;
- display:flex;
- justify-content:center;
- gap:clamp(18px,8vw,75px);
- padding:9px 10px calc(9px + env(safe-area-inset-bottom));
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:30;
+  background:#fff;
+  border-top:1px solid #e5e6ed;
+  display:flex;
+  justify-content:center;
+  gap:clamp(18px,8vw,75px);
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom))
 }
+
 .bottom button{
- background:none;
- border:0;
- color:#777;
- display:grid;
- place-items:center;
- gap:2px;
+  border:0;
+  background:none;
+  color:#777;
+  display:grid;
+  place-items:center
 }
-.bottom button.active{color:#312e81}
+
+.bottom .active{color:#312e81}
 .bottom span{font-size:21px}
 .bottom small{font-size:10px}
 
 @media(max-width:600px){
- .cover{height:170px}
- .grid,.edit-grid{grid-template-columns:1fr}
- .profile-main{padding:0 15px 18px}
- .name-row{display:block}
+  .cover{height:180px}
+  .info{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 
 <body>
 
-<header class="topbar">
+<header class="top">
 <div class="nav">
 
 <button class="logo" onclick="goHome()">
-<span class="logo-mark">P</span>
+<span class="mark">P</span>
 <span>
 <b>PANIKA JEEVAN SATHI</b>
 <small>100% FREE • TRUST • RESPECT</small>
 </span>
 </button>
 
-<div class="top-actions">
-<button onclick="openSafety()">🛡️</button>
-<button onclick="contactWhatsApp()">💬</button>
-</div>
+<button class="back" onclick="goBack()">‹ Back</button>
 
 </div>
 </header>
 
-<main class="container">
-
-<!-- PROFILE HEADER -->
+<main class="wrap">
 
 <section class="profile-card">
 
 <div class="cover">
-<img id="coverImage" alt="Cover Photo">
-
-<button class="change-cover" onclick="document.getElementById('coverInput').click()">
-📷 Change Cover
-</button>
-
-<input id="coverInput"
-type="file"
-accept="image/*"
-hidden
-onchange="changeCover(event)">
+<img id="coverPhoto"
+src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
+alt="Profile cover">
 </div>
 
-<div class="profile-main">
+<div class="identity">
 
-<div class="avatar-wrap">
-
-<img id="avatar"
+<img id="profilePhoto"
 class="avatar"
-src="https://i.pravatar.cc/300?img=12"
-alt="Profile Photo">
+src="https://i.pravatar.cc/500?img=12"
+alt="Profile photo">
 
-<button class="change-avatar"
-onclick="document.getElementById('avatarInput').click()">
-+
-</button>
+<h1 id="profileName">My Profile</h1>
 
-<input id="avatarInput"
-type="file"
-accept="image/*"
-hidden
-onchange="changeAvatar(event)">
-
+<div id="profileMeta" class="meta">
+Complete your profile to help members know you better.
 </div>
 
-<div class="name-row">
-
-<div>
-<h1 id="displayName">
-Your Name <span class="verified">✓</span>
-</h1>
-
-<div class="subtitle" id="displayMeta">
-Panika • Your City
-</div>
-</div>
-
+<div id="verifiedBadge" class="badge hidden">
+✓ VERIFIED PROFILE
 </div>
 
 <div class="actions">
 
-<button class="primary" onclick="sendInterest()">
-❤️ Send Interest
+<button class="primary" id="interestBtn" onclick="sendInterest()">
+❤️ Interest
 </button>
 
-<button onclick="toggleShortlist()">
-⭐ <span id="shortlistText">Shortlist</span>
+<button class="secondary" onclick="openShortlist()">
+⭐ Shortlist
 </button>
 
-<button onclick="openEdit()">
-✏️ Edit Profile
+<button class="secondary" onclick="openContact()">
+💬 Contact
 </button>
 
 </div>
@@ -403,113 +323,123 @@ Panika • Your City
 </div>
 </section>
 
-<!-- ABOUT -->
 
-<section class="section">
-
-<h2>About Me</h2>
-
-<p class="bio" id="bio">
-Create your profile and tell the community a little about yourself.
-</p>
-
-</section>
-
-<!-- DETAILS -->
-
-<section class="section">
-
-<h2>Personal Details</h2>
-
-<div class="grid">
+<section class="card">
+<h2>👤 Profile Details</h2>
 
 <div class="info">
-<small>COMMUNITY</small>
-<b id="community">Panika</b>
-</div>
 
-<div class="info">
-<small>AGE</small>
+<div class="item">
+<small>Age</small>
 <b id="age">—</b>
 </div>
 
-<div class="info">
-<small>CITY</small>
-<b id="city">—</b>
-</div>
-
-<div class="info">
-<small>GENDER</small>
+<div class="item">
+<small>Gender</small>
 <b id="gender">—</b>
 </div>
 
-<div class="info">
-<small>EDUCATION</small>
+<div class="item">
+<small>City</small>
+<b id="city">—</b>
+</div>
+
+<div class="item">
+<small>Community</small>
+<b id="community">—</b>
+</div>
+
+<div class="item">
+<small>Education</small>
 <b id="education">—</b>
 </div>
 
-<div class="info">
-<small>PROFESSION</small>
+<div class="item">
+<small>Profession</small>
 <b id="profession">—</b>
 </div>
 
 </div>
-
 </section>
 
-<!-- PARTNER PREFERENCES -->
 
-<section class="section">
-
-<h2>Partner Preferences</h2>
-
-<div class="grid">
-
-<div class="info">
-<small>PREFERRED AGE</small>
-<b id="prefAge">—</b>
-</div>
-
-<div class="info">
-<small>PREFERRED CITY</small>
-<b id="prefCity">—</b>
-</div>
-
-<div class="info">
-<small>COMMUNITY</small>
-<b id="prefCommunity">Same community</b>
-</div>
-
-<div class="info">
-<small>MARITAL STATUS</small>
-<b id="marital">—</b>
-</div>
-
-</div>
-
-</section>
-
-<!-- SAFETY -->
-
-<section class="section">
-
-<h2>🛡️ Trust & Safety</h2>
-
-<div class="info">
-<small>PROFILE STATUS</small>
-<b>✓ Community profile</b>
-</div>
-
-<p class="bio">
-Never share your OTP, password or sensitive personal information.
-Use Report & Block if someone behaves disrespectfully.
+<section id="aboutCard" class="card">
+<h2>❤️ About</h2>
+<p id="aboutText">
+Looking for a respectful and meaningful relationship.
 </p>
+</section>
+
+
+<section id="editCard" class="card hidden">
+
+<h2>✏️ Edit My Profile</h2>
+
+<label>Full Name</label>
+<input id="editName" placeholder="Your name">
+
+<label>Age</label>
+<input id="editAge" type="number" min="18" max="100" placeholder="Age">
+
+<label>Gender</label>
+<select id="editGender">
+<option value="">Select</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+<label>City</label>
+<input id="editCity" placeholder="City">
+
+<label>Community</label>
+<select id="editCommunity">
+<option value="">Select</option>
+<option>Panika</option>
+<option>Manikpuri</option>
+<option>Kabirpanthi</option>
+<option>Adivasi</option>
+</select>
+
+<label>Education</label>
+<input id="editEducation" placeholder="Education">
+
+<label>Profession</label>
+<input id="editProfession" placeholder="Profession">
+
+<label>About</label>
+<textarea id="editAbout" placeholder="Tell something about yourself"></textarea>
+
+<label>Profile Photo URL</label>
+<input id="editPhoto" placeholder="Image URL">
+
+<label>Cover Photo URL</label>
+<input id="editCover" placeholder="Cover image URL">
+
+<button class="save" onclick="saveMyProfile()">
+💾 Save Profile
+</button>
 
 </section>
+
+
+<section id="editButtonCard" class="card">
+<button class="save" onclick="showEditor()">
+✏️ Edit My Profile
+</button>
+</section>
+
+
+<div id="notFound" class="card empty hidden">
+<h2>Profile not found</h2>
+<p>This profile could not be loaded.</p>
+<button class="save" onclick="discover()">
+🔎 Discover Profiles
+</button>
+</div>
 
 </main>
 
-<!-- BOTTOM NAV -->
 
 <nav class="bottom">
 
@@ -518,14 +448,9 @@ Use Report & Block if someone behaves disrespectfully.
 <small>Home</small>
 </button>
 
-<button onclick="goDiscover()">
+<button onclick="discover()">
 <span>⌕</span>
 <small>Discover</small>
-</button>
-
-<button class="active">
-<span>◯</span>
-<small>Profile</small>
 </button>
 
 <button onclick="openShortlist()">
@@ -533,398 +458,541 @@ Use Report & Block if someone behaves disrespectfully.
 <small>Shortlist</small>
 </button>
 
-</nav>
-
-<!-- EDIT MODAL -->
-
-<div class="modal" id="editModal">
-
-<div class="sheet">
-
-<div class="sheet-head">
-
-<div>
-<small style="color:#4f46e5;font-weight:800">
-EDIT PROFILE
-</small>
-<h2>Edit your profile</h2>
-</div>
-
-<button class="close" onclick="closeModal('editModal')">×</button>
-
-</div>
-
-<div class="edit-grid">
-
-<div class="field">
-<label>FULL NAME</label>
-<input id="editName" placeholder="Full name">
-</div>
-
-<div class="field">
-<label>AGE</label>
-<input id="editAge" type="number" placeholder="Age">
-</div>
-
-<div class="field">
-<label>CITY</label>
-<input id="editCity" placeholder="City">
-</div>
-
-<div class="field">
-<label>GENDER</label>
-<select id="editGender">
-<option value="">Select</option>
-<option>Male</option>
-<option>Female</option>
-<option>Other</option>
-</select>
-</div>
-
-<div class="field">
-<label>COMMUNITY</label>
-<select id="editCommunity">
-<option>Panika</option>
-<option>Manikpuri</option>
-<option>Kabirpanthi</option>
-<option>Adivasi</option>
-</select>
-</div>
-
-<div class="field">
-<label>EDUCATION</label>
-<input id="editEducation" placeholder="Education">
-</div>
-
-<div class="field">
-<label>PROFESSION</label>
-<input id="editProfession" placeholder="Profession">
-</div>
-
-<div class="field">
-<label>MARITAL STATUS</label>
-<select id="editMarital">
-<option value="">Select</option>
-<option>Never Married</option>
-<option>Divorced</option>
-<option>Widowed</option>
-</select>
-</div>
-
-<div class="field">
-<label>PREFERRED AGE</label>
-<input id="editPrefAge" placeholder="Example: 24-30">
-</div>
-
-<div class="field">
-<label>PREFERRED CITY</label>
-<input id="editPrefCity" placeholder="Any city">
-</div>
-
-</div>
-
-<div class="field">
-<label>ABOUT ME</label>
-<textarea id="editBio"
-placeholder="Tell something about yourself"></textarea>
-</div>
-
-<button class="save" onclick="saveProfile()">
-Save Profile
+<button class="active">
+<span>◯</span>
+<small>Profile</small>
 </button>
 
-</div>
-</div>
+<button onclick="openContact()">
+<span>🛡️</span>
+<small>Safety</small>
+</button>
 
-<!-- SAFETY MODAL -->
+</nav>
 
-<div class="modal" id="safetyModal">
-
-<div class="sheet">
-
-<div class="sheet-head">
-<div>
-<small style="color:#4f46e5;font-weight:800">
-TRUST & SAFETY
-</small>
-<h2>Community Safety</h2>
-</div>
-
-<button class="close" onclick="closeModal('safetyModal')">×</button>
-</div>
-
-<div class="safety-row">
-✓ <b>Privacy first</b>
-<small>Keep personal contact information private.</small>
-</div>
-
-<div class="safety-row">
-✓ <b>Verification</b>
-<small>Verified status should be confirmed before trusting a profile.</small>
-</div>
-
-<div class="safety-row">
-✓ <b>Report & Block</b>
-<small>Report suspicious or disrespectful accounts.</small>
-</div>
-
-<div class="safety-row">
-✓ <b>Never share OTP</b>
-<small>PANIKA JEEVAN SATHI will never ask for your OTP or password.</small>
-</div>
-
-</div>
-</div>
 
 <script>
 
-let shortlisted=
-localStorage.getItem("pjs_shortlisted")==="1";
+/* ---------------------------------
+   DEMO / DISCOVER PROFILES
+---------------------------------- */
 
-function $(id){
- return document.getElementById(id);
+const profiles = [
+
+{
+id:1,
+name:"Anjali Panika",
+age:25,
+gender:"Female",
+city:"Silchar",
+community:"Panika",
+education:"Graduate",
+profession:"Teacher",
+img:"https://i.pravatar.cc/500?img=47",
+cover:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+about:"Simple, caring and family-oriented. Looking for a respectful life partner.",
+verified:true
+},
+
+{
+id:2,
+name:"Rohan Panika",
+age:28,
+gender:"Male",
+city:"Guwahati",
+community:"Panika",
+education:"Graduate",
+profession:"Business",
+img:"https://i.pravatar.cc/500?img=12",
+cover:"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
+about:"Responsible and family-oriented. Looking for a meaningful relationship.",
+verified:true
+},
+
+{
+id:3,
+name:"Priya Manikpuri",
+age:26,
+gender:"Female",
+city:"Raipur",
+community:"Manikpuri",
+education:"Post Graduate",
+profession:"Designer",
+img:"https://i.pravatar.cc/500?img=44",
+cover:"https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80",
+about:"Creative, positive and respectful.",
+verified:true
+},
+
+{
+id:4,
+name:"Amit Manikpuri",
+age:30,
+gender:"Male",
+city:"Bilaspur",
+community:"Manikpuri",
+education:"Graduate",
+profession:"Engineer",
+img:"https://i.pravatar.cc/500?img=13",
+cover:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+about:"Professional and family-oriented.",
+verified:false
+},
+
+{
+id:5,
+name:"Kavita Kabirpanthi",
+age:27,
+gender:"Female",
+city:"Kolkata",
+community:"Kabirpanthi",
+education:"Graduate",
+profession:"Accountant",
+img:"https://i.pravatar.cc/500?img=49",
+cover:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
+about:"Calm, caring and respectful.",
+verified:true
+},
+
+{
+id:6,
+name:"Suresh Adivasi",
+age:29,
+gender:"Male",
+city:"Jorhat",
+community:"Adivasi",
+education:"Graduate",
+profession:"Government Employee",
+img:"https://i.pravatar.cc/500?img=14",
+cover:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+about:"Honest, responsible and family-oriented.",
+verified:true
 }
+
+];
+
+
+/* ---------------------------------
+   GET PROFILE ID FROM URL
+---------------------------------- */
+
+const params = new URLSearchParams(location.search);
+const profileId = Number(params.get("id"));
+
+let viewingOwnProfile = !profileId;
+
+let currentProfile = null;
+
+
+/* ---------------------------------
+   LOAD PROFILE
+---------------------------------- */
 
 function loadProfile(){
 
-const saved=
-JSON.parse(localStorage.getItem("pjs_profile")||"{}");
+if(viewingOwnProfile){
 
-if(saved.name) $("displayName").innerHTML=
-escapeHTML(saved.name)+' <span class="verified">✓</span>';
+const saved =
+JSON.parse(localStorage.getItem("pjs_profile") || "null");
 
-if(saved.community)
- $("community").textContent=saved.community;
+if(saved){
 
-if(saved.city){
- $("city").textContent=saved.city;
- $("displayMeta").textContent=
- (saved.community||"Community")+" • "+saved.city;
-}
+currentProfile = {
 
-if(saved.age)
- $("age").textContent=saved.age;
+id:0,
 
-if(saved.gender)
- $("gender").textContent=saved.gender;
+name:saved.name || "My Profile",
 
-if(saved.education)
- $("education").textContent=saved.education;
+age:saved.age || "—",
 
-if(saved.profession)
- $("profession").textContent=saved.profession;
+gender:saved.gender || "—",
 
-if(saved.marital)
- $("marital").textContent=saved.marital;
+city:saved.city || saved.city || "—",
 
-if(saved.prefAge)
- $("prefAge").textContent=saved.prefAge;
+community:saved.community || "—",
 
-if(saved.prefCity)
- $("prefCity").textContent=saved.prefCity;
+education:saved.education || "—",
 
-if(saved.prefCommunity)
- $("prefCommunity").textContent=saved.prefCommunity;
+profession:saved.profession || "—",
 
-if(saved.bio)
- $("bio").textContent=saved.bio;
+img:saved.img || saved.photo || "https://i.pravatar.cc/500?img=12",
 
-if(shortlisted)
- $("shortlistText").textContent="Shortlisted ✓";
+cover:saved.cover || "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
 
-const avatar=
-localStorage.getItem("pjs_avatar");
+about:saved.about || "Complete your profile to tell members about yourself.",
 
-if(avatar)
- $("avatar").src=avatar;
-
-const cover=
-localStorage.getItem("pjs_cover");
-
-if(cover){
- $("coverImage").src=cover;
- $("coverImage").style.display="block";
-}
-
-}
-
-function openEdit(){
-
-const saved=
-JSON.parse(localStorage.getItem("pjs_profile")||"{}");
-
-$("editName").value=saved.name||"";
-$("editAge").value=saved.age||"";
-$("editCity").value=saved.city||"";
-$("editGender").value=saved.gender||"";
-$("editCommunity").value=saved.community||"Panika";
-$("editEducation").value=saved.education||"";
-$("editProfession").value=saved.profession||"";
-$("editMarital").value=saved.marital||"";
-$("editPrefAge").value=saved.prefAge||"";
-$("editPrefCity").value=saved.prefCity||"";
-$("editBio").value=saved.bio||"";
-
-$("editModal").classList.add("show");
-
-}
-
-function saveProfile(){
-
-const profile={
- name:$("editName").value.trim(),
- age:$("editAge").value.trim(),
- city:$("editCity").value.trim(),
- gender:$("editGender").value,
- community:$("editCommunity").value,
- education:$("editEducation").value.trim(),
- profession:$("editProfession").value.trim(),
- marital:$("editMarital").value,
- prefAge:$("editPrefAge").value.trim(),
- prefCity:$("editPrefCity").value.trim(),
- prefCommunity:"Same community",
- bio:$("editBio").value.trim()
-};
-
-if(!profile.name){
- alert("Please enter your name.");
- return;
-}
-
-localStorage.setItem(
-"pjs_profile",
-JSON.stringify(profile)
-);
-
-closeModal("editModal");
-loadProfile();
-
-alert("Profile updated successfully ✓");
-
-}
-
-function changeAvatar(event){
-
-const file=event.target.files[0];
-
-if(!file)return;
-
-const reader=new FileReader();
-
-reader.onload=function(){
- $("avatar").src=reader.result;
- localStorage.setItem("pjs_avatar",reader.result);
-};
-
-reader.readAsDataURL(file);
-
-}
-
-function changeCover(event){
-
-const file=event.target.files[0];
-
-if(!file)return;
-
-const reader=new FileReader();
-
-reader.onload=function(){
-
-$("coverImage").src=reader.result;
-$("coverImage").style.display="block";
-
-localStorage.setItem("pjs_cover",reader.result);
+verified:false
 
 };
 
-reader.readAsDataURL(file);
+}else{
+
+currentProfile = {
+
+id:0,
+
+name:"My Profile",
+
+age:"—",
+
+gender:"—",
+
+city:"—",
+
+community:"—",
+
+education:"—",
+
+profession:"—",
+
+img:"https://i.pravatar.cc/500?img=12",
+
+cover:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+
+about:"Complete your profile to tell members about yourself.",
+
+verified:false
+
+};
 
 }
 
-function sendInterest(){
+}else{
 
-alert("Interest sent ❤️");
+currentProfile =
+profiles.find(p => p.id === profileId);
+
+if(!currentProfile){
+
+document.querySelector(".profile-card").classList.add("hidden");
+document.querySelectorAll(".card").forEach(x=>{
+if(x.id !== "notFound") x.classList.add("hidden");
+});
+
+document.getElementById("notFound").classList.remove("hidden");
+
+return;
+
+}
 
 }
 
-function toggleShortlist(){
-
-shortlisted=!shortlisted;
-
-localStorage.setItem(
-"pjs_shortlisted",
-shortlisted?"1":"0"
-);
-
-$("shortlistText").textContent=
-shortlisted?"Shortlisted ✓":"Shortlist";
-
-alert(
-shortlisted?
-"Added to Shortlist ⭐":
-"Removed from Shortlist"
-);
+renderProfile();
 
 }
+
+
+/* ---------------------------------
+   RENDER PROFILE
+---------------------------------- */
+
+function renderProfile(){
+
+const p=currentProfile;
+
+document.title =
+p.name + " • PANIKA JEEVAN SATHI";
+
+document.getElementById("profileName").textContent=p.name;
+
+document.getElementById("profilePhoto").src=p.img;
+
+document.getElementById("coverPhoto").src=p.cover;
+
+document.getElementById("age").textContent=p.age || "—";
+
+document.getElementById("gender").textContent=p.gender || "—";
+
+document.getElementById("city").textContent=p.city || "—";
+
+document.getElementById("community").textContent=p.community || "—";
+
+document.getElementById("education").textContent=p.education || "—";
+
+document.getElementById("profession").textContent=p.profession || "—";
+
+document.getElementById("aboutText").textContent=p.about || "—";
+
+document.getElementById("profileMeta").textContent =
+[p.age ? p.age+" years" : "",
+p.gender || "",
+p.city ? "📍 "+p.city : "",
+p.community ? "✓ "+p.community : ""]
+.filter(Boolean)
+.join(" • ");
+
+if(p.verified){
+
+document.getElementById("verifiedBadge")
+.classList.remove("hidden");
+
+}
+
+if(viewingOwnProfile){
+
+document.getElementById("interestBtn")
+.classList.add("hidden");
+
+document.getElementById("editButtonCard")
+.classList.remove("hidden");
+
+}else{
+
+document.getElementById("editButtonCard")
+.classList.add("hidden");
+
+}
+
+}
+
+
+/* ---------------------------------
+   SHORTLIST
+---------------------------------- */
 
 function openShortlist(){
 
+location.href="shortlist.html";
+
+}
+
+
+/* ---------------------------------
+   ADD TO SHORTLIST
+---------------------------------- */
+
+function addToShortlist(){
+
+if(!currentProfile || !currentProfile.id){
+
+alert("Open a member profile first.");
+
+return;
+
+}
+
+let saved =
+JSON.parse(localStorage.getItem("pjs_discover_shortlist") || "[]");
+
+if(!saved.includes(currentProfile.id)){
+
+saved.push(currentProfile.id);
+
+localStorage.setItem(
+"pjs_discover_shortlist",
+JSON.stringify(saved)
+);
+
+alert("Added to shortlist ⭐");
+
+}else{
+
+alert("Already in your shortlist ⭐");
+
+}
+
+}
+
+
+/* ---------------------------------
+   INTEREST
+---------------------------------- */
+
+function sendInterest(){
+
+if(viewingOwnProfile){
+
+return;
+
+}
+
 alert(
-shortlisted?
-"Your shortlisted profiles will appear here.":
-"Your Shortlist is empty."
+"Interest sent to " +
+currentProfile.name +
+" ❤️"
 );
 
 }
 
-function openSafety(){
- $("safetyModal").classList.add("show");
+
+/* ---------------------------------
+   CONTACT
+---------------------------------- */
+
+function openContact(){
+
+location.href="contact.html";
+
 }
 
-function closeModal(id){
- $(id).classList.remove("show");
+
+/* ---------------------------------
+   EDITOR
+---------------------------------- */
+
+function showEditor(){
+
+if(!viewingOwnProfile){
+
+return;
+
 }
 
-function contactWhatsApp(){
+document.getElementById("editCard")
+.classList.remove("hidden");
 
-const message=encodeURIComponent(
-"Hello PANIKA JEEVAN SATHI Support, I need help."
+document.getElementById("editButtonCard")
+.classList.add("hidden");
+
+const p=currentProfile;
+
+document.getElementById("editName").value=p.name || "";
+
+document.getElementById("editAge").value=
+p.age !== "—" ? p.age : "";
+
+document.getElementById("editGender").value=
+p.gender !== "—" ? p.gender : "";
+
+document.getElementById("editCity").value=
+p.city !== "—" ? p.city : "";
+
+document.getElementById("editCommunity").value=
+p.community !== "—" ? p.community : "";
+
+document.getElementById("editEducation").value=
+p.education !== "—" ? p.education : "";
+
+document.getElementById("editProfession").value=
+p.profession !== "—" ? p.profession : "";
+
+document.getElementById("editAbout").value=
+p.about || "";
+
+document.getElementById("editPhoto").value=
+p.img || "";
+
+document.getElementById("editCover").value=
+p.cover || "";
+
+}
+
+
+/* ---------------------------------
+   SAVE PROFILE
+---------------------------------- */
+
+function saveMyProfile(){
+
+const name =
+document.getElementById("editName").value.trim();
+
+const age =
+document.getElementById("editAge").value.trim();
+
+const gender =
+document.getElementById("editGender").value;
+
+const city =
+document.getElementById("editCity").value.trim();
+
+const community =
+document.getElementById("editCommunity").value;
+
+const education =
+document.getElementById("editEducation").value.trim();
+
+const profession =
+document.getElementById("editProfession").value.trim();
+
+const about =
+document.getElementById("editAbout").value.trim();
+
+const img =
+document.getElementById("editPhoto").value.trim();
+
+const cover =
+document.getElementById("editCover").value.trim();
+
+if(!name || !community){
+
+alert("Please enter your name and community.");
+
+return;
+
+}
+
+const saved={
+
+name,
+age,
+gender,
+city,
+community,
+education,
+profession,
+about,
+
+img:
+img ||
+"https://i.pravatar.cc/500?img=12",
+
+cover:
+cover ||
+"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
+
+};
+
+localStorage.setItem(
+"pjs_profile",
+JSON.stringify(saved)
 );
 
-/* Number is intentionally not displayed on the website. */
-location.href=
-"https://wa.me/918099834725?text="+message;
+alert("Profile saved successfully ❤️");
+
+location.href="profile.html";
 
 }
+
+
+/* ---------------------------------
+   NAVIGATION
+---------------------------------- */
 
 function goHome(){
- location.href="index.html";
-}
 
-function goDiscover(){
- location.href="index.html#discover";
-}
-
-function escapeHTML(value){
-
-return String(value).replace(
-/[&<>"']/g,
-function(m){
-return {
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#039;"
-}[m];
-}
-);
+location.href="index.html";
 
 }
+
+function discover(){
+
+location.href="discover.html";
+
+}
+
+function goBack(){
+
+if(document.referrer){
+
+history.back();
+
+}else{
+
+location.href="discover.html";
+
+}
+
+}
+
+
+/* ---------------------------------
+   START
+---------------------------------- */
 
 loadProfile();
 
 </script>
 
 </body>
-  </html>
+ </html>
