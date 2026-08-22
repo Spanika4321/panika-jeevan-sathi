@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>Notifications • PANIKA JEEVAN SATHI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f8fc;color:#20212a;font-family:Inter,system-ui,sans-serif}
+button{font:inherit;cursor:pointer}
+.top{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e6ed;z-index:10}
+.nav{max-width:700px;margin:auto;padding:12px 15px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;gap:9px;align-items:center;background:none;border:0;text-align:left}
+.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#172554,#4338ca);color:#fff;display:grid;place-items:center;font-weight:900}
+.logo b{display:block;font-size:13px}.logo small{display:block;color:#777;font-size:10px}
+.clear{border:0;background:#f1f2f6;border-radius:11px;padding:9px;font-size:11px}
+.wrap{max-width:700px;margin:auto;padding:20px 14px 100px}
+h1{margin:0;font-size:28px}
+.sub{margin:5px 0 18px;color:#777;font-size:13px}
+.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:12px}
+.tab{white-space:nowrap;border:1px solid #ddd;background:#fff;border-radius:20px;padding:8px 13px;font-size:11px;font-weight:800}
+.tab.active{background:#312e81;color:#fff;border-color:#312e81}
+.list{background:#fff;border:1px solid #e5e6ed;border-radius:20px;overflow:hidden}
+.item{display:flex;gap:12px;padding:15px;border:0;border-bottom:1px solid #eee;width:100%;background:#fff;text-align:left}
+.item:last-child{border-bottom:0}
+.item.unread{background:#f8f7ff}
+.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;flex:none}
+.content{flex:1}
+.content b{font-size:13px}
+.content p{margin:4px 0;color:#666;font-size:12px;line-height:1.45}
+.time{font-size:10px;color:#999}
+.dot{width:8px;height:8px;border-radius:50%;background:#4338ca;margin-top:5px}
+.empty{text-align:center;padding:45px 20px;background:#fff;border:1px solid #e5e6ed;border-radius:20px}
+.empty div{font-size:40px}.empty h2{margin:8px 0 5px}.empty p{color:#777;font-size:12px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5e6ed;display:flex;justify-content:center;gap:clamp(18px,8vw,75px);padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:20}
+.bottom button{border:0;background:none;color:#777;display:grid;place-items:center}
+.bottom .active{color:#312e81}
+.bottom span{font-size:21px}.bottom small{font-size:10px}
+</style>
+</head>
+<body>
+
+<header class="top">
+<div class="nav">
+<button class="logo" onclick="home()">
+<span class="mark">P</span>
+<span><b>PANIKA JEEVAN SATHI</b><small>100% FREE • TRUST • RESPECT</small></span>
+</button>
+<button class="clear" onclick="markAll()">✓ Read all</button>
+</div>
+</header>
+
+<main class="wrap">
+
+<h1>Notifications 🔔</h1>
+<p class="sub">Stay updated about your connections and activity.</p>
+
+<div class="tabs">
+<button class="tab active" onclick="filterType('all',this)">All</button>
+<button class="tab" onclick="filterType('interest',this)">❤️ Interests</button>
+<button class="tab" onclick="filterType('message',this)">💬 Messages</button>
+<button class="tab" onclick="filterType('system',this)">🛡️ Safety</button>
+</div>
+
+<section id="list" class="list"></section>
+
+</main>
+
+<nav class="bottom">
+<button onclick="home()"><span>⌂</span><small>Home</small></button>
+<button onclick="discover()"><span>⌕</span><small>Discover</small></button>
+<button class="active"><span>🔔</span><small>Alerts</small></button>
+<button onclick="messages()"><span>💬</span><small>Messages</small></button>
+<button onclick="profile()"><span>◯</span><small>Profile</small></button>
+</nav>
+
+<script>
+
+const notifications=[
+{
+id:1,type:"interest",unread:true,
+name:"Anjali Panika",
+text:"sent you an interest ❤️",
+time:"Just now",
+img:"https://i.pravatar.cc/150?img=47"
+},
+{
+id:2,type:"message",unread:true,
+name:"Priya Manikpuri",
+text:"sent you a new message 💬",
+time:"10 min ago",
+img:"https://i.pravatar.cc/150?img=44"
+},
+{
+id:3,type:"interest",unread:false,
+name:"Kavita Kabirpanthi",
+text:"accepted your interest ❤️",
+time:"Yesterday",
+img:"https://i.pravatar.cc/150?img=49"
+},
+{
+id:4,type:"system",unread:false,
+name:"PANIKA JEEVAN SATHI",
+text:"Remember: never share OTP, passwords or money with strangers.",
+time:"Yesterday",
+img:"https://i.pravatar.cc/150?img=12"
+}
+];
+
+let current="all";
+
+function render(){
+
+const result=notifications.filter(n=>
+current==="all"||n.type===current
+);
+
+const box=document.getElementById("list");
+
+if(!result.length){
+box.className="";
+box.innerHTML=`
+<div class="empty">
+<div>🔔</div>
+<h2>No notifications</h2>
+<p>You're all caught up.</p>
+</div>`;
+return;
+}
+
+box.className="list";
+
+box.innerHTML=result.map(n=>`
+
+<button class="item ${n.unread?"unread":""}"
+onclick="openNotification(${n.id})">
+
+<img class="avatar" src="${n.img}" alt="">
+
+<div class="content">
+<b>${escapeHTML(n.name)}</b>
+<p>${escapeHTML(n.text)}</p>
+<span class="time">${n.time}</span>
+</div>
+
+${n.unread?'<span class="dot"></span>':''}
+
+</button>
+
+`).join("");
+
+}
+
+function filterType(type,button){
+
+current=type;
+
+document.querySelectorAll(".tab")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+render();
+
+}
+
+function openNotification(id){
+
+const n=notifications.find(x=>x.id===id);
+
+if(!n)return;
+
+n.unread=false;
+
+if(n.type==="message"){
+messages();
+return;
+}
+
+if(n.type==="interest"){
+discover();
+return;
+}
+
+alert(
+"🛡️ Safety reminder\n\n"+
+"Never share OTP, passwords, bank details or money with strangers."
+);
+
+render();
+
+}
+
+function markAll(){
+
+notifications.forEach(n=>n.unread=false);
+
+render();
+
+}
+
+function escapeHTML(v){
+return String(v).replace(/[&<>"']/g,m=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m]));
+}
+
+function home(){location.href="index.html"}
+function discover(){location.href="discover.html"}
+function messages(){location.href="messages.html"}
+function profile(){location.href="profile.html"}
+
+render();
+
+</script>
+</body>
+</html>
