@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>Matches • PANIKA JEEVAN SATHI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f8fc;color:#20212a;font-family:Inter,system-ui,sans-serif}
+button{font:inherit;cursor:pointer}
+.top{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e6ed;z-index:10}
+.nav{max-width:700px;margin:auto;padding:12px 15px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;gap:9px;align-items:center;border:0;background:none;text-align:left}
+.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#172554,#4338ca);color:#fff;display:grid;place-items:center;font-weight:900}
+.logo b{display:block;font-size:13px}.logo small{display:block;color:#777;font-size:10px}
+.filter{border:0;background:#f1f2f6;border-radius:12px;padding:9px}
+.wrap{max-width:700px;margin:auto;padding:18px 14px 100px}
+h1{margin:0;font-size:27px}.sub{color:#777;font-size:13px;margin:5px 0 16px}
+.filters{display:flex;gap:7px;overflow:auto;margin-bottom:14px}
+.chip{white-space:nowrap;border:1px solid #ddd;background:#fff;border-radius:20px;padding:8px 12px;font-size:11px;font-weight:800}
+.chip.active{background:#312e81;color:#fff;border-color:#312e81}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;border:1px solid #e5e6ed;border-radius:19px;overflow:hidden;box-shadow:0 7px 20px #11182708}
+.photo{width:100%;height:190px;object-fit:cover;display:block}
+.info{padding:12px}.name{font-size:14px;font-weight:900}.verified{color:#4338ca}
+.meta{font-size:10px;color:#777;margin-top:4px}
+.bio{font-size:11px;color:#666;line-height:1.45;margin:8px 0}
+.actions{display:flex;gap:6px}.actions button{flex:1;border-radius:10px;padding:9px;border:1px solid #ddd;background:#fff;font-size:11px;font-weight:800}
+.actions .interest{background:#312e81;color:#fff;border-color:#312e81}
+.empty{grid-column:1/-1;text-align:center;background:#fff;border:1px solid #e5e6ed;border-radius:20px;padding:40px 20px}
+.empty div{font-size:40px}.empty h2{margin:8px 0 5px}.empty p{font-size:12px;color:#777}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5e6ed;display:flex;justify-content:center;gap:clamp(18px,8vw,75px);padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:20}
+.bottom button{border:0;background:none;color:#777;display:grid;place-items:center}.bottom .active{color:#312e81}
+.bottom span{font-size:21px}.bottom small{font-size:10px}
+@media(max-width:430px){.photo{height:170px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+<div class="nav">
+<button class="logo" onclick="home()">
+<span class="mark">P</span>
+<span><b>PANIKA JEEVAN SATHI</b><small>100% FREE • TRUST • RESPECT</small></span>
+</button>
+<button class="filter" onclick="discover()">⌕</button>
+</div>
+</header>
+
+<main class="wrap">
+
+<h1>Suggested Matches ❤️</h1>
+<p class="sub">Profiles you may find compatible with.</p>
+
+<div class="filters">
+<button class="chip active" onclick="filter('all',this)">All</button>
+<button class="chip" onclick="filter('Panika',this)">Panika</button>
+<button class="chip" onclick="filter('Manikpuri',this)">Manikpuri</button>
+<button class="chip" onclick="filter('Kabirpanthi',this)">Kabirpanthi</button>
+<button class="chip" onclick="filter('Adivasi',this)">Adivasi</button>
+</div>
+
+<section id="grid" class="grid"></section>
+
+</main>
+
+<nav class="bottom">
+<button onclick="home()"><span>⌂</span><small>Home</small></button>
+<button onclick="discover()"><span>⌕</span><small>Discover</small></button>
+<button class="active"><span>❤️</span><small>Matches</small></button>
+<button onclick="messages()"><span>💬</span><small>Messages</small></button>
+<button onclick="profile()"><span>◯</span><small>Profile</small></button>
+</nav>
+
+<script>
+
+const profiles=[
+{
+id:1,name:"Anjali Panika",community:"Panika",age:26,city:"Silchar",
+img:"https://i.pravatar.cc/500?img=47",
+bio:"Simple, family-oriented and looking for a respectful life partner.",
+verified:true
+},
+{
+id:2,name:"Priya Manikpuri",community:"Manikpuri",age:25,city:"Raipur",
+img:"https://i.pravatar.cc/500?img=44",
+bio:"Friendly, caring and interested in building a meaningful family life.",
+verified:true
+},
+{
+id:3,name:"Kavita Kabirpanthi",community:"Kabirpanthi",age:27,city:"Kolkata",
+img:"https://i.pravatar.cc/500?img=49",
+bio:"Respectful, educated and looking for a genuine connection.",
+verified:false
+},
+{
+id:4,name:"Riya Adivasi",community:"Adivasi",age:24,city:"Guwahati",
+img:"https://i.pravatar.cc/500?img=45",
+bio:"Positive, family-loving and interested in a serious relationship.",
+verified:true
+}
+];
+
+let selected="all";
+
+function render(){
+
+let list=selected==="all"
+?profiles
+:profiles.filter(p=>p.community===selected);
+
+const grid=document.getElementById("grid");
+
+if(!list.length){
+grid.innerHTML=`
+<div class="empty">
+<div>❤️</div>
+<h2>No matches found</h2>
+<p>Try another community.</p>
+</div>`;
+return;
+}
+
+grid.innerHTML=list.map(p=>`
+
+<article class="card">
+
+<img class="photo" src="${p.img}" alt="${p.name}">
+
+<div class="info">
+
+<div class="name">
+${escapeHTML(p.name)}
+${p.verified?'<span class="verified"> ✓</span>':''}
+</div>
+
+<div class="meta">
+${p.age} years • ${escapeHTML(p.community)} • ${escapeHTML(p.city)}
+</div>
+
+<p class="bio">${escapeHTML(p.bio)}</p>
+
+<div class="actions">
+<button class="interest" onclick="interest('${p.name}')">
+❤️ Interest
+</button>
+<button onclick="viewProfile('${p.id}')">
+View
+</button>
+</div>
+
+</div>
+
+</article>
+
+`).join("");
+
+}
+
+function filter(type,button){
+
+selected=type;
+
+document.querySelectorAll(".chip")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+render();
+
+}
+
+function interest(name){
+alert("Interest sent to "+name+" ❤️");
+}
+
+function viewProfile(id){
+location.href="profile.html?id="+id;
+}
+
+function escapeHTML(v){
+return String(v).replace(/[&<>"']/g,m=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",
+'"':"&quot;","'":"&#039;"
+}[m]));
+}
+
+function home(){location.href="index.html"}
+function discover(){location.href="discover.html"}
+function messages(){location.href="messages.html"}
+function profile(){location.href="profile.html"}
+
+render();
+
+</script>
+</body>
+  </html>
