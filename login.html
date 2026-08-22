@@ -1,60 +1,271 @@
-<!doctype html>
+here<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#312e81">
 <title>Login • PANIKA JEEVAN SATHI</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,sans-serif;background:#f7f8fc;color:#20212a}
+body{
+margin:0;
+font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+background:#f7f8fc;
+color:#20212a
+}
 button,input,select{font:inherit}
 button{cursor:pointer}
-.top{padding:18px;display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid #e8e9ef}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800}
-.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#172554,#4338ca);color:#fff;display:grid;place-items:center;font-size:20px}
-.logo small{display:block;color:#777;font-size:10px}
-.contact{border:0;background:#f0f1f6;border-radius:12px;padding:10px 13px}
-.wrap{max-width:650px;margin:auto;padding:18px 14px 40px}
-.notice{background:linear-gradient(135deg,#eef2ff,#faf5ff);border:1px solid #dfe3ff;border-radius:20px;padding:17px;margin-bottom:16px}
-.notice h3{margin:0 0 9px;color:#312e81}
-.notice p{font-size:13px;line-height:1.55;margin:7px 0}
-.allowed{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.allowed span{background:#fff;border:1px solid #dddff0;border-radius:20px;padding:6px 10px;font-size:11px;font-weight:800}
-.card{background:#fff;border:1px solid #e7e8ef;border-radius:22px;padding:22px;box-shadow:0 10px 30px #1118270a}
-.tabs{display:flex;background:#f2f3f7;padding:4px;border-radius:13px;margin-bottom:20px}
-.tabs button{flex:1;border:0;background:transparent;padding:11px;border-radius:10px;font-weight:700;color:#777}
-.tabs .active{background:#fff;color:#312e81;box-shadow:0 2px 8px #00000010}
-h1{margin:5px 0;font-size:28px}
-.sub{color:#777;font-size:13px;margin-bottom:20px}
-label{font-size:12px;font-weight:700;display:block;margin:12px 0 6px}
-input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:13px;outline:none;background:#fff}
-input:focus,select:focus{border-color:#6366f1}
-.primary{width:100%;border:0;border-radius:13px;background:#312e81;color:#fff;padding:14px;font-weight:800;margin-top:16px}
-.terms{font-size:11px;color:#777;line-height:1.5;margin-top:14px}
+
+.top{
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#fff;
+border-bottom:1px solid #e8e9ef
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:10px;
+font-weight:800
+}
+
+.mark{
+width:42px;
+height:42px;
+border-radius:14px;
+background:linear-gradient(135deg,#172554,#4338ca);
+color:#fff;
+display:grid;
+place-items:center;
+font-size:20px
+}
+
+.logo small{
+display:block;
+color:#777;
+font-size:10px
+}
+
+.contact{
+border:0;
+background:#f0f1f6;
+border-radius:12px;
+padding:10px 13px
+}
+
+.wrap{
+max-width:650px;
+margin:auto;
+padding:18px 14px 40px
+}
+
+.notice{
+background:linear-gradient(135deg,#eef2ff,#faf5ff);
+border:1px solid #dfe3ff;
+border-radius:20px;
+padding:17px;
+margin-bottom:16px
+}
+
+.notice h3{
+margin:0 0 9px;
+color:#312e81
+}
+
+.notice p{
+font-size:13px;
+line-height:1.55;
+margin:7px 0
+}
+
+.allowed{
+display:flex;
+gap:7px;
+flex-wrap:wrap;
+margin-top:10px
+}
+
+.allowed span{
+background:#fff;
+border:1px solid #dddff0;
+border-radius:20px;
+padding:6px 10px;
+font-size:11px;
+font-weight:800
+}
+
+.card{
+background:#fff;
+border:1px solid #e7e8ef;
+border-radius:22px;
+padding:22px;
+box-shadow:0 10px 30px #1118270a
+}
+
+.tabs{
+display:flex;
+background:#f2f3f7;
+padding:4px;
+border-radius:13px;
+margin-bottom:20px
+}
+
+.tabs button{
+flex:1;
+border:0;
+background:transparent;
+padding:11px;
+border-radius:10px;
+font-weight:700;
+color:#777
+}
+
+.tabs .active{
+background:#fff;
+color:#312e81;
+box-shadow:0 2px 8px #00000010
+}
+
+h1{
+margin:5px 0;
+font-size:28px
+}
+
+.sub{
+color:#777;
+font-size:13px;
+margin-bottom:20px
+}
+
+label{
+font-size:12px;
+font-weight:700;
+display:block;
+margin:12px 0 6px
+}
+
+input,select{
+width:100%;
+padding:13px;
+border:1px solid #ddd;
+border-radius:13px;
+outline:none;
+background:#fff
+}
+
+input:focus,select:focus{
+border-color:#6366f1
+}
+
+.primary{
+width:100%;
+border:0;
+border-radius:13px;
+background:#312e81;
+color:#fff;
+padding:14px;
+font-weight:800;
+margin-top:16px
+}
+
+.primary:disabled{
+opacity:.6;
+cursor:not-allowed
+}
+
+.message{
+margin-top:12px;
+padding:11px;
+border-radius:12px;
+font-size:12px;
+display:none
+}
+
+.success{
+display:block;
+background:#ecfdf5;
+color:#166534
+}
+
+.error{
+display:block;
+background:#fef2f2;
+color:#991b1b
+}
+
+.terms{
+font-size:11px;
+color:#777;
+line-height:1.5;
+margin-top:14px
+}
+
 .hidden{display:none}
-.safety{margin-top:15px;padding:13px;background:#f5f7f9;border-radius:14px;font-size:12px;color:#555}
-footer{text-align:center;color:#888;font-size:11px;padding:20px}
+
+.safety{
+margin-top:15px;
+padding:13px;
+background:#f5f7f9;
+border-radius:14px;
+font-size:12px;
+color:#555
+}
+
+footer{
+text-align:center;
+color:#888;
+font-size:11px;
+padding:20px
+}
 </style>
 </head>
+
 <body>
 
 <header class="top">
+
 <div class="logo">
+
 <span class="mark">P</span>
-<div>PANIKA JEEVAN SATHI<small>100% FREE • TRUST • RESPECT</small></div>
+
+<div>
+PANIKA JEEVAN SATHI
+<small>100% FREE • TRUST • RESPECT</small>
 </div>
-<button class="contact" onclick="contactWhatsApp()">💬 Contact Us</button>
+
+</div>
+
+<button class="contact" onclick="contactWhatsApp()">
+💬 Contact Us
+</button>
+
 </header>
+
 
 <main class="wrap">
 
 <section class="notice">
+
 <h3>🙏 Community Notice</h3>
 
-<p><b>English:</b> This website is exclusively for people belonging to Panika, Manikpuri, Kabirpanthi and Adivasi communities/surnames. If you have any other surname or community, please do not sign up or log in. Unauthorized registrations will be blocked.</p>
+<p>
+<b>English:</b>
+This website is exclusively for people belonging to Panika,
+Manikpuri, Kabirpanthi and Adivasi communities/surnames.
+If you have any other surname or community, please do not
+sign up or log in.
+</p>
 
-<p><b>हिंदी:</b> यह वेबसाइट केवल पनिका, मानिकपुरी, कबीरपंथी और आदिवासी समुदाय/उपनाम के लोगों के लिए है। यदि आपका उपनाम या समुदाय इनमें से कोई नहीं है, तो कृपया साइन अप या लॉगिन न करें। अनधिकृत पंजीकरण ब्लॉक कर दिया जाएगा। धन्यवाद 🙏</p>
+<p>
+<b>हिंदी:</b>
+यह वेबसाइट केवल पनिका, मानिकपुरी, कबीरपंथी और आदिवासी
+समुदाय/उपनाम के लोगों के लिए है। यदि आपका उपनाम या समुदाय
+इनमें से कोई नहीं है, तो कृपया साइन अप या लॉगिन न करें।
+</p>
 
 <div class="allowed">
 <span>✓ Panika</span>
@@ -62,132 +273,534 @@ footer{text-align:center;color:#888;font-size:11px;padding:20px}
 <span>✓ Kabirpanthi</span>
 <span>✓ Adivasi</span>
 </div>
+
 </section>
+
 
 <section class="card">
 
 <div class="tabs">
-<button id="loginTab" class="active" onclick="showLogin()">Login</button>
-<button id="signupTab" onclick="showSignup()">Create Account</button>
+
+<button id="loginTab"
+class="active"
+onclick="showLogin()">
+Login
+</button>
+
+<button id="signupTab"
+onclick="showSignup()">
+Create Account
+</button>
+
 </div>
+
+
+<!-- LOGIN -->
 
 <div id="loginBox">
+
 <h1>Welcome back 👋</h1>
-<p class="sub">Login to your matrimonial community.</p>
+
+<p class="sub">
+Enter your email and we'll send you a secure login link.
+</p>
 
 <label>Email Address</label>
-<input id="loginEmail" type="email" placeholder="Enter your email">
 
-<button class="primary" onclick="login()">Continue with Email</button>
+<input
+id="loginEmail"
+type="email"
+autocomplete="email"
+placeholder="Enter your email"
+>
+
+<button
+id="loginButton"
+class="primary"
+onclick="login()">
+Send Secure Login Link
+</button>
+
+<div id="loginMessage" class="message"></div>
+
 </div>
 
+
+<!-- SIGNUP -->
+
 <div id="signupBox" class="hidden">
+
 <h1>Create your profile ❤️</h1>
-<p class="sub">Join your trusted community.</p>
+
+<p class="sub">
+Create your account with secure email verification.
+</p>
 
 <label>Full Name</label>
-<input id="name" placeholder="Your full name">
+
+<input
+id="name"
+autocomplete="name"
+placeholder="Your full name"
+>
+
 
 <label>Email Address</label>
-<input id="email" type="email" placeholder="Your email">
+
+<input
+id="email"
+type="email"
+autocomplete="email"
+placeholder="Your email"
+>
+
 
 <label>Community</label>
+
 <select id="community">
-<option value="">Select community</option>
+
+<option value="">
+Select community
+</option>
+
 <option>Panika</option>
 <option>Manikpuri</option>
 <option>Kabirpanthi</option>
 <option>Adivasi</option>
+
 </select>
 
-<label>City</label>
-<input id="city" placeholder="Your city">
 
-<button class="primary" onclick="signup()">Create Account</button>
+<label>City</label>
+
+<input
+id="city"
+placeholder="Your city"
+>
+
+
+<button
+id="signupButton"
+class="primary"
+onclick="signup()">
+Create Account & Verify Email
+</button>
+
+<div id="signupMessage" class="message"></div>
 
 <p class="terms">
-By creating an account, you confirm that you belong to one of the permitted communities listed above.
+By creating an account, you confirm that you belong to
+one of the permitted communities listed above.
 </p>
+
 </div>
 
+
 <div class="safety">
+
 🛡️ <b>Safety & Privacy</b><br>
-Your personal contact details should remain private. Never share passwords, OTPs or sensitive information with anyone.
+
+We use secure email authentication.
+Never share OTPs, passwords or private information with anyone.
+
 </div>
 
 </section>
 
+
 <footer>
+
 PANIKA JEEVAN SATHI<br>
 Trusted Matrimonial Community
+
 </footer>
 
 </main>
 
+
+<!-- Supabase -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
 <script>
+
+/* ================================
+   SUPABASE CONFIG
+================================ */
+
+const SUPABASE_URL =
+"https://yequusnabddkwswggwio.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_4_coSwr9L9GgMVsYgTG97g_gMqGFBPR";
+
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+
+/* ================================
+   COMMUNITY
+================================ */
+
+const allowedCommunities = [
+"Panika",
+"Manikpuri",
+"Kabirpanthi",
+"Adivasi"
+];
+
+
+/* ================================
+   UI
+================================ */
+
 function showLogin(){
-document.getElementById("loginBox").classList.remove("hidden");
-document.getElementById("signupBox").classList.add("hidden");
-document.getElementById("loginTab").classList.add("active");
-document.getElementById("signupTab").classList.remove("active");
+
+document.getElementById("loginBox")
+.classList.remove("hidden");
+
+document.getElementById("signupBox")
+.classList.add("hidden");
+
+document.getElementById("loginTab")
+.classList.add("active");
+
+document.getElementById("signupTab")
+.classList.remove("active");
+
+clearMessages();
+
 }
+
 
 function showSignup(){
-document.getElementById("loginBox").classList.add("hidden");
-document.getElementById("signupBox").classList.remove("hidden");
-document.getElementById("loginTab").classList.remove("active");
-document.getElementById("signupTab").classList.add("active");
+
+document.getElementById("loginBox")
+.classList.add("hidden");
+
+document.getElementById("signupBox")
+.classList.remove("hidden");
+
+document.getElementById("loginTab")
+.classList.remove("active");
+
+document.getElementById("signupTab")
+.classList.add("active");
+
+clearMessages();
+
 }
 
-function login(){
-const email=document.getElementById("loginEmail").value.trim();
+
+function clearMessages(){
+
+document
+.querySelectorAll(".message")
+.forEach(el=>{
+el.className="message";
+el.textContent="";
+});
+
+}
+
+
+function showMessage(id,text,type){
+
+const el=document.getElementById(id);
+
+el.textContent=text;
+
+el.className="message "+type;
+
+}
+
+
+/* ================================
+   LOGIN
+================================ */
+
+async function login(){
+
+const email=
+document.getElementById("loginEmail")
+.value
+.trim()
+.toLowerCase();
 
 if(!email || !email.includes("@")){
-alert("Please enter a valid email address.");
+
+showMessage(
+"loginMessage",
+"Please enter a valid email address.",
+"error"
+);
+
 return;
 }
 
-localStorage.setItem("pjs_email",email);
-window.location.href="index.html";
+
+const button=
+document.getElementById("loginButton");
+
+button.disabled=true;
+
+button.textContent="Sending...";
+
+
+try{
+
+const {error}=await supabaseClient.auth.signInWithOtp({
+
+email:email,
+
+options:{
+emailRedirectTo:
+window.location.origin+
+window.location.pathname.replace(
+/[^/]*$/,
+""
+)+
+"index.html"
 }
 
-function signup(){
-const name=document.getElementById("name").value.trim();
-const email=document.getElementById("email").value.trim();
-const community=document.getElementById("community").value;
-const city=document.getElementById("city").value.trim();
+});
 
-if(!name||!email||!email.includes("@")||!community||!city){
-alert("Please complete all fields.");
+
+if(error) throw error;
+
+
+showMessage(
+"loginMessage",
+"Secure login link sent to your email. Please check your inbox.",
+"success"
+);
+
+
+}catch(error){
+
+showMessage(
+"loginMessage",
+error.message||"Unable to send login link.",
+"error"
+);
+
+}finally{
+
+button.disabled=false;
+
+button.textContent=
+"Send Secure Login Link";
+
+}
+
+}
+
+
+/* ================================
+   SIGNUP
+================================ */
+
+async function signup(){
+
+const name=
+document.getElementById("name")
+.value.trim();
+
+const email=
+document.getElementById("email")
+.value.trim()
+.toLowerCase();
+
+const community=
+document.getElementById("community")
+.value;
+
+const city=
+document.getElementById("city")
+.value.trim();
+
+
+if(!name){
+
+showMessage(
+"signupMessage",
+"Please enter your full name.",
+"error"
+);
+
 return;
 }
 
-const allowed=["Panika","Manikpuri","Kabirpanthi","Adivasi"];
 
-if(!allowed.includes(community)){
-alert("Registration is restricted to the permitted communities.");
+if(!email || !email.includes("@")){
+
+showMessage(
+"signupMessage",
+"Please enter a valid email address.",
+"error"
+);
+
 return;
 }
 
-localStorage.setItem("pjs_profile",JSON.stringify({
-name,email,community,city
-}));
 
-localStorage.setItem("pjs_email",email);
+if(!allowedCommunities.includes(community)){
 
-alert("Account created successfully ❤️");
-window.location.href="index.html";
+showMessage(
+"signupMessage",
+"Registration is only available for Panika, Manikpuri, Kabirpanthi and Adivasi communities.",
+"error"
+);
+
+return;
 }
+
+
+if(!city){
+
+showMessage(
+"signupMessage",
+"Please enter your city.",
+"error"
+);
+
+return;
+}
+
+
+const button=
+document.getElementById("signupButton");
+
+button.disabled=true;
+
+button.textContent="Creating...";
+
+
+try{
+
+/*
+Create the Supabase Auth account.
+No password is stored by this website.
+*/
+
+const {data,error}=
+await supabaseClient.auth.signUp({
+
+email:email,
+
+options:{
+emailRedirectTo:
+window.location.origin+
+window.location.pathname.replace(
+/[^/]*$/,
+""
+)+
+"index.html",
+
+data:{
+full_name:name,
+community:community,
+city:city
+}
+}
+
+});
+
+
+if(error) throw error;
+
+
+/*
+Keep profile information locally for the
+current static frontend until the profile
+table is connected.
+*/
+
+localStorage.setItem(
+"pjs_profile",
+JSON.stringify({
+name:name,
+email:email,
+community:community,
+city:city
+})
+);
+
+
+showMessage(
+"signupMessage",
+"Account created. Please check your email and verify your account.",
+"success"
+);
+
+
+}catch(error){
+
+showMessage(
+"signupMessage",
+error.message||"Unable to create account.",
+"error"
+);
+
+}finally{
+
+button.disabled=false;
+
+button.textContent=
+"Create Account & Verify Email";
+
+}
+
+}
+
+
+/* ================================
+   CONTACT
+================================ */
 
 function contactWhatsApp(){
-const encoded=encodeURIComponent(
+
+const message=
+encodeURIComponent(
 "Hello PANIKA JEEVAN SATHI Support, I need help."
 );
 
-/* The phone number is intentionally not displayed on the website. */
-window.location.href="https://wa.me/918099834725?text="+encoded;
+window.location.href=
+"https://wa.me/918099834725?text="+message;
+
 }
+
+
+/* ================================
+   AUTH CALLBACK
+================================ */
+
+async function checkAuth(){
+
+const {
+data:{session}
+}=await supabaseClient.auth.getSession();
+
+
+if(session){
+
+localStorage.setItem(
+"pjs_email",
+session.user.email||""
+);
+
+}
+
+}
+
+
+checkAuth();
+
 </script>
 
 </body>
-                                   </html>
+  </html>
