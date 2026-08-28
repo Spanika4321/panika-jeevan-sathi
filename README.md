@@ -100,6 +100,12 @@ upload, search + filters, profile viewing, interest send/accept, matching, messa
 shortlist, recommended matches, reporting, blocking, contact form, admin panel
 (login, user/profile/report/announcement management), logout, and data persistence.
 
+## Deploying publicly
+
+The site is a dynamic Node + SQLite app (not a static site). One-click deploy files are
+included — see **[DEPLOY.md](DEPLOY.md)** for exact 2-minute steps (Render / Railway /
+your cPanel hosting).
+
 ## Notes
 
 - The database is a single SQLite file in `data/` — back that folder up to back up the

@@ -1,0 +1,9 @@
+# Render one-click Blueprint — https://dashboard.render.com → New → Blueprint → pick this repo
+services:
+  - type: web
+    name: panika-jeevan-sathi
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
