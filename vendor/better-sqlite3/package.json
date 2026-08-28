@@ -1,0 +1,7 @@
+{
+  "name": "better-sqlite3",
+  "version": "12.2.0",
+  "description": "Local compatibility stub: this project uses Node's built-in node:sqlite via src/db/sqlite-shim.ts",
+  "main": "index.js",
+  "types": "index.d.ts"
+}
