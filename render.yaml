@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: panika-jeevan-sathi
+    runtime: node
+    plan: free
+    buildCommand: node -v
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.3
+      - key: HOST
+        value: 0.0.0.0
+      - key: PJS_DATA_DIR
+        value: /var/data/pjs
+      - key: SESSION_SECRET
+        generateValue: true
+    disk:
+      name: pjs-data
+      mountPath: /var/data/pjs
+      sizeGB: 1

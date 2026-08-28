@@ -153,6 +153,10 @@ The same suite passes on the JSON fallback store: `npm run test:json-store`.
 
 ## Deploying
 
+Full instructions (Render, Railway, Docker, VPS + systemd, backups, environment variables) are in
+**[DEPLOY.md](DEPLOY.md)**. Note: **GitHub Pages cannot host this app** — it needs a Node process and a
+database, not static files.
+
 **VPS / shared Node hosting**
 
 ```bash

@@ -1,0 +1,7 @@
+.git
+.gitignore
+data
+node_modules
+*.zip
+*.log
+DEPLOY.md
