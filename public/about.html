@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>About us — PANIKA JEEVAN SATHI</title>
+<meta name="description" content="About PANIKA JEEVAN SATHI — a free matrimonial service for the Panika, Manikpuri, Kabirpanthi and Adivasi communities.">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow">
+  <div class="page-head">
+    <span class="eyebrow">About us</span>
+    <h1 class="mb-0">A matrimonial service built for our community</h1>
+  </div>
+
+  <section class="card mt-2 mb-3">
+    <p id="aboutText"></p>
+    <p>
+      Families often struggle to find suitable proposals within the community through word of mouth alone.
+      PANIKA JEEVAN SATHI keeps the same respect and family involvement, but makes the search organised:
+      every member has a proper profile, families can search with clear filters, and contact happens only
+      after both sides agree.
+    </p>
+    <p class="mb-0">
+      The service is run for the community, not as a business. There is no premium membership,
+      no payment gateway and no locked profile anywhere on this website.
+    </p>
+  </section>
+
+  <section class="card mb-3">
+    <h3>What we promise</h3>
+    <ul style="padding-left:18px;margin:0" class="muted">
+      <li><b>Free forever</b> — registration, profiles, search, interests, shortlist and messaging.</li>
+      <li><b>Privacy first</b> — you control your photo, contact number and search visibility.</li>
+      <li><b>Community focused</b> — membership is for the Panika, Manikpuri, Kabirpanthi and Adivasi communities.</li>
+      <li><b>Human moderation</b> — every reported profile is reviewed by our team.</li>
+      <li><b>No advertising pressure</b> — no pop-ups selling you a “premium upgrade”.</li>
+    </ul>
+  </section>
+
+  <section class="card mb-3">
+    <h3>How to use the service well</h3>
+    <div class="steps">
+      <div class="step"><h3>Complete the profile honestly</h3><p>Accurate age, education, occupation and family details save everyone's time.</p></div>
+      <div class="step"><h3>Add a recent photo</h3><p>Profiles with a clear photo receive significantly more interests.</p></div>
+      <div class="step"><h3>Respond to interests</h3><p>Accept or decline promptly — families appreciate a clear answer.</p></div>
+      <div class="step"><h3>Involve the family early</h3><p>Use messaging to introduce families, then meet in person with elders present.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Talk to us</h3>
+    <p class="muted small">Questions, suggestions or help with registration — we reply free of cost.</p>
+    <div class="btn-row">
+      <a class="btn green" id="waBtn" href="#" target="_blank" rel="noopener">WhatsApp us</a>
+      <a class="btn ghost" href="/contact.html">Contact page</a>
+    </div>
+  </section>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+PJS.onReady(function () {
+  document.getElementById('aboutText').textContent =
+    (PJS.site && PJS.site.about_text) || '';
+  document.getElementById('waBtn').href =
+    PJS.whatsAppLink('Hello PANIKA JEEVAN SATHI team, I would like to know more about the service.');
+});
+</script>
+</body>
+</html>

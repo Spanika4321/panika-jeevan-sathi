@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PANIKA JEEVAN SATHI — 100% Free Matrimonial Service</title>
+<meta name="description" content="PANIKA JEEVAN SATHI is a completely free matrimonial service for the Panika, Manikpuri, Kabirpanthi and Adivasi communities. Free registration, profiles, search, interests and messaging.">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main>
+
+  <!-- ===================================================== hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+
+        <div>
+          <span class="eyebrow">Trusted community matrimonial service</span>
+          <h1 id="heroTitle">Find a life partner with trust, respect and family values</h1>
+          <p class="muted" id="heroSubtitle" style="font-size:16.5px;max-width:52ch"></p>
+
+          <div class="chips mt-2 mb-3">
+            <span class="chip green">✓ 100% Free forever</span>
+            <span class="chip gold">No subscription</span>
+            <span class="chip brand">Family verified community</span>
+          </div>
+
+          <div class="btn-row">
+            <a class="btn lg" href="/login.html?tab=register">Create your free profile</a>
+            <a class="btn lg ghost" href="#how">How it works</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="search-widget">
+            <b style="font-family:var(--serif);font-size:17px">Start your search</b>
+            <p class="tiny muted mb-2">Free and open to every registered member.</p>
+            <form id="quickSearch">
+              <div class="grid">
+                <div class="field mb-0">
+                  <label for="qsGender">Looking for</label>
+                  <select id="qsGender">
+                    <option value="female">Bride</option>
+                    <option value="male">Groom</option>
+                  </select>
+                </div>
+                <div class="field mb-0">
+                  <label for="qsAgeMin">Age from</label>
+                  <input id="qsAgeMin" type="number" min="18" max="100" value="21">
+                </div>
+                <div class="field mb-0">
+                  <label for="qsAgeMax">to</label>
+                  <input id="qsAgeMax" type="number" min="18" max="100" value="32">
+                </div>
+                <button class="btn" type="submit">Search</button>
+              </div>
+              <div class="field mt-2 mb-0">
+                <label for="qsCommunity">Community (optional)</label>
+                <select id="qsCommunity"><option value="">Any community</option></select>
+              </div>
+            </form>
+          </div>
+
+          <div class="stats mt-2">
+            <div class="stat"><b id="statMembers">0</b><span>Registered profiles</span></div>
+            <div class="stat"><b id="statStories">0</b><span>Success stories</span></div>
+            <div class="stat"><b>100%</b><span>Free features</span></div>
+            <div class="stat"><b>24×7</b><span>WhatsApp support</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== free features -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="center mb-3">
+        <span class="eyebrow">No plans · No payments · No locked profiles</span>
+        <h2>Every feature is free for our community</h2>
+        <p class="muted" style="max-width:62ch;margin:0 auto">
+          We do not charge for registration, profile viewing, interests or messaging.
+          There is no premium plan on this website — not now, not later.
+        </p>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1fr" id="featureGrid">
+        <!-- filled by script -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== how it works -->
+  <section class="section" id="how" style="background:linear-gradient(180deg,transparent,#f6ece4 40%,transparent)">
+    <div class="container container-narrow">
+      <div class="center mb-3">
+        <span class="eyebrow">Simple process</span>
+        <h2>How PANIKA JEEVAN SATHI works</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <h3>Create your free account</h3>
+          <p>Register with your email and a password. Your account is yours alone and stays private.</p>
+        </div>
+        <div class="step">
+          <h3>Complete your matrimonial profile</h3>
+          <p>Add your photo, education, occupation, family details, community information and partner preferences.</p>
+        </div>
+        <div class="step">
+          <h3>Search and receive matches</h3>
+          <p>Use filters for age, location, education, occupation and community, or open the daily recommendations.</p>
+        </div>
+        <div class="step">
+          <h3>Express interest, then talk</h3>
+          <p>Send an interest, accept the ones you like, shortlist profiles and message privately once interest is accepted.</p>
+        </div>
+      </div>
+      <div class="center mt-3">
+        <a class="btn lg" href="/login.html?tab=register">Register free — takes 2 minutes</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== stories -->
+  <section class="section">
+    <div class="container">
+      <div class="row spread row-wrap mb-3">
+        <div>
+          <span class="eyebrow">Happy beginnings</span>
+          <h2 class="mb-0">Success stories</h2>
+        </div>
+        <a class="btn ghost sm" id="shareStoryBtn" href="#" target="_blank" rel="noopener">Share your story</a>
+      </div>
+      <div class="cards" id="storyGrid" style="grid-template-columns:1fr">
+        <div class="skeleton" style="height:120px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== safety -->
+  <section class="section">
+    <div class="container">
+      <div class="two-col wide-left" style="align-items:stretch">
+        <div class="card">
+          <span class="eyebrow">Your safety matters</span>
+          <h2>Respect, privacy and moderation</h2>
+          <p class="muted" id="safetyText"></p>
+          <ul style="padding-left:18px;margin:0" class="muted">
+            <li>You decide who can see your photo, contact details and profile.</li>
+            <li>Search visibility can be switched off from your profile settings at any time.</li>
+            <li>Every reported profile is reviewed by our moderation team.</li>
+            <li>You can delete your account and all its data in one click.</li>
+          </ul>
+        </div>
+        <div class="card" style="background:linear-gradient(160deg,#4a0f24,#8e1f41);color:#fff;border:0">
+          <h3 style="color:#fff">Need help right now?</h3>
+          <p style="color:#f2dde6;font-size:14px">
+            Our team replies on WhatsApp. Registration help, profile corrections or reporting a member —
+            just send a message.
+          </p>
+          <a class="btn gold block mt-2" id="waHelp"
+             href="https://wa.me/918099834725?text=Hello%20PANIKA%20JEEVAN%20SATHI%20team%2C%20I%20need%20help."
+             target="_blank" rel="noopener">
+            Chat on WhatsApp
+          </a>
+          <p class="tiny mt-2" style="color:#f0d7e1" id="waNumber">WhatsApp: +91 80998 34725</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== notice -->
+  <section class="section-sm">
+    <div class="container container-narrow">
+      <div class="alert warn">
+        <b>🙏 Community notice</b>
+        This service is intended for the Panika, Manikpuri, Kabirpanthi and Adivasi communities.
+        Members from other communities are requested not to register.
+        <span id="noticeCommunities"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== final cta -->
+  <section class="section">
+    <div class="container container-narrow center">
+      <h2>Begin your search today — completely free</h2>
+      <p class="muted">Join families who trust PANIKA JEEVAN SATHI for a respectful, transparent search.</p>
+      <div class="btn-row" style="justify-content:center">
+        <a class="btn lg" href="/login.html?tab=register">Create free account</a>
+        <a class="btn lg ghost" href="/login.html">I already have an account</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const FEATURES = [
+    ['user', 'Free registration', 'Sign up with email and password. No fees, no card details, ever.'],
+    ['edit', 'Full profile control', 'Photo, education, occupation, family details, community and partner preferences.'],
+    ['search', 'Advanced search filters', 'Filter by age, location, education, occupation, community, marital status and more.'],
+    ['rings', 'Recommended matches', 'Profiles ranked by how well they match your stated preferences.'],
+    ['heart', 'Interests & likes', 'Send an interest, accept or decline the ones you receive.'],
+    ['star', 'Shortlist profiles', 'Save the profiles you like and come back to them later.'],
+    ['chat', 'Private messaging', 'One-to-one messaging with conversation history and unread alerts.'],
+    ['bell', 'Notifications', 'Instant alerts for new interests, accepted interests and messages.'],
+    ['shield', 'Privacy settings', 'Hide your photo, contact number or make your profile unsearchable.']
+  ];
+
+  PJS.onReady(async function () {
+    const site = PJS.site || {};
+    const esc = PJS.esc;
+
+    document.getElementById('heroTitle').textContent = site.hero_title || '';
+    document.getElementById('heroSubtitle').textContent = site.hero_subtitle || '';
+    document.getElementById('safetyText').textContent = site.safety_text || '';
+    document.getElementById('statMembers').textContent = (site.counts && site.counts.members) || 0;
+    document.getElementById('statStories').textContent = (site.counts && site.counts.stories) || 0;
+    document.getElementById('waNumber').textContent = 'WhatsApp: ' + (site.whatsapp_display || '+91 80998 34725');
+
+    const waHelp = document.getElementById('waHelp');
+    waHelp.href = PJS.whatsAppLink('Hello PANIKA JEEVAN SATHI team, I need help with registration.');
+
+    const share = document.getElementById('shareStoryBtn');
+    share.href = PJS.whatsAppLink('Hello! We would like to share our success story from PANIKA JEEVAN SATHI.');
+
+    document.getElementById('noticeCommunities').textContent =
+      (site.communities_list || []).length ? ' Listed communities: ' + site.communities_list.join(', ') + '.' : '';
+
+    const communitySelect = document.getElementById('qsCommunity');
+    (site.communities_list || []).forEach(function (c) {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      communitySelect.appendChild(opt);
+    });
+
+    document.getElementById('featureGrid').innerHTML = FEATURES.map(function (f) {
+      return `<div class="feature">
+        <span class="ic">${PJS.icons[f[0]]}</span>
+        <div><h3>${esc(f[1])} <span class="chip green" style="vertical-align:2px">Free</span></h3><p>${esc(f[2])}</p></div>
+      </div>`;
+    }).join('');
+    document.getElementById('featureGrid').style.gridTemplateColumns = '';
+    document.getElementById('featureGrid').className = 'grid';
+    document.getElementById('featureGrid').style.cssText =
+      'display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))';
+
+    // stories
+    const res = await PJS.get('/api/stories');
+    const grid = document.getElementById('storyGrid');
+    if (res.ok && res.stories.length) {
+      grid.style.cssText = 'display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))';
+      grid.innerHTML = res.stories.map(function (s) {
+        return `<article class="story">
+          <p class="quote">“${esc(s.body || s.title)}”</p>
+          <div class="who">
+            ${PJS.avatar(s.couple, s.photo)}
+            <div><b>${esc(s.couple)}</b><div class="tiny muted">${esc(s.location || '')}</div></div>
+          </div>
+        </article>`;
+      }).join('');
+    } else {
+      grid.style.cssText = '';
+      grid.className = 'empty';
+      grid.innerHTML = `<div class="ic">${PJS.icons.heart}</div>
+        <h3>Share the first success story</h3>
+        <p>Couples who found each other here can send their story on WhatsApp and our team will publish it.</p>
+        <a class="btn ghost sm" href="${esc(share.href)}" target="_blank" rel="noopener">Send your story</a>`;
+    }
+
+    // quick search
+    document.getElementById('quickSearch').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const params = new URLSearchParams();
+      params.set('gender', document.getElementById('qsGender').value);
+      params.set('age_min', document.getElementById('qsAgeMin').value);
+      params.set('age_max', document.getElementById('qsAgeMax').value);
+      const community = document.getElementById('qsCommunity').value;
+      if (community) params.set('community', community);
+      const target = '/search.html?' + params.toString();
+      if (PJS.me) window.location.href = target;
+      else window.location.href = '/login.html?next=' + encodeURIComponent(target);
+    });
+
+    if (new URLSearchParams(window.location.search).get('loggedout')) {
+      PJS.toast('You have been logged out. See you soon!', 'success');
+    }
+    if (site.announcement) {
+      PJS.toast(site.announcement, '');
+    }
+  });
+})();
+</script>
+</body>
+</html>

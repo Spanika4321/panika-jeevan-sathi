@@ -1,30 +1,26 @@
 {
   "name": "panika-jeevan-sathi",
+  "version": "2.0.0",
   "private": true,
-  "engines": {
-    "node": ">=22.0.0"
-  },
+  "description": "PANIKA JEEVAN SATHI \u2014 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
+  "main": "server.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build --webpack",
     "start": "node server.js",
-    "typecheck": "tsc --noEmit"
+    "dev": "node --watch server.js",
+    "check": "node scripts/check-syntax.mjs",
+    "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs",
+    "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs"
   },
-  "dependencies": {
-    "better-sqlite3": "file:vendor/better-sqlite3",
-    "drizzle-orm": "0.45.2",
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "typescript": "^5.9.3"
+  "engines": {
+    "node": ">=22.5.0"
   },
-  "devDependencies": {
-    "@tailwindcss/postcss": "4.1.17",
-    "@types/node": "^22.19.15",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "postcss": "8.5.8",
-    "tailwindcss": "4.1.17",
-    "tsx": "^4.23.12"
-  }
+  "keywords": [
+    "matrimonial",
+    "panika",
+    "manikpuri",
+    "kabirpanthi",
+    "adivasi",
+    "free"
+  ],
+  "license": "UNLICENSED"
 }

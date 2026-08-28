@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Recommended matches — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head">
+    <h1 class="mb-0">Recommended matches</h1>
+    <p class="muted mb-0">Ranked using the partner preferences you set in your profile. 100% free.</p>
+  </div>
+
+  <div id="tip" class="mt-2"></div>
+
+  <div class="row spread row-wrap mt-2 mb-2">
+    <div class="small muted" id="count">Loading your matches…</div>
+    <a class="btn ghost sm" href="/search.html">Advanced search</a>
+  </div>
+
+  <div id="results"><div class="skeleton" style="height:320px"></div></div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/cards.js"></script>
+<script>
+(function () {
+  async function load() {
+    const res = await PJS.get('/api/matches?limit=24');
+    const box = document.getElementById('results');
+    if (!res.ok) {
+      box.className = 'empty';
+      box.innerHTML = `<div class="ic">${PJS.icons.flag}</div><h3>Could not load matches</h3><p>${PJS.esc(res.error || '')}</p>`;
+      return;
+    }
+    document.getElementById('count').textContent =
+      res.results.length ? `${res.total} profiles match your preferences` : '';
+
+    const me = await PJS.get('/api/me');
+    const profile = (me.ok && me.profile) || {};
+    if (!profile.pref_age_min || !profile.pref_age_max) {
+      document.getElementById('tip').innerHTML =
+        '<div class="alert info"><b>Improve your recommendations</b>' +
+        'Add your preferred age range and community in partner preferences for better matches. ' +
+        '<a href="/edit-profile.html#partner">Set preferences</a></div>';
+    }
+
+    PJS.cards.render(box, res.results, {
+      emptyTitle: 'No matches yet',
+      emptyText: 'Recommendations appear as new members join. Meanwhile, try the advanced search.',
+      emptyAction: '<a class="btn ghost sm" href="/search.html">Search profiles</a>',
+      onChanged: load
+    });
+  }
+
+  PJS.onReady(function () {
+    if (!PJS.requireAuth()) return;
+    load();
+  });
+})();
+</script>
+</body>
+</html>

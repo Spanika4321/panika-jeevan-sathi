@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shortlisted profiles — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head">
+    <h1 class="mb-0">Shortlisted profiles</h1>
+    <p class="muted mb-0">Profiles you saved with the star. Only you can see this list.</p>
+  </div>
+
+  <div class="row spread row-wrap mt-2 mb-2">
+    <div class="small muted" id="count">Loading…</div>
+    <a class="btn ghost sm" href="/search.html">Find more profiles</a>
+  </div>
+
+  <div id="results"><div class="skeleton" style="height:300px"></div></div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/cards.js"></script>
+<script>
+(function () {
+  async function load() {
+    const res = await PJS.get('/api/shortlist');
+    const box = document.getElementById('results');
+    if (!res.ok) {
+      box.className = 'empty';
+      box.innerHTML = `<h3>Could not load</h3><p>${PJS.esc(res.error || '')}</p>`;
+      return;
+    }
+    document.getElementById('count').textContent =
+      res.results.length ? `${res.results.length} shortlisted profile${res.results.length === 1 ? '' : 's'}` : '';
+    PJS.cards.render(box, res.results, {
+      emptyTitle: 'Nothing shortlisted yet',
+      emptyText: 'Tap the star on any profile to keep it here for later.',
+      emptyAction: '<a class="btn ghost sm" href="/search.html">Browse profiles</a>',
+      onChanged: load
+    });
+  }
+
+  PJS.onReady(function () {
+    if (!PJS.requireAuth()) return;
+    load();
+  });
+})();
+</script>
+</body>
+</html>

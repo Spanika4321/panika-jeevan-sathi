@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Account settings — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow">
+  <div class="page-head">
+    <h1 class="mb-0">Account settings</h1>
+    <p class="muted mb-0">Your account details, password, privacy and account actions.</p>
+  </div>
+
+  <div id="status"></div>
+
+  <section class="card mt-2 mb-3">
+    <h3>My account</h3>
+    <div class="row mb-2" id="accountHead"></div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Display name</label>
+        <input id="name" type="text">
+      </div>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input id="email" type="email" disabled>
+        <div class="hint">Email is used for login and account recovery.</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn sm" id="saveName">Save name</button>
+      <button class="btn ghost sm" id="resendVerify">Resend verification email</button>
+      <a class="btn ghost sm" href="/edit-profile.html#privacy">Privacy settings</a>
+    </div>
+  </section>
+
+  <section class="card mb-3">
+    <h3>Change password</h3>
+    <form id="pwForm">
+      <div class="field">
+        <label for="current">Current password</label>
+        <input id="current" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="next">New password</label>
+          <input id="next" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="field">
+          <label for="next2">Confirm new password</label>
+          <input id="next2" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+      </div>
+      <button class="btn sm" type="submit" id="pwBtn">Update password</button>
+    </form>
+  </section>
+
+  <section class="card mb-3">
+    <h3>Your membership</h3>
+    <div class="detail-grid">
+      <div class="detail"><dt>Plan</dt><dd>Free — forever</dd></div>
+      <div class="detail"><dt>Profile views</dt><dd>Unlimited</dd></div>
+      <div class="detail"><dt>Interests</dt><dd>Unlimited</dd></div>
+      <div class="detail"><dt>Messaging</dt><dd>Unlimited</dd></div>
+      <div class="detail"><dt>Shortlist</dt><dd>Unlimited</dd></div>
+      <div class="detail"><dt>Member since</dt><dd id="since"></dd></div>
+    </div>
+    <p class="small muted mt-2 mb-0">
+      PANIKA JEEVAN SATHI has no premium plan, no payment gateway and no locked profiles.
+      If anyone asks you for money in the name of this website, report it immediately.
+    </p>
+  </section>
+
+  <section class="card mb-3">
+    <h3>Support</h3>
+    <p class="small muted">Our team replies on WhatsApp for registration help, profile corrections and complaints.</p>
+    <a class="btn green" id="waBtn" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
+  </section>
+
+  <section class="card">
+    <h3>Danger zone</h3>
+    <div class="btn-row">
+      <button class="btn ghost" id="logoutBtn">Log out</button>
+      <button class="btn danger" id="deleteBtn">Delete my account</button>
+    </div>
+    <p class="tiny muted mt-2 mb-0">Deleting your account permanently removes your profile, photo, interests, shortlist, messages and notifications.</p>
+  </section>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  function alertBox(type, text) {
+    $('status').innerHTML = `<div class="alert ${type}">${PJS.esc(text)}</div>`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => { $('status').innerHTML = ''; }, 5000);
+  }
+
+  PJS.onReady(async function () {
+    if (!PJS.requireAuth()) return;
+    const res = await PJS.get('/api/me');
+    if (!res.ok) return;
+    PJS.me = res.user;
+
+    $('name').value = res.user.name || '';
+    $('email').value = res.user.email || '';
+    $('since').textContent = PJS.fmt.date(res.user.created_at);
+    $('accountHead').innerHTML =
+      PJS.avatar(res.user.name, res.user.photo, 'lg') +
+      `<div><b style="font-size:16px">${PJS.esc(res.user.name)}</b>
+       <div class="small muted">${PJS.esc(res.user.email)}</div>
+       <div class="chips mt-1">
+         ${res.user.email_verified ? '<span class="chip green">Email verified</span>' : '<span class="chip red">Email not verified</span>'}
+         ${res.user.role === 'admin' ? '<span class="chip gold">Administrator</span>' : '<span class="chip">Member</span>'}
+       </div></div>`;
+    $('resendVerify').style.display = res.user.email_verified ? 'none' : '';
+    $('waBtn').href = PJS.whatsAppLink('Hello PANIKA JEEVAN SATHI team, I need help with my account.');
+
+    $('saveName').onclick = async function () {
+      const r = await PJS.post('/api/me/name', { name: $('name').value.trim() });
+      if (r.ok) { PJS.me.name = $('name').value.trim(); alertBox('success', 'Name updated.'); }
+      else alertBox('error', r.error || 'Could not save name.');
+    };
+
+    $('resendVerify').onclick = async function () {
+      const r = await PJS.post('/api/auth/resend-verification', { email: res.user.email });
+      alertBox(r.ok ? 'success' : 'error',
+        r.ok
+          ? (r.email_delivered ? 'Verification email sent — check your inbox.' : 'Verification link: ' + r.verification_link)
+          : (r.error || 'Could not send verification email.'));
+    };
+
+    $('pwForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if ($('next').value !== $('next2').value) { alertBox('error', 'The two new passwords do not match.'); return; }
+      const btn = $('pwBtn');
+      btn.disabled = true; btn.textContent = 'Updating…';
+      const r = await PJS.post('/api/me/password', {
+        current_password: $('current').value,
+        new_password: $('next').value
+      });
+      btn.disabled = false; btn.textContent = 'Update password';
+      if (r.ok) {
+        $('pwForm').reset();
+        alertBox('success', 'Password updated successfully.');
+      } else {
+        alertBox('error', r.error || 'Could not update password.');
+      }
+    });
+
+    $('logoutBtn').onclick = async function () {
+      const yes = await PJS.confirm('Log out?', 'You can log in again any time with your email and password.', 'Log out');
+      if (yes) PJS.logout();
+    };
+
+    $('deleteBtn').onclick = async function () {
+      const yes = await PJS.confirm('Delete your account permanently?',
+        'Your profile, photo, interests, shortlist and messages will be erased. This cannot be undone.',
+        'Delete my account', true);
+      if (!yes) return;
+      const r = await PJS.del('/api/me');
+      if (r.ok) {
+        PJS.toast('Your account has been deleted.', 'success');
+        setTimeout(() => { window.location.href = '/index.html'; }, 800);
+      } else {
+        alertBox('error', r.error || 'Could not delete account.');
+      }
+    };
+  });
+})();
+</script>
+</body>
+</html>

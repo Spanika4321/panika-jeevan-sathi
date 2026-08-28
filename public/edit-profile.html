@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Edit my profile — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+<style>
+  .form-section { scroll-margin-top: 90px; }
+  .save-bar {
+    position: sticky; bottom: 0; z-index: 40; margin-top: 18px;
+    background: rgba(255,255,255,.95); backdrop-filter: blur(6px);
+    border: 1px solid var(--line); border-radius: 16px; padding: 12px;
+    display: flex; gap: 10px; align-items: center; justify-content: space-between; box-shadow: var(--shadow);
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head row spread row-wrap">
+    <div>
+      <h1 class="mb-0">My matrimonial profile</h1>
+      <p class="muted mb-0">Everything you save here is stored on your account and shown to members you allow.</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn ghost sm" id="viewProfile" href="#">View public profile</a>
+      <button class="btn sm" id="saveTop">Save changes</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="two-col wide-left mt-2">
+    <div>
+
+      <!-- photo -->
+      <section class="card form-section mb-3" id="sec-photo">
+        <h3>Profile photo</h3>
+        <p class="small muted">A clear, recent photo increases responses. Your photo is never shared outside this website.</p>
+        <div class="center">
+          <img class="photo-preview" id="photoPreview" alt="Profile photo preview">
+          <input type="file" id="photoInput" accept="image/png,image/jpeg,image/webp" class="hide">
+          <div class="btn-row" style="justify-content:center">
+            <button class="btn ghost sm" id="choosePhoto">Upload photo</button>
+            <button class="btn ghost sm danger" id="removePhoto">Remove</button>
+          </div>
+          <p class="tiny muted mt-1">JPG, PNG or WEBP · up to 4 MB · automatically resized</p>
+        </div>
+      </section>
+
+      <div id="sections"></div>
+
+      <div class="save-bar">
+        <span class="small muted" id="savedNote">All changes are saved to your account.</span>
+        <button class="btn" id="saveBottom">Save profile</button>
+      </div>
+    </div>
+
+    <aside>
+      <nav class="card mb-3">
+        <h3>Sections</h3>
+        <div id="sectionNav" style="display:flex;flex-direction:column;gap:2px"></div>
+      </nav>
+      <section class="card mb-3">
+        <h3>Profile strength</h3>
+        <div class="progress"><i id="strengthBar" style="width:0%"></i></div>
+        <p class="small muted mt-1 mb-0" id="strengthText">Loading…</p>
+      </section>
+      <section class="card">
+        <h3>Tips that work</h3>
+        <ul class="small muted" style="padding-left:18px;margin:0">
+          <li>Write 3–4 honest lines in “About me”.</li>
+          <li>Mention your family background — families read it first.</li>
+          <li>Set a realistic partner age range.</li>
+          <li>Keep your contact number updated if you want direct calls.</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let profile = {};
+  let me = null;
+
+  const SECTIONS = [
+    {
+      id: 'basic', title: 'Basic details', icon: 'user',
+      fields: [
+        { k: 'headline', label: 'Profile headline', type: 'text', placeholder: 'e.g. Simple, family oriented teacher', span: 2, max: 120 },
+        { k: 'age', label: 'Age (years)', type: 'number', min: 18, max: 100 },
+        { k: 'gender', label: 'Gender', type: 'select', options: 'genders' },
+        { k: 'height_cm', label: 'Height', type: 'select', options: 'heights' },
+        { k: 'marital_status', label: 'Marital status', type: 'select', options: 'marital' },
+        { k: 'mother_tongue', label: 'Mother tongue', type: 'text', placeholder: 'e.g. Hindi' },
+        { k: 'diet', label: 'Diet', type: 'select', options: 'diet' },
+        { k: 'smoking', label: 'Smoking', type: 'select', options: 'habits' },
+        { k: 'drinking', label: 'Drinking', type: 'select', options: 'habits' }
+      ]
+    },
+    {
+      id: 'location', title: 'Location & contact', icon: 'pin',
+      fields: [
+        { k: 'city', label: 'City', type: 'text' },
+        { k: 'state', label: 'State', type: 'text' },
+        { k: 'country', label: 'Country', type: 'text', placeholder: 'India' },
+        { k: 'phone', label: 'Phone / WhatsApp (optional)', type: 'tel', placeholder: '+91 …' }
+      ]
+    },
+    {
+      id: 'community', title: 'Religion & community', icon: 'shield',
+      fields: [
+        { k: 'religion', label: 'Religion / Panth', type: 'select', options: 'religions' },
+        { k: 'community', label: 'Community', type: 'select', options: 'communities' },
+        { k: 'sub_community', label: 'Sub-community / Gotra detail', type: 'text' },
+        { k: 'gotra', label: 'Gotra', type: 'text' },
+        { k: 'manglik', label: 'Manglik', type: 'select', list: ['No', 'Yes', 'Partial (Anshik)'] }
+      ]
+    },
+    {
+      id: 'career', title: 'Education & occupation', icon: 'cap',
+      fields: [
+        { k: 'education', label: 'Highest education', type: 'select', options: 'education' },
+        { k: 'education_detail', label: 'Degree / details', type: 'text', placeholder: 'e.g. B.Sc. Agriculture' },
+        { k: 'occupation', label: 'Occupation', type: 'select', options: 'occupations' },
+        { k: 'company', label: 'Employer / business name', type: 'text' },
+        { k: 'annual_income', label: 'Annual income', type: 'select', options: 'incomes' }
+      ]
+    },
+    {
+      id: 'family', title: 'Family details', icon: 'users',
+      fields: [
+        { k: 'family_type', label: 'Family type', type: 'select', options: 'familyType' },
+        { k: 'family_status', label: 'Family status', type: 'select', options: 'familyStatus' },
+        { k: 'father_occupation', label: "Father's occupation", type: 'text' },
+        { k: 'mother_occupation', label: "Mother's occupation", type: 'text' },
+        { k: 'siblings', label: 'Brothers / sisters', type: 'text', placeholder: 'e.g. 1 elder brother, married' }
+      ]
+    },
+    {
+      id: 'about', title: 'About me', icon: 'edit',
+      fields: [
+        { k: 'about_me', label: 'Write about yourself', type: 'textarea', span: 2, max: 2000,
+          placeholder: 'Describe your nature, work, family values and what you are looking for in a life partner.' }
+      ]
+    },
+    {
+      id: 'partner', title: 'Partner preferences', icon: 'rings',
+      fields: [
+        { k: 'pref_age_min', label: 'Preferred age (from)', type: 'number', min: 18, max: 100 },
+        { k: 'pref_age_max', label: 'Preferred age (to)', type: 'number', min: 18, max: 100 },
+        { k: 'pref_gender', label: 'Looking for', type: 'select', options: 'genders' },
+        { k: 'pref_marital_status', label: 'Preferred marital status', type: 'select', options: 'marital' },
+        { k: 'pref_community', label: 'Preferred community', type: 'select', options: 'communities' },
+        { k: 'pref_religion', label: 'Preferred religion / panth', type: 'select', options: 'religions' },
+        { k: 'pref_location', label: 'Preferred location', type: 'text', placeholder: 'e.g. Chhattisgarh' },
+        { k: 'pref_education', label: 'Preferred education', type: 'select', options: 'education' },
+        { k: 'pref_occupation', label: 'Preferred occupation', type: 'select', options: 'occupations' },
+        { k: 'pref_message', label: 'Message to prospective families', type: 'textarea', span: 2, max: 500 }
+      ]
+    }
+  ];
+
+  function optionList(field) {
+    const opts = PJS.options || {};
+    let list = [];
+    if (field.list) list = field.list;
+    else if (field.options === 'heights') {
+      return [{ value: '', label: '— Select —' }].concat(opts.heights || []);
+    }
+    else if (field.options === 'communities') {
+      list = ((PJS.site && PJS.site.communities_list) || []).slice();
+    } else if (field.options) list = opts[field.options] || [];
+
+    return [{ value: '', label: '— Select —' }].concat(
+      list.map((v) => (typeof v === 'object' ? v : { value: v, label: v }))
+    );
+  }
+
+  function fieldHtml(field) {
+    const value = profile[field.k];
+    const val = value === null || value === undefined ? '' : value;
+    const common = `id="f_${field.k}" data-key="${field.k}"`;
+    let control = '';
+    if (field.type === 'select') {
+      control = `<select ${common}>` + optionList(field)
+        .map((o) => `<option value="${PJS.esc(o.value)}" ${String(val) === String(o.value) ? 'selected' : ''}>${PJS.esc(o.label)}</option>`)
+        .join('') + '</select>';
+    } else if (field.type === 'textarea') {
+      control = `<textarea ${common} maxlength="${field.max || 2000}" placeholder="${PJS.esc(field.placeholder || '')}">${PJS.esc(val)}</textarea>`;
+    } else {
+      control = `<input ${common} type="${field.type}" value="${PJS.esc(val)}"
+        ${field.min !== undefined ? `min="${field.min}"` : ''} ${field.max !== undefined ? `max="${field.max}"` : ''}
+        placeholder="${PJS.esc(field.placeholder || '')}">`;
+    }
+    return `<div class="field" ${field.span === 2 ? 'style="grid-column:1/-1"' : ''}>
+      <label for="f_${field.k}">${PJS.esc(field.label)}</label>${control}</div>`;
+  }
+
+  function renderSections() {
+    $('sections').innerHTML = SECTIONS.map((sec) => `
+      <section class="card form-section mb-3" id="sec-${sec.id}">
+        <h3>${PJS.esc(sec.title)}</h3>
+        <div class="form-grid">${sec.fields.map(fieldHtml).join('')}</div>
+      </section>`).join('') + privacyHtml();
+
+    $('sectionNav').innerHTML = SECTIONS.map((sec) =>
+      `<a class="row" href="#sec-${sec.id}" style="padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink-2)">
+        <span style="width:20px;color:var(--brand)">${PJS.icons[sec.icon]}</span>${PJS.esc(sec.title)}</a>`).join('') +
+      `<a class="row" href="#sec-privacy" style="padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink-2)">
+        <span style="width:20px;color:var(--brand)">${PJS.icons.shield}</span>Privacy</a>`;
+  }
+
+  function privacyHtml() {
+    const vis = profile.visibility || 'members';
+    return `<section class="card form-section mb-3" id="sec-privacy">
+      <h3>Privacy settings</h3>
+      <p class="small muted">You stay in control of who can find and contact you.</p>
+      <div class="field">
+        <label for="f_visibility">Who can see my profile</label>
+        <select id="f_visibility" data-key="visibility">
+          <option value="everyone" ${vis === 'everyone' ? 'selected' : ''}>Everyone (including visitors who are not logged in)</option>
+          <option value="members" ${vis === 'members' ? 'selected' : ''}>Registered members only (recommended)</option>
+          <option value="hidden" ${vis === 'hidden' ? 'selected' : ''}>Hidden — nobody can find me right now</option>
+        </select>
+      </div>
+      <label class="switch"><span><b class="small">Hide my photo</b>
+        <div class="tiny muted">Photo is visible only to you.</div></span>
+        <input type="checkbox" id="f_hide_photo" data-key="hide_photo" ${Number(profile.hide_photo) ? 'checked' : ''}></label>
+      <label class="switch"><span><b class="small">Hide my contact number</b>
+        <div class="tiny muted">Members will not see your phone number.</div></span>
+        <input type="checkbox" id="f_hide_contact" data-key="hide_contact" ${Number(profile.hide_contact) ? 'checked' : ''}></label>
+      <label class="switch"><span><b class="small">Show me in search results</b>
+        <div class="tiny muted">Turn off to pause new interests while keeping your account.</div></span>
+        <input type="checkbox" id="f_searchable" data-key="searchable" ${profile.searchable === undefined || Number(profile.searchable) ? 'checked' : ''}></label>
+    </section>`;
+  }
+
+  function collect() {
+    const data = {};
+    document.querySelectorAll('[data-key]').forEach((el) => {
+      const key = el.getAttribute('data-key');
+      if (el.type === 'checkbox') data[key] = el.checked ? 1 : 0;
+      else data[key] = el.value === '' ? '' : el.value;
+    });
+    // an empty numeric field is sent as "" so the server stores NULL (a real clear)
+    return data;
+  }
+
+  async function save(silent) {
+    const btns = [$('saveTop'), $('saveBottom')];
+    btns.forEach((b) => { b.disabled = true; b.textContent = 'Saving…'; });
+    const res = await PJS.put('/api/profile', collect());
+    btns.forEach((b) => { b.disabled = false; });
+    $('saveTop').textContent = 'Save changes';
+    $('saveBottom').textContent = 'Save profile';
+    if (!res.ok) {
+      $('status').innerHTML = `<div class="alert error"><b>Could not save</b>${PJS.esc(res.error || 'Please check the highlighted fields.')}</div>`;
+      $('status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    profile = res.profile;
+    updateStrength(res.completeness);
+    $('status').innerHTML = `<div class="alert success"><b>Saved</b>Your profile has been updated.</div>`;
+    $('savedNote').textContent = 'Saved at ' + PJS.fmt.time(Date.now());
+    if (!silent) PJS.toast('Profile saved successfully', 'success');
+    setTimeout(() => { $('status').innerHTML = ''; }, 4000);
+  }
+
+  function updateStrength(value) {
+    const v = Number(value || 0);
+    $('strengthBar').style.width = v + '%';
+    $('strengthText').textContent = v >= 80
+      ? 'Excellent — your profile is strong and easy to trust.'
+      : v >= 50
+        ? 'Good start. Add family details and a photo to get more interests.'
+        : 'Add your basic details, education and a photo to appear in more searches.';
+  }
+
+  /* ------------------------------------------------------------ photo */
+
+  function setPreview(url) {
+    const img = $('photoPreview');
+    if (url) {
+      img.src = url;
+      img.style.visibility = 'visible';
+    } else {
+      img.removeAttribute('src');
+      img.style.visibility = 'hidden';
+    }
+  }
+
+  function downscale(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read that file.'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('That file is not a valid image.'));
+        img.onload = () => {
+          const max = 900;
+          let { width, height } = img;
+          if (width > max || height > max) {
+            const ratio = Math.min(max / width, max / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.86));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  $('choosePhoto').onclick = () => $('photoInput').click();
+
+  $('photoInput').addEventListener('change', async function () {
+    const file = this.files && this.files[0];
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      PJS.toast('Please choose a JPG, PNG or WEBP image.', 'error');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      PJS.toast('That image is too large. Please choose one below 8 MB.', 'error');
+      return;
+    }
+    try {
+      const dataUrl = await downscale(file);
+      const btn = $('choosePhoto');
+      btn.disabled = true; btn.textContent = 'Uploading…';
+      const res = await PJS.post('/api/profile/photo', { data_url: dataUrl });
+      btn.disabled = false; btn.textContent = 'Upload photo';
+      if (!res.ok) { PJS.toast(res.error || 'Upload failed', 'error'); return; }
+      setPreview(res.photo);
+      PJS.me.photo = res.photo;
+      PJS.toast('Photo updated', 'success');
+    } catch (err) {
+      PJS.toast(err.message || 'Upload failed', 'error');
+    }
+  });
+
+  $('removePhoto').onclick = async function () {
+    const yes = await PJS.confirm('Remove photo?', 'Your profile photo will be deleted permanently.', 'Remove photo', true);
+    if (!yes) return;
+    const res = await PJS.del('/api/profile/photo');
+    if (res.ok) {
+      setPreview(null);
+      PJS.me.photo = null;
+      PJS.toast('Photo removed', 'success');
+    } else {
+      PJS.toast(res.error || 'Could not remove photo', 'error');
+    }
+  };
+
+  /* ------------------------------------------------------------- boot */
+
+  PJS.onReady(async function () {
+    if (!PJS.requireAuth()) return;
+    me = PJS.me;
+    $('viewProfile').href = '/profile.html?id=' + me.id;
+
+    const res = await PJS.get('/api/profile');
+    if (!res.ok) { PJS.toast(res.error || 'Could not load profile', 'error'); return; }
+    profile = res.profile || {};
+    renderSections();
+    setPreview(me.photo);
+    updateStrength(res.completeness || 0);
+
+    $('saveTop').onclick = () => save(false);
+    $('saveBottom').onclick = () => save(false);
+
+    if (PJS.qs('welcome')) {
+      $('status').innerHTML = '<div class="alert success"><b>Welcome! 🎉</b>Add your photo and details below, then tap “Save profile”.</div>';
+    }
+  });
+})();
+</script>
+</body>
+</html>

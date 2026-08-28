@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Login or Register — PANIKA JEEVAN SATHI</title>
+<meta name="description" content="Create your free matrimonial profile or log in to PANIKA JEEVAN SATHI.">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="auth-wrap">
+
+  <div class="alert warn mb-2">
+    <b>🙏 Community notice</b>
+    <span id="noticeText">This website is for the Panika, Manikpuri, Kabirpanthi and Adivasi communities.
+    If you do not belong to these communities, please do not register.</span>
+    <div class="chips mt-1" id="communityChips"></div>
+  </div>
+
+  <section class="auth-card">
+    <div class="tabs mb-3" role="tablist">
+      <button type="button" id="tabLogin" class="active">Log in</button>
+      <button type="button" id="tabRegister">Register free</button>
+      <button type="button" id="tabForgot">Forgot password</button>
+    </div>
+
+    <div id="message"></div>
+
+    <!-- ------------------------------------------------------- login -->
+    <form id="loginForm">
+      <h1 class="mb-0" style="font-size:26px">Welcome back</h1>
+      <p class="muted small">Log in to view your matches, interests and messages.</p>
+
+      <div class="field">
+        <label for="loginEmail">Email address</label>
+        <input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password">
+      </div>
+      <button class="btn block lg" type="submit" id="loginBtn">Log in</button>
+      <p class="center small mt-2 muted">
+        New here? <a href="#" id="goRegister">Create a free account</a> ·
+        <a href="#" id="goForgot">Forgot password?</a>
+      </p>
+    </form>
+
+    <!-- ---------------------------------------------------- register -->
+    <form id="registerForm" class="hide">
+      <h1 class="mb-0" style="font-size:26px">Create your free profile</h1>
+      <p class="muted small">100% free. No card, no subscription, no locked features.</p>
+
+      <div class="field">
+        <label for="regName">Full name</label>
+        <input id="regName" type="text" autocomplete="name" required placeholder="As per your documents">
+      </div>
+      <div class="field">
+        <label for="regEmail">Email address</label>
+        <input id="regEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="regPassword">Password</label>
+        <input id="regPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="Minimum 8 characters, with a number">
+        <div class="hint">Use at least 8 characters with one letter and one number.</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="regGender">Profile for</label>
+          <select id="regGender">
+            <option value="male">Groom (Male)</option>
+            <option value="female">Bride (Female)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="regLookingFor">Looking for</label>
+          <select id="regLookingFor">
+            <option value="female">Bride (Female)</option>
+            <option value="male">Groom (Male)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="regCommunity">Community</label>
+          <select id="regCommunity" required></select>
+        </div>
+        <div class="field">
+          <label for="regReligion">Religion / Panth</label>
+          <select id="regReligion"></select>
+        </div>
+        <div class="field">
+          <label for="regCity">City</label>
+          <input id="regCity" type="text" placeholder="Your city">
+        </div>
+        <div class="field">
+          <label for="regState">State</label>
+          <input id="regState" type="text" placeholder="Your state">
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="regTerms" required>
+        <span>I confirm that I belong to one of the listed communities, I am 18 years or older, and I accept the
+          <a href="/terms.html" target="_blank" rel="noopener">Terms of use</a> and
+          <a href="/privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</span>
+      </label>
+
+      <button class="btn block lg mt-2" type="submit" id="registerBtn">Create my free account</button>
+      <p class="center small mt-2 muted">Already registered? <a href="#" id="goLogin">Log in</a></p>
+    </form>
+
+    <!-- ------------------------------------------------------ forgot -->
+    <form id="forgotForm" class="hide">
+      <h1 class="mb-0" style="font-size:26px">Reset your password</h1>
+      <p class="muted small">Enter your registered email and we will send you a reset link.</p>
+      <div class="field">
+        <label for="forgotEmail">Email address</label>
+        <input id="forgotEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <button class="btn block lg" type="submit" id="forgotBtn">Send reset link</button>
+      <p class="center small mt-2 muted"><a href="#" id="backLogin">Back to login</a></p>
+    </form>
+  </section>
+
+  <div class="card mt-2 center">
+    <b>Need help registering?</b>
+    <p class="small muted mb-2">Our team will help you create your profile on WhatsApp — free of cost.</p>
+    <a class="btn green block" id="waBtn" href="#" target="_blank" rel="noopener">Chat with us on WhatsApp</a>
+  </div>
+
+  <p class="center tiny muted mt-2">
+    🔒 Your password is stored securely and never shared. Never send money to anyone you meet online.
+  </p>
+</main>
+
+<div id="siteFooter"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const forms = {
+    login: document.getElementById('loginForm'),
+    register: document.getElementById('registerForm'),
+    forgot: document.getElementById('forgotForm')
+  };
+  const tabs = {
+    login: document.getElementById('tabLogin'),
+    register: document.getElementById('tabRegister'),
+    forgot: document.getElementById('tabForgot')
+  };
+  const message = document.getElementById('message');
+
+  function show(which) {
+    Object.keys(forms).forEach(function (key) {
+      forms[key].classList.toggle('hide', key !== which);
+      tabs[key].classList.toggle('active', key === which);
+    });
+    message.innerHTML = '';
+    window.history.replaceState({}, '', which === 'login' ? '/login.html' : '/login.html?tab=' + which);
+  }
+
+  function alertBox(type, title, html) {
+    message.innerHTML = `<div class="alert ${type}"><b>${PJS.esc(title)}</b>${html || ''}</div>`;
+    message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function busy(btn, on, label) {
+    if (!btn) return;
+    btn.disabled = on;
+    if (on) {
+      btn.dataset.label = btn.textContent;
+      btn.textContent = label || 'Please wait…';
+    } else if (btn.dataset.label) {
+      btn.textContent = btn.dataset.label;
+    }
+  }
+
+  function nextUrl() {
+    return PJS.qs('next') || '/dashboard.html';
+  }
+
+  tabs.login.onclick = () => show('login');
+  tabs.register.onclick = () => show('register');
+  tabs.forgot.onclick = () => show('forgot');
+  document.getElementById('goRegister').onclick = (e) => { e.preventDefault(); show('register'); };
+  document.getElementById('goForgot').onclick = (e) => { e.preventDefault(); show('forgot'); };
+  document.getElementById('backLogin').onclick = (e) => { e.preventDefault(); show('login'); };
+  document.getElementById('goLogin').onclick = (e) => { e.preventDefault(); show('login'); };
+
+  document.getElementById('regGender').addEventListener('change', function () {
+    document.getElementById('regLookingFor').value = this.value === 'male' ? 'female' : 'male';
+  });
+
+  /* ------------------------------------------------------------- login */
+  forms.login.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    busy(btn, true, 'Logging in…');
+    const res = await PJS.post('/api/auth/login', {
+      email: document.getElementById('loginEmail').value.trim(),
+      password: document.getElementById('loginPassword').value
+    });
+    busy(btn, false);
+    if (res.ok) {
+      PJS.me = res.user;
+      alertBox('success', res.message || 'Logged in');
+      setTimeout(function () { window.location.href = nextUrl(); }, 350);
+      return;
+    }
+    if (res.code === 'email_not_verified') {
+      alertBox(
+        'warn',
+        'Please verify your email first',
+        (res.email_delivered
+          ? 'A verification link has been sent to your email inbox.'
+          : 'Email delivery is not configured on this server yet. Use this secure link to verify: <br><a href="' +
+            PJS.esc(res.verification_link) + '">' + PJS.esc(res.verification_link) + '</a>') +
+          '<div class="mt-2"><button class="btn ghost sm" id="resendBtn" type="button">Resend verification link</button></div>'
+      );
+      const rb = document.getElementById('resendBtn');
+      if (rb) {
+        rb.onclick = async function () {
+          busy(rb, true, 'Sending…');
+          const r = await PJS.post('/api/auth/resend-verification', {
+            email: document.getElementById('loginEmail').value.trim()
+          });
+          busy(rb, false);
+          if (r.ok) {
+            alertBox(
+              'info',
+              'Verification link sent',
+              r.email_delivered
+                ? 'Check your email inbox (and spam folder).'
+                : 'Open this link to verify: <br><a href="' + PJS.esc(r.verification_link) + '">' + PJS.esc(r.verification_link) + '</a>'
+            );
+          } else {
+            alertBox('error', 'Could not resend', PJS.esc(r.error));
+          }
+        };
+      }
+      return;
+    }
+    alertBox('error', 'Login failed', PJS.esc(res.error || 'Please try again.'));
+  });
+
+  /* ---------------------------------------------------------- register */
+  forms.register.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('registerBtn');
+    busy(btn, true, 'Creating your account…');
+    const res = await PJS.post('/api/auth/register', {
+      name: document.getElementById('regName').value.trim(),
+      email: document.getElementById('regEmail').value.trim(),
+      password: document.getElementById('regPassword').value,
+      gender: document.getElementById('regGender').value,
+      looking_for: document.getElementById('regLookingFor').value,
+      community: document.getElementById('regCommunity').value,
+      religion: document.getElementById('regReligion').value,
+      city: document.getElementById('regCity').value.trim(),
+      state: document.getElementById('regState').value.trim()
+    });
+    busy(btn, false);
+    if (!res.ok) {
+      alertBox('error', 'Could not create account', PJS.esc(res.error || 'Please check the form.'));
+      return;
+    }
+    PJS.me = res.user;
+    if (res.verification_required) {
+      alertBox(
+        'success',
+        'Account created — verify your email',
+        res.email_delivered
+          ? 'We have emailed you a verification link. Open it to activate your profile.'
+          : 'Open this link to verify your email: <br><a href="' +
+            PJS.esc(res.verification_link) + '">' + PJS.esc(res.verification_link) + '</a>'
+      );
+      setTimeout(function () {
+        window.location.href = '/verify-email.html?token=' +
+          encodeURIComponent(new URL(res.verification_link).searchParams.get('token'));
+      }, 1200);
+      return;
+    }
+    alertBox('success', res.message || 'Welcome!');
+    setTimeout(function () { window.location.href = '/edit-profile.html?welcome=1'; }, 400);
+  });
+
+  /* ------------------------------------------------------------ forgot */
+  forms.forgot.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('forgotBtn');
+    busy(btn, true, 'Sending…');
+    const res = await PJS.post('/api/auth/forgot', {
+      email: document.getElementById('forgotEmail').value.trim()
+    });
+    busy(btn, false);
+    if (!res.ok) {
+      alertBox('error', 'Something went wrong', PJS.esc(res.error || ''));
+      return;
+    }
+    alertBox(
+      'success',
+      res.message,
+      res.reset_link
+        ? 'Open this link to set a new password (valid 1 hour): <br><a href="' +
+          PJS.esc(res.reset_link) + '">' + PJS.esc(res.reset_link) + '</a>'
+        : 'If the email is registered, the link is on its way. Check your inbox and spam folder.'
+    );
+  });
+
+  /* -------------------------------------------------------------- boot */
+  PJS.onReady(function () {
+    const site = PJS.site || {};
+    document.getElementById('waBtn').href = PJS.whatsAppLink(
+      'Hello PANIKA JEEVAN SATHI team, please help me register my matrimonial profile.'
+    );
+    const list = site.communities_list || ['Panika', 'Manikpuri', 'Kabirpanthi', 'Adivasi'];
+    document.getElementById('communityChips').innerHTML = list
+      .map(function (c) { return '<span class="chip gold">✓ ' + PJS.esc(c) + '</span>'; })
+      .join('');
+    document.getElementById('noticeText').textContent =
+      'This website is exclusively for the ' + list.join(', ') +
+      ' communities. If you do not belong to these communities, please do not register.';
+
+    const communitySelect = document.getElementById('regCommunity');
+    communitySelect.innerHTML = '<option value="">Select community</option>' +
+      list.map(function (c) { return '<option>' + PJS.esc(c) + '</option>'; }).join('');
+
+    const religions = (PJS.options && PJS.options.religions) || ['Hindu', 'Kabirpanth'];
+    document.getElementById('regReligion').innerHTML = religions
+      .map(function (r) { return '<option>' + PJS.esc(r) + '</option>'; })
+      .join('');
+
+    const tab = PJS.qs('tab');
+    show(tab === 'register' || tab === 'forgot' ? tab : 'login');
+    if (PJS.me) {
+      alertBox('info', 'You are already logged in', '<a href="/dashboard.html">Go to your dashboard</a>');
+    }
+  });
+})();
+</script>
+</body>
+</html>

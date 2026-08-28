@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Notifications — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow">
+  <div class="page-head row spread row-wrap">
+    <div>
+      <h1 class="mb-0">Notifications</h1>
+      <p class="muted mb-0">New interests, accepted interests and messages.</p>
+    </div>
+    <button class="btn ghost sm" id="markAll">Mark all as read</button>
+  </div>
+
+  <div id="list" class="mt-2"><div class="skeleton" style="height:120px"></div></div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  function iconFor(type) {
+    if (type === 'message') return PJS.icons.chat;
+    if (type === 'interest') return PJS.icons.heart;
+    if (type === 'accepted') return PJS.icons.check;
+    if (type === 'view') return PJS.icons.user;
+    return PJS.icons.bell;
+  }
+
+  async function load() {
+    const res = await PJS.get('/api/notifications');
+    const box = $('list');
+    if (!res.ok) {
+      box.innerHTML = `<div class="alert error">${PJS.esc(res.error || 'Could not load notifications.')}</div>`;
+      return;
+    }
+    if (!res.notifications.length) {
+      box.className = 'empty';
+      box.innerHTML = `<div class="ic">${PJS.icons.bell}</div><h3>No notifications yet</h3>
+        <p>Complete your profile with a photo — you will be notified when members show interest.</p>`;
+      return;
+    }
+    box.className = '';
+    box.innerHTML = res.notifications.map((n) => `
+      <div class="notif ${n.is_read ? '' : 'unread'}" data-id="${n.id}">
+        <span class="ic">${iconFor(n.type)}</span>
+        <div>
+          <b class="small">${PJS.esc(n.title)}</b>
+          <div class="small muted">${PJS.esc(n.body)}</div>
+          <div class="tiny muted">${PJS.esc(PJS.fmt.ago(n.created_at))}</div>
+          ${n.link ? `<a class="btn ghost sm mt-1" href="${PJS.esc(n.link)}">Open</a>` : ''}
+        </div>
+        <div class="btn-row" style="flex-direction:column;gap:6px">
+          ${n.is_read ? '' : `<button class="btn ghost sm" data-read="${n.id}">Mark read</button>`}
+          <button class="btn ghost sm" data-del="${n.id}">Delete</button>
+        </div>
+      </div>`).join('');
+
+    box.querySelectorAll('[data-read]').forEach((btn) => {
+      btn.onclick = async function () {
+        await PJS.post('/api/notifications/' + btn.getAttribute('data-read') + '/read');
+        load();
+      };
+    });
+    box.querySelectorAll('[data-del]').forEach((btn) => {
+      btn.onclick = async function () {
+        await PJS.del('/api/notifications/' + btn.getAttribute('data-del'));
+        load();
+      };
+    });
+    PJS.refreshCounts();
+  }
+
+  PJS.onReady(function () {
+    if (!PJS.requireAuth()) return;
+    $('markAll').onclick = async function () {
+      await PJS.post('/api/notifications/all/read');
+      PJS.toast('All notifications marked as read', 'success');
+      load();
+    };
+    load();
+  });
+})();
+</script>
+</body>
+</html>

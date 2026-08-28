@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacy policy — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow">
+  <div class="page-head">
+    <span class="eyebrow">Legal</span>
+    <h1 class="mb-0">Privacy policy</h1>
+    <p class="muted mb-0">Last updated: <span id="updated"></span></p>
+  </div>
+
+  <section class="card mt-2 mb-3">
+    <h3>1. What we store</h3>
+    <p class="muted">
+      We store only what is needed to run a matrimonial service: your account email, a securely hashed password,
+      your display name, your profile details (age, education, occupation, family and community details,
+      partner preferences), your uploaded photo, and the interests, shortlists, messages and notifications
+      that you create on the site.
+    </p>
+
+    <h3>2. What we never do</h3>
+    <ul class="muted" style="padding-left:18px">
+      <li>We never sell or rent your data to third parties.</li>
+      <li>We never show your email address on a public profile.</li>
+      <li>We never publish your phone number without your permission — you control it in Privacy settings.</li>
+      <li>We do not run advertising trackers on this website.</li>
+    </ul>
+
+    <h3>3. Who can see your profile</h3>
+    <p class="muted">
+      You choose the visibility of your profile: everyone, registered members only, or hidden.
+      You can also hide your photo, hide your contact number, or switch yourself off from search results
+      at any time from <a href="/edit-profile.html#privacy">Edit profile → Privacy settings</a>.
+    </p>
+
+    <h3>4. Messaging</h3>
+    <p class="muted">
+      Private messages are visible only to you and the other member. Messaging opens after an interest is
+      accepted. Messages may be reviewed by moderators only when a member reports abuse.
+    </p>
+
+    <h3>5. Security</h3>
+    <p class="muted">
+      Passwords are stored using a strong salted key-derivation function (scrypt) — never in plain text.
+      Sessions use signed, expiring cookies. Reset and verification links are single-use and time-limited.
+    </p>
+
+    <h3>6. Your rights</h3>
+    <p class="muted">
+      You can edit your profile at any time, change your password, and delete your account permanently
+      from <a href="/settings.html">Settings</a>. Deleting your account removes your profile, photo,
+      interests, shortlist, messages and notifications.
+    </p>
+
+    <h3>7. Contact</h3>
+    <p class="muted mb-0">
+      For any privacy question, message us on WhatsApp
+      <b id="waNumber">+91 80998 34725</b> or use the <a href="/contact.html">contact page</a>.
+    </p>
+  </section>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+PJS.onReady(function () {
+  document.getElementById('updated').textContent = new Date().toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
+  document.getElementById('waNumber').textContent =
+    (PJS.site && PJS.site.whatsapp_display) || '+91 80998 34725';
+});
+</script>
+</body>
+</html>
