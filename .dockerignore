@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+data
+public/uploads
+*.tsbuildinfo
+npm-debug.log*
+.env
+.env.local
+.env.production
+Dockerfile
+.dockerignore
+README.md
+DEPLOY.md
