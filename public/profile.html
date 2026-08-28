@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Profile — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div id="content"><div class="skeleton" style="height:340px"></div></div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let data = null;
+  const id = Number(PJS.qs('id'));
+
+  function row(label, value) {
+    if (value === null || value === undefined || value === '') return '';
+    return `<div class="detail"><dt>${PJS.esc(label)}</dt><dd>${PJS.esc(value)}</dd></div>`;
+  }
+
+  function section(title, rows) {
+    if (!rows) return '';
+    return `<section class="card mb-3"><h3>${PJS.esc(title)}</h3><div class="detail-grid">${rows}</div></section>`;
+  }
+
+  function render() {
+    const p = data.profile || {};
+    const isOwner = Boolean(data.profile && data.profile.is_owner);
+    const name = data.name || 'Member';
+    const ageBits = [p.age ? p.age + ' yrs' : '', p.height_cm ? PJS.fmt.height(p.height_cm) : '', p.marital_status]
+      .filter(Boolean).join(' · ');
+    const place = [p.city, p.state, p.country].filter(Boolean).join(', ');
+
+    const actions = isOwner
+      ? `<a class="btn" href="/edit-profile.html">${PJS.icons.edit} Edit my profile</a>
+         <a class="btn ghost" href="/settings.html">${PJS.icons.settings} Settings</a>`
+      : `<button class="btn" id="actInterest">${
+          data.interest_state && data.interest_state.sent === 'accepted'
+            ? PJS.icons.check + ' Interest accepted'
+            : data.interest_state && data.interest_state.sent === 'pending'
+              ? 'Interest sent'
+              : PJS.icons.heart + ' Send interest'
+        }</button>
+        <a class="btn ${data.can_message ? '' : 'ghost'}" id="actMessage" href="/messages.html?with=${data.id}">${PJS.icons.chat} Message</a>
+        <button class="btn ghost" id="actShortlist">${PJS.icons.star} ${data.shortlisted ? 'Shortlisted' : 'Shortlist'}</button>
+        <button class="btn ghost" id="actReport">${PJS.icons.flag} Report</button>`;
+
+    $('content').innerHTML = `
+      <div class="profile-hero mb-3">
+        <div>${PJS.avatar(name, data.photo, 'xl')}</div>
+        <div>
+          <h1>${PJS.esc(name)}</h1>
+          <p style="margin:0;color:#f6e3ea">${PJS.esc(ageBits)}</p>
+          ${p.headline ? `<p style="margin:6px 0 0;color:#f9eef2;font-family:var(--serif);font-size:17px">${PJS.esc(p.headline)}</p>` : ''}
+          <div class="chips mt-2">
+            ${p.community ? `<span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff">${PJS.esc(p.community)}</span>` : ''}
+            ${p.religion ? `<span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff">${PJS.esc(p.religion)}</span>` : ''}
+            ${place ? `<span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff">${PJS.icons.pin} ${PJS.esc(place)}</span>` : ''}
+          </div>
+          <div class="btn-row mt-3">${actions}</div>
+        </div>
+      </div>
+
+      <div id="profileAlerts"></div>
+
+      ${section('About', p.about_me ? `<p class="mb-0" style="white-space:pre-line">${PJS.esc(p.about_me)}</p>` : '')}
+
+      ${section('Basic details',
+        row('Age', p.age ? p.age + ' years' : '') +
+        row('Height', p.height_cm ? PJS.fmt.height(p.height_cm) : '') +
+        row('Marital status', p.marital_status) +
+        row('Mother tongue', p.mother_tongue) +
+        row('Diet', p.diet) +
+        row('Smoking', p.smoking) +
+        row('Drinking', p.drinking))}
+
+      ${section('Religion & community',
+        row('Religion / Panth', p.religion) +
+        row('Community', p.community) +
+        row('Sub-community', p.sub_community) +
+        row('Gotra', p.gotra) +
+        row('Manglik', p.manglik))}
+
+      ${section('Education & career',
+        row('Education', p.education) +
+        row('Details', p.education_detail) +
+        row('Occupation', p.occupation) +
+        row('Employer', p.company) +
+        row('Annual income', p.annual_income))}
+
+      ${section('Family',
+        row('Family type', p.family_type) +
+        row('Family status', p.family_status) +
+        row("Father's occupation", p.father_occupation) +
+        row("Mother's occupation", p.mother_occupation) +
+        row('Brothers / sisters', p.siblings))}
+
+      ${section('Location & contact',
+        row('City', p.city) +
+        row('State', p.state) +
+        row('Country', p.country) +
+        (p.phone ? row('Phone / WhatsApp', p.phone) : (isOwner ? row('Phone / WhatsApp', 'Not added') : '')))}
+
+      ${section('Partner preferences',
+        row('Preferred age', p.pref_age_min && p.pref_age_max ? p.pref_age_min + ' – ' + p.pref_age_max + ' years' : '') +
+        row('Looking for', p.pref_gender) +
+        row('Preferred marital status', p.pref_marital_status) +
+        row('Preferred community', p.pref_community) +
+        row('Preferred location', p.pref_location) +
+        row('Preferred education', p.pref_education) +
+        row('Preferred occupation', p.pref_occupation))}
+
+      ${isOwner ? '' : `<section class="card">
+        <h3>Safety reminder</h3>
+        <p class="small muted mb-0">${PJS.esc((PJS.site && PJS.site.safety_text) || 'Never send money to anyone you meet online. Meet in public with family present.')}</p>
+      </section>`}
+    `;
+
+    const alerts = [];
+    if (!isOwner && data.interest_state && data.interest_state.received && data.interest_state.received.status === 'pending') {
+      alerts.push('<div class="alert info"><b>This member has sent you an interest</b>' +
+        `<div class="btn-row mt-1"><button class="btn green sm" id="acceptHere">Accept interest</button>
+         <button class="btn ghost sm" id="declineHere">Decline</button></div></div>`);
+    }
+    if (!isOwner && !data.can_message && !(data.interest_state && data.interest_state.sent === 'accepted')) {
+      alerts.push('<div class="alert warn"><b>Messaging opens after your interest is accepted</b>' +
+        'This keeps conversations respectful. Send an interest to begin.</div>');
+    }
+    $('profileAlerts').innerHTML = alerts.join('');
+
+    if (!isOwner) wireActions();
+    const acceptHere = $('acceptHere');
+    if (acceptHere) {
+      acceptHere.onclick = async () => {
+        const res = await PJS.post('/api/interests/' + data.interest_state.received.id + '/respond', { decision: 'accept' });
+        PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+        if (res.ok) load();
+      };
+      $('declineHere').onclick = async () => {
+        const res = await PJS.post('/api/interests/' + data.interest_state.received.id + '/respond', { decision: 'decline' });
+        PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+        if (res.ok) load();
+      };
+    }
+  }
+
+  function wireActions() {
+    const interestBtn = $('actInterest');
+    if (interestBtn) {
+      const sent = data.interest_state && data.interest_state.sent;
+      interestBtn.disabled = sent === 'pending' || sent === 'accepted';
+      interestBtn.onclick = async function () {
+        PJS.openModal(`
+          <h3>Send interest to ${PJS.esc(data.name)}</h3>
+          <p class="muted small">Add a short note for the family (optional). This is free.</p>
+          <div class="field">
+            <label for="note">Your message</label>
+            <textarea id="note" maxlength="500" placeholder="Namaste, our family would like to know more about your profile."></textarea>
+          </div>
+          <div class="btn-row" style="justify-content:flex-end">
+            <button class="btn ghost" data-x="cancel">Cancel</button>
+            <button class="btn" data-x="send">Send interest</button>
+          </div>`,
+          (modal) => {
+            modal.querySelector('[data-x="cancel"]').onclick = PJS.closeModal;
+            modal.querySelector('[data-x="send"]').onclick = async function () {
+              const btn = this;
+              btn.disabled = true;
+              const res = await PJS.post('/api/interests', {
+                to_user_id: data.id,
+                message: modal.querySelector('#note').value
+              });
+              btn.disabled = false;
+              if (res.ok) {
+                PJS.closeModal();
+                PJS.toast(res.message, 'success');
+                load();
+              } else {
+                PJS.toast(res.error || 'Could not send interest', 'error');
+              }
+            };
+          });
+      };
+    }
+
+    const shortBtn = $('actShortlist');
+    if (shortBtn) {
+      shortBtn.onclick = async function () {
+        shortBtn.disabled = true;
+        const res = await PJS.post('/api/shortlist', { user_id: data.id });
+        shortBtn.disabled = false;
+        if (res.ok) {
+          PJS.toast(res.message, 'success');
+          shortBtn.innerHTML = PJS.icons.star + ' ' + (res.shortlisted ? 'Shortlisted' : 'Shortlist');
+        } else {
+          PJS.toast(res.error || 'Could not update shortlist', 'error');
+        }
+      };
+    }
+
+    const reportBtn = $('actReport');
+    if (reportBtn) {
+      reportBtn.onclick = function () {
+        const reasons = ['Fake profile', 'Already married', 'Inappropriate behaviour', 'Asking for money', 'Abusive language', 'Other'];
+        PJS.openModal(`
+          <h3>Report this profile</h3>
+          <p class="muted small">Our moderation team reviews every report. Your identity stays private.</p>
+          <div class="field">
+            <label for="reason">Reason</label>
+            <select id="reason">${reasons.map((r) => `<option>${r}</option>`).join('')}</select>
+          </div>
+          <div class="field">
+            <label for="details">What happened? (optional)</label>
+            <textarea id="details" maxlength="1000"></textarea>
+          </div>
+          <div class="btn-row" style="justify-content:flex-end">
+            <button class="btn ghost" data-x="cancel">Cancel</button>
+            <button class="btn danger" data-x="send">Submit report</button>
+          </div>`,
+          (modal) => {
+            modal.querySelector('[data-x="cancel"]').onclick = PJS.closeModal;
+            modal.querySelector('[data-x="send"]').onclick = async function () {
+              const res = await PJS.post('/api/reports', {
+                user_id: data.id,
+                reason: modal.querySelector('#reason').value,
+                details: modal.querySelector('#details').value
+              });
+              PJS.closeModal();
+              PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+            };
+          });
+      };
+    }
+  }
+
+  async function load() {
+    if (!id) {
+      $('content').innerHTML = '<div class="alert error">No profile selected.</div>';
+      return;
+    }
+    const res = await PJS.get('/api/profiles/' + id);
+    if (!res.ok) {
+      $('content').innerHTML = `<div class="empty"><div class="ic">${PJS.icons.flag}</div>
+        <h3>Profile unavailable</h3><p>${PJS.esc(res.error || 'This profile is private or has been removed.')}</p>
+        <div class="btn-row" style="justify-content:center">
+          <a class="btn ghost sm" href="${PJS.me ? '/search.html' : '/login.html'}">${PJS.me ? 'Search profiles' : 'Log in'}</a>
+          <a class="btn ghost sm" href="/index.html">Home</a></div></div>`;
+      return;
+    }
+    data = res;
+    document.title = `${res.name} — PANIKA JEEVAN SATHI`;
+    render();
+  }
+
+  PJS.onReady(load);
+})();
+</script>
+</body>
+</html>

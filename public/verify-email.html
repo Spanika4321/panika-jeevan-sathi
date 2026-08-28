@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Verify your email — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="auth-wrap">
+  <section class="auth-card center">
+    <div id="state"><div class="skeleton" style="height:60px"></div></div>
+  </section>
+
+  <div class="card mt-2 hide" id="resendCard">
+    <b>Didn't get the email?</b>
+    <p class="small muted">Enter your registered email and we will send the verification link again.</p>
+    <div class="field">
+      <label for="email">Email address</label>
+      <input id="email" type="email" placeholder="you@example.com">
+    </div>
+    <button class="btn block" id="resendBtn">Resend verification link</button>
+    <div id="resendMsg"></div>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const state = document.getElementById('state');
+
+  function render(type, title, text, actions) {
+    state.innerHTML =
+      `<div class="empty"><div class="ic">${PJS.icons[type === 'error' ? 'flag' : 'check']}</div>
+        <h3>${PJS.esc(title)}</h3><p>${text || ''}</p>
+        <div class="btn-row" style="justify-content:center">${actions || ''}</div></div>`;
+  }
+
+  async function verify(token) {
+    if (!token) {
+      render('error', 'Verification link is incomplete', 'Open the link from your email to continue.',
+        '<a class="btn" href="/login.html">Go to login</a>');
+      document.getElementById('resendCard').classList.remove('hide');
+      return;
+    }
+    const res = await PJS.get('/api/auth/verify?token=' + encodeURIComponent(token));
+    if (res.ok) {
+      render('success', 'Email verified 🎉',
+        'Your account is active. Log in and complete your matrimonial profile — everything is free.',
+        '<a class="btn" href="/login.html">Log in now</a>');
+    } else {
+      render('error', 'This link did not work', PJS.esc(res.error || 'The link may have expired.'),
+        '<a class="btn ghost" href="/login.html">Back to login</a>');
+      document.getElementById('resendCard').classList.remove('hide');
+    }
+  }
+
+  document.getElementById('resendBtn').addEventListener('click', async function () {
+    const btn = this;
+    const email = document.getElementById('email').value.trim();
+    const out = document.getElementById('resendMsg');
+    if (!email) { out.innerHTML = '<div class="alert error">Please enter your email.</div>'; return; }
+    btn.disabled = true; btn.textContent = 'Sending…';
+    const res = await PJS.post('/api/auth/resend-verification', { email: email });
+    btn.disabled = false; btn.textContent = 'Resend verification link';
+    out.innerHTML = res.ok
+      ? `<div class="alert success">${res.email_delivered
+          ? 'Verification link sent — check your inbox.'
+          : 'Open this link to verify: <br><a href="' + PJS.esc(res.verification_link) + '">' + PJS.esc(res.verification_link) + '</a>'}</div>`
+      : `<div class="alert error">${PJS.esc(res.error || 'Could not send.')}</div>`;
+  });
+
+  PJS.onReady(function () {
+    verify(PJS.qs('token'));
+  });
+})();
+</script>
+</body>
+</html>

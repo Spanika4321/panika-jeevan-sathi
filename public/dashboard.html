@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dashboard — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm" id="app">
+
+  <div class="page-head row spread row-wrap">
+    <div>
+      <h1 class="mb-0" id="greeting">Namaste</h1>
+      <p class="muted mb-0">Your matrimonial activity at a glance. Every feature here is free.</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn ghost sm" href="/edit-profile.html" id="myProfileLink">My profile</a>
+      <a class="btn sm" href="/edit-profile.html">Edit profile</a>
+    </div>
+  </div>
+
+  <div id="alertArea"></div>
+
+  <div class="stats mt-2" id="quickStats"></div>
+
+  <div class="two-col wide-left mt-3">
+    <div>
+
+      <!-- completeness -->
+      <section class="card mb-3" id="completenessCard"></section>
+
+      <!-- recommended matches -->
+      <section class="mb-3">
+        <div class="card-title">
+          <h3>Recommended for you</h3>
+          <a class="small" href="/matches.html">See all matches →</a>
+        </div>
+        <div id="matchCards"><div class="skeleton" style="height:280px"></div></div>
+      </section>
+
+      <!-- interests received -->
+      <section class="card mb-3">
+        <div class="card-title">
+          <h3>Interests received</h3>
+          <a class="small" href="/interests.html?tab=received">View all →</a>
+        </div>
+        <div id="interestList"><div class="skeleton" style="height:60px"></div></div>
+      </section>
+
+      <!-- messages -->
+      <section class="card mb-3">
+        <div class="card-title">
+          <h3>Recent messages</h3>
+          <a class="small" href="/messages.html">Open inbox →</a>
+        </div>
+        <div id="messageList"><div class="skeleton" style="height:60px"></div></div>
+      </section>
+
+      <!-- shortlist -->
+      <section class="card">
+        <div class="card-title">
+          <h3>Shortlisted profiles</h3>
+          <a class="small" href="/shortlist.html">View all →</a>
+        </div>
+        <div id="shortlistPreview"><div class="skeleton" style="height:60px"></div></div>
+      </section>
+
+    </div>
+
+    <aside>
+      <section class="card mb-3" id="myCard"></section>
+
+      <section class="card mb-3">
+        <div class="card-title"><h3>Notifications</h3>
+          <a class="small" href="/notifications.html">All →</a></div>
+        <div id="notifList"><div class="skeleton" style="height:60px"></div></div>
+      </section>
+
+      <section class="card" style="background:linear-gradient(160deg,#4a0f24,#8e1f41);color:#fff;border:0">
+        <h3 style="color:#fff">Free support</h3>
+        <p style="font-size:14px;color:#f2dde6">Profile help, corrections or reporting a member — our team replies on WhatsApp.</p>
+        <a class="btn gold block" id="waBtn" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
+        <p class="tiny mt-2" style="color:#f0d7e1" id="waNumber"></p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/cards.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  function statCard(value, label, href) {
+    return `<a class="stat" href="${href}" style="text-decoration:none;color:inherit"><b>${value}</b><span>${label}</span></a>`;
+  }
+
+  async function load() {
+    const me = await PJS.get('/api/me');
+    if (!me.ok) { PJS.requireAuth(); return; }
+    PJS.me = me.user;
+    PJS.me.profile = me.profile;
+    PJS.counts = me.counts;
+    const profile = me.profile || {};
+    const completeness = me.completeness || 0;
+
+    $('greeting').textContent = 'Namaste, ' + (me.user.name || '').split(' ')[0];
+    $('waNumber').textContent = 'WhatsApp: ' + ((PJS.site && PJS.site.whatsapp_display) || '+91 80998 34725');
+    $('waBtn').href = PJS.whatsAppLink('Hello PANIKA JEEVAN SATHI team, I need help with my profile.');
+    $('myProfileLink').href = '/profile.html?id=' + me.user.id;
+
+    /* alerts */
+    const alerts = [];
+    if (me.user.email_verified === false) {
+      alerts.push('<div class="alert warn"><b>Please verify your email</b>' +
+        'Verified profiles get more responses. <a href="#" id="resendVerify">Resend verification link</a></div>');
+    }
+    if (completeness < 70) {
+      alerts.push('<div class="alert info"><b>Your profile is ' + completeness + '% complete</b>' +
+        'Complete profiles receive up to 3× more interests. <a href="/edit-profile.html">Complete it now</a></div>');
+    }
+    $('alertArea').innerHTML = alerts.join('');
+    const rv = $('resendVerify');
+    if (rv) {
+      rv.onclick = async function (e) {
+        e.preventDefault();
+        const res = await PJS.post('/api/auth/resend-verification', { email: me.user.email });
+        PJS.toast(res.ok ? 'Verification link sent.' : (res.error || 'Could not send'), res.ok ? 'success' : 'error');
+      };
+    }
+
+    /* stats */
+    const [interestsRes, convRes, shortRes] = await Promise.all([
+      PJS.get('/api/interests?direction=received&status=pending'),
+      PJS.get('/api/conversations'),
+      PJS.get('/api/shortlist')
+    ]);
+    const pending = interestsRes.ok ? interestsRes.interests : [];
+    const conversations = convRes.ok ? convRes.conversations : [];
+    const unread = conversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+    const shortlisted = shortRes.ok ? shortRes.results : [];
+
+    $('quickStats').innerHTML =
+      statCard(pending.length, 'New interests', '/interests.html?tab=received') +
+      statCard(unread, 'Unread messages', '/messages.html') +
+      statCard(shortlisted.length, 'Shortlisted', '/shortlist.html') +
+      statCard(completeness + '%', 'Profile strength', '/edit-profile.html');
+
+    /* completeness card */
+    const missing = [];
+    if (!profile.age) missing.push('age');
+    if (!profile.gender) missing.push('gender');
+    if (!profile.height_cm) missing.push('height');
+    if (!profile.education) missing.push('education');
+    if (!profile.occupation) missing.push('occupation');
+    if (!profile.community) missing.push('community');
+    if (!profile.city || !profile.state) missing.push('location');
+    if (!profile.about_me) missing.push('about me');
+    if (!profile.family_type) missing.push('family details');
+    if (!profile.pref_age_min || !profile.pref_age_max) missing.push('partner age preference');
+    if (!me.user.photo) missing.push('profile photo');
+
+    $('completenessCard').innerHTML = `
+      <div class="row spread row-wrap">
+        <div>
+          <h3 class="mb-0">Profile strength: ${completeness}%</h3>
+          <p class="small muted mb-0">${missing.length
+            ? 'Still missing: ' + missing.slice(0, 6).join(', ') + (missing.length > 6 ? '…' : '')
+            : 'Great! Your profile is complete and ready to receive interests.'}</p>
+        </div>
+        <a class="btn sm" href="/edit-profile.html">Complete profile</a>
+      </div>
+      <div class="progress mt-2"><i style="width:${completeness}%"></i></div>`;
+
+    /* my card */
+    $('myCard').innerHTML = `
+      <div class="row mb-2">
+        ${PJS.avatar(me.user.name, me.user.photo, 'lg')}
+        <div>
+          <b style="font-size:16px">${PJS.esc(me.user.name)}</b>
+          <div class="small muted">${PJS.esc([profile.age ? profile.age + ' yrs' : '', profile.city, profile.state].filter(Boolean).join(' · ') || 'Add your details')}</div>
+          <div class="chips mt-1">
+            ${me.user.email_verified ? '<span class="chip green">Email verified</span>' : '<span class="chip red">Email not verified</span>'}
+            ${profile.visibility === 'hidden' ? '<span class="chip red">Hidden profile</span>' : '<span class="chip">Visible to members</span>'}
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <a class="btn ghost sm" href="/profile.html?id=${me.user.id}">View my profile</a>
+        <a class="btn sm" href="/edit-profile.html">Edit</a>
+      </div>`;
+
+    /* matches */
+    const matches = await PJS.get('/api/matches?limit=8');
+    const matchBox = $('matchCards');
+    if (matches.ok && matches.results.length) {
+      PJS.cards.render(matchBox, matches.results, {
+        style: 'display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))',
+        onChanged: load
+      });
+    } else {
+      matchBox.className = 'empty';
+      matchBox.innerHTML = `<div class="ic">${PJS.icons.rings}</div>
+        <h3>No recommendations yet</h3>
+        <p>Recommendations appear as new members join. You can also search with your own filters.</p>
+        <a class="btn ghost sm" href="/search.html">Search profiles</a>`;
+    }
+
+    /* interests */
+    const il = $('interestList');
+    if (pending.length) {
+      il.innerHTML = pending.slice(0, 5).map((it) => `
+        <div class="list-row">
+          ${PJS.avatar(it.user.name, it.user.photo)}
+          <div>
+            <a href="/profile.html?id=${it.user.id}"><b>${PJS.esc(it.user.name)}</b></a>
+            <div class="small muted">${PJS.esc([it.user.age ? it.user.age + ' yrs' : '', it.user.city, it.user.education].filter(Boolean).join(' · '))}</div>
+            ${it.message ? `<div class="small">“${PJS.esc(it.message)}”</div>` : ''}
+          </div>
+          <div class="btn-row">
+            <button class="btn sm green" data-accept="${it.id}">Accept</button>
+            <button class="btn sm ghost" data-decline="${it.id}">Decline</button>
+          </div>
+        </div>`).join('');
+      il.querySelectorAll('[data-accept]').forEach((btn) => {
+        btn.onclick = async () => {
+          const res = await PJS.post('/api/interests/' + btn.getAttribute('data-accept') + '/respond', { decision: 'accept' });
+          PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+          if (res.ok) load();
+        };
+      });
+      il.querySelectorAll('[data-decline]').forEach((btn) => {
+        btn.onclick = async () => {
+          const res = await PJS.post('/api/interests/' + btn.getAttribute('data-decline') + '/respond', { decision: 'decline' });
+          PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+          if (res.ok) load();
+        };
+      });
+    } else {
+      il.innerHTML = '<p class="muted small mb-0">No pending interests right now. Complete your profile and add a photo to receive more.</p>';
+    }
+
+    /* messages */
+    const ml = $('messageList');
+    if (conversations.length) {
+      ml.innerHTML = conversations.slice(0, 5).map((c) => `
+        <a class="list-row" href="/messages.html?with=${c.user.id}" style="text-decoration:none;color:inherit">
+          ${PJS.avatar(c.user.name, c.user.photo)}
+          <div>
+            <b>${PJS.esc(c.user.name)}</b> ${c.unread ? `<span class="badge">${c.unread}</span>` : ''}
+            <div class="small muted">${PJS.esc((c.last_from_me ? 'You: ' : '') + c.last_message)}</div>
+          </div>
+          <span class="tiny muted">${PJS.esc(PJS.fmt.ago(c.last_at))}</span>
+        </a>`).join('');
+    } else {
+      ml.innerHTML = '<p class="muted small mb-0">No conversations yet. Send an interest — once accepted you can message privately.</p>';
+    }
+
+    /* shortlist */
+    const sl = $('shortlistPreview');
+    if (shortlisted.length) {
+      sl.innerHTML = shortlisted.slice(0, 5).map((s) => `
+        <a class="list-row" href="/profile.html?id=${s.id}" style="text-decoration:none;color:inherit">
+          ${PJS.avatar(s.name, s.photo)}
+          <div><b>${PJS.esc(s.name)}</b>
+            <div class="small muted">${PJS.esc([s.age ? s.age + ' yrs' : '', s.city, s.education].filter(Boolean).join(' · '))}</div>
+          </div>
+          <span class="tiny muted">${PJS.esc(PJS.fmt.ago(s.shortlisted_at))}</span>
+        </a>`).join('');
+    } else {
+      sl.innerHTML = '<p class="muted small mb-0">Tap the star on any profile to shortlist it here.</p>';
+    }
+
+    /* notifications */
+    const notif = await PJS.get('/api/notifications');
+    const nl = $('notifList');
+    if (notif.ok && notif.notifications.length) {
+      nl.innerHTML = notif.notifications.slice(0, 6).map((n) => `
+        <div class="notif ${n.is_read ? '' : 'unread'}">
+          <span class="ic">${PJS.icons[n.type === 'message' ? 'chat' : n.type === 'interest' ? 'heart' : n.type === 'accepted' ? 'check' : 'bell']}</span>
+          <div>
+            <b class="small">${PJS.esc(n.title)}</b>
+            <div class="small muted">${PJS.esc(n.body)}</div>
+            <div class="tiny muted">${PJS.esc(PJS.fmt.ago(n.created_at))}</div>
+          </div>
+          ${n.link ? `<a class="btn ghost sm" href="${PJS.esc(n.link)}">Open</a>` : ''}
+        </div>`).join('');
+    } else {
+      nl.innerHTML = '<p class="muted small mb-0">Nothing new yet.</p>';
+    }
+
+    PJS.refreshCounts();
+  }
+
+  PJS.onReady(function () {
+    if (!PJS.requireAuth()) return;
+    load();
+    if (PJS.qs('welcome')) PJS.toast('Welcome! Let us complete your profile — it takes 2 minutes.', 'success');
+  });
+})();
+</script>
+</body>
+</html>

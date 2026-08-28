@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Search profiles — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head row spread row-wrap">
+    <div>
+      <h1 class="mb-0">Search profiles</h1>
+      <p class="muted mb-0">Free and unlimited. Use filters to find exactly who you are looking for.</p>
+    </div>
+    <button class="btn ghost sm" id="toggleFilters">Show / hide filters</button>
+  </div>
+
+  <div class="two-col mt-2">
+    <aside>
+      <form class="card filter-panel" id="filterForm">
+        <h3>Filters</h3>
+
+        <div class="field">
+          <label for="keyword">Keyword</label>
+          <input id="keyword" type="search" placeholder="Name, city, education…">
+        </div>
+
+        <div class="field">
+          <label for="gender">Looking for</label>
+          <select id="gender">
+            <option value="">Bride or Groom</option>
+            <option value="female">Bride (Female)</option>
+            <option value="male">Groom (Male)</option>
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="age_min">Age from</label>
+            <input id="age_min" type="number" min="18" max="100" placeholder="18">
+          </div>
+          <div class="field">
+            <label for="age_max">Age to</label>
+            <input id="age_max" type="number" min="18" max="100" placeholder="40">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="community">Community</label>
+          <select id="community"><option value="">Any</option></select>
+        </div>
+
+        <div class="field">
+          <label for="religion">Religion / Panth</label>
+          <select id="religion"><option value="">Any</option></select>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="state">State</label>
+            <input id="state" type="text" placeholder="e.g. Chhattisgarh">
+          </div>
+          <div class="field">
+            <label for="city">City</label>
+            <input id="city" type="text" placeholder="e.g. Bilaspur">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="education">Education</label>
+          <select id="education"><option value="">Any</option></select>
+        </div>
+
+        <div class="field">
+          <label for="occupation">Occupation</label>
+          <select id="occupation"><option value="">Any</option></select>
+        </div>
+
+        <div class="field">
+          <label for="marital_status">Marital status</label>
+          <select id="marital_status"><option value="">Any</option></select>
+        </div>
+
+        <div class="field">
+          <label for="mother_tongue">Mother tongue</label>
+          <input id="mother_tongue" type="text" placeholder="e.g. Hindi">
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="with_photo" value="1">
+          <span>Only profiles with a photo</span>
+        </label>
+
+        <div class="btn-row mt-2">
+          <button class="btn block" type="submit">Search</button>
+          <button class="btn ghost block" type="button" id="resetBtn">Reset</button>
+        </div>
+      </form>
+    </aside>
+
+    <div>
+      <div class="row spread row-wrap mb-2">
+        <div class="small muted" id="resultCount">Loading profiles…</div>
+        <div class="field mb-0" style="min-width:180px">
+          <select id="sort">
+            <option value="score">Sort: Best match</option>
+            <option value="recent">Sort: Newest members</option>
+            <option value="age_asc">Sort: Age (youngest first)</option>
+            <option value="age_desc">Sort: Age (oldest first)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="results"><div class="skeleton" style="height:300px"></div></div>
+
+      <div class="center mt-3">
+        <button class="btn ghost" id="moreBtn" style="display:none">Load more profiles</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/cards.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const FILTER_KEYS = ['keyword', 'gender', 'age_min', 'age_max', 'community', 'religion', 'state',
+    'city', 'education', 'occupation', 'marital_status', 'mother_tongue'];
+  let page = 1;
+  let lastTotal = 0;
+  let accumulating = [];
+
+  function fillSelect(id, list, keepAny) {
+    const el = $(id);
+    const options = list.map((v) => (typeof v === 'object' ? v : { value: v, label: v }));
+    el.innerHTML = (keepAny ? '<option value="">Any</option>' : '') +
+      options.map((o) => `<option value="${PJS.esc(o.value)}">${PJS.esc(o.label)}</option>`).join('');
+  }
+
+  function currentParams() {
+    const params = new URLSearchParams();
+    FILTER_KEYS.forEach((key) => {
+      const value = $(key).value.trim();
+      if (value) params.set(key, value);
+    });
+    if ($('with_photo').checked) params.set('with_photo', '1');
+    params.set('sort', $('sort').value);
+    return params;
+  }
+
+  function syncUrl(params) {
+    window.history.replaceState({}, '', '/search.html?' + params.toString());
+  }
+
+  function readUrlIntoForm() {
+    const params = new URLSearchParams(window.location.search);
+    FILTER_KEYS.forEach((key) => {
+      const value = params.get(key);
+      if (value) $(key).value = value;
+    });
+    if (params.get('with_photo') === '1') $('with_photo').checked = true;
+    if (params.get('sort')) $('sort').value = params.get('sort');
+  }
+
+  async function search(reset) {
+    if (reset) {
+      page = 1;
+      accumulating = [];
+      $('results').innerHTML = '<div class="skeleton" style="height:300px"></div>';
+    }
+    const params = currentParams();
+    params.set('page', String(page));
+    params.set('per_page', '12');
+    syncUrl(currentParams());
+
+    const res = await PJS.get('/api/profiles?' + params.toString());
+    if (!res.ok) {
+      $('results').className = 'empty';
+      $('results').innerHTML = `<div class="ic">${PJS.icons.flag}</div><h3>Search failed</h3><p>${PJS.esc(res.error || 'Please log in to search.')}</p>`;
+      $('resultCount').textContent = '';
+      return;
+    }
+    lastTotal = res.total;
+    accumulating = reset ? res.results : accumulating.concat(res.results);
+    $('resultCount').textContent = `${res.total} profile${res.total === 1 ? '' : 's'} found · showing ${accumulating.length}`;
+
+    PJS.cards.render($('results'), accumulating, {
+      emptyTitle: 'No profiles match these filters',
+      emptyText: 'Try removing a filter or widening the age range. New members join every week.',
+      emptyAction: '<button class="btn ghost sm" onclick="document.getElementById(\'resetBtn\').click()">Reset filters</button>',
+      onChanged: () => search(true)
+    });
+
+    const more = $('moreBtn');
+    more.style.display = accumulating.length < res.total ? 'inline-flex' : 'none';
+  }
+
+  PJS.onReady(function () {
+    if (!PJS.requireAuth()) return;
+    const opts = PJS.options || {};
+    fillSelect('community', ((PJS.site && PJS.site.communities_list) || []), true);
+    fillSelect('religion', opts.religions || [], true);
+    fillSelect('education', opts.education || [], true);
+    fillSelect('occupation', opts.occupations || [], true);
+    fillSelect('marital_status', opts.marital || [], true);
+
+    readUrlIntoForm();
+    search(true);
+
+    $('filterForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      search(true);
+    });
+    $('resetBtn').addEventListener('click', function () {
+      FILTER_KEYS.forEach((key) => { $(key).value = ''; });
+      $('with_photo').checked = false;
+      $('sort').value = 'score';
+      search(true);
+    });
+    $('sort').addEventListener('change', () => search(true));
+    $('moreBtn').addEventListener('click', function () {
+      page += 1;
+      search(false);
+    });
+    $('toggleFilters').addEventListener('click', function () {
+      const form = $('filterForm');
+      form.classList.toggle('hide');
+      if (window.innerWidth >= 900) form.classList.remove('hide');
+    });
+  });
+})();
+</script>
+</body>
+</html>

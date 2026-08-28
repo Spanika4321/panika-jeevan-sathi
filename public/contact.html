@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Contact us — PANIKA JEEVAN SATHI</title>
+<meta name="description" content="Contact PANIKA JEEVAN SATHI on WhatsApp +91 8099834725 or send a message. Free help with registration, profiles and complaints.">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head center">
+    <span class="eyebrow">We are here to help</span>
+    <h1 class="mb-0">Contact us</h1>
+    <p class="muted" style="max-width:56ch;margin:0 auto">
+      Registration help, profile corrections, complaints or reporting a fake profile —
+      our team responds free of cost.
+    </p>
+  </div>
+
+  <div class="two-col wide-left mt-3">
+    <div>
+      <section class="card mb-3">
+        <h3>Send us a message</h3>
+        <form id="contactForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Your name *</label>
+              <input id="name" type="text" required placeholder="Full name">
+            </div>
+            <div class="field">
+              <label for="phone">Phone / WhatsApp</label>
+              <input id="phone" type="tel" placeholder="+91 …">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label for="subject">Subject</label>
+              <select id="subject">
+                <option>Registration help</option>
+                <option>Profile correction</option>
+                <option>Photo change / removal</option>
+                <option>Report a member</option>
+                <option>Share a success story</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="message">Message *</label>
+            <textarea id="message" required placeholder="Write your message in Hindi or English…"></textarea>
+          </div>
+          <button class="btn block lg" type="submit" id="sendBtn">Send message</button>
+          <div id="formMsg"></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h3>Frequently asked questions</h3>
+        <details class="mb-2"><summary><b>Is this website really free?</b></summary>
+          <p class="small muted">Yes. Registration, profile creation, search, interests, shortlist, messaging and notifications are free. There is no payment gateway and no premium plan.</p></details>
+        <details class="mb-2"><summary><b>Who can register?</b></summary>
+          <p class="small muted" id="faqCommunities">Members of the Panika, Manikpuri, Kabirpanthi and Adivasi communities.</p></details>
+        <details class="mb-2"><summary><b>How do I message someone?</b></summary>
+          <p class="small muted">Send an interest from their profile. Once they accept, the message button opens and you can chat privately.</p></details>
+        <details class="mb-2"><summary><b>How do I hide my profile?</b></summary>
+          <p class="small muted">Open Edit profile → Privacy settings and choose “Hidden”, or turn off “Show me in search results”.</p></details>
+        <details><summary><b>Someone is asking me for money. What do I do?</b></summary>
+          <p class="small muted">Never send money. Report the profile from their profile page (Report button) and message us on WhatsApp immediately.</p></details>
+      </section>
+    </div>
+
+    <aside>
+      <section class="card mb-3 center" style="background:linear-gradient(160deg,#128c4a,#25d366);color:#fff;border:0">
+        <h3 style="color:#fff">WhatsApp us</h3>
+        <p style="color:#eafff3;font-size:14px">Fastest way to reach our team. Tap the button to open a chat.</p>
+        <a class="btn gold block lg" id="waBtn" href="#" target="_blank" rel="noopener">
+          Open WhatsApp chat
+        </a>
+        <p class="mt-2 mb-0" style="color:#eafff3"><b id="waNumber">+91 80998 34725</b></p>
+      </section>
+
+      <section class="card mb-3">
+        <h3>Office hours</h3>
+        <div class="detail-grid">
+          <div class="detail"><dt>Monday – Saturday</dt><dd>9 AM – 9 PM</dd></div>
+          <div class="detail"><dt>Sunday</dt><dd>10 AM – 6 PM</dd></div>
+          <div class="detail"><dt>Email</dt><dd id="supportEmail">support@panikajeevansathi.com</dd></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Report a problem</h3>
+        <p class="small muted">
+          For fake profiles, harassment or money demands, use the <b>Report</b> button on the member's profile —
+          it goes straight to our moderation team.
+        </p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  $('contactForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = $('sendBtn');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    const res = await PJS.post('/api/contact', {
+      name: $('name').value.trim(),
+      email: $('email').value.trim(),
+      phone: $('phone').value.trim(),
+      subject: $('subject').value,
+      message: $('message').value.trim()
+    });
+    btn.disabled = false; btn.textContent = 'Send message';
+    $('formMsg').innerHTML = res.ok
+      ? `<div class="alert success"><b>Message received</b>${PJS.esc(res.message)}</div>`
+      : `<div class="alert error">${PJS.esc(res.error || 'Could not send your message.')}</div>`;
+    if (res.ok) $('contactForm').reset();
+  });
+
+  PJS.onReady(function () {
+    const site = PJS.site || {};
+    $('waBtn').href = PJS.whatsAppLink('Hello PANIKA JEEVAN SATHI team, I need help.');
+    $('waNumber').textContent = site.whatsapp_display || '+91 80998 34725';
+    if (site.support_email) $('supportEmail').textContent = site.support_email;
+    if (site.communities_list && site.communities_list.length) {
+      $('faqCommunities').textContent = 'Members of the ' + site.communities_list.join(', ') + ' communities.';
+    }
+    if (PJS.me) {
+      $('name').value = PJS.me.name || '';
+      $('email').value = PJS.me.email || '';
+    }
+  });
+})();
+</script>
+</body>
+</html>

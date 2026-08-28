@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin panel — PANIKA JEEVAN SATHI</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head row spread row-wrap">
+    <div>
+      <h1 class="mb-0">Admin panel</h1>
+      <p class="muted mb-0">Manage members, profiles, photos, reports, success stories and website content.</p>
+    </div>
+    <a class="btn ghost sm" href="/dashboard.html">Back to dashboard</a>
+  </div>
+
+  <div id="gate"></div>
+
+  <div id="panel" class="hide">
+    <div class="tabs mt-2 mb-3" style="flex-wrap:nowrap">
+      <button type="button" data-tab="overview" class="active">Overview</button>
+      <button type="button" data-tab="members">Members</button>
+      <button type="button" data-tab="reports">Reports</button>
+      <button type="button" data-tab="stories">Success stories</button>
+      <button type="button" data-tab="contact">Contact inbox</button>
+      <button type="button" data-tab="content">Website content</button>
+      <button type="button" data-tab="emails">Emails</button>
+    </div>
+
+    <!-- overview -->
+    <section data-pane="overview">
+      <div class="stats" id="statGrid"></div>
+      <div class="card mt-3">
+        <h3>Moderation queue</h3>
+        <div id="queue"></div>
+      </div>
+    </section>
+
+    <!-- members -->
+    <section data-pane="members" class="hide">
+      <div class="card">
+        <div class="row spread row-wrap mb-2">
+          <div class="field mb-0" style="flex:1;min-width:200px">
+            <input id="memberSearch" type="search" placeholder="Search by name or email…">
+          </div>
+          <div class="field mb-0" style="min-width:160px">
+            <select id="memberStatus">
+              <option value="">All statuses</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Member</th><th>Profile</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="memberRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- reports -->
+    <section data-pane="reports" class="hide">
+      <div class="card">
+        <div class="field" style="max-width:220px">
+          <select id="reportFilter">
+            <option value="">All reports</option>
+            <option value="open">Open</option>
+            <option value="resolved">Resolved</option>
+            <option value="dismissed">Dismissed</option>
+          </select>
+        </div>
+        <div id="reportList"></div>
+      </div>
+    </section>
+
+    <!-- stories -->
+    <section data-pane="stories" class="hide">
+      <div class="card mb-3">
+        <h3>Add a success story / testimonial</h3>
+        <form id="storyForm">
+          <div class="form-grid">
+            <div class="field"><label for="sTitle">Title</label><input id="sTitle" required></div>
+            <div class="field"><label for="sCouple">Couple names</label><input id="sCouple" required placeholder="e.g. Ankit &amp; Pooja"></div>
+            <div class="field"><label for="sLocation">Location</label><input id="sLocation"></div>
+            <div class="field"><label for="sPhoto">Photo URL (optional)</label><input id="sPhoto" placeholder="/uploads/… or https://…"></div>
+          </div>
+          <div class="field"><label for="sBody">Story</label><textarea id="sBody"></textarea></div>
+          <label class="check"><input type="checkbox" id="sApproved" checked><span>Published on the home page</span></label>
+          <button class="btn sm" type="submit">Add story</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Published &amp; draft stories</h3>
+        <div id="storyList"></div>
+      </div>
+    </section>
+
+    <!-- contact -->
+    <section data-pane="contact" class="hide">
+      <div class="card"><div id="contactList"></div></div>
+    </section>
+
+    <!-- content -->
+    <section data-pane="content" class="hide">
+      <div class="card">
+        <h3>Website content</h3>
+        <p class="small muted">These fields appear across the public website. Save after editing.</p>
+        <form id="contentForm"></form>
+      </div>
+    </section>
+
+    <!-- emails -->
+    <section data-pane="emails" class="hide">
+      <div class="card">
+        <h3>Email delivery</h3>
+        <div id="emailInfo"></div>
+        <div id="emailList"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  function esc(v) { return PJS.esc(v); }
+
+  function toast(res, okMsg) {
+    PJS.toast(res.ok ? (okMsg || res.message || 'Saved') : (res.error || 'Action failed'), res.ok ? 'success' : 'error');
+  }
+
+  /* ---------------------------------------------------------- overview */
+  async function loadOverview() {
+    const res = await PJS.get('/api/admin/stats');
+    if (!res.ok) return;
+    const s = res.stats;
+    $('statGrid').innerHTML = [
+      ['Total accounts', s.users],
+      ['Profiles', s.profiles],
+      ['Grooms / Brides', s.male + ' / ' + s.female],
+      ['Interests sent', s.interests],
+      ['Connections', s.accepted],
+      ['Messages', s.messages],
+      ['Open reports', s.reports_open],
+      ['Contact requests', s.contact_open]
+    ].map((x) => `<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join('');
+
+    const [reports, contact] = await Promise.all([PJS.get('/api/admin/reports?status=open'), PJS.get('/api/admin/contact')]);
+    const openReports = reports.ok ? reports.reports : [];
+    const openContact = contact.ok ? contact.messages.filter((m) => !m.handled) : [];
+    $('queue').innerHTML = `
+      <div class="list-row"><span></span><div><b>Open reports</b><div class="small muted">Members reported by the community.</div></div>
+        <button class="btn ghost sm" data-go="reports">${openReports.length} open</button></div>
+      <div class="list-row"><span></span><div><b>Unread contact requests</b><div class="small muted">Messages sent from the contact page.</div></div>
+        <button class="btn ghost sm" data-go="contact">${openContact.length} pending</button></div>
+      <div class="list-row"><span></span><div><b>Storage engine</b><div class="small muted">${esc(s.storage)} database</div></div>
+        <span class="chip">OK</span></div>`;
+    $('queue').querySelectorAll('[data-go]').forEach((b) => {
+      b.onclick = () => setTab(b.getAttribute('data-go'));
+    });
+  }
+
+  /* ----------------------------------------------------------- members */
+  async function loadMembers() {
+    const q = $('memberSearch').value.trim();
+    const status = $('memberStatus').value;
+    const res = await PJS.get('/api/admin/users?q=' + encodeURIComponent(q) + '&status=' + status);
+    const body = $('memberRows');
+    if (!res.ok) { body.innerHTML = `<tr><td colspan="4">${esc(res.error || 'Could not load')}</td></tr>`; return; }
+    if (!res.users.length) { body.innerHTML = '<tr><td colspan="4" class="muted">No members found.</td></tr>'; return; }
+    body.innerHTML = res.users.map((u) => `
+      <tr data-id="${u.id}">
+        <td>
+          <div class="row">${PJS.avatar(u.name, u.photo, 'sm')}
+            <div><b>${esc(u.name)}</b><div class="tiny muted">${esc(u.email)}</div>
+              <div class="tiny muted">${u.role === 'admin' ? '<span class="chip gold">Admin</span>' : ''} joined ${esc(PJS.fmt.date(u.created_at))}</div>
+            </div>
+          </div>
+        </td>
+        <td class="small">${u.profile
+          ? `${esc([u.profile.age ? u.profile.age + ' yrs' : '', u.profile.gender, u.profile.city, u.profile.community].filter(Boolean).join(' · '))}
+             <div class="tiny muted">${esc([u.profile.education, u.profile.occupation].filter(Boolean).join(', '))} · ${u.profile.completeness}% complete</div>`
+          : '<span class="muted">No profile</span>'}</td>
+        <td>
+          <span class="chip ${u.status === 'active' ? 'green' : 'red'}">${esc(u.status)}</span>
+          ${u.email_verified ? '' : '<span class="chip red">unverified</span>'}
+        </td>
+        <td>
+          <div class="btn-row">
+            <a class="btn ghost sm" href="/profile.html?id=${u.id}">View</a>
+            <button class="btn ghost sm" data-act="edit">Edit</button>
+            ${u.photo ? '<button class="btn ghost sm" data-act="photo">Remove photo</button>' : ''}
+            ${u.role !== 'admin'
+              ? `<button class="btn ghost sm" data-act="toggle">${u.status === 'active' ? 'Suspend' : 'Activate'}</button>
+                 <button class="btn ghost sm danger" data-act="delete">Delete</button>`
+              : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+
+    body.querySelectorAll('tr').forEach((tr) => {
+      const id = Number(tr.getAttribute('data-id'));
+      const user = res.users.find((u) => u.id === id);
+      tr.querySelectorAll('[data-act]').forEach((btn) => {
+        btn.onclick = async function () {
+          const act = btn.getAttribute('data-act');
+          if (act === 'edit') {
+            PJS.openModal(`
+              <h3>Edit member</h3>
+              <div class="field"><label for="eName">Name</label><input id="eName" value="${esc(user.name)}"></div>
+              <div class="field"><label for="eRole">Role</label>
+                <select id="eRole"><option value="user" ${user.role === 'user' ? 'selected' : ''}>Member</option>
+                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Administrator</option></select></div>
+              <div class="field"><label for="eStatus">Status</label>
+                <select id="eStatus"><option value="active" ${user.status === 'active' ? 'selected' : ''}>Active</option>
+                <option value="suspended" ${user.status === 'suspended' ? 'selected' : ''}>Suspended</option></select></div>
+              <label class="check"><input type="checkbox" id="eVerified" ${user.email_verified ? 'checked' : ''}><span>Email verified</span></label>
+              <div class="field"><label for="ePass">New password (optional)</label><input id="ePass" type="text" placeholder="Leave blank to keep current"></div>
+              <div class="btn-row" style="justify-content:flex-end">
+                <button class="btn ghost" data-x="cancel">Cancel</button>
+                <button class="btn" data-x="save">Save changes</button></div>`,
+              (modal) => {
+                modal.querySelector('[data-x="cancel"]').onclick = PJS.closeModal;
+                modal.querySelector('[data-x="save"]').onclick = async function () {
+                  const payload = {
+                    name: modal.querySelector('#eName').value,
+                    role: modal.querySelector('#eRole').value,
+                    status: modal.querySelector('#eStatus').value,
+                    email_verified: modal.querySelector('#eVerified').checked
+                  };
+                  const pass = modal.querySelector('#ePass').value.trim();
+                  if (pass) payload.password = pass;
+                  const r = await PJS.patch('/api/admin/users/' + id, payload);
+                  toast(r, 'Member updated');
+                  if (r.ok) { PJS.closeModal(); loadMembers(); }
+                };
+              });
+          }
+          if (act === 'photo') {
+            const yes = await PJS.confirm('Remove profile photo?', 'The photo file will be deleted from the server.', 'Remove photo', true);
+            if (!yes) return;
+            const r = await PJS.del('/api/admin/users/' + id + '/photo');
+            toast(r, 'Photo removed');
+            if (r.ok) loadMembers();
+          }
+          if (act === 'toggle') {
+            const next = user.status === 'active' ? 'suspended' : 'active';
+            const r = await PJS.patch('/api/admin/users/' + id, { status: next });
+            toast(r, next === 'active' ? 'Member activated' : 'Member suspended');
+            if (r.ok) loadMembers();
+          }
+          if (act === 'delete') {
+            const yes = await PJS.confirm('Delete this member permanently?',
+              'Profile, photo, interests, shortlist, messages and notifications will all be removed.', 'Delete member', true);
+            if (!yes) return;
+            const r = await PJS.del('/api/admin/users/' + id);
+            toast(r, 'Member deleted');
+            if (r.ok) loadMembers();
+          }
+        };
+      });
+    });
+  }
+
+  /* ----------------------------------------------------------- reports */
+  async function loadReports() {
+    const res = await PJS.get('/api/admin/reports?status=' + $('reportFilter').value);
+    const box = $('reportList');
+    if (!res.ok) { box.innerHTML = `<div class="alert error">${esc(res.error || '')}</div>`; return; }
+    if (!res.reports.length) { box.innerHTML = '<p class="muted">No reports.</p>'; return; }
+    box.innerHTML = res.reports.map((r) => `
+      <div class="card flat mb-2" style="border:1px solid var(--line)">
+        <div class="row spread row-wrap">
+          <div>
+            <b>${esc(r.reason)}</b> <span class="chip ${r.status === 'open' ? 'red' : r.status === 'resolved' ? 'green' : ''}">${esc(r.status)}</span>
+            <div class="small muted">${esc(PJS.fmt.dateTime(r.created_at))}</div>
+            <div class="small mt-1">Reported member:
+              ${r.target ? `<a href="/profile.html?id=${r.target.id}">${esc(r.target.name)}</a> (${esc(r.target.email)})` : '<span class="muted">deleted</span>'}</div>
+            <div class="small">Reported by: ${r.reporter ? esc(r.reporter.name) : '—'}</div>
+            ${r.details ? `<div class="alert info mt-1 mb-0"><b>Details</b>${esc(r.details)}</div>` : ''}
+          </div>
+          <div class="btn-row">
+            ${r.target ? `<button class="btn ghost sm" data-suspend="${r.id}" data-user="${r.target.id}">Suspend member</button>
+              <button class="btn ghost sm danger" data-delete="${r.id}" data-user="${r.target.id}">Delete member</button>` : ''}
+            <button class="btn green sm" data-resolve="${r.id}">Mark resolved</button>
+            <button class="btn ghost sm" data-dismiss="${r.id}">Dismiss</button>
+          </div>
+        </div>
+      </div>`).join('');
+
+    box.querySelectorAll('[data-resolve]').forEach((b) => {
+      b.onclick = async () => { const r = await PJS.patch('/api/admin/reports/' + b.dataset.resolve, { status: 'resolved' }); toast(r, 'Report resolved'); loadReports(); loadOverview(); };
+    });
+    box.querySelectorAll('[data-dismiss]').forEach((b) => {
+      b.onclick = async () => { const r = await PJS.patch('/api/admin/reports/' + b.dataset.dismiss, { status: 'dismissed' }); toast(r, 'Report dismissed'); loadReports(); loadOverview(); };
+    });
+    box.querySelectorAll('[data-suspend]').forEach((b) => {
+      b.onclick = async () => {
+        const yes = await PJS.confirm('Suspend this member?', 'They will not be able to log in until you reactivate them.', 'Suspend', true);
+        if (!yes) return;
+        const r = await PJS.patch('/api/admin/reports/' + b.dataset.suspend, { status: 'resolved', action: 'suspend' });
+        toast(r, 'Member suspended'); loadReports(); loadMembers();
+      };
+    });
+    box.querySelectorAll('[data-delete]').forEach((b) => {
+      b.onclick = async () => {
+        const yes = await PJS.confirm('Delete this member and all their data?', 'This cannot be undone.', 'Delete member', true);
+        if (!yes) return;
+        const r = await PJS.patch('/api/admin/reports/' + b.dataset.delete, { status: 'resolved', action: 'delete' });
+        toast(r, 'Member deleted'); loadReports(); loadMembers();
+      };
+    });
+  }
+
+  /* ------------------------------------------------------------ stories */
+  async function loadStories() {
+    const res = await PJS.get('/api/admin/stories');
+    const box = $('storyList');
+    if (!res.ok) { box.innerHTML = `<div class="alert error">${esc(res.error || '')}</div>`; return; }
+    if (!res.stories.length) { box.innerHTML = '<p class="muted">No stories yet.</p>'; return; }
+    box.innerHTML = res.stories.map((s) => `
+      <div class="list-row">
+        ${PJS.avatar(s.couple, s.photo)}
+        <div>
+          <b>${esc(s.title)}</b> <span class="chip ${s.approved ? 'green' : ''}">${s.approved ? 'Published' : 'Draft'}</span>
+          <div class="small muted">${esc(s.couple)} · ${esc(s.location || '')}</div>
+          <div class="small">${esc((s.body || '').slice(0, 120))}${(s.body || '').length > 120 ? '…' : ''}</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn ghost sm" data-toggle="${s.id}" data-approved="${s.approved ? 0 : 1}">${s.approved ? 'Unpublish' : 'Publish'}</button>
+          <button class="btn ghost sm" data-edit="${s.id}">Edit</button>
+          <button class="btn ghost sm danger" data-del="${s.id}">Delete</button>
+        </div>
+      </div>`).join('');
+
+    box.querySelectorAll('[data-toggle]').forEach((b) => {
+      b.onclick = async () => {
+        const r = await PJS.patch('/api/admin/stories/' + b.dataset.toggle, { approved: Number(b.dataset.approved) });
+        toast(r, 'Story updated'); loadStories();
+      };
+    });
+    box.querySelectorAll('[data-del]').forEach((b) => {
+      b.onclick = async () => {
+        const yes = await PJS.confirm('Delete this story?', 'It will be removed from the home page.', 'Delete story', true);
+        if (!yes) return;
+        const r = await PJS.del('/api/admin/stories/' + b.dataset.del);
+        toast(r, 'Story deleted'); loadStories();
+      };
+    });
+    box.querySelectorAll('[data-edit]').forEach((b) => {
+      b.onclick = () => {
+        const s = res.stories.find((x) => String(x.id) === b.dataset.edit);
+        PJS.openModal(`
+          <h3>Edit story</h3>
+          <div class="field"><label for="tTitle">Title</label><input id="tTitle" value="${esc(s.title)}"></div>
+          <div class="field"><label for="tCouple">Couple</label><input id="tCouple" value="${esc(s.couple)}"></div>
+          <div class="field"><label for="tLoc">Location</label><input id="tLoc" value="${esc(s.location || '')}"></div>
+          <div class="field"><label for="tPhoto">Photo URL</label><input id="tPhoto" value="${esc(s.photo || '')}"></div>
+          <div class="field"><label for="tBody">Story</label><textarea id="tBody">${esc(s.body || '')}</textarea></div>
+          <div class="btn-row" style="justify-content:flex-end">
+            <button class="btn ghost" data-x="cancel">Cancel</button>
+            <button class="btn" data-x="save">Save</button></div>`,
+          (modal) => {
+            modal.querySelector('[data-x="cancel"]').onclick = PJS.closeModal;
+            modal.querySelector('[data-x="save"]').onclick = async function () {
+              const r = await PJS.patch('/api/admin/stories/' + s.id, {
+                title: modal.querySelector('#tTitle').value,
+                couple: modal.querySelector('#tCouple').value,
+                location: modal.querySelector('#tLoc').value,
+                photo: modal.querySelector('#tPhoto').value,
+                body: modal.querySelector('#tBody').value
+              });
+              toast(r, 'Story saved');
+              if (r.ok) { PJS.closeModal(); loadStories(); }
+            };
+          });
+      };
+    });
+  }
+
+  /* ------------------------------------------------------------ contact */
+  async function loadContact() {
+    const res = await PJS.get('/api/admin/contact');
+    const box = $('contactList');
+    if (!res.ok) { box.innerHTML = `<div class="alert error">${esc(res.error || '')}</div>`; return; }
+    if (!res.messages.length) { box.innerHTML = '<p class="muted">No contact messages yet.</p>'; return; }
+    box.innerHTML = res.messages.map((m) => `
+      <div class="list-row">
+        ${PJS.avatar(m.name, null, 'sm')}
+        <div>
+          <b>${esc(m.name)}</b> ${m.handled ? '<span class="chip green">Handled</span>' : '<span class="chip red">New</span>'}
+          <div class="tiny muted">${esc([m.email, m.phone].filter(Boolean).join(' · '))} · ${esc(PJS.fmt.dateTime(m.created_at))}</div>
+          <div class="small"><b>${esc(m.subject || 'Message')}</b> — ${esc(m.message)}</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn ghost sm" data-handle="${m.id}" data-flag="${m.handled ? 0 : 1}">${m.handled ? 'Mark new' : 'Mark handled'}</button>
+          <a class="btn ghost sm" href="https://wa.me/${esc(String(m.phone || '').replace(/[^0-9]/g, ''))}" target="_blank" rel="noopener">WhatsApp</a>
+          <button class="btn ghost sm danger" data-del="${m.id}">Delete</button>
+        </div>
+      </div>`).join('');
+
+    box.querySelectorAll('[data-handle]').forEach((b) => {
+      b.onclick = async () => { const r = await PJS.patch('/api/admin/contact/' + b.dataset.handle, { handled: Number(b.dataset.flag) }); toast(r, 'Updated'); loadContact(); loadOverview(); };
+    });
+    box.querySelectorAll('[data-del]').forEach((b) => {
+      b.onclick = async () => { const r = await PJS.del('/api/admin/contact/' + b.dataset.del); toast(r, 'Deleted'); loadContact(); };
+    });
+  }
+
+  /* ------------------------------------------------------------ content */
+  const CONTENT_FIELDS = [
+    ['site_name', 'Website name', 'text'],
+    ['site_short_name', 'Short name', 'text'],
+    ['tagline', 'Tagline', 'text'],
+    ['hero_title', 'Home page headline', 'text'],
+    ['hero_subtitle', 'Home page sub-headline', 'textarea'],
+    ['announcement', 'Announcement (shown as a toast on the home page)', 'text'],
+    ['about_text', 'About us text', 'textarea'],
+    ['safety_text', 'Safety notice text', 'textarea'],
+    ['footer_note', 'Footer note', 'text'],
+    ['whatsapp_number', 'WhatsApp number (digits only, with country code)', 'text'],
+    ['whatsapp_display', 'WhatsApp number (display format)', 'text'],
+    ['support_email', 'Support email', 'text'],
+    ['communities', 'Allowed communities (comma separated)', 'text'],
+    ['require_email_verification', 'Require email verification before login (1 = yes, 0 = no)', 'text'],
+    ['maintenance', 'Maintenance mode (1 = on, 0 = off)', 'text']
+  ];
+
+  async function loadContent() {
+    const res = await PJS.get('/api/admin/settings');
+    if (!res.ok) return;
+    const s = res.settings;
+    $('contentForm').innerHTML = CONTENT_FIELDS.map(([key, label, type]) => `
+      <div class="field">
+        <label for="c_${key}">${esc(label)}</label>
+        ${type === 'textarea'
+          ? `<textarea id="c_${key}" data-key="${key}">${esc(s[key] || '')}</textarea>`
+          : `<input id="c_${key}" data-key="${key}" value="${esc(s[key] || '')}">`}
+      </div>`).join('') +
+      '<button class="btn" type="submit">Save website content</button>';
+
+    $('contentForm').onsubmit = async function (e) {
+      e.preventDefault();
+      const payload = {};
+      $('contentForm').querySelectorAll('[data-key]').forEach((el) => { payload[el.dataset.key] = el.value; });
+      const r = await PJS.put('/api/admin/settings', payload);
+      toast(r, 'Website content saved');
+      if (r.ok) {
+        const siteRes = await PJS.get('/api/site');
+        if (siteRes.ok) PJS.site = siteRes.site;
+      }
+    };
+  }
+
+  /* ------------------------------------------------------------- emails */
+  async function loadEmails() {
+    const res = await PJS.get('/api/admin/outbox');
+    if (!res.ok) return;
+    $('emailInfo').innerHTML = res.smtp
+      ? '<div class="alert success"><b>SMTP is configured</b>Verification and password emails are delivered by email.</div>'
+      : '<div class="alert warn"><b>SMTP not configured</b>Outgoing emails are saved below and the verification / reset links are also shown on screen to the member. ' +
+        'Set SMTP_HOST, SMTP_USER, SMTP_PASS (and optionally SMTP_PORT, MAIL_FROM) environment variables and install nodemailer to send real email.</div>';
+    $('emailList').innerHTML = res.emails.length
+      ? res.emails.map((e) => `<details class="mb-2"><summary class="small">${esc(e.file)}</summary>
+          <pre style="white-space:pre-wrap;font-size:12px;background:var(--bg);padding:10px;border-radius:10px">${esc(e.content)}</pre></details>`).join('')
+      : '<p class="muted">No emails generated yet.</p>';
+  }
+
+  /* --------------------------------------------------------------- tabs */
+  const LOADERS = {
+    overview: loadOverview,
+    members: loadMembers,
+    reports: loadReports,
+    stories: loadStories,
+    contact: loadContact,
+    content: loadContent,
+    emails: loadEmails
+  };
+
+  function setTab(name) {
+    document.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('hide', p.dataset.pane !== name));
+    if (LOADERS[name]) LOADERS[name]();
+  }
+
+  PJS.onReady(async function () {
+    if (!PJS.requireAuth()) return;
+    if (!PJS.me || PJS.me.role !== 'admin') {
+      $('gate').innerHTML = `<div class="alert error"><b>Administrator access required</b>
+        This area is only for site administrators. Log in with an administrator account.
+        <div class="mt-1"><a class="btn sm" href="/login.html">Log in</a></div></div>`;
+      return;
+    }
+    $('panel').classList.remove('hide');
+    document.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => setTab(b.dataset.tab); });
+    $('memberSearch').addEventListener('input', () => { clearTimeout(window.__t); window.__t = setTimeout(loadMembers, 300); });
+    $('memberStatus').addEventListener('change', loadMembers);
+    $('reportFilter').addEventListener('change', loadReports);
+
+    $('storyForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const r = await PJS.post('/api/admin/stories', {
+        title: $('sTitle').value,
+        couple: $('sCouple').value,
+        location: $('sLocation').value,
+        photo: $('sPhoto').value,
+        body: $('sBody').value,
+        approved: $('sApproved').checked
+      });
+      toast(r, 'Story added');
+      if (r.ok) { $('storyForm').reset(); $('sApproved').checked = true; loadStories(); }
+    });
+
+    setTab('overview');
+  });
+})();
+</script>
+</body>
+</html>

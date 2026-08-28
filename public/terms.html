@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Terms of use — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow">
+  <div class="page-head">
+    <span class="eyebrow">Legal</span>
+    <h1 class="mb-0">Terms of use</h1>
+  </div>
+
+  <section class="card mt-2 mb-3">
+    <h3>1. The service is free</h3>
+    <p class="muted">
+      PANIKA JEEVAN SATHI is a free matrimonial service. Registration, profile creation, search,
+      interests, shortlist, messaging and notifications cost nothing. We do not sell memberships and we
+      never ask members for payment. Anyone asking you for money in the name of this website is committing
+      a fraud — report it immediately.
+    </p>
+
+    <h3>2. Eligibility</h3>
+    <p class="muted">
+      You must be at least 18 years old and you must belong to one of the communities this service is
+      meant for (<span id="communities">Panika, Manikpuri, Kabirpanthi, Adivasi</span>).
+      One person should hold one account.
+    </p>
+
+    <h3>3. Your responsibility</h3>
+    <ul class="muted" style="padding-left:18px">
+      <li>Provide true information about age, marital status, education, occupation and family.</li>
+      <li>Use only your own photographs.</li>
+      <li>Keep your password secret and never share your OTP or reset links.</li>
+      <li>Behave respectfully in messages; harassment or abuse leads to suspension.</li>
+    </ul>
+
+    <h3>4. Not permitted</h3>
+    <ul class="muted" style="padding-left:18px">
+      <li>Fake or duplicate profiles, or profiles created for someone without their consent.</li>
+      <li>Asking for money, gifts or financial help from other members.</li>
+      <li>Copying another member's profile details or photographs.</li>
+      <li>Using the site for advertising, spam or political activity.</li>
+    </ul>
+
+    <h3>5. Meetings and safety</h3>
+    <p class="muted">
+      Always involve your family, meet in a public place, and verify documents independently.
+      The website introduces families; the decision and verification rest with the families.
+    </p>
+
+    <h3>6. Moderation</h3>
+    <p class="muted">
+      Reported profiles are reviewed by our team. We may hide, suspend or delete any account that breaks
+      these terms, without notice.
+    </p>
+
+    <h3>7. Changes</h3>
+    <p class="muted mb-0">
+      These terms may be updated as the service improves. Continuing to use the website means you accept
+      the current terms.
+    </p>
+  </section>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+PJS.onReady(function () {
+  const list = (PJS.site && PJS.site.communities_list) || [];
+  if (list.length) document.getElementById('communities').textContent = list.join(', ');
+});
+</script>
+</body>
+</html>

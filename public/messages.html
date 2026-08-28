@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Messages — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+<style>
+  @media (max-width: 899px) {
+    .chat-shell.has-thread .conv-pane { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm">
+  <div class="page-head row spread row-wrap">
+    <div>
+      <h1 class="mb-0">Messages</h1>
+      <p class="muted mb-0">Private one-to-one chat. Messaging opens once an interest is accepted.</p>
+    </div>
+    <a class="btn ghost sm" href="/interests.html?tab=accepted">My connections</a>
+  </div>
+
+  <div class="chat-shell mt-2" id="shell">
+    <section class="card pad-0 conv-pane">
+      <div style="padding:12px 14px;border-bottom:1px solid var(--line)" class="row spread">
+        <b>Inbox</b>
+        <span class="tiny muted" id="convCount"></span>
+      </div>
+      <div class="conv-list" id="conversations" style="padding:6px">
+        <div class="skeleton" style="height:56px;margin:6px"></div>
+      </div>
+    </section>
+
+    <section class="card pad-0" id="threadCard">
+      <div class="thread" id="thread">
+        <div class="empty" style="margin:auto">
+          <h3>Select a conversation</h3>
+          <p>Choose a member on the left to read and send messages.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let activeId = null;
+  let pollTimer = null;
+  let lastMessageTs = 0;
+
+  async function loadConversations() {
+    const res = await PJS.get('/api/conversations');
+    const box = $('conversations');
+    if (!res.ok) {
+      box.innerHTML = `<div class="alert error" style="margin:10px">${PJS.esc(res.error || 'Could not load inbox.')}</div>`;
+      return;
+    }
+    $('convCount').textContent = res.conversations.length ? res.conversations.length + ' conversations' : '';
+    if (!res.conversations.length) {
+      box.className = 'empty';
+      box.innerHTML = `<div class="ic">${PJS.icons.chat}</div>
+        <h3>No conversations yet</h3>
+        <p>Send an interest from a profile. When it is accepted, messaging opens automatically.</p>
+        <a class="btn ghost sm" href="/search.html">Browse profiles</a>`;
+      return;
+    }
+    box.className = 'conv-list';
+    box.innerHTML = res.conversations.map((c) => `
+      <button class="conv ${c.unread ? 'unread' : ''} ${activeId === c.user.id ? 'active' : ''}" data-id="${c.user.id}">
+        ${PJS.avatar(c.user.name, c.user.photo)}
+        <span>
+          <span class="name">${PJS.esc(c.user.name)}</span>
+          <span class="preview">${PJS.esc((c.last_from_me ? 'You: ' : '') + c.last_message)}</span>
+        </span>
+        <span class="time">${PJS.esc(PJS.fmt.ago(c.last_at))}${c.unread ? `<br><span class="badge">${c.unread}</span>` : ''}</span>
+      </button>`).join('');
+    box.querySelectorAll('.conv').forEach((btn) => {
+      btn.onclick = () => openThread(Number(btn.getAttribute('data-id')));
+    });
+    PJS.refreshCounts();
+  }
+
+  function bubbleHtml(m) {
+    return `<div class="bubble ${m.mine ? 'mine' : 'theirs'}">${PJS.esc(m.body)}<time>${PJS.esc(PJS.fmt.time(m.created_at))}${
+      m.mine ? (m.read ? ' · Read' : ' · Sent') : ''}</time></div>`;
+  }
+
+  let renderedSig = null;
+
+  function renderThread(withUser, messages, connected) {
+    const previousDraft = document.getElementById('draft');
+    const draftText = previousDraft ? previousDraft.value : '';
+    const hadFocus = Boolean(previousDraft && document.activeElement === previousDraft);
+    const scrollNow = !document.querySelector('#thread .thread-body');
+    $('thread').innerHTML = `
+      <div class="thread-head">
+        <button class="btn ghost sm" id="backBtn" style="display:none">←</button>
+        ${PJS.avatar(withUser.name, withUser.photo)}
+        <div style="flex:1">
+          <a href="/profile.html?id=${withUser.id}"><b>${PJS.esc(withUser.name)}</b></a>
+          <div class="tiny muted">${PJS.esc([withUser.age ? withUser.age + ' yrs' : '', withUser.city].filter(Boolean).join(' · '))}</div>
+        </div>
+        <a class="btn ghost sm" href="/profile.html?id=${withUser.id}">Profile</a>
+      </div>
+      <div class="thread-body" id="threadBody">
+        ${connected ? '' : '<div class="alert warn">Messaging opens once an interest is accepted between you two.</div>'}
+        ${messages.length
+          ? messages.map(bubbleHtml).join('')
+          : '<div class="empty"><h3>No messages yet</h3><p>Say namaste and introduce your family.</p></div>'}
+      </div>
+      <form class="thread-form" id="sendForm">
+        <textarea id="draft" placeholder="Write your message…" maxlength="2000" ${connected ? '' : 'disabled'}></textarea>
+        <button class="btn" type="submit" ${connected ? '' : 'disabled'}>Send</button>
+      </form>`;
+
+    if (window.innerWidth < 900) {
+      const back = $('backBtn');
+      back.style.display = 'inline-flex';
+      back.onclick = () => {
+        activeId = null;
+        $('shell').classList.remove('has-thread');
+        loadConversations();
+      };
+    }
+    $('shell').classList.add('has-thread');
+
+    const body = $('threadBody');
+    body.scrollTop = body.scrollHeight;
+
+    const form = $('sendForm');
+    const draft = $('draft');
+    draft.value = draftText;
+    if (hadFocus) draft.focus();
+    draft.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const text = draft.value.trim();
+      if (!text) return;
+      draft.value = '';
+      const sendBtn = form.querySelector('button');
+      sendBtn.disabled = true;
+      const res = await PJS.post('/api/messages', { to: activeId, body: text });
+      sendBtn.disabled = false;
+      if (!res.ok) {
+        draft.value = text;
+        PJS.toast(res.error || 'Could not send message', 'error');
+        return;
+      }
+      lastMessageTs = res.sent_at;
+      refreshThread(true);
+      loadConversations();
+    });
+
+    if (scrollNow) body.scrollTop = body.scrollHeight;
+  }
+
+  async function refreshThread(silent) {
+    if (!activeId) return;
+    const res = await PJS.get('/api/conversations/' + activeId);
+    if (!res.ok) return;
+    const body = $('threadBody');
+    const nearBottom = body ? body.scrollHeight - body.scrollTop - body.clientHeight < 140 : true;
+    const sig = res.messages.length + ':' +
+      (res.messages.length ? res.messages[res.messages.length - 1].created_at : 0) + ':' + res.connected;
+
+    if (sig !== renderedSig || !body) {
+      renderedSig = sig;
+      renderThread(res.with, res.messages, res.connected);
+      if (res.messages.length) lastMessageTs = res.messages[res.messages.length - 1].created_at;
+    }
+
+    if (res.messages.some((m) => !m.mine && !m.read)) {
+      await PJS.post('/api/conversations/' + activeId + '/read');
+      PJS.refreshCounts();
+      loadConversations();
+    }
+    const nb = $('threadBody');
+    if (nb && (nearBottom || silent)) nb.scrollTop = nb.scrollHeight;
+  }
+
+  function openThread(userId) {
+    activeId = userId;
+    renderedSig = null;
+    loadConversations();
+    refreshThread(false);
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(refreshThread, 5000);
+  }
+
+  PJS.onReady(async function () {
+    if (!PJS.requireAuth()) return;
+    await loadConversations();
+    const withId = Number(PJS.qs('with'));
+    if (withId) openThread(withId);
+    setInterval(loadConversations, 15000);
+    window.addEventListener('beforeunload', () => { if (pollTimer) clearInterval(pollTimer); });
+  });
+})();
+</script>
+</body>
+</html>

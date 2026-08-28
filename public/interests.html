@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Interests — PANIKA JEEVAN SATHI</title>
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow" style="max-width:860px">
+  <div class="page-head">
+    <h1 class="mb-0">Interests &amp; likes</h1>
+    <p class="muted mb-0">Accept an interest to open private messaging with that member. All free.</p>
+  </div>
+
+  <div class="tabs mt-2 mb-3">
+    <button type="button" id="tabReceived" class="active">Received <span id="badgeReceived"></span></button>
+    <button type="button" id="tabSent">Sent</button>
+    <button type="button" id="tabAccepted">Connections</button>
+  </div>
+
+  <div id="list"><div class="skeleton" style="height:200px"></div></div>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let direction = 'received';
+  let statusFilter = '';
+
+  function chipFor(status) {
+    if (status === 'pending') return '<span class="chip gold">Pending</span>';
+    if (status === 'accepted') return '<span class="chip green">Accepted</span>';
+    return '<span class="chip red">Declined</span>';
+  }
+
+  async function load() {
+    const box = $('list');
+    let items = [];
+    if (statusFilter === 'accepted') {
+      const [recv, sent] = await Promise.all([
+        PJS.get('/api/interests?direction=received&status=accepted'),
+        PJS.get('/api/interests?direction=sent&status=accepted')
+      ]);
+      if (!recv.ok || !sent.ok) {
+        box.innerHTML = `<div class="alert error">${PJS.esc(recv.error || sent.error || 'Could not load.')}</div>`;
+        return;
+      }
+      const seen = new Set();
+      items = recv.interests.concat(sent.interests).filter((i) => {
+        if (seen.has(i.user.id)) return false;
+        seen.add(i.user.id);
+        return true;
+      });
+      items.sort((a, b) => (b.responded_at || 0) - (a.responded_at || 0));
+    } else {
+      const res = await PJS.get('/api/interests?direction=' + direction);
+      if (!res.ok) {
+        box.innerHTML = `<div class="alert error">${PJS.esc(res.error || 'Could not load interests.')}</div>`;
+        return;
+      }
+      items = statusFilter ? res.interests.filter((i) => i.status === statusFilter) : res.interests;
+    }
+
+    const counts = await PJS.get('/api/interests?direction=received&status=pending');
+    $('badgeReceived').textContent = counts.ok && counts.interests.length ? `(${counts.interests.length})` : '';
+
+    if (!items.length) {
+      box.className = 'empty';
+      box.innerHTML = `<div class="ic">${PJS.icons.heart}</div>
+        <h3>Nothing here yet</h3>
+        <p>${direction === 'sent'
+          ? 'Interests you send will appear here with their response.'
+          : statusFilter === 'accepted'
+            ? 'Accepted interests appear here — you can message those members any time.'
+            : 'Interests from other members will appear here. A complete profile with a photo receives more.'}</p>
+        <a class="btn ghost sm" href="/search.html">Browse profiles</a>`;
+      return;
+    }
+    box.className = '';
+    box.innerHTML = items.map((it) => `
+      <div class="card mb-2">
+        <div class="row spread row-wrap">
+          <div class="row">
+            ${PJS.avatar(it.user.name, it.user.photo, 'lg')}
+            <div>
+              <a href="/profile.html?id=${it.user.id}"><b style="font-size:16px">${PJS.esc(it.user.name)}</b></a>
+              <div class="small muted">${PJS.esc([it.user.age ? it.user.age + ' yrs' : '', it.user.city, it.user.state].filter(Boolean).join(' · '))}</div>
+              <div class="small muted">${PJS.esc([it.user.education, it.user.occupation].filter(Boolean).join(', '))}</div>
+              <div class="chips mt-1">${chipFor(it.status)}<span class="chip">${PJS.esc(PJS.fmt.ago(it.created_at))}</span></div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <a class="btn ghost sm" href="/profile.html?id=${it.user.id}">View profile</a>
+            ${it.status === 'accepted' ? `<a class="btn sm" href="/messages.html?with=${it.user.id}">Message</a>` : ''}
+            ${direction === 'received' && it.status === 'pending'
+              ? `<button class="btn green sm" data-accept="${it.id}">Accept</button>
+                 <button class="btn ghost sm" data-decline="${it.id}">Decline</button>` : ''}
+          </div>
+        </div>
+        ${it.message ? `<div class="alert info mt-2 mb-0"><b>Message</b>${PJS.esc(it.message)}</div>` : ''}
+      </div>`).join('');
+
+    box.querySelectorAll('[data-accept]').forEach((btn) => {
+      btn.onclick = async function () {
+        btn.disabled = true;
+        const res = await PJS.post('/api/interests/' + btn.getAttribute('data-accept') + '/respond', { decision: 'accept' });
+        PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+        if (res.ok) load();
+        else btn.disabled = false;
+      };
+    });
+    box.querySelectorAll('[data-decline]').forEach((btn) => {
+      btn.onclick = async function () {
+        const yes = await PJS.confirm('Decline this interest?', 'The member will be informed that the interest was declined.', 'Decline', true);
+        if (!yes) return;
+        btn.disabled = true;
+        const res = await PJS.post('/api/interests/' + btn.getAttribute('data-decline') + '/respond', { decision: 'decline' });
+        PJS.toast(res.ok ? res.message : res.error, res.ok ? 'success' : 'error');
+        if (res.ok) load();
+        else btn.disabled = false;
+      };
+    });
+
+    PJS.refreshCounts();
+  }
+
+  function setTab(which) {
+    direction = which === 'sent' ? 'sent' : 'received';
+    statusFilter = which === 'accepted' ? 'accepted' : '';
+    $('tabReceived').classList.toggle('active', which === 'received');
+    $('tabSent').classList.toggle('active', which === 'sent');
+    $('tabAccepted').classList.toggle('active', which === 'accepted');
+    window.history.replaceState({}, '', '/interests.html?tab=' + which);
+    load();
+  }
+
+  PJS.onReady(function () {
+    if (!PJS.requireAuth()) return;
+    $('tabReceived').onclick = () => setTab('received');
+    $('tabSent').onclick = () => setTab('sent');
+    $('tabAccepted').onclick = () => setTab('accepted');
+    const tab = PJS.qs('tab');
+    setTab(tab === 'sent' || tab === 'accepted' ? tab : 'received');
+  });
+})();
+</script>
+</body>
+</html>
