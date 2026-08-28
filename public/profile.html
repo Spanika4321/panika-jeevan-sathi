@@ -47,7 +47,10 @@
     const actions = isOwner
       ? `<a class="btn" href="/edit-profile.html">${PJS.icons.edit} Edit my profile</a>
          <a class="btn ghost" href="/settings.html">${PJS.icons.settings} Settings</a>`
-      : `<button class="btn" id="actInterest">${
+      : !PJS.me
+        ? `<a class="btn" href="/login.html?next=${encodeURIComponent('/profile.html?id=' + data.id)}">${PJS.icons.heart} Log in to send interest</a>
+           <a class="btn ghost" href="/login.html?tab=register">Register free</a>`
+        : `<button class="btn" id="actInterest">${
           data.interest_state && data.interest_state.sent === 'accepted'
             ? PJS.icons.check + ' Interest accepted'
             : data.interest_state && data.interest_state.sent === 'pending'
@@ -135,7 +138,7 @@
         `<div class="btn-row mt-1"><button class="btn green sm" id="acceptHere">Accept interest</button>
          <button class="btn ghost sm" id="declineHere">Decline</button></div></div>`);
     }
-    if (!isOwner && !data.can_message && !(data.interest_state && data.interest_state.sent === 'accepted')) {
+    if (PJS.me && !isOwner && !data.can_message && !(data.interest_state && data.interest_state.sent === 'accepted')) {
       alerts.push('<div class="alert warn"><b>Messaging opens after your interest is accepted</b>' +
         'This keeps conversations respectful. Send an interest to begin.</div>');
     }

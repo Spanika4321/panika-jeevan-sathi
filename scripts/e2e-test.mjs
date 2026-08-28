@@ -579,6 +579,16 @@ async function main() {
     const traversal = await fetch(BASE + '/../server.js');
     check('path traversal is blocked', traversal.status !== 200);
 
+    for (const blocked of ['/data/admin-credentials.txt', '/data/panika-jeevan-sathi.db', '/server.js', '/lib/api.js']) {
+      const r = await fetch(BASE + blocked);
+      check('server file not reachable over HTTP: ' + blocked, r.status !== 200, `got ${r.status}`);
+    }
+
+    const anonProfile = await anon.get('/api/profiles/' + meeraId);
+    check('anonymous visitor cannot open a members-only profile', anonProfile.status === 401, `got ${anonProfile.status}`);
+    const anonMatches = await anon.get('/api/matches');
+    check('anonymous visitor cannot read recommendations', anonMatches.status === 401);
+
     const badApi = await fetch(BASE + '/api/does-not-exist');
     check('unknown API route returns 404', badApi.status === 404);
 
