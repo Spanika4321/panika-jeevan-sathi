@@ -184,7 +184,11 @@
   }
 
   function nextUrl() {
-    return PJS.qs('next') || '/dashboard.html';
+    const next = PJS.qs('next');
+    if (next && next.charAt(0) === '/' && next.charAt(1) !== '/' && next.indexOf('\\') === -1 && next.indexOf('://') === -1) {
+      return next;
+    }
+    return '/dashboard.html';
   }
 
   tabs.login.onclick = () => show('login');

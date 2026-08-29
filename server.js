@@ -44,7 +44,8 @@ const api = apiLib.createApi({ db: driver, secret, dataDir: DATA_DIR });
 
 function ensureAdmin() {
   const primary = (process.env.ADMIN_EMAIL || ownerLib.DEFAULT_OWNER_EMAIL).trim().toLowerCase();
-  const password = ownerLib.defaultOwnerPassword();
+  const provided = process.env.ADMIN_PASSWORD;
+  const password = provided && String(provided).length >= 8 ? String(provided) : authLib.randomToken(8) + 'Aa1';
   const now = Date.now();
 
   for (const email of ownerLib.ownerEmails()) {

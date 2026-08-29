@@ -32,6 +32,8 @@
       <button type="button" data-tab="stories">Success stories</button>
       <button type="button" data-tab="contact">Contact inbox</button>
       <button type="button" data-tab="content">Website content</button>
+      <button type="button" data-tab="activity">Activity log</button>
+      <button type="button" data-tab="account">Admin account</button>
       <button type="button" data-tab="emails">Emails</button>
     </div>
 
@@ -41,6 +43,16 @@
       <div class="card mt-3">
         <h3>Moderation queue</h3>
         <div id="queue"></div>
+      </div>
+      <div class="two-col wide-left mt-3">
+        <div class="card">
+          <h3>Recent registrations</h3>
+          <div id="recentUsers"></div>
+        </div>
+        <div class="card">
+          <h3>Recent logins</h3>
+          <div id="recentLogins"></div>
+        </div>
       </div>
     </section>
 
@@ -56,6 +68,13 @@
               <option value="">All statuses</option>
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
+            </select>
+          </div>
+          <div class="field mb-0" style="min-width:160px">
+            <select id="memberRole">
+              <option value="">All roles</option>
+              <option value="user">Members</option>
+              <option value="admin">Administrators</option>
             </select>
           </div>
         </div>
@@ -151,14 +170,14 @@
     const s = res.stats;
     $('statGrid').innerHTML = [
       ['Total accounts', s.users],
-      ['Profiles', s.profiles],
+      ['Active', s.active != null ? s.active : s.users],
+      ['Suspended', s.suspended || 0],
+      ['New (7 days)', s.new_7d || 0],
       ['Grooms / Brides', s.male + ' / ' + s.female],
-      ['Interests sent', s.interests],
-      ['Connections', s.accepted],
-      ['Messages', s.messages],
       ['Open reports', s.reports_open],
-      ['Contact requests', s.contact_open]
-    ].map((x) => `<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join('');
+      ['Contact requests', s.contact_open],
+      ['Administrators', s.admins || 0]
+    ].map((x) => `<div class="stat"><b>${esc(x[1])}</b><span>${esc(x[0])}</span></div>`).join('');
 
     const [reports, contact] = await Promise.all([PJS.get('/api/admin/reports?status=open'), PJS.get('/api/admin/contact')]);
     const openReports = reports.ok ? reports.reports : [];
@@ -173,13 +192,30 @@
     $('queue').querySelectorAll('[data-go]').forEach((b) => {
       b.onclick = () => setTab(b.getAttribute('data-go'));
     });
+
+    function personList(target, rows, empty) {
+      if (!rows || !rows.length) {
+        target.innerHTML = `<p class="muted small mb-0">${esc(empty)}</p>`;
+        return;
+      }
+      target.innerHTML = rows.map((u) => `
+        <div class="list-row">
+          ${PJS.avatar(u.name, u.photo, 'sm')}
+          <div><b>${esc(u.name)}</b>
+            <div class="tiny muted">${esc(u.email)} · ${u.role === 'admin' ? 'Admin' : 'Member'}</div></div>
+          <span class="tiny muted">${esc(PJS.fmt.ago(u.last_login || u.created_at))}</span>
+        </div>`).join('');
+    }
+    personList($('recentUsers'), res.recent_users, 'No users yet');
+    personList($('recentLogins'), res.recent_logins, 'No logins recorded yet');
   }
 
   /* ----------------------------------------------------------- members */
   async function loadMembers() {
     const q = $('memberSearch').value.trim();
     const status = $('memberStatus').value;
-    const res = await PJS.get('/api/admin/users?q=' + encodeURIComponent(q) + '&status=' + status);
+    const role = $('memberRole') ? $('memberRole').value : '';
+    const res = await PJS.get('/api/admin/users?q=' + encodeURIComponent(q) + '&status=' + encodeURIComponent(status) + '&role=' + encodeURIComponent(role));
     const body = $('memberRows');
     if (!res.ok) { body.innerHTML = `<tr><td colspan="4">${esc(res.error || 'Could not load')}</td></tr>`; return; }
     if (!res.users.length) { body.innerHTML = '<tr><td colspan="4" class="muted">No members found.</td></tr>'; return; }
@@ -202,7 +238,8 @@
         </td>
         <td>
           <div class="btn-row">
-            <a class="btn ghost sm" href="/profile.html?id=${u.id}">View</a>
+            <button class="btn ghost sm" data-act="details">Details</button>
+            <a class="btn ghost sm" href="/profile.html?id=${u.id}">Profile</a>
             <button class="btn ghost sm" data-act="edit">Edit</button>
             ${u.photo ? '<button class="btn ghost sm" data-act="photo">Remove photo</button>' : ''}
             ${u.role !== 'admin'
@@ -219,6 +256,52 @@
       tr.querySelectorAll('[data-act]').forEach((btn) => {
         btn.onclick = async function () {
           const act = btn.getAttribute('data-act');
+          if (act === 'details') {
+            const det = await PJS.get('/api/admin/users/' + id);
+            if (!det.ok) { toast(det); return; }
+            const p = det.profile || {};
+            const c = det.counts || {};
+            PJS.openModal(`
+              <h3>Member details</h3>
+              <div class="row mb-2">${PJS.avatar(det.user.name, det.user.photo)}
+                <div><b>${esc(det.user.name)}</b>
+                  <div class="tiny muted">${esc(det.user.email)}</div>
+                  <div class="chips mt-1">
+                    <span class="chip ${det.user.role === 'admin' ? 'gold' : ''}">${esc(det.user.role)}</span>
+                    <span class="chip ${det.user.status === 'active' ? 'green' : 'red'}">${esc(det.user.status)}</span>
+                    ${det.user.email_verified ? '<span class="chip green">verified</span>' : '<span class="chip red">unverified</span>'}
+                  </div>
+                </div>
+              </div>
+              <div class="detail-grid">
+                <div class="detail"><dt>Joined</dt><dd>${esc(PJS.fmt.dateTime(det.user.created_at))}</dd></div>
+                <div class="detail"><dt>Last login</dt><dd>${det.user.last_login ? esc(PJS.fmt.dateTime(det.user.last_login)) : 'Never'}</dd></div>
+                <div class="detail"><dt>Age / city</dt><dd>${esc([p.age, p.city, p.state].filter(Boolean).join(' · ') || '—')}</dd></div>
+                <div class="detail"><dt>Community</dt><dd>${esc(p.community || '—')}</dd></div>
+                <div class="detail"><dt>Interests sent / received</dt><dd>${c.interests_sent || 0} / ${c.interests_received || 0}</dd></div>
+                <div class="detail"><dt>Messages</dt><dd>${c.messages || 0}</dd></div>
+                <div class="detail"><dt>Reports against</dt><dd>${c.reports_against || 0}</dd></div>
+                <div class="detail"><dt>Visibility</dt><dd>${esc(p.visibility || '—')}</dd></div>
+              </div>
+              <div class="btn-row mt-2" style="justify-content:flex-end">
+                <button class="btn ghost sm" data-x="hide">Hide profile</button>
+                <button class="btn ghost sm" data-x="show">Make searchable</button>
+                <button class="btn ghost" data-x="close">Close</button>
+              </div>`, (modal) => {
+              modal.querySelector('[data-x="close"]').onclick = PJS.closeModal;
+              modal.querySelector('[data-x="hide"]').onclick = async () => {
+                const r = await PJS.patch('/api/admin/users/' + id + '/profile', { visibility: 'hidden', searchable: 0 });
+                toast(r, 'Profile hidden from search');
+                if (r.ok) { PJS.closeModal(); loadMembers(); }
+              };
+              modal.querySelector('[data-x="show"]').onclick = async () => {
+                const r = await PJS.patch('/api/admin/users/' + id + '/profile', { visibility: 'members', searchable: 1 });
+                toast(r, 'Profile visible to members');
+                if (r.ok) { PJS.closeModal(); loadMembers(); }
+              };
+            });
+            return;
+          }
           if (act === 'edit') {
             PJS.openModal(`
               <h3>Edit member</h3>
@@ -467,6 +550,41 @@
     };
   }
 
+  /* ----------------------------------------------------------- activity */
+  async function loadAudit() {
+    const res = await PJS.get('/api/admin/audit');
+    const box = $('auditList');
+    if (!res.ok) { box.innerHTML = `<div class="alert error">${esc(res.error || '')}</div>`; return; }
+    if (!res.logs.length) { box.innerHTML = '<p class="muted mb-0">No administrative actions yet.</p>'; return; }
+    box.innerHTML = res.logs.map((row) => `
+      <div class="list-row">
+        <span class="chip">${esc(row.action)}</span>
+        <div>
+          <b class="small">${esc(row.actor_email || 'system')}</b>
+          <div class="tiny muted">${esc(row.detail || row.target_type || '')}${row.target_id ? ' · #' + row.target_id : ''}</div>
+        </div>
+        <span class="tiny muted">${esc(PJS.fmt.dateTime(row.created_at))}</span>
+      </div>`).join('');
+  }
+
+  async function loadAccount() {
+    const me = await PJS.get('/api/me');
+    if (!me.ok) return;
+    $('adminProfile').innerHTML = `
+      <div class="row">
+        ${PJS.avatar(me.user.name, me.user.photo, 'lg')}
+        <div>
+          <b style="font-size:16px">${esc(me.user.name)}</b>
+          <div class="small muted">${esc(me.user.email)}</div>
+          <div class="chips mt-1">
+            <span class="chip gold">Administrator</span>
+            ${me.user.email_verified ? '<span class="chip green">Email verified</span>' : '<span class="chip red">unverified</span>'}
+          </div>
+          <p class="small muted mb-0 mt-1">Last login: ${me.user.last_login ? esc(PJS.fmt.dateTime(me.user.last_login)) : '—'}</p>
+        </div>
+      </div>`;
+  }
+
   /* ------------------------------------------------------------- emails */
   async function loadEmails() {
     const res = await PJS.get('/api/admin/outbox');
@@ -489,6 +607,8 @@
     stories: loadStories,
     contact: loadContact,
     content: loadContent,
+    activity: loadAudit,
+    account: loadAccount,
     emails: loadEmails
   };
 
@@ -503,13 +623,11 @@
     if (!PJS.me || PJS.me.role !== 'admin') {
       const email = PJS.me && PJS.me.email ? PJS.esc(PJS.me.email) : '';
       $('gate').innerHTML = `<div class="alert error">
-        <b>Yeh account normal member hai — admin nahi</b>
-        Aap abhi <b>${email}</b> se logged in hain. Is account ka role <b>Member</b> hai, isliye admin panel nahi khulega.
-        <p class="small mt-1 mb-0">Site owner account se login karein (email: <b>sukulpanika939@gmail.com</b>).
-        Agar aap usi email se pehle register ho chuke ho, page refresh karke dubara try karein — server ab us account ko administrator bana deta hai.</p>
+        <b>Administrator access required</b>
+        You are signed in as <b>${email}</b> with a member account. This area is only for site administrators.
         <div class="btn-row mt-2">
           <a class="btn sm" href="/login.html?next=${encodeURIComponent('/admin.html')}">Log in as administrator</a>
-          <button class="btn ghost sm" id="adminLogout" type="button">Log out of this member account</button>
+          <button class="btn ghost sm" id="adminLogout" type="button">Log out</button>
         </div>
       </div>`;
       const lo = $('adminLogout');
