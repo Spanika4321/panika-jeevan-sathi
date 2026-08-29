@@ -18,6 +18,7 @@ const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
+const photosLib = require('./lib/photos');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -27,18 +28,55 @@ const PORT = Number(process.env.PORT || 3000);
 
 /* ------------------------------------------------------------------ storage */
 
-const { driver, driverError } = dbLib.open(DATA_DIR);
+const opened = dbLib.open(DATA_DIR, { log: (message) => console.log(message) });
+const driver = opened.driver;
+const driverError = opened.driverError;
+const remote = opened.remote;
 const secret = authLib.loadSecret(DATA_DIR);
-const uploadDir = path.join(DATA_DIR, apiLib.UPLOAD_DIR_NAME);
-fs.mkdirSync(uploadDir, { recursive: true });
+
+/* Photos: local folder, mirrored to Cloudflare R2 when R2 is configured. */
+const photoSetup = photosLib.createFromEnv({
+  dataDir: DATA_DIR,
+  dirName: apiLib.UPLOAD_DIR_NAME,
+  log: (message) => console.log(message)
+});
+const photos = photoSetup.store;
 
 if (driverError) {
   console.warn(
     `[storage] node:sqlite unavailable (${driverError.message}). Falling back to the JSON store in ${DATA_DIR}.`
   );
 }
+if (photoSetup.config && driver.kind !== 'd1') {
+  console.warn('[storage] R2 is configured but the database is local — check PJS_STORAGE / CF_* variables.');
+}
+if (!photoSetup.config && driver.kind === 'd1') {
+  console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
+}
 
-const api = apiLib.createApi({ db: driver, secret, dataDir: DATA_DIR });
+const api = apiLib.createApi({
+  db: driver,
+  secret,
+  dataDir: DATA_DIR,
+  photos,
+  remoteStatus() {
+    return {
+      database: remote ? { kind: 'd1', ...driver.stats() } : { kind: driver.kind },
+      photos: photos.stats()
+    };
+  }
+});
+
+/** Write queued changes (database + photos) to the remote services. */
+async function persist() {
+  try {
+    if (driver.flush) await driver.flush();
+    await photos.flush();
+  } catch (err) {
+    // The queue is kept, so the next request, the timer or shutdown retries.
+    console.error(`[storage] could not save yet: ${err.message} — will retry.`);
+  }
+}
 
 /* ------------------------------------------------------- first-run bootstrap */
 
@@ -114,8 +152,64 @@ function ensureDefaultSettings() {
   settingsLib.setMany(driver, settingsLib.DEFAULTS);
 }
 
-ensureAdmin();
-ensureDefaultSettings();
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Load the remote database (Cloudflare D1) before the site accepts traffic.
+ * Serving an empty site because D1 could not be reached would look exactly
+ * like total data loss, so we retry and then exit loudly instead.
+ */
+async function loadRemoteDatabase() {
+  const attempts = Number(process.env.PJS_BOOT_RETRIES || 6);
+  let lastError = null;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await opened.ready();
+    } catch (err) {
+      lastError = err;
+      console.error(`[storage] D1 unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
+      await sleep(1500 * attempt);
+    }
+  }
+  console.error('');
+  console.error('  ⚠  THE DATABASE COULD NOT BE REACHED — THE SITE WILL NOT START');
+  console.error(`     ${lastError && lastError.message}`);
+  console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN on this service,');
+  console.error('     then redeploy. Starting anyway would wipe the site back to zero members.');
+  console.error('');
+  process.exit(1);
+}
+
+async function main() {
+  if (opened.ready) {
+    const info = await loadRemoteDatabase();
+    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} tables`);
+  }
+
+  ensureAdmin();
+  ensureDefaultSettings();
+  await persist();
+
+  // Safety net: anything the request path could not save is retried here.
+  if (driver.flush) {
+    const timer = setInterval(() => {
+      persist().catch(() => {});
+    }, Number(process.env.PJS_FLUSH_INTERVAL_MS || 5000));
+    timer.unref();
+  }
+
+  server.listen(PORT, HOST, () => {
+    console.log('');
+    console.log('  PANIKA JEEVAN SATHI is running');
+    console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
+    console.log(`  Storage : ${driver.kind} (${DATA_DIR})`);
+    console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored to R2)' : ''}`);
+    console.log('  Free forever — no payments, no locked profiles.');
+    console.log('');
+  });
+}
 
 /* ------------------------------------------------------------- static files */
 
@@ -232,13 +326,15 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname.startsWith('/api/')) {
     await api.handle(req, res, url);
+    await persist();
     return;
   }
 
   if (url.pathname.startsWith('/uploads/')) {
     const name = path.basename(url.pathname);
-    const file = path.join(uploadDir, name);
-    if (!fs.existsSync(file)) {
+    // On hosts without a disk the photo is fetched from R2 and cached.
+    const file = await photos.ensure(name);
+    if (!file) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not found');
       return;
@@ -285,24 +381,23 @@ const server = http.createServer(async (req, res) => {
   sendFile(res, target, { cache: url.pathname.startsWith('/assets/') });
 });
 
-server.listen(PORT, HOST, () => {
-  console.log('');
-  console.log('  PANIKA JEEVAN SATHI is running');
-  console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
-  console.log(`  Storage : ${driver.kind} (${DATA_DIR})`);
-  console.log('  Free forever — no payments, no locked profiles.');
-  console.log('');
+main().catch((err) => {
+  console.error('\n  Fatal error during start-up:');
+  console.error(`  ${err && err.stack ? err.stack : err}`);
+  process.exit(1);
 });
 
-function shutdown() {
+async function shutdown() {
   console.log('\n  Shutting down…');
+  // Give queued writes their last chance to reach the remote services.
+  await persist();
   try {
-    driver.close();
+    await driver.close();
   } catch (_) {
     /* ignore */
   }
   server.close(() => process.exit(0));
-  setTimeout(() => process.exit(0), 1500).unref();
+  setTimeout(() => process.exit(0), 2500).unref();
 }
 
 process.on('SIGINT', shutdown);

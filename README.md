@@ -28,6 +28,8 @@ npm start          # run the site
 npm run dev        # run with auto-reload while editing
 npm test           # syntax check + full end-to-end test suite
 npm run check      # syntax check only
+npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
+npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 ```
 
 ### Environment variables (all optional)
@@ -41,7 +43,9 @@ npm run check      # syntax check only
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
 | `OWNER_EMAILS` | — | Extra emails always promoted to admin |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
-| `PJS_STORAGE` | `sqlite` | Set to `json` to force the JSON file store |
+| `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
+| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
+| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
@@ -111,6 +115,11 @@ public/assets/css/app.css
 public/assets/js/app.js     shared client: API, auth, chrome, helpers
 public/assets/js/cards.js   profile cards + member actions
 scripts/e2e-test.mjs    full end-to-end test (boots a real server)
+scripts/e2e-cloud-test.mjs   member journey + cold-start test against D1 & R2
+scripts/test-sigv4.mjs  AWS SigV4 conformance (the official AWS test vectors)
+scripts/verify-cloud.mjs     check real Cloudflare credentials + a live site
+scripts/deploy-render.mjs    create/update the Render service and deploy it
+scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
 scripts/check-syntax.mjs    syntax check for every shipped script
 data/                   database, uploaded photos, outbox (git-ignored)
 ```
