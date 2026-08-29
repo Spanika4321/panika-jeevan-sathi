@@ -1,0 +1,14 @@
+{
+  "name": "panika-whatsapp-client-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WhatsApp client auto-reply bot — human-like replies in हिंदी, Hinglish, বাংলা, Bhojpuri, ଓଡ଼ିଆ",
+  "scripts": {
+    "wa-web": "node bot-wa-web.js",
+    "cloud": "node bot-cloud-api.js"
+  },
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.26.0"
+  }
+}
