@@ -18,6 +18,7 @@ const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
+const doctorLib = require('./lib/doctor');
 const photosLib = require('./lib/photos');
 
 const ROOT = __dirname;
@@ -52,6 +53,20 @@ if (photoSetup.config && driver.kind !== 'd1') {
 }
 if (!photoSetup.config && driver.kind === 'd1') {
   console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
+}
+
+/* Cloud configuration doctor — visible in /api/health (» ?doctor=1 « pings
+   Cloudflare live). Partial or malformed setups are named out loud at boot so
+   a silent fall-back to ephemeral local storage can never go unnoticed. */
+const cloudStatus = doctorLib.envStatus();
+for (const warning of cloudStatus.warnings) {
+  console.warn(`[storage] ${warning}`);
+}
+if (driver.kind !== 'd1' && !cloudStatus.configured.database) {
+  console.log(
+    '[storage] Cloud storage not configured — using local SQLite. Fine on a machine with a disk; ' +
+      'on Render Free add the Cloudflare D1/R2 environment variables (see DEPLOY.md) or data will not survive restarts.'
+  );
 }
 
 const api = apiLib.createApi({

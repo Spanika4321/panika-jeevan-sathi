@@ -1,0 +1,4 @@
+node_modules/
+artifacts/
+report.md
+package-lock.json
