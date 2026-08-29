@@ -184,6 +184,34 @@ function resolveStatic(pathname) {
   return target;
 }
 
+/* ----------------------------------------------------------- robots/sitemap */
+
+// Pages meant for search engines (public marketing/legal pages only).
+const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html'];
+
+// Members-only or account pages — crawlers should stay out.
+const PRIVATE_PAGES = [
+  'admin.html',
+  'settings.html',
+  'dashboard.html',
+  'matches.html',
+  'messages.html',
+  'notifications.html',
+  'interests.html',
+  'shortlist.html',
+  'edit-profile.html',
+  'profile.html',
+  'search.html',
+  'reset-password.html',
+  'verify-email.html'
+];
+
+function publicOrigin(req) {
+  const host = req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`;
+  const proto = req.headers['x-forwarded-proto'] || 'http';
+  return `${String(proto).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
+}
+
 /* ------------------------------------------------------------------- server */
 
 const server = http.createServer(async (req, res) => {
@@ -220,8 +248,31 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/robots.txt') {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('User-agent: *\nAllow: /\nDisallow: /admin.html\nDisallow: /settings.html\n');
+    const origin = publicOrigin(req);
+    res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, SECURITY_HEADERS));
+    res.end(
+      'User-agent: *\n' +
+        'Allow: /\n' +
+        PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
+        '\nDisallow: /api/\n' +
+        'Disallow: /uploads/\n' +
+        `\nSitemap: ${origin}/sitemap.xml\n`
+    );
+    return;
+  }
+
+  if (url.pathname === '/sitemap.xml') {
+    const origin = publicOrigin(req);
+    const urls = PUBLIC_PAGES.map(
+      (p) => `  <url><loc>${origin}${p}</loc><changefreq>weekly</changefreq></url>`
+    ).join('\n');
+    res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
+    res.end(
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        urls +
+        '\n</urlset>\n'
+    );
     return;
   }
 
