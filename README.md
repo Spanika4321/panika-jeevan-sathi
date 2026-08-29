@@ -1,8 +1,13 @@
 # PANIKA JEEVAN SATHI
 
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Coming%20soon-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products?q=PANIKA%20JEEVAN%20SATHI)
+[![GitHub](https://img.shields.io/badge/GitHub-Spanika4321%2Fpanika-jeevan-sathi-181717?logo=github)](https://github.com/Spanika4321/panika-jeevan-sathi)
+
 A complete, production-ready **matrimonial website** for the Panika, Manikpuri, Kabirpanthi and Adivasi
 communities — **100% free for members**: no payment gateway, no subscription plans, no premium tiers,
 no locked profiles, no paid messaging.
+
+**Product Hunt:** this GitHub repo is the product source. Connect it under [Ship → GitHub](https://www.producthunt.com/ship) and use the copy in **[PRODUCTHUNT.md](PRODUCTHUNT.md)**.
 
 Built as a single self-contained Node.js application with **zero npm dependencies**.
 
