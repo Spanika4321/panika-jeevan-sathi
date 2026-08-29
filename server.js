@@ -12,6 +12,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const zlib = require('node:zlib');
 
 const dbLib = require('./lib/db');
 const authLib = require('./lib/auth');
@@ -142,34 +143,140 @@ const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'SAMEORIGIN',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+  // Same-origin only; 'unsafe-inline' required by the approved inline scripts/styles.
+  'Content-Security-Policy':
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; " +
+    "base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 };
 
-function sendFile(res, filePath, { cache = false } = {}) {
+const TEXT_TYPES = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '.xml', '.txt', '.webmanifest']);
+const SITE_NAME = 'PANIKA JEEVAN SATHI';
+
+function attr(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function acceptsGzip(req) {
+  return /(^|[,\s])gzip($|[,\s;])/i.test(String(req.headers['accept-encoding'] || ''));
+}
+
+function isHttps(req) {
+  return String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https';
+}
+
+function responseHeaders(req, contentType, { cache = false, length, gzip = false } = {}) {
+  const headers = Object.assign(
+    {
+      'Content-Type': contentType,
+      'Cache-Control': cache ? 'public, max-age=86400' : 'no-cache'
+    },
+    SECURITY_HEADERS
+  );
+  if (isHttps(req)) headers['Strict-Transport-Security'] = 'max-age=31536000';
+  if (length !== undefined) headers['Content-Length'] = length;
+  if (gzip) {
+    headers['Content-Encoding'] = 'gzip';
+    headers['Vary'] = 'Accept-Encoding';
+  }
+  return headers;
+}
+
+function sendBuffer(req, res, buffer, contentType, { cache = false, compress = true } = {}) {
+  if (compress && acceptsGzip(req) && buffer.length >= 256) {
+    const gz = zlib.gzipSync(buffer);
+    res.writeHead(200, responseHeaders(req, contentType, { cache, length: gz.length, gzip: true }));
+    res.end(gz);
+    return;
+  }
+  res.writeHead(200, responseHeaders(req, contentType, { cache, length: buffer.length }));
+  res.end(buffer);
+}
+
+/**
+ * Add canonical / Open Graph / Twitter / JSON-LD tags to public HTML.
+ * Injected at request time using the real host, so the tags are always
+ * correct no matter which domain the site is served from. Head-only change —
+ * the approved page design is untouched.
+ */
+function injectSeoTags(html, req, pathname) {
+  const title = (html.match(/<title>([^<]*)<\/title>/i) || [])[1] || SITE_NAME;
+  const descMatch = html.match(/<meta name="description" content="([^"]*)"/i);
+  const desc = descMatch ? descMatch[1] : '';
+  const origin = publicOrigin(req);
+  const canonPath = pathname === '/index.html' ? '/' : pathname;
+  const canonical = origin + (canonPath.startsWith('/') ? canonPath : `/${canonPath}`);
+  const image = `${origin}/assets/img/logo.svg`;
+  const t = attr(title);
+  const d = attr(desc);
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    description: desc || undefined,
+    url: canonical
+  }).replace(/</g, '\\u003c');
+
+  const tags = [
+    `<link rel="canonical" href="${attr(canonical)}">`,
+    `<meta property="og:site_name" content="${attr(SITE_NAME)}">`,
+    '<meta property="og:type" content="website">',
+    `<meta property="og:title" content="${t}">`,
+    `<meta property="og:description" content="${d}">`,
+    `<meta property="og:url" content="${attr(canonical)}">`,
+    `<meta property="og:image" content="${attr(image)}">`,
+    '<meta property="og:locale" content="en_IN">',
+    '<meta name="twitter:card" content="summary">',
+    `<meta name="twitter:title" content="${t}">`,
+    `<meta name="twitter:description" content="${d}">`,
+    `<meta name="twitter:image" content="${attr(image)}">`,
+    `<script type="application/ld+json">${jsonLd}</script>`
+  ].join('\n');
+
+  return html.includes('</head>') ? html.replace('</head>', `${tags}\n</head>`) : html;
+}
+
+function sendFile(req, res, filePath, { cache = false } = {}) {
   fs.stat(filePath, (err, stat) => {
     if (err || !stat.isFile()) {
       const notFound = path.join(PUBLIC_DIR, '404.html');
-      if (fs.existsSync(notFound)) {
-        res.writeHead(404, Object.assign({ 'Content-Type': MIME['.html'] }, SECURITY_HEADERS));
-        fs.createReadStream(notFound).pipe(res);
-      } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('404 Not Found');
-      }
+      fs.readFile(notFound, (readErr, buf) => {
+        if (readErr) {
+          res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+          res.end('404 Not Found');
+          return;
+        }
+        res.writeHead(404, responseHeaders(req, 'text/html; charset=utf-8', { length: buf.length }));
+        res.end(buf);
+      });
       return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(
-      200,
-      Object.assign(
-        {
-          'Content-Type': MIME[ext] || 'application/octet-stream',
-          'Content-Length': stat.size,
-          'Cache-Control': cache ? 'public, max-age=86400' : 'no-cache'
-        },
-        SECURITY_HEADERS
-      )
-    );
+
+    if (TEXT_TYPES.has(ext)) {
+      fs.readFile(filePath, (readErr, buf) => {
+        if (readErr) {
+          res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+          res.end('Internal server error');
+          return;
+        }
+        let body = buf;
+        if (ext === '.html') {
+          body = Buffer.from(injectSeoTags(buf.toString('utf8'), req, req.pjsPathname || '/'), 'utf8');
+        }
+        sendBuffer(req, res, body, MIME[ext] || 'application/octet-stream', { cache });
+      });
+      return;
+    }
+
+    // Images and other binary assets: stream, never compress (already compressed).
+    res.writeHead(200, responseHeaders(req, MIME[ext] || 'application/octet-stream', { cache, length: stat.size }));
     fs.createReadStream(filePath).pipe(res);
   });
 }
@@ -239,24 +346,28 @@ const server = http.createServer(async (req, res) => {
     const name = path.basename(url.pathname);
     const file = path.join(uploadDir, name);
     if (!fs.existsSync(file)) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.writeHead(404, Object.assign({ 'Content-Type': 'text/plain' }, SECURITY_HEADERS));
       res.end('Not found');
       return;
     }
-    sendFile(res, file, { cache: true });
+    sendFile(req, res, file, { cache: true });
     return;
   }
 
   if (url.pathname === '/robots.txt') {
     const origin = publicOrigin(req);
-    res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, SECURITY_HEADERS));
-    res.end(
-      'User-agent: *\n' +
-        'Allow: /\n' +
-        PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
-        '\nDisallow: /api/\n' +
-        'Disallow: /uploads/\n' +
-        `\nSitemap: ${origin}/sitemap.xml\n`
+    sendBuffer(
+      req,
+      res,
+      Buffer.from(
+        'User-agent: *\n' +
+          'Allow: /\n' +
+          PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
+          '\nDisallow: /api/\n' +
+          'Disallow: /uploads/\n' +
+          `\nSitemap: ${origin}/sitemap.xml\n`
+      ),
+      'text/plain; charset=utf-8'
     );
     return;
   }
@@ -264,14 +375,19 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/sitemap.xml') {
     const origin = publicOrigin(req);
     const urls = PUBLIC_PAGES.map(
-      (p) => `  <url><loc>${origin}${p}</loc><changefreq>weekly</changefreq></url>`
+      (p) =>
+        `  <url><loc>${origin}${p}</loc><lastmod>${new Date().toISOString().slice(0, 10)}</lastmod><changefreq>weekly</changefreq></url>`
     ).join('\n');
-    res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
-    res.end(
-      '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-        urls +
-        '\n</urlset>\n'
+    sendBuffer(
+      req,
+      res,
+      Buffer.from(
+        '<?xml version="1.0" encoding="UTF-8"?>\n' +
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+          urls +
+          '\n</urlset>\n'
+      ),
+      MIME['.xml']
     );
     return;
   }
@@ -282,7 +398,8 @@ const server = http.createServer(async (req, res) => {
     res.end('Forbidden');
     return;
   }
-  sendFile(res, target, { cache: url.pathname.startsWith('/assets/') });
+  req.pjsPathname = url.pathname;
+  sendFile(req, res, target, { cache: url.pathname.startsWith('/assets/') });
 });
 
 server.listen(PORT, HOST, () => {
