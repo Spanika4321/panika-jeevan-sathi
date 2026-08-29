@@ -43,12 +43,13 @@ function section(title) {
 }
 
 /** Minimal browser-like client with its own cookie jar. */
-function client() {
+function client(base = undefined) {
   const jar = new Map();
+  const origin = base || BASE;
   async function call(method, urlPath, body) {
     const headers = { 'Content-Type': 'application/json' };
     if (jar.size) headers.Cookie = [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ');
-    const res = await fetch(BASE + urlPath, {
+    const res = await fetch(origin + urlPath, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body)
@@ -70,7 +71,11 @@ function client() {
     }
     return { status: res.status, body: json, headers: res.headers };
   }
+  function cookieHeader() {
+    return [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ');
+  }
   return {
+    cookieHeader,
     get: (p) => call('GET', p),
     post: (p, b) => call('POST', p, b || {}),
     put: (p, b) => call('PUT', p, b || {}),
@@ -79,6 +84,10 @@ function client() {
     hasSession: () => jar.size > 0,
     clear: () => jar.clear()
   };
+}
+
+function clientAt(base) {
+  return client(base);
 }
 
 function pngDataUrl() {
@@ -668,8 +677,106 @@ async function main() {
     const photoAgain = await fetch(BASE + photoPath);
     check('uploaded photo survives restart', photoAgain.status === 200);
 
+    /* ------------------------------------------------ 15. backup & restore */
+    section('15. Backups keep members safe');
+
+    const anonBackup = await fetch(BASE + '/api/admin/backup');
+    check('anonymous visitor cannot list backups', anonBackup.status === 401);
+    res = await ravi.get('/api/admin/backup');
+    check('non-admin cannot reach the backup API', res.status === 403);
+
+    res = await admin.get('/api/admin/backup');
+    check('admin can read backup status', res.status === 200 && typeof res.body.data_dir === 'string', JSON.stringify(res.body).slice(0, 120));
+    check('backup status reports the live data folder', res.body.count >= 0 && res.body.backup_dir.endsWith('backups'));
+
+    res = await admin.post('/api/admin/backup');
+    const backupFile = res.body && res.body.file;
+    check('admin can back the site up', res.status === 200 && /^pjs-backup-[\d-]+T[\d-]+Z(-[a-z0-9]+)*\.tar\.gz$/.test(backupFile || ''), JSON.stringify(res.body).slice(0, 160));
+    const archivePath = path.join(DATA_DIR, 'backups', String(backupFile));
+    check('backup archive was written to disk', fs.existsSync(archivePath));
+    check('backup archive is non-trivial', fs.existsSync(archivePath) && fs.statSync(archivePath).size > 1000);
+    check('backup contains a verified database', Boolean(res.body.verification && res.body.verification.ok), JSON.stringify(res.body.verification || {}));
+    check('member count is recorded in the backup', Number(res.body.counts && res.body.counts.users) >= 4, String(res.body.counts && res.body.counts.users));
+
+    res = await admin.get('/api/admin/backup');
+    check('backup now appears in the admin list', res.body.count >= 1 && res.body.latest.file === backupFile);
+
+    const dl = await fetch(`${BASE}/api/admin/backup/download?file=${encodeURIComponent(String(backupFile))}`, {
+      headers: { Cookie: admin.cookieHeader() }
+    });
+    const dlBytes = Buffer.from(await dl.arrayBuffer());
+    check('admin can download the backup', dl.status === 200 && dlBytes.length === fs.statSync(archivePath).size);
+    check('download is a real gzip archive', dlBytes[0] === 0x1f && dlBytes[1] === 0x8b);
+    check('download forces a file name', /^attachment; filename="pjs-backup-/.test(String(dl.headers.get('content-disposition'))));
+
+    const badName = await fetch(`${BASE}/api/admin/backup/download?file=..%2F..%2Fetc%2Fpasswd`, {
+      headers: { Cookie: admin.cookieHeader() }
+    });
+    check('backup download rejects foreign file names', badName.status === 400);
+
+    res = await admin.get(`/api/admin/backup/verify?file=${encodeURIComponent(String(backupFile))}`);
+    check('backup can be re-verified on demand', res.status === 200 && res.body.verified === true, JSON.stringify(res.body));
+
+    res = await admin.post('/api/admin/backup');
+    check('a second backup is kept too', res.status === 200 && res.body.status.count >= 2);
+    res = await admin.get('/api/admin/audit');
+    check('backup actions are written to the audit log', /admin\.backup/.test(JSON.stringify(res.body.logs || []).slice(0, 4000)));
+
     child2.kill('SIGTERM');
     await new Promise((r) => child2.on('exit', r));
+
+    /* --- the archive must be enough to rebuild the site on a new machine --- */
+    const RESTORE_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-restore-'));
+    const restored = spawn(
+      process.execPath,
+      ['scripts/restore.mjs', backupFile, '--yes', `--from=${path.join(DATA_DIR, 'backups')}`, `--data-dir=${RESTORE_DIR}`],
+      { cwd: ROOT, env: { ...process.env, NODE_NO_WARNINGS: '1' }, stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+    let restoreOut = '';
+    restored.stdout.on('data', (d) => (restoreOut += d.toString()));
+    restored.stderr.on('data', (d) => (restoreOut += d.toString()));
+    await new Promise((r) => restored.on('exit', r));
+    check('restore tool runs against an empty folder', /Restored \d+ files/.test(restoreOut), restoreOut.slice(0, 200));
+
+    const restoredFiles = [];
+    (function walk(dir, rel = '') {
+      for (const name of fs.readdirSync(dir)) {
+        const abs = path.join(dir, name);
+        const r = rel ? `${rel}/${name}` : name;
+        if (fs.statSync(abs).isDirectory()) walk(abs, r);
+        else restoredFiles.push(r);
+      }
+    })(RESTORE_DIR);
+    check('restored folder contains the database', restoredFiles.some((f) => /\.(db|json)$/.test(f) && f !== 'manifest.json'), restoredFiles.join(','));
+    check('restored folder contains the uploaded photo', restoredFiles.some((f) => f === photoPath.replace(/^\/uploads\//, 'uploads/')), restoredFiles.join(','));
+
+    const revived = spawn(process.execPath, ['server.js'], {
+      cwd: ROOT,
+      env: { ...process.env, PORT: String(PORT + 1), PJS_DATA_DIR: RESTORE_DIR, NODE_NO_WARNINGS: '1' },
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    try {
+      const REVIVED_BASE = `http://127.0.0.1:${PORT + 1}`;
+      let up = false;
+      for (let i = 0; i < 60 && !up; i++) {
+        await sleep(250);
+        try {
+          up = (await fetch(`${REVIVED_BASE}/api/health`)).ok;
+        } catch (_) {
+          up = false;
+        }
+      }
+      check('restored site boots on a fresh host', up);
+      const revivedCli = clientAt(REVIVED_BASE);
+      const revivedLogin = await revivedCli.post('/api/auth/login', { email: 'meera@example.com', password: 'Passw0rd123' });
+      check('member from the backup can log in after a restore', revivedLogin.status === 200);
+      const revivedProfile = await revivedCli.get('/api/profile');
+      check('restored profile is intact', revivedProfile.status === 200 && revivedProfile.body.profile.occupation === 'Teacher');
+    } finally {
+      revived.kill('SIGTERM');
+      await new Promise((r) => revived.on('exit', r));
+      fs.rmSync(RESTORE_DIR, { recursive: true, force: true });
+    }
 
     /* ----------------------------------------------------------- summary */
     console.log('\n' + '─'.repeat(58));

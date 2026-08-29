@@ -14,9 +14,9 @@
 #
 # What it does:
 #   1. Syntax check on every JS/HTML file
-#   2. Full end-to-end test suite (134 tests: register → login → profile →
+#   2. Full end-to-end test suite (157 tests: register → login → profile →
 #      search → interests → messages → admin → persistence)
-#   3. Guardian health check (95 checks: availability, 404s, robots.txt,
+#   3. Guardian health check (99 checks: availability, 404s, robots.txt,
 #      sitemap.xml, SEO tags, noindex on private pages, security headers,
 #      API health, and the DESIGN LOCK — fails if the approved public UI
 #      accidentally changes)

@@ -2,7 +2,11 @@ services:
   - type: web
     name: panika-jeevan-sathi
     runtime: node
-    plan: free
+    # ⚠ A persistent disk is only allowed on a PAID Render instance type.
+    # `plan: free` + `disk:` is rejected, and deploying on the free plan with no
+    # disk wipes every member, photo and message on each restart or redeploy.
+    # Starter is the cheapest instance that can attach the disk below.
+    plan: starter
     buildCommand: node -v
     startCommand: node server.js
     healthCheckPath: /api/health
@@ -18,4 +22,6 @@ services:
     disk:
       name: pjs-data
       mountPath: /var/data/pjs
-      sizeGB: 1
+      sizeGB: 1   # the whole site (database + photos) lives here — never remove
+    # Set PJS_BACKUP_MIRROR to a second mounted path (or leave unset and use the
+    # admin panel's Backup tab to download copies) so a lost disk is survivable.

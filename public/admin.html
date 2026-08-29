@@ -35,6 +35,7 @@
       <button type="button" data-tab="activity">Activity log</button>
       <button type="button" data-tab="account">Admin account</button>
       <button type="button" data-tab="emails">Emails</button>
+      <button type="button" data-tab="backup">Backup</button>
     </div>
 
     <!-- overview -->
@@ -144,6 +145,29 @@
         <h3>Email delivery</h3>
         <div id="emailInfo"></div>
         <div id="emailList"></div>
+      </div>
+    </section>
+
+    <!-- backup -->
+    <section data-pane="backup" class="hide">
+      <div class="card">
+        <h3>Member data &amp; backups</h3>
+        <div id="backupInfo"></div>
+        <div class="btn-row mt-2">
+          <button type="button" class="btn sm" id="backupNow">Back up now</button>
+          <button type="button" class="btn ghost sm" id="backupRefresh">Refresh</button>
+        </div>
+      </div>
+      <div class="card mt-3">
+        <h3>Downloadable copies</h3>
+        <p class="small muted">Download a copy and keep it somewhere outside this server (your own computer, Google Drive). A copy on the same disk does not protect you if that disk is removed.</p>
+        <div id="backupList"></div>
+      </div>
+      <div class="card mt-3">
+        <h3>Restoring</h3>
+        <p class="small muted">Stop the site, then run this in the project folder on the server — the current data folder is copied first, so a restore can itself be undone:</p>
+        <pre style="white-space:pre-wrap;font-size:12px;background:var(--bg);padding:10px;border-radius:10px">node scripts/restore.mjs &lt;backup-file.tar.gz&gt; --yes
+node server.js</pre>
       </div>
     </section>
   </div>
@@ -599,6 +623,71 @@
       : '<p class="muted">No emails generated yet.</p>';
   }
 
+  /* -------------------------------------------------------------- backup */
+  function fmtBytes(n) {
+    n = Number(n) || 0;
+    if (n > 1048576) return (n / 1048576).toFixed(1) + ' MB';
+    if (n > 1024) return (n / 1024).toFixed(0) + ' KB';
+    return n + ' B';
+  }
+
+  function fmtWhen(ms) {
+    if (!ms) return 'never';
+    const mins = Math.round((Date.now() - ms) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + ' min ago';
+    if (mins < 1440) return Math.round(mins / 60) + ' h ago';
+    return Math.round(mins / 1440) + ' day(s) ago';
+  }
+
+  async function loadBackup() {
+    const res = await PJS.get('/api/admin/backup');
+    if (!res.ok) return;
+    const b = res;
+    const latest = b.latest;
+    const members = latest && latest.counts && latest.counts.users !== undefined ? latest.counts.users : null;
+    const rows = [];
+    rows.push(`<div class="small"><b>Live data folder:</b> ${esc(b.data_dir)} · ${fmtBytes(b.data_bytes)}</div>`);
+    rows.push(`<div class="small"><b>Backups:</b> ${b.count} kept in ${esc(b.backup_dir)} (limit ${b.keep})${b.mirror ? ' · mirrored to ' + esc(b.mirror) : ''}</div>`);
+    rows.push(`<div class="small"><b>Automatic:</b> ${b.auto && b.auto.enabled ? 'every ' + b.auto.intervalHours + ' h' : 'off'} · last run ${fmtWhen(b.schedule && b.schedule.lastRunAt)}${latest ? ' (' + esc(latest.file) + ', ' + fmtBytes(latest.bytes) + (members !== null ? ', ' + members + ' members' : '') + ')' : ''}</div>`);
+    if (b.schedule && b.schedule.lastError) {
+      rows.push(`<div class="alert error mt-2"><b>Latest backup could not be verified</b>${esc(b.schedule.lastError)}</div>`);
+    }
+    if (!b.count) {
+      rows.push('<div class="alert warn mt-2"><b>No backup exists yet</b>Click “Back up now” and download the file. Until then a lost disk means lost profiles and messages.</div>');
+    }
+    $('backupInfo').innerHTML = rows.join('');
+
+    $('backupList').innerHTML = (b.backups || []).length
+      ? (b.backups || [])
+          .map(
+            (item) => `<div class="mb-2" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <span class="small"><b>${esc(item.file)}</b> · ${fmtBytes(item.bytes)} · ${new Date(item.created_ms).toLocaleString()}</span>
+              <a class="btn ghost sm" href="/api/admin/backup/download?file=${encodeURIComponent(item.file)}">Download</a>
+              <button type="button" class="btn ghost sm" data-verify="${esc(item.file)}">Verify</button>
+            </div>`
+          )
+          .join('') + '<div id="verifyOut"></div>'
+      : '<p class="muted">Nothing to download yet.</p>';
+
+    document.querySelectorAll('[data-verify]').forEach((btn) => {
+      btn.onclick = async function () {
+        const out = $('verifyOut');
+        btn.disabled = true;
+        const r = await PJS.get('/api/admin/backup/verify?file=' + encodeURIComponent(btn.dataset.verify));
+        btn.disabled = false;
+        if (!r.ok) {
+          if (out) out.innerHTML = `<div class="alert error"><b>Could not verify</b>${esc(r.error || 'try again')}</div>`;
+          return;
+        }
+        if (out)
+          out.innerHTML = r.verified
+            ? `<div class="alert success"><b>Backup is good</b>${esc(r.detail)}</div>`
+            : `<div class="alert error"><b>This backup is damaged</b>${esc(r.detail)}</div>`;
+      };
+    });
+  }
+
   /* --------------------------------------------------------------- tabs */
   const LOADERS = {
     overview: loadOverview,
@@ -609,7 +698,8 @@
     content: loadContent,
     activity: loadAudit,
     account: loadAccount,
-    emails: loadEmails
+    emails: loadEmails,
+    backup: loadBackup
   };
 
   function setTab(name) {
@@ -653,6 +743,20 @@
       toast(r, 'Story added');
       if (r.ok) { $('storyForm').reset(); $('sApproved').checked = true; loadStories(); }
     });
+
+    const bNow = $('backupNow');
+    if (bNow)
+      bNow.onclick = async function () {
+        bNow.disabled = true;
+        bNow.textContent = 'Backing up…';
+        const r = await PJS.post('/api/admin/backup');
+        bNow.disabled = false;
+        bNow.textContent = 'Back up now';
+        toast(r, r.file ? 'Backup written: ' + r.file : 'Backup written');
+        loadBackup();
+      };
+    const bRef = $('backupRefresh');
+    if (bRef) bRef.onclick = () => loadBackup();
 
     setTab('overview');
   });

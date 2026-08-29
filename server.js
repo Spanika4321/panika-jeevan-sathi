@@ -18,6 +18,7 @@ const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
+const backupLib = require('./lib/backup');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -26,6 +27,11 @@ const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
 
 /* ------------------------------------------------------------------ storage */
+
+// Recorded before the store is opened, so boot can tell a brand-new install
+// apart from a host that came back with an empty (non-persistent) folder.
+const STORE_FILES = ['panika-jeevan-sathi.db', 'panika-jeevan-sathi.json'];
+const DATA_DIR_WAS_EMPTY = !STORE_FILES.some((f) => fs.existsSync(path.join(DATA_DIR, f)));
 
 const { driver, driverError } = dbLib.open(DATA_DIR);
 const secret = authLib.loadSecret(DATA_DIR);
@@ -116,6 +122,109 @@ function ensureDefaultSettings() {
 
 ensureAdmin();
 ensureDefaultSettings();
+
+/* ------------------------------------------------------------ data safety */
+
+const BACKUP_AUTO = backupLib.autoSettings();
+const BACKUP_DIR = backupLib.backupDirFor(DATA_DIR);
+
+function memberCount() {
+  try {
+    return Number(driver.count('users')) || 0;
+  } catch (_) {
+    return 0;
+  }
+}
+
+async function runBackup(label) {
+  try {
+    const result = await backupLib.create({
+      dataDir: DATA_DIR,
+      driver,
+      label: label || 'auto',
+      tag: label || 'auto',
+      verify: true
+    });
+    const users = result.counts && result.counts.users !== undefined ? result.counts.users : '?';
+    const verified = result.verification ? (result.verification.ok ? 'verified' : 'COULD NOT BE VERIFIED') : 'written';
+    console.log(
+      `  [backup] ✓ ${result.file} — ${(result.bytes / 1024).toFixed(0)} KB, ${users} members, ${verified}` +
+        (result.verification && !result.verification.ok ? ` (${result.verification.detail})` : '')
+    );
+    backupLib.setState({ nextRunAt: Date.now() + BACKUP_AUTO.intervalHours * 3600000 });
+    return result;
+  } catch (err) {
+    console.error(`  [backup] ✗ backup failed: ${err.message}`);
+    backupLib.setState({ lastError: err.message });
+    return null;
+  }
+}
+
+function startBackupSchedule() {
+  if (!BACKUP_AUTO.enabled) {
+    console.log('  [backup] automatic backups are off (PJS_AUTO_BACKUP=off)');
+    return;
+  }
+  const every = BACKUP_AUTO.intervalHours * 3600000;
+  backupLib.setState({ nextRunAt: Date.now() + every });
+  const timer = setInterval(() => {
+    if (memberCount() > 0) runBackup('auto');
+  }, every);
+  if (timer.unref) timer.unref();
+  // One snapshot soon after boot, whenever there is real data to protect.
+  const first = setTimeout(() => {
+    if (memberCount() > 0) runBackup('boot');
+  }, 45000);
+  if (first.unref) first.unref();
+  console.log(
+    `  [backup] every ${BACKUP_AUTO.intervalHours}h → ${BACKUP_DIR}` +
+      (process.env.PJS_BACKUP_MIRROR ? ` (+ mirror ${process.env.PJS_BACKUP_MIRROR})` : '') +
+      `, keeping ${BACKUP_AUTO.keep}`
+  );
+}
+
+/**
+ * The single most common way a site like this loses everything: the host was
+ * restarted (or redeployed) with no persistent volume attached, so the app
+ * quietly boots a fresh empty database while everyone's profiles sit on a disk
+ * that is gone. Compare the live database with the newest backup and shout.
+ */
+function reportDataState() {
+  const members = memberCount();
+  const backups = backupLib.list(BACKUP_DIR);
+  const latest = backups[0] || null;
+  const previousMembers = latest && latest.counts && typeof latest.counts.users === 'number' ? latest.counts.users : 0;
+
+  if (DATA_DIR_WAS_EMPTY && previousMembers > Math.max(members, 1)) {
+    console.log('');
+    console.log('  ' + '!'.repeat(68));
+    console.log('  ⚠  DATA LOSS LOOKS LIKE IT JUST HAPPENED — PLEASE READ');
+    console.log('');
+    console.log(`     The data folder (${DATA_DIR}) was empty at boot, so the site`);
+    console.log(`     started with a fresh database (${members} account${members === 1 ? '' : 's'}).`);
+    console.log(`     Your newest backup holds ${previousMembers} members: ${latest.file}`);
+    console.log('');
+    console.log('     This normally means the persistent disk / volume is NOT attached.');
+    console.log('     1. STOP answering on the site so nobody registers into the empty database.');
+    console.log('     2. Point PJS_DATA_DIR at the mounted volume (Render: Disks, Railway: Volumes).');
+    console.log('     3. node scripts/restore.mjs ' + latest.file + ' --yes');
+    console.log('     4. Start the site again and check the member count.');
+    console.log('  ' + '!'.repeat(68));
+    console.log('');
+  }
+
+  if (latest) {
+    const mins = Math.max(0, Math.round((Date.now() - latest.created_ms) / 60000));
+    console.log(
+      `  Members : ${members} · last backup ${mins < 60 ? `${mins} min ago` : `${Math.round(mins / 60)} h ago`} (${latest.file})`
+    );
+  } else if (BACKUP_AUTO.enabled) {
+    console.log(`  Members : ${members} · no backup yet — the first one runs automatically within ${BACKUP_AUTO.intervalHours}h`);
+  }
+}
+
+startBackupSchedule();
+reportDataState();
 
 /* ------------------------------------------------------------- static files */
 
@@ -294,8 +403,24 @@ server.listen(PORT, HOST, () => {
   console.log('');
 });
 
-function shutdown() {
+/**
+ * Hosts without a disk throw the filesystem away between deploys. When the
+ * backups are outside the data folder (a mirror, or PJS_BACKUP_DIR on other
+ * storage) one last snapshot before exit still saves the day.
+ */
+function backupsLeaveTheDataFolder() {
+  if (process.env.PJS_BACKUP_MIRROR) return true;
+  const dir = path.resolve(BACKUP_DIR);
+  const data = path.resolve(DATA_DIR);
+  return dir !== data && !dir.startsWith(data + path.sep);
+}
+
+async function shutdown() {
   console.log('\n  Shutting down…');
+  if (BACKUP_AUTO.enabled && backupsLeaveTheDataFolder() && memberCount() > 0) {
+    // Best effort, never long enough for the host to SIGKILL us mid-exit.
+    await Promise.race([runBackup('shutdown'), new Promise((r) => setTimeout(r, 5000))]);
+  }
   try {
     driver.close();
   } catch (_) {

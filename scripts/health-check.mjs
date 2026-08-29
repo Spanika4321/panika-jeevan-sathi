@@ -184,6 +184,19 @@ try {
     let ok = false;
     try { ok = JSON.parse(r.text).ok === true; } catch (_) { /* ignore */ }
     check('/api/health responds ok', r.status === 200 && ok, r.text.slice(0, 120));
+
+    // A backup archive holds every member's rows and photos: it must never be
+    // reachable without an administrator session.
+    const backupRoutes = [
+      ['/api/admin/backup', 'member data is not listable anonymously'],
+      ['/api/admin/backup/download?file=pjs-backup-2026-01-01T00-00-00Z.tar.gz', 'backup download needs an admin login'],
+      ['/api/admin/backup/verify?file=..%2F..%2Fetc%2Fpasswd', 'backup routes reject foreign file names'],
+      ['/api/admin/backup%2F..%2F..%2Fserver.js', 'backup paths cannot be traversed']
+    ];
+    for (const [route, label] of backupRoutes) {
+      const res = await get(route);
+      check(label, res.status === 401 || res.status === 403 || res.status === 400 || res.status === 404, `got ${res.status}`);
+    }
   }
 
   section('10. UI baseline (design lock)');
