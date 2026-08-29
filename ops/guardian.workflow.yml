@@ -1,0 +1,68 @@
+# PANIKA JEEVAN SATHI — Website Guardian
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, 2 minutes):
+# GitHub does not allow automated tools to install workflows directly, so the
+# owner must copy this file once:
+#   1. On github.com open your repository → "Add file" → "Create new file"
+#   2. Name it exactly:  .github/workflows/guardian.yml
+#   3. Paste the FULL contents of this file and commit.
+# After that, the guardian runs automatically every day — no further steps.
+#
+# Runs automatically:
+#   • every day at 03:30 UTC (09:00 IST) — daily health check
+#   • on every push / pull request — so broken code never reaches main
+#
+# What it does:
+#   1. Syntax check on every JS/HTML file
+#   2. Full end-to-end test suite (134 tests: register → login → profile →
+#      search → interests → messages → admin → persistence)
+#   3. Guardian health check (95 checks: availability, 404s, robots.txt,
+#      sitemap.xml, SEO tags, noindex on private pages, security headers,
+#      API health, and the DESIGN LOCK — fails if the approved public UI
+#      accidentally changes)
+#
+# If anything fails, the workflow turns red and GitHub emails the owner.
+
+name: Website Guardian
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # daily, 09:00 IST
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:        # allows manual "Run workflow" button
+
+jobs:
+  guardian:
+    name: Health check & tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: 1) Syntax check
+        run: npm run check
+
+      - name: 2) End-to-end tests (SQLite store)
+        run: node scripts/e2e-test.mjs
+
+      - name: 3) End-to-end tests (JSON fallback store)
+        run: PJS_STORAGE=json node scripts/e2e-test.mjs
+
+      - name: 4) Guardian health check + design lock
+        run: node scripts/health-check.mjs
+
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report
+          path: reports/health-report-latest.md
+          if-no-files-found: ignore

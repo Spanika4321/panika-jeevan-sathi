@@ -8,6 +8,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "check": "node scripts/check-syntax.mjs",
+    "health": "node scripts/health-check.mjs",
     "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs",
     "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs"
   },
