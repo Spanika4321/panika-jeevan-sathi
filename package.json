@@ -6,6 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "ai-team": "node ai-team-dashboard/server.js",
     "dev": "node --watch server.js",
     "check": "node scripts/check-syntax.mjs",
     "health": "node scripts/health-check.mjs",

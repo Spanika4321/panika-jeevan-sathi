@@ -17,6 +17,7 @@ const dbLib = require('./lib/db');
 const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
+const aiTeamLib = require('./lib/ai-team');
 const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
 
@@ -65,6 +66,12 @@ const api = apiLib.createApi({
       photos: photos.stats()
     };
   }
+});
+
+/* AI Team Dashboard — /ai-team (UI) + /api/ai-team/audit (real site audit) */
+const aiTeam = aiTeamLib.createAiTeam({
+  root: ROOT,
+  origin: (process.env.AUDIT_URL || `http://127.0.0.1:${PORT}`).replace(/\/+$/, '')
 });
 
 /** Write queued changes (database + photos) to the remote services. */
@@ -326,6 +333,13 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, SECURITY_HEADERS);
     res.end();
+    return;
+  }
+
+  if (url.pathname === '/ai-team' || url.pathname.startsWith('/ai-team/') ||
+      url.pathname.startsWith('/api/ai-team/')) {
+    await aiTeam.handle(req, res, url);
+    await persist();
     return;
   }
 

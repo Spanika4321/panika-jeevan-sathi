@@ -71,6 +71,8 @@ const HASHTAGS = '#PanikaJeevanSathi #FreeMatrimony #FreeForever #Panika #Manikp
 /* ------------------------------ state ------------------------------ */
 
 const $ = (sel) => document.querySelector(sel);
+/* Standalone (port 8080) aur integrated (/ai-team) dono me kaam kare */
+const API_BASE = location.pathname.startsWith('/ai-team') ? '/api/ai-team' : '/api';
 const state = {
   active: 'team',
   chats: {},       // chatId -> { messages: [{from,text,ts,status}] }
@@ -413,7 +415,7 @@ async function rahulAudit(chatId) {
   ]));
   let data;
   try {
-    const res = await fetch('/api/audit', { method: 'POST' });
+    const res = await fetch(API_BASE + '/audit', { method: 'POST' });
     data = await res.json();
   } catch (e) {
     await employeeSay('rahul', chatId, 'Boss, audit engine tak nahi pahuncha 😬 Server console check kijiye.');
