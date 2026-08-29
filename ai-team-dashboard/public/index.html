@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Team Dashboard — Panika Jeevan Sathi</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <header class="side-head">
+      <div class="boss-avatar">B</div>
+      <div class="boss-info">
+        <strong>BOSS</strong>
+        <span>👑 Owner · Panika Jeevan Sathi</span>
+      </div>
+      <button id="emailBtn" class="icon-btn" title="Generate Daily Growth Email">📧</button>
+    </header>
+
+    <div class="side-banner">
+      <div class="banner-title">🤖 4 AI Employees Online</div>
+      <div class="banner-sub">Aapke free matrimonial site ki growth team — 24×7, 100% free tools</div>
+    </div>
+
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="Search or start a new chat">
+    </div>
+
+    <nav id="chatList" class="chat-list"><!-- filled by JS --></nav>
+
+    <footer class="side-foot">
+      ⚡ Powered by free tools only — Google Trends · Search Console · Organic Social
+    </footer>
+  </aside>
+
+  <!-- ===================== CHAT PANEL ===================== -->
+  <main class="chat-panel">
+    <header class="chat-head">
+      <div id="chatAvatar" class="avatar">🚀</div>
+      <div class="chat-head-info">
+        <strong id="chatName">AI Growth Team</strong>
+        <span id="chatStatus">RAHUL, PRIYA, AMIT, SNEHA</span>
+      </div>
+      <div class="chat-head-actions">
+        <button id="auditBtn" class="pill-btn">🔍 Website Audit</button>
+        <button id="postsBtn" class="pill-btn">✍️ Aaj ke Posts</button>
+      </div>
+    </header>
+
+    <section id="messages" class="messages"><!-- filled by JS --></section>
+
+    <div id="quickActions" class="quick-actions"><!-- chips --></div>
+
+    <footer class="composer">
+      <button id="emojiBtn" class="composer-emoji" title="emoji">😊</button>
+      <input id="msgInput" type="text" placeholder="Type a message to your AI employee…" autocomplete="off">
+      <button id="sendBtn" class="send-btn" title="Send">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M1.101 21.757 23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/></svg>
+      </button>
+    </footer>
+  </main>
+
+</div>
+
+<!-- ===================== EMAIL MODAL ===================== -->
+<div id="emailModal" class="modal hidden">
+  <div class="modal-card">
+    <header class="modal-head">
+      <strong>📧 Daily Growth Update — ready to send</strong>
+      <button id="closeModal" class="icon-btn">✕</button>
+    </header>
+    <pre id="emailBody" class="email-body"></pre>
+    <footer class="modal-foot">
+      <button id="copyEmail" class="pill-btn green">📋 Copy Email</button>
+      <button id="sendToChat" class="pill-btn">💬 Team Group me bhejo</button>
+    </footer>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
