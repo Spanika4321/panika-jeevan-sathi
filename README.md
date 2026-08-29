@@ -17,8 +17,11 @@ PORT=8080 node server.js
 
 Requirements: **Node.js 22.5 or newer** (uses the built-in `node:sqlite` driver). No `npm install` needed.
 
-On first start an administrator account is created. The generated password is printed once in the
-console and saved to `data/admin-credentials.txt` — log in at `/admin.html` and change it.
+On first start the **site-owner administrator** is created (default email
+`sukulpanika939@gmail.com`, or `ADMIN_EMAIL`). The password is taken from `ADMIN_PASSWORD` or
+generated and printed once in the console / `data/admin-credentials.txt` (git-ignored). Log in at
+`/admin.html` and change it. Existing member accounts whose email is in `ADMIN_EMAIL` /
+`OWNER_EMAILS` are promoted to administrator on boot.
 
 ```bash
 npm start          # run the site
@@ -35,7 +38,8 @@ npm run check      # syntax check only
 | `HOST` | `0.0.0.0` | Bind address |
 | `PJS_DATA_DIR` | `./data` | Database + uploaded photos |
 | `SESSION_SECRET` | auto-generated in `data/` | Session signing key |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator account |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
+| `OWNER_EMAILS` | — | Extra emails always promoted to admin |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
 | `PJS_STORAGE` | `sqlite` | Set to `json` to force the JSON file store |
 
@@ -80,16 +84,14 @@ Notifications · Account settings · Delete account
 WhatsApp button and floating chat bubble that open a chat with **+91 80998 34725**
 (`https://wa.me/918099834725`), plus a contact form that lands in the admin inbox.
 
-**Admin panel** (`/admin.html`, administrator role required)
-- Statistics and moderation queue
-- Members: search, view, edit (name / role / status / verified / password), remove photo, suspend,
-  delete (cascades profile, interests, shortlist, messages, notifications, reports)
+**Admin panel** (`/admin.html`, administrator role required, server-side checks on every API)
+- Live dashboard: accounts, active/suspended, new members, reports, contact queue, recent activity
+- Members: search, role/status filters, details, edit, hide profile, remove photo, suspend, delete
 - Reported users: review, resolve, dismiss, suspend or delete the reported member
-- Success stories / testimonials: create, edit, publish/unpublish, delete
-- Contact inbox: read, mark handled, delete, open WhatsApp
-- Website content: headlines, about text, safety notice, communities, WhatsApp number, support email,
-  announcement, email-verification switch, maintenance mode
-- Email outbox viewer (shows delivery mode)
+- Success stories, contact inbox, website content, email outbox
+- Activity / audit log (no passwords or tokens)
+- Admin account + password change
+- Last remaining administrator cannot be demoted, suspended or deleted
 
 ---
 
@@ -103,6 +105,7 @@ lib/api.js              all REST endpoints
 lib/profiles.js         profile validation, privacy, search filters, match scoring
 lib/settings.js         editable website content
 lib/mailer.js           optional SMTP / outbox mailer
+lib/owner.js            site-owner emails that must stay administrators
 public/                 the website (HTML + CSS + JS, no build step, no CDN)
 public/assets/css/app.css
 public/assets/js/app.js     shared client: API, auth, chrome, helpers
@@ -137,7 +140,7 @@ GET/POST/PATCH/DELETE /api/admin/…   (administrators only)
 
 ## Tests
 
-`npm test` boots a real server on a temporary database and runs **114 assertions** covering:
+`npm test` boots a real server on a temporary database and runs the full assertion suite covering:
 
 registration, duplicate email, weak password, profile save/validation, photo upload + serving,
 rejection of non-images, every search filter, match scoring, interest flow (send → receive → accept,

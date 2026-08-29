@@ -70,18 +70,26 @@ Put nginx or Caddy in front for TLS and proxy `/` to `127.0.0.1:3000`.
 
 ## First administrator login
 
-On the very first start the server prints the administrator credentials and also writes them to
-`data/admin-credentials.txt` (mode 600):
+The site-owner account is **not** a normal member. On first start the server creates an
+administrator (default email `sukulpanika939@gmail.com` unless `ADMIN_EMAIL` is set). The password
+is **generated** unless you set `ADMIN_PASSWORD`. It is printed once in the process logs and written
+to `data/admin-credentials.txt` (not committed to git).
 
 ```
-  Administrator account created
-  Email    : admin@panikajeevansathi.com
-  Password : <generated>
+  Email    : <ADMIN_EMAIL or sukulpanika939@gmail.com>
+  Password : <ADMIN_PASSWORD or generated>
   Panel    : /admin.html
 ```
 
-Log in at `/admin.html` and change the password immediately. To set your own instead, start the server
-once with `ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='YourStrongPass1'`.
+Log in at `/admin.html` and change the password immediately from **Admin account**.
+
+To set your own:
+
+```
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='YourStrongPass1' node server.js
+```
+
+You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 
 ## Environment variables
 
