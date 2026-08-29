@@ -6,6 +6,8 @@
 #   1. On github.com open your repository → "Add file" → "Create new file"
 #   2. Name it exactly:  .github/workflows/guardian.yml
 #   3. Paste the FULL contents of this file and commit.
+#      (If you copied it before, copy it again — it now also runs the
+#      AWS SigV4 signature tests and the D1/R2 cloud storage tests.)
 # After that, the guardian runs automatically every day — no further steps.
 #
 # Runs automatically:
@@ -58,6 +60,12 @@ jobs:
 
       - name: 4) Guardian health check + design lock
         run: node scripts/health-check.mjs
+
+      - name: 5) AWS SigV4 signature tests (R2 photo uploads)
+        run: node scripts/test-sigv4.mjs
+
+      - name: 6) Cloud storage tests (D1 + R2, local mocks)
+        run: node scripts/e2e-cloud-test.mjs
 
       - name: Upload health report
         if: always()

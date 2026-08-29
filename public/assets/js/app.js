@@ -371,6 +371,8 @@
           <a href="/privacy.html">Privacy policy</a>
           <a href="/terms.html">Terms of use</a>
           <a href="https://wa.me/${PJS.esc(s.whatsapp_number || '918099834725')}?text=${encodeURIComponent('Hello PANIKA JEEVAN SATHI, I need help.')}" target="_blank" rel="noopener">WhatsApp support</a>
+          <a href="https://www.producthunt.com/products?q=PANIKA%20JEEVAN%20SATHI" target="_blank" rel="noopener">Product Hunt</a>
+          <a href="https://github.com/Spanika4321/panika-jeevan-sathi" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
       <div class="footer-bottom">
