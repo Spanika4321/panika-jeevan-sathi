@@ -1,0 +1,45 @@
+# PANIKA JEEVAN SATHI — Website Guardian
+
+name: Website Guardian
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # daily, 09:00 IST
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:        # allows manual "Run workflow" button
+
+jobs:
+  guardian:
+    name: Health check & tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: 1) Syntax check
+        run: npm run check
+
+      - name: 2) End-to-end tests (SQLite store)
+        run: node scripts/e2e-test.mjs
+
+      - name: 3) End-to-end tests (JSON fallback store)
+        run: PJS_STORAGE=json node scripts/e2e-test.mjs
+
+      - name: 4) Guardian health check + design lock
+        run: node scripts/health-check.mjs
+
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report
+          path: reports/health-report-latest.md
+          if-no-files-found: ignore
