@@ -1,5 +1,10 @@
 # PANIKA JEEVAN SATHI — Render Blueprint (Free plan)
 #
+# Deploy: Render dashboard → New + → Blueprint → pick this repository.
+# This Blueprint creates the service `panikajeevansathi`, so the public URL is:
+#
+#     https://panikajeevansathi.onrender.com
+#
 # IMPORTANT — why there is no disk here:
 # Render's Free plan has an *ephemeral* filesystem and cannot attach a
 # persistent disk, so a normal SQLite file would be erased every time the
@@ -8,22 +13,25 @@
 #   • uploaded photos in Cloudflare R2      (free: 10 GB, no egress fees).
 # Both are reached over HTTPS by lib/d1.js and lib/r2.js — no paid add-ons.
 #
-# Deploy:  Render dashboard → New + → Blueprint → pick this repository.
 # Fill in the seven blank values (marked "set in dashboard") when prompted:
-# see DEPLOY.md § "Render (Free plan)" for the 5-minute Cloudflare setup.
+# see DEPLOY.md § "Render — Free plan" for the 5-minute Cloudflare setup.
 #
 # Without those values the site still boots, but it uses the local SQLite file
-# and will lose its data on the next restart.
+# and will lose its data on the next restart (fine for a demo, not production).
+# To keep the database durable WITHOUT Cloudflare, switch the service to
+# Render Starter and attach a persistent disk mounted at /app/data, then set
+# PJS_STORAGE=sqlite.
 
 services:
   - type: web
-    name: panika-jeevan-sathi
+    name: panikajeevansathi
     runtime: node
     plan: free
     region: singapore # closest Render region to India
     buildCommand: node -v # zero dependencies: nothing to install
     startCommand: node server.js
     healthCheckPath: /api/health
+    autoDeploy: true # redeploy automatically when main changes
     envVars:
       - key: NODE_VERSION
         value: 22.22.3 # built-in node:sqlite (and global fetch) required
@@ -31,6 +39,8 @@ services:
         value: 0.0.0.0
       - key: PJS_STORAGE
         value: auto # auto → D1 when CF_* is set, else local SQLite
+      - key: SITE_URL
+        value: https://panikajeevansathi.onrender.com # canonical origin for robots/sitemap
       - key: SESSION_SECRET
         generateValue: true # keeps members logged in across restarts
       - key: ADMIN_EMAIL

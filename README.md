@@ -44,6 +44,7 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `PORT` | `3000` | HTTP port |
 | `HOST` | `0.0.0.0` | Bind address |
 | `PJS_DATA_DIR` | `./data` | Database + uploaded photos |
+| `SITE_URL` | request origin | Canonical production URL used in `robots.txt` / `sitemap.xml` (pin it in production) |
 | `SESSION_SECRET` | auto-generated in `data/` | Session signing key |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
 | `OWNER_EMAILS` | — | Extra emails always promoted to admin |
@@ -170,9 +171,18 @@ The same suite passes on the JSON fallback store: `npm run test:json-store`.
 
 ## Deploying
 
-Full instructions (Render, Railway, Docker, VPS + systemd, backups, environment variables) are in
-**[DEPLOY.md](DEPLOY.md)**. Note: **GitHub Pages cannot host this app** — it needs a Node process and a
-database, not static files.
+Full instructions (Render, cPanel, Railway, Docker, VPS + systemd, backups, environment variables)
+are in **[DEPLOY.md](DEPLOY.md)**. The production target is:
+
+- **Render (free) — one-click Blueprint → `https://panikajeevansathi.onrender.com`**
+  (`render.yaml` creates the service named `panikajeevansathi`; pair it with free
+  Cloudflare D1 + R2 so members & photos survive Render's free sleep/redeploys).
+- The previous production URL `https://panikajeevansathi.coolstore.in` can be restored on the same
+  cPanel account by running *this* app (see DEPLOY.md § 1c) — its storage is already persistent.
+- **Railway is not used:** its free sandbox no longer exists, which produced the
+  “Sandbox Not Found” / 502 errors. Use Render or cPanel instead.
+
+Note: **GitHub Pages cannot host this app** — it needs a Node process and a database, not static files.
 
 **VPS / shared Node hosting**
 

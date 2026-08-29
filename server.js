@@ -301,6 +301,11 @@ const PRIVATE_PAGES = [
 ];
 
 function publicOrigin(req) {
+  // SITE_URL pins the canonical production origin (robots.txt + sitemap.xml),
+  // so search engines always see the public URL even behind a proxy or when
+  // the app is also reachable through an internal host.
+  const pinned = process.env.SITE_URL;
+  if (pinned && /^https?:\/\//i.test(pinned)) return pinned.replace(/\/+$/, '');
   const host = req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`;
   const proto = req.headers['x-forwarded-proto'] || 'http';
   return `${String(proto).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
