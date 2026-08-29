@@ -60,6 +60,8 @@ body{font-family:"Segoe UI",Helvetica,Arial,sans-serif;background:#0c1317;color:
 .tick{font-size:14px;letter-spacing:-3px}
 .tick.read{color:var(--tick)}
 .bubble.code{font-family:Consolas,monospace;font-size:13px;background:#111;border:1px dashed var(--accent);color:var(--accent);text-align:center;font-weight:700;letter-spacing:2px}
+.bubble a.share-link{display:inline-block;margin:6px 6px 0 0;padding:7px 13px;border-radius:999px;background:var(--accent);color:#08110f;font-weight:700;text-decoration:none;font-size:12.5px}
+.bubble a.share-link:hover{background:#06c295}
 .bubble.report{max-width:78%;font-size:13.3px}
 .typing-row{display:flex;margin-top:4px}
 .typing-bubble{background:var(--in);border-radius:9px;border-top-left-radius:2px;padding:12px 16px;display:flex;gap:5px;align-items:center}
@@ -128,6 +130,8 @@ body{font-family:"Segoe UI",Helvetica,Arial,sans-serif;background:#0c1317;color:
     <pre id="emailBody" class="email-body"></pre>
     <footer class="modal-foot">
       <button id="copyEmail" class="pill-btn green">📋 Copy Email</button>
+      <button id="gmailEmail" class="pill-btn">📮 Gmail me kholo</button>
+      <button id="waEmail" class="pill-btn">🟢 WhatsApp par bhejo</button>
       <button id="sendToChat" class="pill-btn">💬 Team Group me bhejo</button>
     </footer>
   </div>
@@ -581,6 +585,12 @@ function priyaPosts(chatId,low){
       picks.forEach(function(p){
         chain=chain.then(function(){ return sleep(500); }).then(function(){
           return employeeSay('priya',chatId,p.type+'\n\n'+p.body+'\n\n'+HASHTAGS+'\n\n⏰ '+p.cta);
+        }).then(function(){
+          var full=p.type+'\n\n'+p.body+'\n\n'+HASHTAGS;
+          push({chat:chatId,from:'priya',text:'📲 Boss, is post ko abhi bhejna hai to button dabaiye 👇',links:[
+            {label:'📲 WhatsApp par bhejo', href:'https://wa.me/?text='+encodeURIComponent(full)},
+            {label:'📧 Email me bhejo', href:'mailto:?subject='+encodeURIComponent('Panika Jeevan Sathi — new post')+'&body='+encodeURIComponent(full)}
+          ]});
         });
       });
       return chain;
@@ -731,6 +741,14 @@ function wire(){
       .then(function(){ $('#copyEmail').textContent='✅ Copied!'; setTimeout(function(){ $('#copyEmail').textContent='📋 Copy Email'; },1600); })
       .catch(function(){ alert('Copy nahi hua — email text manually select kar lijiye.'); });
   });
+  $('#gmailEmail').addEventListener('click',function(){
+    if(!lastEmail) lastEmail=buildDailyEmail();
+    window.location.href='mailto:?subject='+encodeURIComponent(lastEmail.subject)+'&body='+encodeURIComponent(lastEmail.body);
+  });
+  $('#waEmail').addEventListener('click',function(){
+    if(!lastEmail) lastEmail=buildDailyEmail();
+    window.open('https://wa.me/?text='+encodeURIComponent('Subject: '+lastEmail.subject+'\n\n'+lastEmail.body),'_blank');
+  });
   $('#sendToChat').addEventListener('click',function(){ $('#emailModal').classList.add('hidden'); openChat('team'); groupEmailFlow(); });
   $('#auditBtn').addEventListener('click',function(){ openChat('team'); bossSend('audit karo'); });
   $('#postsBtn').addEventListener('click',function(){ openChat('team'); bossSend('aaj ke posts banao'); });
@@ -747,6 +765,10 @@ function startLife(){
 }
 function init(){ load(); wire(); openChat('team'); startLife(); }
 document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
+nt.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
