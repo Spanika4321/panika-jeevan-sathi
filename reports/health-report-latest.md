@@ -4,10 +4,10 @@
 
 ## STATUS: Healthy ✅
 
-- Checks passed: **95**
+- Checks passed: **136**
 - Checks failed: **0**
 
-Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags are in place, private pages are hidden from search engines, security headers are on, the API is responding, and the approved public design is unchanged.
+Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags (canonical, Open Graph, structured data) are in place, private pages are hidden from search engines, security headers incl. CSP are on, HSTS is applied over HTTPS, gzip compression is active, the API is responding, and the approved public design is unchanged.
 
 ## What was checked
 
@@ -20,4 +20,7 @@ Everything is working: all pages load, error handling is correct, robots.txt & s
 - 7. Private pages are noindex
 - 8. Security headers
 - 9. API health
-- 10. UI baseline (design lock)
+- 10. SEO head tags (canonical / Open Graph / structured data)
+- 11. Compression (gzip)
+- 12. Extended security headers
+- 13. UI baseline (design lock)

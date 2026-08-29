@@ -11,9 +11,12 @@
  *   4. sitemap.xml is valid and lists the public pages
  *   5. Private pages carry <meta name="robots" content="noindex...">
  *   6. Public pages have <title> + meta description + viewport + lang
- *   7. Security headers are present on every response
+ *   7. Security headers (incl. CSP) are present on every response
  *   8. API health endpoint responds ok
- *   9. UI baseline: page bodies / CSS / JS / images are unchanged
+ *   9. SEO head injection: canonical, Open Graph, Twitter, WebSite JSON-LD
+ *  10. gzip compression for HTML, CSS and JSON API payloads
+ *  11. HSTS on HTTPS, no HSTS on plain HTTP
+ *  12. UI baseline: page bodies / CSS / JS / images are unchanged
  *      (guards the approved design against accidental changes)
  *
  * Exits 0 when healthy, 1 when anything fails.
@@ -25,8 +28,10 @@
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -101,6 +106,31 @@ async function get(pathname) {
   const res = await fetch(BASE + pathname, { redirect: 'manual' });
   const text = await res.text();
   return { status: res.status, headers: res.headers, text };
+}
+
+/** Raw HTTP GET (no transparent decompression) — for compression checks. */
+function rawGet(pathname, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(
+      { host: '127.0.0.1', port: PORT, path: pathname, headers },
+      (res) => {
+        const chunks = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () =>
+          resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) })
+        );
+      }
+    );
+    req.on('error', reject);
+  });
+}
+
+function gunzip(buf) {
+  try {
+    return zlib.gunzipSync(buf).toString('utf8');
+  } catch (_) {
+    return null;
+  }
 }
 
 /* ------------------------------------------------------------ the checks */
@@ -186,7 +216,89 @@ try {
     check('/api/health responds ok', r.status === 200 && ok, r.text.slice(0, 120));
   }
 
-  section('10. UI baseline (design lock)');
+  section('10. SEO head tags (canonical / Open Graph / structured data)');
+  {
+    const expected = {
+      '/': 'canonical',
+      '/about.html': 'canonical',
+      '/contact.html': 'canonical',
+      '/login.html': 'canonical',
+      '/privacy.html': 'canonical',
+      '/terms.html': 'canonical'
+    };
+    for (const p of Object.keys(expected)) {
+      const r = await get(p);
+      const name = p === '/' ? '/index.html' : p;
+      check(`${name} has canonical`, r.text.includes(`<link rel="canonical" href="${BASE}${p === '/' ? '/' : p}">`));
+      check(`${name} has og:title`, r.text.includes('property="og:title"'));
+      check(`${name} has og:url`, r.text.includes(`property="og:url" content="${BASE}${p === '/' ? '/' : p}"`));
+      check(`${name} has twitter:card`, r.text.includes('name="twitter:card"'));
+      const ld = r.text.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+      let okLd = false;
+      try { okLd = JSON.parse(ld[1]).url === `${BASE}${p === '/' ? '/' : p}`; } catch (_) { /* ignore */ }
+      check(`${name} has valid WebSite JSON-LD`, okLd);
+    }
+  }
+
+  section('11. Compression (gzip)');
+  {
+    const css = await rawGet('/assets/css/app.css', { 'Accept-Encoding': 'gzip' });
+    check('/assets/css/app.css gzip encoded', css.status === 200 && css.headers['content-encoding'] === 'gzip');
+    check('gzip responses carry Vary: Accept-Encoding', String(css.headers.vary || '').includes('Accept-Encoding'));
+    const cssBody = gunzip(css.body);
+    check('gzip body decompresses to real CSS', Boolean(cssBody && cssBody.length > 5000));
+
+    const html = await rawGet('/', { 'Accept-Encoding': 'gzip' });
+    const htmlBody = gunzip(html.body);
+    check('HTML is gzip encoded', html.headers['content-encoding'] === 'gzip');
+    check('gzip HTML carries canonical after decompression', Boolean(htmlBody && htmlBody.includes('rel="canonical"')));
+
+    // API JSON compression: register enough members that a search response is
+    // bigger than the compression threshold, then read it as a logged-in user.
+    const stamp = Date.now();
+    let cookie = '';
+    for (let i = 0; i < 6; i += 1) {
+      const reg = await fetch(BASE + '/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `Health Tester ${i}`,
+          email: `health-probe-${stamp}-${i}@example.com`,
+          password: 'HealthPass123',
+          gender: i % 2 ? 'female' : 'male'
+        })
+      });
+      await reg.json();
+      cookie = (reg.headers.get('set-cookie') || '').split(';')[0];
+    }
+    if (cookie) {
+      const profiles = await rawGet('/api/profiles?per_page=12', {
+        Accept: 'application/json',
+        'Accept-Encoding': 'gzip',
+        Cookie: cookie
+      });
+      const okGzip = profiles.status === 200 && profiles.headers['content-encoding'] === 'gzip';
+      check('JSON API responses are gzip encoded', okGzip, `status ${profiles.status}`);
+      const parsed = gunzip(profiles.body);
+      let okJson = false;
+      try { okJson = JSON.parse(parsed).ok === true; } catch (_) { /* ignore */ }
+      check('gzip API payload decodes to valid JSON', okJson);
+    } else {
+      check('JSON API responses are gzip encoded', false, 'register did not set a session cookie');
+    }
+  }
+
+  section('12. Extended security headers');
+  {
+    const r = await rawGet('/', { 'X-Forwarded-Proto': 'https' });
+    check('Content-Security-Policy present', Boolean(r.headers['content-security-policy']));
+    check('CSP blocks objects/frames off-site', /object-src 'none'/.test(r.headers['content-security-policy'] || '') && /frame-ancestors 'self'/.test(r.headers['content-security-policy'] || ''));
+    check('HSTS sent on HTTPS requests', Boolean(r.headers['strict-transport-security']));
+    const local = await rawGet('/');
+    check('no HSTS on plain HTTP (dev-safe)', local.headers['strict-transport-security'] === undefined);
+  }
+
+  section('13. UI baseline (design lock)');
   {
     const lines = [];
     for (const f of fs.readdirSync(PUBLIC_DIR).filter((n) => n.endsWith('.html')).sort()) {
@@ -257,7 +369,7 @@ const report = `# PANIKA JEEVAN SATHI — Automated Health Report
 - Checks failed: **${failed}**
 
 ${failed === 0
-  ? 'Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags are in place, private pages are hidden from search engines, security headers are on, the API is responding, and the approved public design is unchanged.'
+  ? 'Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags (canonical, Open Graph, structured data) are in place, private pages are hidden from search engines, security headers incl. CSP are on, HSTS is applied over HTTPS, gzip compression is active, the API is responding, and the approved public design is unchanged.'
   : `## Problems found\n\n${failures.map((f) => `- ${f}`).join('\n')}\n\nPlease review the failures above. No automatic risky fixes were made.`}
 
 ## What was checked

@@ -152,6 +152,23 @@ finally that **all data survives a full server restart**.
 
 The same suite passes on the JSON fallback store: `npm run test:json-store`.
 
+## Guardian (automated daily health check)
+
+```bash
+npm run health          # boot a temp server, run 136 checks, write reports/health-report-<date>.md
+node scripts/perf-probe.mjs [members]   # scalability probe (default 300 fake members)
+```
+
+The health check verifies (without touching real data): page availability, 404 handling, robots.txt,
+sitemap.xml, SEO tags, canonical / Open Graph / structured data (injected server-side per host),
+noindex on private pages, security headers (incl. CSP + HSTS over HTTPS), gzip compression for
+HTML/CSS/JSON, API health, and the **design lock** — page bodies, CSS, JS and images must match the
+approved baseline. The same checks run in CI (`.github/workflows/guardian.yml`) on every push and
+every day at 03:30 UTC.
+
+The perf probe measures search and recommended-matches latency on a temporary database with fake
+members, so scaling regressions (e.g. N+1 queries) are caught before they reach users.
+
 ---
 
 ## Deploying
