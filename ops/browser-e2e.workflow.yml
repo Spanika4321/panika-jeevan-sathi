@@ -1,0 +1,50 @@
+# PANIKA JEEVAN SATHI — real-browser E2E tests against production.
+#
+# GitHub does not allow automation bots to install workflow files, so copy this
+# file to .github/workflows/browser-e2e.yml once (then it runs on schedule and
+# on demand from the Actions tab):
+#
+#   cp ops/browser-e2e.workflow.yml .github/workflows/browser-e2e.yml
+
+name: Browser E2E (production)
+
+on:
+  schedule:
+    - cron: '15 4 * * *' # daily, 09:45 IST
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Base URL to test'
+        required: false
+        default: 'https://panika-jeevan-sathi-gzza.onrender.com'
+
+jobs:
+  browser-e2e:
+    name: Playwright end-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: browser-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright + Chromium (from npm, no CDN)
+        run: npm install
+
+      - name: Run the full browser suite against production
+        run: node run.mjs
+        env:
+          SITE_URL: ${{ github.event.inputs.site_url || 'https://panika-jeevan-sathi-gzza.onrender.com' }}
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-e2e-artifacts
+          path: browser-tests/artifacts
+          if-no-files-found: ignore
