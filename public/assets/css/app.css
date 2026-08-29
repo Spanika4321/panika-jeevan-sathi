@@ -311,6 +311,29 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .p-photo img { width: 100%; height: 100%; object-fit: cover; }
 .p-photo .initials { font-family: var(--serif); font-size: 46px; color: var(--brand); opacity: .55; }
 .p-score { position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, .93); border-radius: 999px; padding: 4px 10px; font-size: 11.5px; font-weight: 800; color: var(--brand); box-shadow: var(--shadow-sm); }
+.p-featured {
+  position: absolute; bottom: 10px; left: 10px;
+  background: linear-gradient(140deg, #d8b169, var(--gold)); color: #33230a;
+  border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800;
+  box-shadow: var(--shadow-sm); letter-spacing: .04em; text-transform: uppercase;
+}
+.p-card.featured { border-color: #ead9b0; box-shadow: 0 10px 28px rgba(193, 151, 63, .18); }
+.community-ad {
+  background: var(--gold-soft); border-bottom: 1px solid #ead9b0;
+  padding: 8px 18px; display: flex; gap: 10px; align-items: center; justify-content: center;
+  flex-wrap: wrap; font-size: 13.5px; text-align: center;
+}
+.community-ad .tiny { letter-spacing: .12em; text-transform: uppercase; font-weight: 800; color: #7a5c14; }
+.upi-box {
+  background: linear-gradient(180deg, #fff, var(--gold-soft));
+  border: 1px solid #ead9b0; border-radius: var(--radius); padding: 18px; text-align: center;
+}
+.upi-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 18px; font-weight: 800; letter-spacing: .02em; color: var(--brand-deep);
+  background: #fff; border: 1px dashed #ead9b0; border-radius: 12px; padding: 10px 12px; margin: 10px 0;
+  word-break: break-all;
+}
 .p-short { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .93); display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-sm); }
 .p-short svg { width: 17px; height: 17px; color: var(--muted); }
 .p-short.on svg { color: var(--brand); fill: var(--brand); }

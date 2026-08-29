@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Support this site — PANIKA JEEVAN SATHI</title>
+<meta name="description" content="PANIKA JEEVAN SATHI stays free for every member. Optional UPI support helps keep the community matrimonial website online — no payment gateway, no subscription.">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main class="container section-sm container-narrow">
+  <div class="page-head">
+    <span class="eyebrow">Keep the community site online</span>
+    <h1 class="mb-0">Members stay free. Support is optional.</h1>
+    <p class="muted">
+      Registration, profiles, search, interests, shortlist and messaging cost nothing.
+      There is no payment gateway and no locked profile. If this site helped your family,
+      you can send a small UPI amount — that is how we cover hosting without charging members.
+    </p>
+  </div>
+
+  <div class="alert info">
+    <b>Never pay a stranger on this website</b>
+    Only send UPI to the ID shown on this page. Anyone asking you for money to “unlock” a profile, interest or message is a fraud — report them.
+  </div>
+
+  <section class="upi-box mb-3" id="upiBox">
+    <p class="muted small">Loading UPI details…</p>
+  </section>
+
+  <section class="card mb-3">
+    <h3>Optional featured listing</h3>
+    <p class="muted" id="featuredCopy">
+      All profiles stay visible for free. A featured listing only moves your profile to the top of search and matches for a few days so more families see you.
+    </p>
+    <ol class="muted" style="padding-left:18px">
+      <li>Pay the suggested amount to the UPI ID above from PhonePe, GPay or BHIM (free — no extra app).</li>
+      <li>Copy the UTR / UPI reference number from your app.</li>
+      <li>Submit the form below, or WhatsApp a screenshot.</li>
+      <li>After we confirm, your profile is marked Featured.</li>
+    </ol>
+  </section>
+
+  <section class="card mb-3">
+    <h3>I have paid — send the UPI note</h3>
+    <p class="small muted">This does not charge your card. You already paid in your UPI app. This form only tells us so we can confirm.</p>
+    <form id="payForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="payName">Your name</label>
+          <input id="payName" required maxlength="80">
+        </div>
+        <div class="field">
+          <label for="payEmail">Email (optional)</label>
+          <input id="payEmail" type="email" maxlength="160">
+        </div>
+        <div class="field">
+          <label for="payKind">This is for</label>
+          <select id="payKind">
+            <option value="support">Support the site</option>
+            <option value="featured">Featured listing</option>
+            <option value="ad">Community notice / local ad</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="payAmount">Amount you sent</label>
+          <input id="payAmount" inputmode="decimal" placeholder="51" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="payRef">UPI reference / UTR number</label>
+        <input id="payRef" required minlength="4" maxlength="40" placeholder="From PhonePe / GPay history">
+      </div>
+      <div class="field">
+        <label for="payNote">Note (optional)</label>
+        <textarea id="payNote" maxlength="500" placeholder="Any message for the team"></textarea>
+      </div>
+      <button class="btn" type="submit">Send UPI note</button>
+    </form>
+    <div id="payResult"></div>
+  </section>
+
+  <section class="card">
+    <h3>Other free ways this site can earn</h3>
+    <ul class="muted" style="padding-left:18px;margin:0">
+      <li><b>Google AdSense</b> — the owner can paste a free publisher ID in Admin. No money to start.</li>
+      <li><b>Local shop notice</b> — a small text banner for a community business, paid over UPI.</li>
+      <li><b>WhatsApp</b> — send a screenshot if the form is inconvenient.</li>
+    </ul>
+    <div class="btn-row mt-2">
+      <a class="btn green" id="waPay" href="#" target="_blank" rel="noopener">WhatsApp a screenshot</a>
+      <a class="btn ghost" href="/contact.html">Contact page</a>
+    </div>
+  </section>
+</main>
+
+<div id="siteFooter"></div>
+<div id="bottomNav"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  PJS.onReady(function () {
+    const s = PJS.site || {};
+    const upi = s.upi_id || '';
+    const name = s.upi_name || 'PANIKA JEEVAN SATHI';
+    const amount = s.featured_amount || '51';
+    const days = s.featured_days || '30';
+    const payLink = PJS.upiPayLink(amount, 'PANIKA JEEVAN SATHI featured');
+    const supportLink = PJS.upiPayLink('', 'PANIKA JEEVAN SATHI support');
+
+    $('featuredCopy').textContent =
+      'All profiles stay visible for free. A featured listing only moves your profile to the top of search and matches for ' +
+      days + ' days so more families see you.';
+
+    if (!upi) {
+      $('upiBox').innerHTML = `<h3>UPI ID not published yet</h3>
+        <p class="muted mb-0">The site owner can add a free UPI ID from Admin → Earn. Until then, please use WhatsApp.</p>`;
+    } else {
+      const qrData = encodeURIComponent(payLink || ('upi://pay?pa=' + upi));
+      $('upiBox').innerHTML = `
+        <span class="eyebrow">Pay with any UPI app</span>
+        <h3 class="mb-0">${PJS.esc(name)}</h3>
+        <div class="upi-id" id="upiIdText">${PJS.esc(upi)}</div>
+        <p class="tiny muted">PhonePe · Google Pay · BHIM · Paytm — no extra charge</p>
+        <img alt="UPI QR" width="180" height="180" style="margin:12px auto;border-radius:12px;background:#fff"
+             src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}">
+        <div class="btn-row" style="justify-content:center">
+          <button class="btn sm" type="button" id="copyUpi">Copy UPI ID</button>
+          ${payLink ? `<a class="btn gold sm" href="${PJS.esc(payLink)}">Open UPI app</a>` : ''}
+          ${supportLink && supportLink !== payLink ? `<a class="btn ghost sm" href="${PJS.esc(supportLink)}">Pay any amount</a>` : ''}
+        </div>`;
+      $('copyUpi').onclick = () => PJS.copyText(upi);
+    }
+
+    $('payAmount').value = amount;
+    if (PJS.me) {
+      $('payName').value = PJS.me.name || '';
+      $('payEmail').value = PJS.me.email || '';
+    }
+    $('waPay').href = PJS.whatsAppLink(
+      'Namaste, I have sent UPI support for PANIKA JEEVAN SATHI. I will share the screenshot.'
+    );
+
+    $('payForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const res = await PJS.post('/api/support/payment', {
+        name: $('payName').value,
+        email: $('payEmail').value,
+        kind: $('payKind').value,
+        amount: $('payAmount').value,
+        upi_ref: $('payRef').value,
+        note: $('payNote').value
+      });
+      const box = $('payResult');
+      if (res.ok) {
+        box.innerHTML = `<div class="alert success"><b>Note received</b>${PJS.esc(res.message)}</div>`;
+        $('payRef').value = '';
+        $('payNote').value = '';
+        PJS.toast(res.message, 'success');
+      } else {
+        box.innerHTML = `<div class="alert error">${PJS.esc(res.error || 'Could not send')}</div>`;
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

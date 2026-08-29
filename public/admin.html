@@ -138,6 +138,54 @@
       </div>
     </section>
 
+    <!-- earn -->
+    <section data-pane="earn" class="hide">
+      <div class="card mb-3">
+        <h3>Earn without a payment gateway</h3>
+        <p class="small muted">
+          Members keep every feature free. You earn through UPI (PhonePe / GPay / BHIM — no signup fee)
+          and, if Google approves, free AdSense. Paste your UPI ID below so the Support page can collect money.
+        </p>
+        <form id="earnForm"></form>
+      </div>
+      <div class="card">
+        <div class="row spread row-wrap mb-2">
+          <h3 class="mb-0">UPI notes from members</h3>
+          <select id="payFilter" style="max-width:200px">
+            <option value="pending">Pending</option>
+            <option value="">All</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div id="payList"></div>
+      </div>
+    </section>
+
+    <!-- activity -->
+    <section data-pane="activity" class="hide">
+      <div class="card">
+        <h3>Activity log</h3>
+        <div id="auditList"></div>
+      </div>
+    </section>
+
+    <!-- account -->
+    <section data-pane="account" class="hide">
+      <div class="card mb-3">
+        <h3>Administrator</h3>
+        <div id="adminProfile"></div>
+      </div>
+      <div class="card">
+        <h3>Change admin password</h3>
+        <form id="adminPassForm">
+          <div class="field"><label for="curPass">Current password</label><input id="curPass" type="password" required></div>
+          <div class="field"><label for="newPass">New password</label><input id="newPass" type="password" required minlength="8"></div>
+          <button class="btn sm" type="submit">Update password</button>
+        </form>
+      </div>
+    </section>
+
     <!-- emails -->
     <section data-pane="emails" class="hide">
       <div class="card">
@@ -176,6 +224,8 @@
       ['Grooms / Brides', s.male + ' / ' + s.female],
       ['Open reports', s.reports_open],
       ['Contact requests', s.contact_open],
+      ['UPI notes pending', s.payments_pending || 0],
+      ['Featured profiles', s.featured || 0],
       ['Administrators', s.admins || 0]
     ].map((x) => `<div class="stat"><b>${esc(x[1])}</b><span>${esc(x[0])}</span></div>`).join('');
 
@@ -242,6 +292,7 @@
             <a class="btn ghost sm" href="/profile.html?id=${u.id}">Profile</a>
             <button class="btn ghost sm" data-act="edit">Edit</button>
             ${u.photo ? '<button class="btn ghost sm" data-act="photo">Remove photo</button>' : ''}
+            <button class="btn ghost sm" data-act="feature">${u.profile && u.profile.featured ? 'Unfeature' : 'Feature'}</button>
             ${u.role !== 'admin'
               ? `<button class="btn ghost sm" data-act="toggle">${u.status === 'active' ? 'Suspend' : 'Activate'}</button>
                  <button class="btn ghost sm danger" data-act="delete">Delete</button>`
@@ -333,6 +384,18 @@
                   if (r.ok) { PJS.closeModal(); loadMembers(); }
                 };
               });
+          }
+          if (act === 'feature') {
+            if (user.profile && user.profile.featured) {
+              const r = await PJS.del('/api/admin/users/' + id + '/feature');
+              toast(r, 'Featured listing removed');
+              if (r.ok) loadMembers();
+            } else {
+              const r = await PJS.post('/api/admin/users/' + id + '/feature', {});
+              toast(r, r.message || 'Profile featured');
+              if (r.ok) loadMembers();
+            }
+            return;
           }
           if (act === 'photo') {
             const yes = await PJS.confirm('Remove profile photo?', 'The photo file will be deleted from the server.', 'Remove photo', true);
@@ -505,6 +568,72 @@
     });
   }
 
+  /* -------------------------------------------------------------- earn */
+  const EARN_FIELDS = [
+    ['upi_id', 'UPI ID (example: yourname@oksbi) — free, no gateway', 'text'],
+    ['upi_name', 'Name shown on UPI', 'text'],
+    ['featured_amount', 'Suggested featured amount (digits only)', 'text'],
+    ['featured_days', 'Featured listing length in days', 'text'],
+    ['adsense_client', 'Google AdSense client (ca-pub-…) — leave blank until approved', 'text'],
+    ['ad_label', 'Community banner label (e.g. Local shop)', 'text'],
+    ['ad_text', 'Community banner text', 'text'],
+    ['ad_url', 'Community banner link (https://…)', 'text']
+  ];
+
+  async function loadEarn() {
+    const res = await PJS.get('/api/admin/settings');
+    if (!res.ok) return;
+    const s = res.settings || {};
+    $('earnForm').innerHTML = EARN_FIELDS.map(([key, label]) => `
+      <div class="field">
+        <label for="e_${key}">${esc(label)}</label>
+        <input id="e_${key}" data-key="${key}" value="${esc(s[key] || '')}">
+      </div>`).join('') +
+      '<button class="btn" type="submit">Save earning settings</button>';
+    $('earnForm').onsubmit = async function (e) {
+      e.preventDefault();
+      const payload = {};
+      $('earnForm').querySelectorAll('[data-key]').forEach((el) => { payload[el.dataset.key] = el.value; });
+      const r = await PJS.put('/api/admin/settings', payload);
+      toast(r, 'Earning settings saved');
+      if (r.ok) {
+        const siteRes = await PJS.get('/api/site');
+        if (siteRes.ok) PJS.site = siteRes.site;
+      }
+    };
+    await loadPayments();
+  }
+
+  async function loadPayments() {
+    const res = await PJS.get('/api/admin/payments?status=' + encodeURIComponent($('payFilter').value));
+    const box = $('payList');
+    if (!res.ok) { box.innerHTML = `<div class="alert error">${esc(res.error || '')}</div>`; return; }
+    if (!res.payments.length) { box.innerHTML = '<p class="muted mb-0">No UPI notes yet. Members send them from /support.html after paying.</p>'; return; }
+    box.innerHTML = res.payments.map((p) => `
+      <div class="list-row">
+        ${PJS.avatar(p.name, null, 'sm')}
+        <div>
+          <b>${esc(p.name)}</b> <span class="chip ${p.status === 'confirmed' ? 'green' : p.status === 'rejected' ? 'red' : 'gold'}">${esc(p.status)}</span>
+          <span class="chip">${esc(p.kind)}</span>
+          <div class="small">Amount: ${esc(p.amount || '—')} · UTR: ${esc(p.upi_ref || '—')}</div>
+          <div class="tiny muted">${esc(p.email || '')}${p.member ? ' · member #' + p.member.id : ''} · ${esc(PJS.fmt.dateTime(p.created_at))}</div>
+          ${p.note ? `<div class="small">${esc(p.note)}</div>` : ''}
+        </div>
+        <div class="btn-row">
+          ${p.status !== 'confirmed' ? `<button class="btn green sm" data-pay="${p.id}" data-st="confirmed">Confirm</button>` : ''}
+          ${p.status !== 'rejected' ? `<button class="btn ghost sm" data-pay="${p.id}" data-st="rejected">Reject</button>` : ''}
+        </div>
+      </div>`).join('');
+    box.querySelectorAll('[data-pay]').forEach((b) => {
+      b.onclick = async () => {
+        const r = await PJS.patch('/api/admin/payments/' + b.dataset.pay, { status: b.dataset.st });
+        toast(r, 'Updated');
+        loadPayments();
+        loadOverview();
+      };
+    });
+  }
+
   /* ------------------------------------------------------------ content */
   const CONTENT_FIELDS = [
     ['site_name', 'Website name', 'text'],
@@ -638,7 +767,18 @@
     document.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => setTab(b.dataset.tab); });
     $('memberSearch').addEventListener('input', () => { clearTimeout(window.__t); window.__t = setTimeout(loadMembers, 300); });
     $('memberStatus').addEventListener('change', loadMembers);
+    if ($('memberRole')) $('memberRole').addEventListener('change', loadMembers);
     $('reportFilter').addEventListener('change', loadReports);
+    $('payFilter').addEventListener('change', loadPayments);
+    $('adminPassForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const r = await PJS.post('/api/me/password', {
+        current_password: $('curPass').value,
+        new_password: $('newPass').value
+      });
+      toast(r, 'Password updated');
+      if (r.ok) $('adminPassForm').reset();
+    });
 
     $('storyForm').addEventListener('submit', async function (e) {
       e.preventDefault();

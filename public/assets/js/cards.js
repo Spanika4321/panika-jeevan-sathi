@@ -36,6 +36,7 @@
       opts.score !== undefined && opts.score !== null
         ? `<span class="p-score">${opts.score}% match</span>`
         : '';
+    const featuredBadge = card.featured ? '<span class="p-featured">Featured</span>' : '';
 
     const interestBtn =
       card.interest === 'accepted'
@@ -53,9 +54,9 @@
       .map((r) => `<span class="chip brand">${PJS.esc(r)}</span>`)
       .join('');
 
-    return `<article class="p-card" data-card="${card.id}">
+    return `<article class="p-card${card.featured ? ' featured' : ''}" data-card="${card.id}">
       <div class="p-photo" data-act="view" data-id="${card.id}" style="cursor:pointer">
-        ${photo}${scoreBadge}
+        ${photo}${featuredBadge}${scoreBadge}
         <button class="p-short ${card.shortlisted ? 'on' : ''}" data-act="shortlist" data-id="${card.id}"
                 aria-label="Shortlist" title="Shortlist">${PJS.icons.star}</button>
       </div>

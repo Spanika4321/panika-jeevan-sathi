@@ -370,6 +370,7 @@
           <a href="/about.html">About us</a>
           <a href="/privacy.html">Privacy policy</a>
           <a href="/terms.html">Terms of use</a>
+          <a href="/support.html">Support this site (UPI)</a>
           <a href="https://wa.me/${PJS.esc(s.whatsapp_number || '918099834725')}?text=${encodeURIComponent('Hello PANIKA JEEVAN SATHI, I need help.')}" target="_blank" rel="noopener">WhatsApp support</a>
         </div>
       </div>
@@ -429,6 +430,64 @@
 
   PJS.refreshCounts = refreshCounts;
 
+  PJS.upiPayLink = function (amount, note) {
+    const s = PJS.site || {};
+    if (!s.upi_id) return '';
+    const params = new URLSearchParams();
+    params.set('pa', s.upi_id);
+    params.set('pn', s.upi_name || 'PANIKA JEEVAN SATHI');
+    params.set('cu', 'INR');
+    params.set('tn', note || 'PANIKA JEEVAN SATHI');
+    if (amount) params.set('am', String(amount));
+    return 'upi://pay?' + params.toString();
+  };
+
+  PJS.copyText = async function (text) {
+    const value = String(text || '');
+    try {
+      await navigator.clipboard.writeText(value);
+      PJS.toast('Copied', 'success');
+      return true;
+    } catch (_) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        PJS.toast('Copied', 'success');
+        return true;
+      } catch (err) {
+        PJS.toast('Copy failed. Please copy it yourself.', 'error');
+        return false;
+      }
+    }
+  };
+
+  function renderAds() {
+    const s = PJS.site || {};
+    if (s.adsense_client && !document.getElementById('pjsAdsense')) {
+      const el = document.createElement('script');
+      el.id = 'pjsAdsense';
+      el.async = true;
+      el.crossOrigin = 'anonymous';
+      el.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(s.adsense_client);
+      document.head.appendChild(el);
+    }
+    if (s.ad_text && s.ad_url && !document.getElementById('pjsCommunityAd')) {
+      const bar = document.createElement('div');
+      bar.id = 'pjsCommunityAd';
+      bar.className = 'community-ad';
+      const label = s.ad_label || 'Community notice';
+      bar.innerHTML = `<span class="tiny">${PJS.esc(label)}</span>
+        <a href="${PJS.esc(s.ad_url)}" target="_blank" rel="noopener sponsored">${PJS.esc(s.ad_text)}</a>`;
+      const header = document.querySelector('.site-header');
+      if (header && header.parentNode) header.parentNode.insertBefore(bar, header.nextSibling);
+      else document.body.insertBefore(bar, document.body.firstChild);
+    }
+  }
+
   PJS.whatsAppLink = function (message) {
     const number = (PJS.site && PJS.site.whatsapp_number) || '918099834725';
     return `https://wa.me/${number}?text=${encodeURIComponent(
@@ -466,6 +525,7 @@
     renderFooter();
     renderBottomNav();
     renderWhatsApp();
+    renderAds();
 
     booted = true;
     readyQueue.splice(0).forEach((fn) => {

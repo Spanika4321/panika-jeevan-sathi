@@ -187,7 +187,7 @@ function resolveStatic(pathname) {
 /* ----------------------------------------------------------- robots/sitemap */
 
 // Pages meant for search engines (public marketing/legal pages only).
-const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html'];
+const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html', '/support.html'];
 
 // Members-only or account pages — crawlers should stay out.
 const PRIVATE_PAGES = [
@@ -244,6 +244,17 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     sendFile(res, file, { cache: true });
+    return;
+  }
+
+  if (url.pathname === '/ads.txt') {
+    const client = settingsLib.get(driver, 'adsense_client') || '';
+    const pub = /^ca-pub-(\d{8,22})$/.exec(String(client).trim());
+    const body = pub
+      ? `google.com, pub-${pub[1]}, DIRECT, f08c47fec0942fa0\n`
+      : '# Add your Google AdSense publisher ID in Admin → Earn to publish ads.txt\n';
+    res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, SECURITY_HEADERS));
+    res.end(body);
     return;
   }
 

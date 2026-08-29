@@ -2,7 +2,8 @@
 
 A complete, production-ready **matrimonial website** for the Panika, Manikpuri, Kabirpanthi and Adivasi
 communities — **100% free for members**: no payment gateway, no subscription plans, no premium tiers,
-no locked profiles, no paid messaging.
+no locked profiles, no paid messaging. The owner can optionally earn through **free UPI** (PhonePe /
+GPay / BHIM) and **Google AdSense** — nothing to buy, no Razorpay/Stripe.
 
 Built as a single self-contained Node.js application with **zero npm dependencies**.
 
@@ -84,6 +85,12 @@ Notifications · Account settings · Delete account
 WhatsApp button and floating chat bubble that open a chat with **+91 80998 34725**
 (`https://wa.me/918099834725`), plus a contact form that lands in the admin inbox.
 
+**Earn (optional, all free to start)**
+- UPI ID in Admin → Earn — members can support the site or request a featured listing from `/support.html`
+- Admin confirms the UPI reference (UTR) and, for featured notes, the profile is shown first in search
+- Google AdSense publisher ID (when Google approves you) and/or a community text banner
+- No payment gateway, no app fees, no locked member features
+
 **Admin panel** (`/admin.html`, administrator role required, server-side checks on every API)
 - Live dashboard: accounts, active/suspended, new members, reports, contact queue, recent activity
 - Members: search, role/status filters, details, edit, hide profile, remove photo, suspend, delete
@@ -106,6 +113,7 @@ lib/profiles.js         profile validation, privacy, search filters, match scori
 lib/settings.js         editable website content
 lib/mailer.js           optional SMTP / outbox mailer
 lib/owner.js            site-owner emails that must stay administrators
+lib/earn.js             free UPI / AdSense helpers (no payment SDK)
 public/                 the website (HTML + CSS + JS, no build step, no CDN)
 public/assets/css/app.css
 public/assets/js/app.js     shared client: API, auth, chrome, helpers

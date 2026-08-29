@@ -37,7 +37,7 @@ const DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-health-'));
 const PORT = 3500 + Math.floor(Math.random() * 400);
 const BASE = `http://127.0.0.1:${PORT}`;
 
-const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html'];
+const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html', '/support.html'];
 const PRIVATE_PAGES = [
   '/admin.html', '/settings.html', '/dashboard.html', '/matches.html', '/messages.html',
   '/notifications.html', '/interests.html', '/shortlist.html', '/edit-profile.html',

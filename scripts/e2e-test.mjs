@@ -505,6 +505,47 @@ async function main() {
     res = await anon.get('/api/stories');
     check('approved story is public', res.body.stories.length === 1);
 
+    res = await admin.put('/api/admin/settings', { upi_id: 'not a vpa', featured_amount: '51' });
+    check('invalid UPI id is rejected/sanitised', res.status === 200 && !res.body.settings.upi_id);
+
+    res = await admin.put('/api/admin/settings', {
+      upi_id: 'sukulpanika@oksbi',
+      upi_name: 'PANIKA JEEVAN SATHI',
+      featured_amount: '51',
+      featured_days: '30'
+    });
+    check('admin saves free UPI details', res.status === 200 && res.body.settings.upi_id === 'sukulpanika@oksbi');
+    res = await anon.get('/api/site');
+    check('public site exposes UPI id', res.body.site.upi_id === 'sukulpanika@oksbi');
+
+    res = await meera.post('/api/support/payment', {
+      kind: 'featured',
+      amount: '51',
+      upi_ref: 'UTR1234567890',
+      name: 'Meera Kanwar'
+    });
+    check('member can send a UPI note', res.status === 200, JSON.stringify(res.body));
+    res = await meera.post('/api/support/payment', { kind: 'featured', amount: 'abc', upi_ref: '1234' });
+    check('invalid UPI amount rejected', res.status === 400);
+
+    res = await admin.get('/api/admin/payments?status=pending');
+    check('admin sees pending UPI notes', res.status === 200 && res.body.payments.length >= 1);
+    const payId = res.body.payments[0].id;
+    res = await admin.patch(`/api/admin/payments/${payId}`, { status: 'confirmed' });
+    check('admin confirms a UPI note', res.status === 200);
+
+    res = await ravi.get('/api/profiles');
+    check('confirmed featured profile sorts first', res.body.results[0] && res.body.results[0].featured === true);
+    check('featured card belongs to the paying member', res.body.results[0] && /Meera/.test(res.body.results[0].name));
+
+    res = await admin.post(`/api/admin/users/${meeraId}/feature`, { days: 7 });
+    check('admin can feature a profile directly', res.status === 200 && res.body.featured_until > Date.now());
+    res = await admin.del(`/api/admin/users/${meeraId}/feature`);
+    check('admin can remove a featured listing', res.status === 200);
+
+    res = await ravi.get('/api/admin/payments');
+    check('member cannot list UPI notes', res.status === 403);
+
     res = await admin.put('/api/admin/settings', { hero_title: 'Test headline', maintenance: '0' });
     check('admin edits website content', res.body.settings.hero_title === 'Test headline');
     res = await anon.get('/api/site');
@@ -598,7 +639,7 @@ async function main() {
       '/index.html', '/login.html', '/verify-email.html', '/reset-password.html', '/dashboard.html',
       '/edit-profile.html', '/profile.html', '/search.html', '/matches.html', '/interests.html',
       '/shortlist.html', '/messages.html', '/notifications.html', '/settings.html', '/contact.html',
-      '/admin.html', '/about.html', '/privacy.html', '/terms.html', '/assets/css/app.css',
+      '/admin.html', '/about.html', '/privacy.html', '/terms.html', '/support.html', '/assets/css/app.css',
       '/assets/js/app.js', '/assets/js/cards.js', '/assets/img/favicon.svg'
     ];
     let pagesOk = 0;
