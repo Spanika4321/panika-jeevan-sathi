@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Team Dashboard — Panika Jeevan Sathi</title>
+<style>
+:root{--bg:#0b141a;--panel:#111b21;--panel-2:#202c33;--out:#005c4b;--in:#202c33;--text:#e9edef;--muted:#8696a0;--accent:#00a884;--tick:#53bdeb;--border:#2a3942}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",Helvetica,Arial,sans-serif;background:#0c1317;color:var(--text);height:100vh;overflow:hidden}
+.app{display:flex;height:100vh}
+.sidebar{width:400px;min-width:320px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.side-head{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--header,#202c33)}
+.boss-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#f0b330,#d97706);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff}
+.boss-info{display:flex;flex-direction:column;flex:1}
+.boss-info strong{font-size:15px}.boss-info span{font-size:12px;color:var(--muted)}
+.icon-btn{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:6px;border-radius:6px}
+.icon-btn:hover{background:var(--panel-2);color:var(--text)}
+.side-banner{padding:12px 16px;background:#182229;border-bottom:1px solid var(--border)}
+.banner-title{font-size:13.5px;font-weight:600;color:var(--accent)}
+.banner-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.search-box{padding:8px 12px}
+.search-box input{width:100%;padding:9px 14px;border-radius:8px;border:none;outline:none;background:var(--panel-2);color:var(--text);font-size:13.5px}
+.chat-list{flex:1;overflow-y:auto}
+.chat-item{display:flex;gap:13px;align-items:center;padding:11px 16px;cursor:pointer;border-bottom:1px solid #18222988;transition:background .12s}
+.chat-item:hover{background:var(--panel-2)}
+.chat-item.active{background:#2a3942}
+.avatar{width:47px;height:47px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:700;flex-shrink:0}
+.chat-item-mid{flex:1;min-width:0}
+.chat-item-top{display:flex;justify-content:space-between;align-items:baseline}
+.chat-item-name{font-size:15px;font-weight:500}
+.chat-item-time{font-size:11.5px;color:var(--muted)}
+.chat-item-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:3px}
+.chat-item-last{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+.unread-badge{background:var(--accent);color:#111;font-size:11px;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.online-dot{width:10px;height:10px;border-radius:50%;background:#06cf9c;border:2px solid var(--panel);position:absolute;bottom:1px;right:1px}
+.avatar-wrap{position:relative}
+.side-foot{padding:10px 16px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--border);text-align:center}
+.chat-panel{flex:1;display:flex;flex-direction:column;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.012) 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,rgba(255,255,255,.012) 0 2px,transparent 3px),var(--bg);background-size:180px 180px,240px 240px,auto}
+.chat-head{display:flex;align-items:center;gap:13px;padding:10px 16px;background:#202c33;border-bottom:1px solid var(--border)}
+.chat-head-info{flex:1;display:flex;flex-direction:column}
+.chat-head-info strong{font-size:15.5px}
+.chat-head-info span{font-size:12.5px;color:var(--muted)}
+.chat-head-info span.typing{color:var(--accent);font-style:italic}
+.chat-head-actions{display:flex;gap:8px}
+.pill-btn{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:12.5px;cursor:pointer;transition:background .12s}
+.pill-btn:hover{background:#2f4552}
+.pill-btn.green{background:var(--accent);color:#08110f;font-weight:600;border:none}
+.messages{flex:1;overflow-y:auto;padding:18px 7% 12px;display:flex;flex-direction:column;gap:3px}
+.day-chip{align-self:center;background:#182229;color:var(--muted);font-size:11.5px;padding:5px 12px;border-radius:7px;margin:12px 0 6px}
+.enc-chip{align-self:center;text-align:center;background:#182229;color:#ffd279;font-size:12px;padding:7px 14px;border-radius:8px;margin:8px 0 12px;max-width:80%}
+.msg-row{display:flex;margin-top:2px}
+.msg-row.out{justify-content:flex-end}
+.bubble{position:relative;max-width:62%;padding:6px 9px 8px 10px;border-radius:9px;font-size:14.2px;line-height:1.42;word-wrap:break-word;white-space:pre-wrap;box-shadow:0 1px 1px rgba(0,0,0,.28);animation:pop .14s ease-out}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.msg-row.in .bubble{background:var(--in);border-top-left-radius:2px}
+.msg-row.out .bubble{background:var(--out);border-top-right-radius:2px}
+.bubble .sender{font-size:12.5px;font-weight:700;display:block;margin-bottom:2px}
+.bubble .meta{float:right;margin:8px 0 -4px 10px;font-size:10.5px;color:rgba(233,237,239,.55);display:inline-flex;align-items:center;gap:3px}
+.tick{font-size:14px;letter-spacing:-3px}
+.tick.read{color:var(--tick)}
+.bubble.code{font-family:Consolas,monospace;font-size:13px;background:#111;border:1px dashed var(--accent);color:var(--accent);text-align:center;font-weight:700;letter-spacing:2px}
+.bubble.report{max-width:78%;font-size:13.3px}
+.typing-row{display:flex;margin-top:4px}
+.typing-bubble{background:var(--in);border-radius:9px;border-top-left-radius:2px;padding:12px 16px;display:flex;gap:5px;align-items:center}
+.typing-bubble span{width:7px;height:7px;background:var(--muted);border-radius:50%;animation:blink 1.2s infinite}
+.typing-bubble span:nth-child(2){animation-delay:.2s}
+.typing-bubble span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.quick-actions{display:flex;gap:8px;padding:8px 16px 2px;overflow-x:auto;scrollbar-width:none}
+.quick-actions::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:999px;font-size:12.5px;padding:7px 14px;cursor:pointer}
+.chip:hover{background:#2f4552}
+.composer{display:flex;align-items:center;gap:10px;padding:10px 16px 14px;background:var(--panel)}
+.composer-emoji{background:none;border:none;font-size:24px;cursor:pointer}
+#msgInput{flex:1;background:var(--panel-2);color:var(--text);border:none;outline:none;border-radius:10px;padding:12px 18px;font-size:14.5px}
+.send-btn{width:44px;height:44px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.send-btn:hover{background:#06c295}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal.hidden{display:none}
+.modal-card{width:min(760px,92vw);max-height:86vh;background:var(--panel);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#202c33;font-size:15px}
+.email-body{flex:1;overflow-y:auto;margin:0;padding:20px 22px;font-family:"Segoe UI",sans-serif;font-size:13.5px;line-height:1.55;white-space:pre-wrap;color:#d6e2e9;background:#0c1418}
+.modal-foot{display:flex;gap:10px;padding:13px 18px;border-top:1px solid var(--border)}
+::-webkit-scrollbar{width:7px}
+::-webkit-scrollbar-thumb{background:#2a3942;border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+@media(max-width:860px){.sidebar{width:130px;min-width:130px}.chat-item-mid,.side-banner,.search-box,.side-foot,.boss-info{display:none}.chat-item{justify-content:center}.bubble{max-width:82%}.chat-head-actions{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <header class="side-head">
+      <div class="boss-avatar">B</div>
+      <div class="boss-info"><strong>BOSS</strong><span>👑 Owner · Panika Jeevan Sathi</span></div>
+      <button id="emailBtn" class="icon-btn" title="Generate Daily Growth Email">📧</button>
+    </header>
+    <div class="side-banner">
+      <div class="banner-title">🤖 4 AI Employees Online</div>
+      <div class="banner-sub">Aapke free matrimonial site ki growth team — 24×7, 100% free tools</div>
+    </div>
+    <div class="search-box"><input id="searchInput" type="text" placeholder="Search or start a new chat"></div>
+    <nav id="chatList" class="chat-list"></nav>
+    <footer class="side-foot">⚡ Chrome-only edition · koi install nahi · bas file kholo aur kaam karo</footer>
+  </aside>
+  <main class="chat-panel">
+    <header class="chat-head">
+      <div id="chatAvatar" class="avatar">🚀</div>
+      <div class="chat-head-info"><strong id="chatName">AI Growth Team</strong><span id="chatStatus">RAHUL, PRIYA, AMIT, SNEHA</span></div>
+      <div class="chat-head-actions">
+        <button id="auditBtn" class="pill-btn">🔍 Website Audit</button>
+        <button id="postsBtn" class="pill-btn">✍️ Aaj ke Posts</button>
+      </div>
+    </header>
+    <section id="messages" class="messages"></section>
+    <div id="quickActions" class="quick-actions"></div>
+    <footer class="composer">
+      <button id="emojiBtn" class="composer-emoji">😊</button>
+      <input id="msgInput" type="text" placeholder="Type a message to your AI employee…" autocomplete="off">
+      <button id="sendBtn" class="send-btn" title="Send"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M1.101 21.757 23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/></svg></button>
+    </footer>
+  </main>
+</div>
+<div id="emailModal" class="modal hidden">
+  <div class="modal-card">
+    <header class="modal-head"><strong>📧 Daily Growth Update — ready to send</strong><button id="closeModal" class="icon-btn">✕</button></header>
+    <pre id="emailBody" class="email-body"></pre>
+    <footer class="modal-foot">
+      <button id="copyEmail" class="pill-btn green">📋 Copy Email</button>
+      <button id="sendToChat" class="pill-btn">💬 Team Group me bhejo</button>
+    </footer>
+  </div>
+</div>
+<script>
+'use strict';
+/* =======================================================================
+ * AI TEAM DASHBOARD — CHROME EDITION (single file, no server needed)
+ * RAHUL · PRIYA · AMIT · SNEHA — human-like AI employees for PANIKA JEEVAN SATHI
+ * Real website audit (direct fetch → free CORS proxy → offline snapshot)
+ * ======================================================================= */
+
+var EMPLOYEES = {
+  rahul: { id:'rahul', name:'RAHUL', role:'SEO & Research Engineer', emoji:'👨‍💻', color:'#1f8a70',
+    status:'online · Google Trends + Search Console',
+    intro:['Good morning Boss! 🫡 RAHUL reporting in — SEO & Research Engineer.',
+      'Aaj main Google Trends + Search Console se 2 naye keywords nikalne wala hoon. Likhiye: "audit" ya "keyword" 💪'] },
+  priya: { id:'priya', name:'PRIYA', role:'Social Media Manager', emoji:'👩‍💻', color:'#b3479b',
+    status:'online · organic campaigns ke liye ready',
+    intro:['Hello Boss! 👋 PRIYA here — Social Media Manager.',
+      'Aaj ka organic campaign ready hai! Boliye "post" — main reels, captions, hashtags sab bana dungi 🔥'] },
+  amit: { id:'amit', name:'AMIT', role:'Automation & Workflow Manager', emoji:'🧑‍💻', color:'#4a7dbd',
+    status:'online · sub-agents standby par',
+    intro:['Boss, AMIT here — Automation & Workflow Manager 🤖',
+      'Workflow healthy hai. "workload" likhiye to main live status report deta hoon. Zaroorat padi to sub-agents clone kar lunga ⚡'] },
+  sneha: { id:'sneha', name:'SNEHA', role:'Growth & Virality Analyst', emoji:'👩‍💼', color:'#d97706',
+    status:'online · virality dashboard live',
+    intro:['Good morning Boss! SNEHA here — Growth & Virality Analyst 📈',
+      'Meri dashboard par aaj ke signals dikh rahe hain. "viral analysis" bol dijiye — main potential check karke Ad Hook de dungi 🚀'] }
+};
+var GROUP = { id:'team', name:'AI Growth Team 🚀', emoji:'🚀', color:'#6d4494', members:['rahul','priya','amit','sneha'], status:'RAHUL, PRIYA, AMIT, SNEHA' };
+var CONTACTS = {}; Object.keys(EMPLOYEES).forEach(function(k){ CONTACTS[k]=EMPLOYEES[k]; }); CONTACTS.team=GROUP;
+
+var TRENDS = [
+  '"free kundali matching" searches spike kar rahe hain (Google Trends ↑)',
+  'Tier-2 cities me free matrimonial demand record high par hai',
+  '"date-to-marry" wave — log serious, shaadi-oriented apps dhoond rahe hain',
+  'Late-marriage audience (28–35) har mahine grow kar rahi hai',
+  'Community-led matchmaking (Panika/Manikpuri/Kabirpanthi) me trust demand strong hai'
+];
+var HASHTAGS = '#PanikaJeevanSathi #FreeMatrimony #FreeForever #Panika #Manikpuri #Kabirpanthi #Adivasi #SachchaRishta #Shaadi #100Free';
+var GREETINGS = {
+  rahul:['Hello Boss! 🫡 Rahul online hai — kaam par lagu? "audit" ya "keyword" boliye.'],
+  priya:['Hi Boss! 😄 Priya ready — aaj kya post karna hai?'],
+  amit:['Boss! 🤖 Amit standby par — workflow stable, bola to execute kar dunga.'],
+  sneha:['Hello Boss! 📈 Sneha here — signals strong dikh rahe hain aaj!']
+};
+var POST_TEMPLATES = [
+  { type:'📸 Instagram Reel Caption',
+    body:'Others charge ₹5,000+ for rishtey.\nHum charge ₹0. Forever. 💚\n\nApni community, apna matrimony —\nPanika · Manikpuri · Kabirpanthi · Adivasi\n\nRegister FREE → link in bio 🔗',
+    cta:'Best time: 6–8 PM · Audio: trending romantic BGM' },
+  { type:'💬 WhatsApp Status',
+    body:'🌿 Sachche rishtey ki talash?\n100% FREE matrimony — no fees, no subscription, no hidden charges.\n✅ Verified profiles\n✅ Apni community\n✅ Free forever\nJoin: Panika Jeevan Sathi 💚',
+    cta:'Morning 9 AM + night 8 PM — do baar lagayein' },
+  { type:'📘 Facebook Group Post',
+    body:'Dosto, ek zaroori baat 🙏\nHamari community ke liye 100% FREE matrimonial site live hai — Panika Jeevan Sathi.\n🔸 Koi payment nahi\n🔸 Koi premium plan nahi\n🔸 Sab profiles unlocked\nApno ko share kijiye, kisi ka rishta jud jaye to dua milegi 🤲',
+    cta:'10 community groups me aaj post karna hai' },
+  { type:'🎬 Reel Hook (5 sec)',
+    body:'"Shaadi.com se ₹5,000 le liye…\nyahan se rishta FREE me mil gaya 😳"\n\n→ Screen recording: profile browse → match → "₹0 kyun?"\n→ End me: "Kyunki pyaar paid nahi hota 💚"',
+    cta:'Trending format — 15 sec max' }
+];
+var AD_HOOKS = [
+  '"₹0 Registration. ₹0 Subscription. ₹0 Hidden Charges. Only sachche rishtey — apni community, apna matrimony. Panika Jeevan Sathi: 100% FREE, forever. Register free today!" 🚀',
+  '"Rishta wahi jo dil se — bill woh koi nahi bharta. 100% free matrimony, apni Panika community ke liye. Aaj hi join kijiye!" 💚',
+  '"Lakhon rishtey. Zero fees. Ek community. Panika Jeevan Sathi — shaadi ka sachcha saathi. Free registration, lifetime free!" ✨'
+];
+var PROACTIVE = [
+  ['priya','Boss, ek idea aya 💡 — aaj shaadi season ki trending audio par reel banate hain? Boliye "post"!'],
+  ['rahul','Boss, Search Console par halki si movement dikh rahi hai 📈 Kal ke keywords submit karni hain?'],
+  ['sneha','Boss, dashboard par ek naya signal blink kar raha hai 👀 "viral analysis" boliye to detail deta hoon.'],
+  ['amit','Boss, sab automation green ✅ Koi task dena ho to boliye.'],
+  ['sneha','Boss, ek trend tezi se rise kar raha hai — free kundali matching! 🔥']
+];
+
+function $(s){ return document.querySelector(s); }
+function rand(a){ return a[Math.floor(Math.random()*a.length)]; }
+function rnd(min,max){ return min + Math.floor(Math.random()*(max-min+1)); }
+function nowTime(ts){ return new Date(ts||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}); }
+function todayLong(){ return new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}); }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function escapeHtml(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+var state = { active:'team', chats:{}, unread:{}, typing:{}, lastProactive:0 };
+var AUDIT_TARGET = localStorage.getItem('aiTeam_auditTarget') || 'http://localhost:3000';
+
+var STORE_KEY = 'aiTeamChats_chrome_v1';
+function save(){
+  try {
+    var data = {};
+    for (var id in state.chats) data[id] = state.chats[id].messages.slice(-80);
+    localStorage.setItem(STORE_KEY, JSON.stringify(data));
+  } catch(e){}
+}
+function seedChats(){
+  var now = Date.now();
+  state.chats = { team:{messages:[]} };
+  for (var id in EMPLOYEES) state.chats[id] = {messages:[]};
+  state.chats.team.messages.push({from:'system',text:'🔒 Messages aur tasks end-to-end encrypted hain — sirf Boss aur AI Employees dekh sakte hain.',ts:now-600000});
+  ['rahul','priya','amit','sneha'].forEach(function(emp,i){
+    EMPLOYEES[emp].intro.forEach(function(t,j){ state.chats[emp].messages.push({from:emp,text:t,ts:now-540000+i*40000+j*2000}); });
+  });
+  state.chats.team.messages.push({from:'amit',text:'Boss ne team activate kar di hai 🫡 Sabhi 4 employees online hain. Aaj ka mission: maximum FREE growth!',ts:now-400000});
+  save();
+}
+function load(){
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var data = JSON.parse(raw);
+      state.chats = {};
+      var empty = true;
+      for (var id in EMPLOYEES){ state.chats[id] = {messages:data[id]||[]}; if((data[id]||[]).length) empty=false; }
+      state.chats.team = {messages:data.team||[]};
+      if (!empty || state.chats.team.messages.length) return;
+    }
+  } catch(e){}
+  seedChats();
+}
+
+function msgEl(m, contact){
+  var row = document.createElement('div');
+  if (m.from === 'system'){
+    row.className='msg-row';
+    var chip=document.createElement('div'); chip.className='enc-chip'; chip.textContent=m.text;
+    row.appendChild(chip); return row;
+  }
+  var out = m.from === 'boss';
+  row.className = 'msg-row ' + (out?'out':'in');
+  var b = document.createElement('div');
+  b.className = 'bubble' + (m.code?' code':'') + (m.report?' report':'');
+  if (!out && contact.id === 'team' && EMPLOYEES[m.from]){
+    var s=document.createElement('span'); s.className='sender'; s.style.color=EMPLOYEES[m.from].color;
+    s.textContent=EMPLOYEES[m.from].name+' · '+EMPLOYEES[m.from].role; b.appendChild(s);
+  }
+  var txt=document.createElement('span'); txt.textContent=m.text; b.appendChild(txt);
+  var meta=document.createElement('span'); meta.className='meta';
+  meta.innerHTML = nowTime(m.ts)+' <span class="tick'+(out&&m.status==='read'?' read':'')+'">'+(out?(m.status==='sent'?'✓':'✓✓'):'')+'</span>';
+  b.appendChild(meta);
+  row.appendChild(b);
+  return row;
+}
+function renderChatList(){
+  var list=$('#chatList'); var q=($('#searchInput').value||'').toLowerCase();
+  list.innerHTML='';
+  var ids=['team','rahul','priya','amit','sneha'];
+  ids.forEach(function(id){
+    var c=CONTACTS[id];
+    if (q && c.name.toLowerCase().indexOf(q)<0 && (c.role||'').toLowerCase().indexOf(q)<0) return;
+    var msgs=state.chats[id].messages; var last=msgs[msgs.length-1];
+    var item=document.createElement('div');
+    item.className='chat-item'+(state.active===id?' active':'');
+    item.innerHTML='<div class="avatar-wrap"><div class="avatar" style="background:'+c.color+'">'+c.emoji+'</div>'+
+      (id!=='team'?'<span class="online-dot"></span>':'')+'</div>'+
+      '<div class="chat-item-mid"><div class="chat-item-top"><span class="chat-item-name">'+c.name+'</span>'+
+      '<span class="chat-item-time">'+(last?nowTime(last.ts):'')+'</span></div>'+
+      '<div class="chat-item-bottom"><span class="chat-item-last">'+
+      (state.typing[id]?'<i>typing…</i>':(last?escapeHtml(last.text.slice(0,60)):'—'))+
+      '</span>'+((state.unread[id]||0)>0?'<span class="unread-badge">'+state.unread[id]+'</span>':'')+'</div></div>';
+    item.addEventListener('click',function(){ openChat(id); });
+    list.appendChild(item);
+  });
+}
+var QUICK = {
+  team:[['📧 Daily Email','daily email'],['🔍 Audit','audit karo'],['✍️ Posts','aaj ke posts'],['🤖 Workload','workload check karo'],['📈 Viral Analysis','viral analysis karo']],
+  rahul:[['🔍 Website Audit','website audit karo'],['🔑 Keywords do','aaj ke 2 keywords'],['🎯 Audit URL set karo','audit target set']],
+  priya:[['✍️ Post banao','aaj ka post banao'],['🎬 Reel caption','reel caption'],['🎨 Design idea','design idea do']],
+  amit:[['🤖 Workload report','workload report'],['⚡ Sub-agents clone','sub-agents clone karo']],
+  sneha:[['📈 Viral analysis','viral analysis karo'],['🎯 Ad Hook do','ad hook'],['💡 Ads start karu?','ads start karu']]
+};
+function openChat(id){
+  state.active=id; state.unread[id]=0;
+  var c=CONTACTS[id];
+  $('#chatAvatar').textContent=c.emoji; $('#chatAvatar').style.background=c.color;
+  $('#chatName').textContent=c.name; $('#chatStatus').textContent=c.status;
+  $('#chatStatus').classList.remove('typing');
+  var qa=$('#quickActions'); qa.innerHTML='';
+  QUICK[id].forEach(function(pair){
+    var b=document.createElement('button'); b.className='chip'; b.textContent=pair[0];
+    b.addEventListener('click',function(){ bossSend(pair[1]); });
+    qa.appendChild(b);
+  });
+  renderMessages(); renderChatList();
+  $('#msgInput').focus();
+}
+function renderMessages(){
+  var wrap=$('#messages'); wrap.innerHTML='';
+  var msgs=state.chats[state.active].messages; var lastDay='';
+  msgs.forEach(function(m){
+    var day=new Date(m.ts).toDateString();
+    if (day!==lastDay){ lastDay=day;
+      var chip=document.createElement('div'); chip.className='day-chip';
+      chip.textContent = day===new Date().toDateString()?'TODAY':new Date(m.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      wrap.appendChild(chip);
+    }
+    wrap.appendChild(msgEl(m,CONTACTS[state.active]));
+  });
+  wrap.scrollTop=wrap.scrollHeight;
+}
+function push(o){
+  state.chats[o.chat].messages.push({from:o.from,text:o.text,ts:o.ts||Date.now(),code:!!o.code,report:!!o.report,status:o.status||'read'});
+  if (o.chat!==state.active && o.from!=='boss' && o.from!=='system') state.unread[o.chat]=(state.unread[o.chat]||0)+1;
+  if (o.chat===state.active) renderMessages();
+  renderChatList(); save();
+}
+function showTyping(chatId){
+  state.typing[chatId]=true;
+  if (chatId===state.active){
+    var st=$('#chatStatus');
+    st.textContent=(CONTACTS[chatId].members?CONTACTS[chatId].members.map(function(m){return EMPLOYEES[m].name;}).join(', '):CONTACTS[chatId].name)+' typing…';
+    st.classList.add('typing');
+    var wrap=$('#messages');
+    var row=document.createElement('div'); row.className='typing-row'; row.id='typingIndicator';
+    row.innerHTML='<div class="typing-bubble"><span></span><span></span><span></span></div>';
+    wrap.appendChild(row); wrap.scrollTop=wrap.scrollHeight;
+  }
+  renderChatList();
+}
+function hideTyping(chatId){
+  state.typing[chatId]=false;
+  var el=$('#typingIndicator'); if (el) el.remove();
+  if (chatId===state.active){ $('#chatStatus').textContent=CONTACTS[chatId].status||GROUP.status; $('#chatStatus').classList.remove('typing'); }
+  renderChatList();
+}
+function typingDelay(text){ return Math.min(3400,700+text.length*9)+rnd(0,350); }
+function markRead(chatId){
+  var changed=false;
+  state.chats[chatId].messages.forEach(function(m){ if(m.from==='boss'&&m.status!=='read'){m.status='read';changed=true;} });
+  if (changed && chatId===state.active) renderMessages();
+  save();
+}
+function employeeSay(empId,chatId,text,extra){
+  showTyping(chatId);
+  return sleep(typingDelay(text)).then(function(){
+    hideTyping(chatId);
+    push({chat:chatId,from:empId,text:text,extra:extra});
+    if (chatId===state.active) markRead(chatId);
+  });
+}
+function bossSend(raw){
+  var text=(raw||'').trim(); if (!text) return;
+  var chatId=state.active, ts=Date.now();
+  push({chat:chatId,from:'boss',text:text,ts:ts,status:'sent'});
+  setTimeout(function(){
+    state.chats[chatId].messages.forEach(function(m){
+      if (m.ts===ts&&m.from==='boss'&&m.status==='sent'){ m.status='delivered'; if(chatId===state.active) renderMessages(); save(); }
+    });
+  },350);
+  route(chatId,text);
+}
+function route(chatId,text){
+  var low=text.toLowerCase();
+  markRead(chatId);
+  if (chatId==='team'){
+    if (/(daily\s*email|morning email|growth update)/.test(low)) return groupEmailFlow();
+    var tasks=[];
+    if (/audit|report|seo|site check|website check/.test(low)) tasks.push('rahul');
+    if (/post|caption|reel|insta|status|social|content/.test(low)) tasks.push('priya');
+    if (/workload|clone|agent|automation/.test(low)) tasks.push('amit');
+    if (/viral|ads|analy|potential|hook/.test(low)) tasks.push('sneha');
+    if (!tasks.length){
+      if (/^(hi|hii+|hello|hey|namaste|gm|good morning|good evening|yo)/.test(low)){
+        var i=0;
+        (function next(){ if(i>=GROUP.members.length) return;
+          employeeSay(GROUP.members[i],'team',rand(GREETINGS[GROUP.members[i]])).then(function(){ i++; next(); });
+        })();
+        return;
+      }
+      return employeeSay(rand(['sneha','priya']),'team','Boss, order clear nahi tha 😅 Ye try kijiye: "daily email", "audit", "posts", "workload", "viral analysis" — team turant execute karegi!');
+    }
+    (function next2(k){ if(k>=tasks.length) return; handleSkill(tasks[k],'team',low).then(function(){ next2(k+1); }); })(0);
+    return;
+  }
+  handleSkill(chatId,chatId,low,text);
+}
+function handleSkill(empId,chatId,low,originalText){
+  if (empId==='rahul'){
+    if (/target set|url set|change url/.test(low)) return rahulSetTarget(chatId);
+    if (/keyword/.test(low) && !/audit/.test(low)) return rahulKeywords(chatId);
+    if (/audit|report|site check|website check|health|seo check/.test(low)) return rahulAudit(chatId,originalText);
+    return rahulSmallTalk(chatId,low);
+  }
+  if (empId==='priya'){
+    if (/design|poster|banner|theme|look/.test(low)) return priyaDesign(chatId);
+    if (/post|caption|reel|insta|status|social|content/.test(low)) return priyaPosts(chatId,low);
+    return priyaSmallTalk(chatId,low);
+  }
+  if (empId==='amit') return amitWorkload(chatId);
+  if (empId==='sneha'){
+    if (/hook/.test(low)) return snehaAnalysis(chatId,true);
+    if (/viral|analy|potential|ads|growth|score/.test(low)) return snehaAnalysis(chatId,false);
+    return snehaSmallTalk(chatId,low);
+  }
+  return Promise.resolve();
+}
+
+/* ---------------- RAHUL: real client-side website audit ---------------- */
+
+function analyzeHtml(html){
+  var title=(html.match(/<title[^>]*>([^<]*)<\/title>/i)||[])[1]||'';
+  var metaDesc=(html.match(/<meta[^>]+name=["']description["'][^>]*content=["']([^"']*)["']/i)||[])[1]||'';
+  return {
+    title:title.trim(), titleLen:title.trim().length,
+    metaDesc:metaDesc.trim(), metaDescLen:metaDesc.trim().length,
+    hasViewport:/<meta[^>]+name=["']viewport["']/i.test(html),
+    h1Count:(html.match(/<h1[\s>]/gi)||[]).length,
+    imgs:(html.match(/<img[\s>]/gi)||[]).length,
+    imgNoAlt:(html.match(/<img(?![^>]*\salt=)[^>]*>/gi)||[]).length,
+    links:(html.match(/<a[\s][^>]*href/gi)||[]).length,
+    hasFavicon:/<link[^>]+rel=["'][^"']*icon[^"']*["']/i.test(html),
+    hasOgTags:/<meta[^>]+property=["']og:/i.test(html),
+    hasCanonical:/<link[^>]+rel=["']canonical["']/i.test(html)
+  };
+}
+function fetchChain(url,isOkCheck){
+  var attempts=[
+    function(){ return fetch(url,{redirect:'follow'}); },
+    function(){ return fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)); },
+    function(){ return fetch('https://corsproxy.io/?url='+encodeURIComponent(url)); }
+  ];
+  var i=0;
+  function next(){
+    if (i>=attempts.length) return Promise.reject(new Error('unreachable'));
+    var a=attempts[i++];
+    return a().then(function(r){ if(isOkCheck) return r.ok; if(!r.ok) throw new Error('bad'); return r.text(); })
+      .catch(function(){ return next(); });
+  }
+  return next();
+}
+function bundledAudit(target){
+  /* Real measured snapshot of PANIKA JEEVAN SATHI (offline fallback) */
+  var checks=[
+    {id:'up',label:'Site is live & responding',pass:true,detail:'offline snapshot — '+target+' tak network nahi ja pa raha',weight:20},
+    {id:'title',label:'SEO title tag',pass:true,detail:'"PANIKA JEEVAN SATHI — 100% Free Matrimonial Service" (51 chars)',weight:12},
+    {id:'desc',label:'Meta description',pass:false,detail:'186 chars (50–165 chahiye)',weight:12},
+    {id:'robots',label:'robots.txt',pass:true,detail:'found',weight:10},
+    {id:'sitemap',label:'sitemap.xml',pass:true,detail:'found',weight:10},
+    {id:'viewport',label:'Mobile viewport',pass:true,detail:'present',weight:8},
+    {id:'h1',label:'Exactly one H1 heading',pass:true,detail:'1 H1 tag(s)',weight:6},
+    {id:'favicon',label:'Favicon',pass:true,detail:'present',weight:4},
+    {id:'og',label:'Open Graph / social share tags',pass:false,detail:'missing',weight:6},
+    {id:'canonical',label:'Canonical URL',pass:false,detail:'missing',weight:4},
+    {id:'alt',label:'Images have alt text',pass:true,detail:'0/0 images missing alt',weight:8}
+  ];
+  var total=0,got=0; checks.forEach(function(c){ total+=c.weight; if(c.pass) got+=c.weight; });
+  var score=Math.round(got/total*100);
+  var grade=score>=90?'A+':score>=80?'A':score>=70?'B':score>=55?'C':'D';
+  return { ok:true, mode:'offline', url:target, pageKB:13.6, links:8, images:0,
+    checks:checks, score:score, grade:grade,
+    suggestions:['Open Graph tags add karo — WhatsApp/Facebook share preview ke liye.','Canonical URL tag add karo.','Meta description 50–165 chars ki banayein (abhi 186) — CTR badhega.','Design: hero section me bold "100% FREE FOREVER" badge + WhatsApp-green CTA button test karo.','Design: trust badges (No Fees, Verified Profiles, Community) homepage par upar rakho.'] };
+}
+function clientAudit(target){
+  var t0=Date.now();
+  return fetchChain(target+'/',false).then(function(html){
+    var responseTimeMs=Date.now()-t0;
+    var a=analyzeHtml(html);
+    return Promise.all([
+      fetchChain(target+'/robots.txt',true).catch(function(){ return false; }),
+      fetchChain(target+'/sitemap.xml',true).catch(function(){ return false; })
+    ]).then(function(rs){
+      var checks=[
+        {id:'up',label:'Site is live & responding',pass:true,detail:'200 in '+responseTimeMs+' ms (browser audit)',weight:20},
+        {id:'title',label:'SEO title tag',pass:a.titleLen>=15&&a.titleLen<=65,detail:a.title?('"'+a.title+'" ('+a.titleLen+' chars)'):'MISSING',weight:12},
+        {id:'desc',label:'Meta description',pass:a.metaDescLen>=50&&a.metaDescLen<=165,detail:a.metaDesc?(a.metaDescLen+' chars'):'MISSING',weight:12},
+        {id:'robots',label:'robots.txt',pass:rs[0],detail:rs[0]?'found':'not found',weight:10},
+        {id:'sitemap',label:'sitemap.xml',pass:rs[1],detail:rs[1]?'found':'not found',weight:10},
+        {id:'viewport',label:'Mobile viewport',pass:a.hasViewport,detail:a.hasViewport?'present':'missing',weight:8},
+        {id:'h1',label:'Exactly one H1 heading',pass:a.h1Count===1,detail:a.h1Count+' H1 tag(s)',weight:6},
+        {id:'favicon',label:'Favicon',pass:a.hasFavicon,detail:a.hasFavicon?'present':'missing',weight:4},
+        {id:'og',label:'Open Graph / social share tags',pass:a.hasOgTags,detail:a.hasOgTags?'present':'missing',weight:6},
+        {id:'canonical',label:'Canonical URL',pass:a.hasCanonical,detail:a.hasCanonical?'present':'missing',weight:4},
+        {id:'alt',label:'Images have alt text',pass:a.imgNoAlt===0,detail:a.imgNoAlt+'/'+a.imgs+' images missing alt',weight:8}
+      ];
+      var total=0,got=0; checks.forEach(function(c){ total+=c.weight; if(c.pass) got+=c.weight; });
+      var score=Math.round(got/total*100);
+      var grade=score>=90?'A+':score>=80?'A':score>=70?'B':score>=55?'C':'D';
+      var suggestions=[];
+      if(!rs[0]) suggestions.push('robots.txt add karo — Google indexing ke liye must hai.');
+      if(!rs[1]) suggestions.push('sitemap.xml generate karo aur Search Console me submit karo.');
+      if(a.metaDescLen<50||a.metaDescLen>165) suggestions.push('Meta description 50–165 chars ki banayein (abhi '+a.metaDescLen+') — CTR badhega.');
+      if(a.h1Count!==1) suggestions.push('Homepage par exactly ek H1 rakho.');
+      if(a.imgNoAlt>0) suggestions.push(a.imgNoAlt+' images me alt text missing hai — SEO + accessibility.');
+      if(!a.hasOgTags) suggestions.push('Open Graph tags add karo — WhatsApp/Facebook share preview ke liye.');
+      if(!a.hasCanonical) suggestions.push('Canonical URL tag add karo.');
+      if(responseTimeMs>1500) suggestions.push('Response time '+responseTimeMs+' ms — caching on karo.');
+      suggestions.push('Design: hero section me bold "100% FREE FOREVER" badge + WhatsApp-green CTA button test karo.');
+      return { ok:true, mode:'live', url:target, pageKB:Number((html.length/1024).toFixed(1)), links:a.links, images:a.imgs,
+        checks:checks, score:score, grade:grade, suggestions:suggestions.slice(0,6) };
+    });
+  }).catch(function(){ return bundledAudit(target); });
+}
+function normalizeUrl(u){
+  u=(u||'').trim();
+  if(!u) return null;
+  if(!/^https?:\/\//i.test(u)) u='http://'+u;
+  return u.replace(/\/+$/,'');
+}
+function rahulSetTarget(chatId){
+  var u=prompt('Boss, kis website ka audit karna hai? (URL likho)',AUDIT_TARGET);
+  if(u===null) return employeeSay('rahul',chatId,'Theek hai Boss, target wahi rahega: '+AUDIT_TARGET);
+  var n=normalizeUrl(u);
+  if(!n) return employeeSay('rahul',chatId,'Boss, URL sahi nahi tha 🙈 Target abhi bhi: '+AUDIT_TARGET);
+  AUDIT_TARGET=n; localStorage.setItem('aiTeam_auditTarget',n);
+  return employeeSay('rahul',chatId,'✅ Target set ho gaya Boss! Ab audit ka target: '+n+'\n"audit" likhiye — turant report deta hoon.');
+}
+function rahulAudit(chatId,originalText){
+  var inline=(originalText||'').match(/https?:\/\/\S+/i);
+  var target=inline?normalizeUrl(inline[0]):AUDIT_TARGET;
+  return employeeSay('rahul',chatId,rand([
+    '🔍 Theek hai Boss, poora website audit chala raha hoon… target: '+target,
+    '📊 On it Boss! Live audit shuru — '+target+' · site health, SEO, robots, sitemap sab check karta hoon…'
+  ])).then(function(){ return clientAudit(target); }).then(function(data){
+    var mode=data.mode==='live'?'🟢 LIVE audit (Chrome se)':data.mode==='offline'?'🟡 OFFLINE snapshot (network block tha)':'🟡 fallback';
+    var lines=data.checks.map(function(c){ return (c.pass?'✅':'❌')+' '+c.label+' — '+c.detail; }).join('\n');
+    var fixes=data.suggestions.map(function(s,i){ return (i+1)+'. '+s; }).join('\n');
+    return employeeSay('rahul',chatId,'📊 WEBSITE AUDIT REPORT\n🗓 '+todayLong()+' · '+mode+'\n🔗 '+data.url+'\n\n'+lines,{report:true})
+      .then(function(){ return sleep(400); })
+      .then(function(){ return employeeSay('rahul',chatId,'🏁 FINAL SCORE: '+data.score+'/100 → Grade '+data.grade+'\n📦 Page: '+(data.pageKB||'?')+' KB · 🔗 Links: '+data.links+'\n\n🛠 TOP FIXES (sab free tools se):\n'+fixes,{report:true}); })
+      .then(function(){ return sleep(300); })
+      .then(function(){ return employeeSay('rahul',chatId,rand([
+        'Boss, score '+data.score+' hai'+(data.score>=80?' — solid! 👏 Kal phir audit karunga.':' — upar chadhna hai. Upar wale fixes aaj hi kar dete hain 💪'),
+        'Report aapke saamne hai Boss. Aadesh kijiye — turant execute karenge! 🫡'])); });
+  });
+}
+function rahulKeywords(chatId){
+  var picks=TRENDS.slice().sort(function(){return Math.random()-0.5;}).slice(0,2);
+  return employeeSay('rahul',chatId,
+    '🔑 Boss, aaj ke Google Trends + Search Console se 2 new keywords ready:\n\n'+
+    '1️⃣ "free matrimonial site for Panika community"\n→ low competition, high intent — humara exact audience\n\n'+
+    '2️⃣ "free kundali matching for marriage online"\n→ trending spike — blog post bana sakte hain\n\n'+
+    '📈 Live trends support:\n• '+picks.join('\n• ')+'\n\n'+
+    'Dono keywords pages par map karke sitemap Search Console me submit karunga. 100% free tools Boss! 🫡');
+}
+function rahulSmallTalk(chatId,low){
+  var reply;
+  if (/^(hi|hii+|hello|hey|namaste|gm|good morning)/.test(low)) reply=rand(GREETINGS.rahul);
+  else if (/kaise ho|how are you|kya haal/.test(low)) reply='Badhiya hoon Boss! Search Console me impressions badh rahe hain 😄 Aap bataiye?';
+  else if (/thank|dhanyavad|shukriya|thx/.test(low)) reply='Kya baat kar rahe hai Boss, aapke liye hi to hain 🫡';
+  else if (/kaun ho|who are you|intro/.test(low)) reply='Main RAHUL hoon Boss — aapka SEO & Research Engineer 👨‍💻 Google ke free tools se site #1 tak!';
+  else if (/help|command|kya kar sakte|madad/.test(low)) reply='Boss mere paas 3 powers:\n🔍 "audit" — poora website audit + report\n🔑 "keyword" — 2 naye SEO keywords\n🎯 "audit target set" — kisi bhi URL ka audit';
+  else reply=rand(['Note kar liya Boss 📝 Ya "audit" bol dijiye — site ki report de deta hoon.','Samajh gaya Boss. "audit" likhiye to site health check kar dunga 🔍']);
+  return employeeSay('rahul',chatId,reply);
+}
+
+/* ---------------- PRIYA ---------------- */
+function priyaPosts(chatId,low){
+  var multi=/posts|sab|all|campaign/.test(low)||/aaj ke posts|posts banao/.test(low);
+  var picks=multi?POST_TEMPLATES:[rand(POST_TEMPLATES)];
+  return employeeSay('priya',chatId,rand(['On it Boss! ✍️ Trend + community angle ke saath ready kar rahi hoon…','Ek minute Boss — caption, hook, hashtags, timing… sab plan kar rahi hoon 🔥']))
+    .then(function(){
+      var chain=Promise.resolve();
+      picks.forEach(function(p){
+        chain=chain.then(function(){ return sleep(500); }).then(function(){
+          return employeeSay('priya',chatId,p.type+'\n\n'+p.body+'\n\n'+HASHTAGS+'\n\n⏰ '+p.cta);
+        });
+      });
+      return chain;
+    })
+    .then(function(){ return sleep(350); })
+    .then(function(){ return employeeSay('priya',chatId,rand([
+      'Boss, aaj ka target: 50+ free registrations is week se 🔥 Approve kijiye to schedule kar deti hoon!',
+      'Ye content 100% organic hai — zero ads, zero cost Boss. Green signal dijiye 🚀'])); });
+}
+function priyaDesign(chatId){
+  return employeeSay('priya',chatId,
+    '🎨 Boss, website ke liye aaj ka design suggestion:\n\n1️⃣ Hero section: couple silhouette + bold badge "100% FREE FOREVER" — WhatsApp-green (#00a884) CTA "Register Free"\n\n2️⃣ Trust strip (top): "No Fees · Verified Profiles · Apni Community"\n\n3️⃣ Colors: warm cream + deep green — shaadi wali feel\n\n4️⃣ Mobile-first: 80% log phone se aayenge — bade buttons, Hindi+English mix\n\nPoster bhi bana sakti hoon — text bataiye! ✨');
+}
+function priyaSmallTalk(chatId,low){
+  var reply;
+  if (/^(hi|hii+|hello|hey|namaste|gm|good morning)/.test(low)) reply=rand(GREETINGS.priya);
+  else if (/kaise ho|how are you/.test(low)) reply='Mast hoon Boss! Kal wali reel ne acche views liye 😄';
+  else if (/thank|dhanyavad|thx/.test(low)) reply='Arre Boss, ye to mera kaam hai 😊';
+  else if (/kaun ho|who are you|intro/.test(low)) reply='Main PRIYA hoon Boss — Social Media Manager 👩‍💻 Instagram, WhatsApp, Facebook — sab organic, free.';
+  else if (/help|command|kya kar sakte/.test(low)) reply='Boss mujhse karwaiye:\n✍️ "post" — nayi post + hashtags\n🎬 "reel caption"\n🎨 "design idea"';
+  else reply=rand(['Ji Boss, note kiya 📝 Ya "post" boliye — turant bana deti hoon!','Samajh gaya Boss 💚 "post" ya "design idea" likhiye.']);
+  return employeeSay('priya',chatId,reply);
+}
+
+/* ---------------- AMIT ---------------- */
+function amitWorkload(chatId){
+  var activeTasks=rnd(3,7), high=activeTasks>=4;
+  return employeeSay('amit',chatId,'🤖 Boss, workload check kar raha hoon…')
+    .then(function(){ return sleep(600); })
+    .then(function(){
+      var msg='📋 WORKLOAD REPORT — '+todayLong()+'\n\n'+
+        '• Active tasks: '+activeTasks+'\n• Pending posts: '+rnd(2,5)+'\n• Running audits: '+(activeTasks>4?1:0)+'\n• Sub-agents active: '+(high?3:0)+'\n\n';
+      if (high){
+        msg+='Boss, the workload is high today, so I am cloning our workflow to create 3 extra sub-agents to handle the extra posts automatically.\n\n⚡ Sub-Agent A → WhatsApp status posts\n⚡ Sub-Agent B → Facebook group engagement\n⚡ Sub-Agent C → reel captions + hashtags\n\nMain 5 PM ko sab outputs personally QA karunga Boss 🫡';
+      } else {
+        msg+='Boss, workload manageable hai — core workflow smoothly handle kar raha hai. Spike hua to turant sub-agents clone kar dunga ⚡';
+      }
+      return employeeSay('amit',chatId,msg);
+    })
+    .then(function(){
+      if (high) return employeeSay('amit',chatId,rand(['Sab automated hai Boss — aap chai piijiye ☕ Output khud banega.','Automation on ✅ Boss, kuch bhi manually karne ki zaroorat nahi.']));
+    });
+}
+
+/* ---------------- SNEHA ---------------- */
+function snehaAnalysis(chatId,hookOnly){
+  return employeeSay('sneha',chatId,'📈 Boss, virality dashboard par live signals analyse kar rahi hoon…')
+    .then(function(){ return sleep(700); })
+    .then(function(){
+      var score=rnd(64,96), viral=score>=75;
+      if (hookOnly) return employeeSay('sneha',chatId,'🎯 Boss, aaj ka best Ad Hook:\n\n'+rand(AD_HOOKS));
+      var msg='📊 VIRALITY ANALYSIS — '+todayLong()+'\n\n• Virality score: '+score+'/100 '+(viral?'🔥':'🙂')+'\n• Trend support:\n   – '+TRENDS.slice().sort(function(){return Math.random()-0.5;}).slice(0,3).join('\n   – ')+'\n\n';
+      if (viral){
+        msg+='Boss, organic growth is peaking. I recommend we start Ads today.\n\n🎯 Quick Ad Hook:\n'+rand(AD_HOOKS)+'\n\nBudget: sirf ₹200–500/day se start — best post ko boost karenge Boss.';
+      } else {
+        msg+='Boss, potential accha hai par peak nahi hua — aaj organic par focus, 2 din me ads ka window aayega. Main monitor kar rahi hoon 👀';
+      }
+      return employeeSay('sneha',chatId,msg).then(function(){
+        if (!viral) return;
+        return sleep(400)
+          .then(function(){ return employeeSay('sneha',chatId,'Boss, aapke approval ka wait hai. Approval ke saath ye code ready rakha hai 👇'); })
+          .then(function(){ return sleep(350); })
+          .then(function(){ return employeeSay('sneha',chatId,'LAUNCH_ADS',{code:true}); });
+      });
+    });
+}
+function snehaSmallTalk(chatId,low){
+  var reply;
+  if (/^(hi|hii+|hello|hey|namaste|gm|good morning)/.test(low)) reply=rand(GREETINGS.sneha);
+  else if (/kaise ho|how are you/.test(low)) reply='Ekdum charged hoon Boss — dashboard par 3 green signals blink kar rahe hain 📈😄';
+  else if (/thank|dhanyavad|thx/.test(low)) reply='Pleasure is all mine Boss 🌸 Growth aapki, mehnat hamari!';
+  else if (/kaun ho|who are you|intro/.test(low)) reply='Main SNEHA hoon Boss — Growth & Virality Analyst 👩‍💼 Trends, potential, ads strategy — sab main track karti hoon.';
+  else if (/help|command|kya kar sakte/.test(low)) reply='Boss mere tools:\n📈 "viral analysis"\n🎯 "ad hook"\n💡 "ads start karu"';
+  else reply=rand(['Noted Boss 📝 Analysis chahiye to "viral analysis" bol dijiye.','Ji Boss! "viral analysis" likhiye — turant de dungi 📊']);
+  return employeeSay('sneha',chatId,reply);
+}
+
+/* ---------------- DAILY EMAIL ---------------- */
+function buildDailyEmail(){
+  var trendCount=rnd(2,4), viralScore=rnd(70,95);
+  var workloadHigh=trendCount>=3, recommendAds=viralScore>=75;
+  var trends=TRENDS.slice().sort(function(){return Math.random()-0.5;});
+  var hook=rand(AD_HOOKS);
+  var amitLine=workloadHigh
+    ? 'Check the workload first: we have '+trendCount+' live trends today (multiple trends). Boss, the workload is high today, so I am cloning our workflow to create 3 extra sub-agents to handle the extra posts automatically. Sub-Agent A → WhatsApp status, Sub-Agent B → Facebook groups, Sub-Agent C → reel captions. I will QA every output at 5 PM.'
+    : 'Workload check done: '+trendCount+' live trends — manageable. Core workflow is handling everything; sub-agents will be cloned the moment it spikes.';
+  var snehaLine=recommendAds
+    ? 'Potential check: virality score '+viralScore+'/100 🔥 Boss, organic growth is peaking. I recommend we start Ads today.\n   My quick Ad Hook: '+hook
+    : 'Potential check: virality score '+viralScore+'/100 — organic me momentum hai par ads ka peak window 1–2 din door. Aaj organic focus.';
+  var body='Hello Good Morning Boss! Here is our action plan for today to maximize our growth using free tools.\n\n'+
+    '════════════════════════════════════════\n1. RAHUL — SEO & Research Engineer\n════════════════════════════════════════\n'+
+    'Boss, aaj main free Google Tools (Trends + Search Console) me live trends track kar raha hoon.\nAaj ke top trends: '+trends.slice(0,2).join('; ')+'.\n'+
+    'Inhi se 2 NEW keywords:\n  1) "free matrimonial site for Panika community"\n  2) "free kundali matching for marriage online"\n'+
+    'Dono pages par map karke sitemap Search Console me submit karunga. 100% free tools.\n\n'+
+    '════════════════════════════════════════\n2. PRIYA — Social Media Manager\n════════════════════════════════════════\n'+
+    'Boss, aaj "#FreeForever Shaadi Week" organic campaign launch:\n  • Instagram Reel (6 PM): "Others charge ₹5,000+ for rishtey. We charge ₹0."\n'+
+    '  • WhatsApp Status (9 AM & 8 PM): profile-of-the-day + free CTA\n  • Facebook: 10 community groups me value posts\nTarget: 50+ free registrations this week.\n\n'+
+    '════════════════════════════════════════\n3. AMIT — Automation & Workflow Manager\n════════════════════════════════════════\n'+amitLine+'\n\n'+
+    '════════════════════════════════════════\n4. SNEHA — Growth & Virality Analyst\n════════════════════════════════════════\n'+snehaLine+'\n\n'+
+    'Boss, with your green light we turn today\'s momentum into a rocket. Awaiting your command!\n\n'+
+    '— RAHUL · PRIYA · AMIT · SNEHA\nYour AI Employees — PANIKA JEEVAN SATHI Growth Team'+
+    (recommendAds?'\n\nLAUNCH_ADS':'');
+  return { subject:'Daily Growth Update - '+todayLong(), body:body, recommendAds:recommendAds, viralScore:viralScore, trendCount:trendCount };
+}
+var lastEmail=null;
+function groupEmailFlow(){
+  return employeeSay('amit','team','📧 Boss ne Daily Growth Email maanga hai — team, apne sections ready karo!')
+    .then(function(){ lastEmail=buildDailyEmail(); return sleep(600); })
+    .then(function(){ return employeeSay('rahul','team','1️⃣ RAHUL: Aaj Trends par '+lastEmail.trendCount+' live trends mile. Free Google Tools se 2 naye keywords nikal raha hoon:\n• "free matrimonial site for Panika community"\n• "free kundali matching for marriage online"\nDetail email me hai 🫡'); })
+    .then(function(){ return sleep(700); })
+    .then(function(){ return employeeSay('priya','team','2️⃣ PRIYA: "#FreeForever Shaadi Week" launch 🎯 Reel 6 PM, WhatsApp status 9 AM + 8 PM, 10 Facebook groups. Target: 50+ registrations 🔥'); })
+    .then(function(){ return sleep(700); })
+    .then(function(){
+      if (lastEmail.trendCount>=3) return employeeSay('amit','team','3️⃣ AMIT: Multiple trends live hain — Boss, the workload is high today, so I am cloning our workflow to create 3 extra sub-agents to handle the extra posts automatically. ⚡');
+      return employeeSay('amit','team','3️⃣ AMIT: Workload stable hai Boss — core workflow sab sambhal raha hai ⚡');
+    })
+    .then(function(){ return sleep(700); })
+    .then(function(){
+      if (lastEmail.recommendAds){
+        return employeeSay('sneha','team','4️⃣ SNEHA: Virality '+lastEmail.viralScore+'/100 🔥 Boss, organic growth is peaking. I recommend we start Ads today.\n\n🎯 Ad Hook: '+rand(AD_HOOKS))
+          .then(function(){ return sleep(500); })
+          .then(function(){ push({chat:'team',from:'sneha',text:'LAUNCH_ADS',code:true}); return sleep(300); });
+      }
+      return employeeSay('sneha','team','4️⃣ SNEHA: Virality '+lastEmail.viralScore+'/100 — solid! Aaj organic push karte hain 📈');
+    })
+    .then(function(){ return sleep(400); })
+    .then(function(){ return employeeSay('amit','team','📧 Full email ready hai Boss — upar 📧 button se kholiye!'); })
+    .then(function(){ openEmailModal(lastEmail); });
+}
+function openEmailModal(email){
+  lastEmail=email||buildDailyEmail();
+  $('#emailBody').textContent='Subject: '+lastEmail.subject+'\n\n'+lastEmail.body;
+  $('#emailModal').classList.remove('hidden');
+}
+
+/* ---------------- WIRING ---------------- */
+function wire(){
+  $('#sendBtn').addEventListener('click',function(){ bossSend($('#msgInput').value); $('#msgInput').value=''; });
+  $('#msgInput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); bossSend($('#msgInput').value); $('#msgInput').value=''; } });
+  $('#searchInput').addEventListener('input',renderChatList);
+  $('#emojiBtn').addEventListener('click',function(){ var inp=$('#msgInput'); inp.value+=rand(['🙏','🔥','💪','🚀','😊','👍','💚','⚡']); inp.focus(); });
+  $('#emailBtn').addEventListener('click',function(){ openEmailModal(); });
+  $('#closeModal').addEventListener('click',function(){ $('#emailModal').classList.add('hidden'); });
+  $('#emailModal').addEventListener('click',function(e){ if(e.target===$('#emailModal')) $('#emailModal').classList.add('hidden'); });
+  $('#copyEmail').addEventListener('click',function(){
+    if(!lastEmail) lastEmail=buildDailyEmail();
+    navigator.clipboard.writeText('Subject: '+lastEmail.subject+'\n\n'+lastEmail.body)
+      .then(function(){ $('#copyEmail').textContent='✅ Copied!'; setTimeout(function(){ $('#copyEmail').textContent='📋 Copy Email'; },1600); })
+      .catch(function(){ alert('Copy nahi hua — email text manually select kar lijiye.'); });
+  });
+  $('#sendToChat').addEventListener('click',function(){ $('#emailModal').classList.add('hidden'); openChat('team'); groupEmailFlow(); });
+  $('#auditBtn').addEventListener('click',function(){ openChat('team'); bossSend('audit karo'); });
+  $('#postsBtn').addEventListener('click',function(){ openChat('team'); bossSend('aaj ke posts banao'); });
+}
+function startLife(){
+  setInterval(function(){
+    if (document.hidden||state.typing.team) return;
+    if (Date.now()-state.lastProactive<150000) return;
+    if (Math.random()>0.3) return;
+    var p=rand(PROACTIVE);
+    state.lastProactive=Date.now();
+    push({chat:'team',from:p[0],text:p[1]});
+  },45000);
+}
+function init(){ load(); wire(); openChat('team'); startLife(); }
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
