@@ -1,0 +1,93 @@
+# PANIKA JEEVAN SATHI — Browser E2E testing (real Chromium via Playwright)
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, 2 minutes):
+# GitHub does not allow automated tools to install workflows directly, so the
+# owner must copy this file once:
+#   1. On github.com open your repository → "Add file" → "Create new file"
+#   2. Name it exactly:  .github/workflows/browser-e2e.yml
+#   3. Paste the FULL contents of this file and commit.
+# After that it runs every day automatically (and on push/PR to main).
+#
+# SITE_URL is auto-resolved — nothing needs to be set by hand:
+#   1. workflow_dispatch input `site_url`   explicit override (optional)
+#   2. `PJS_PRODUCTION_URL` repo secret     production URL, set once per deploy
+#   3. `RENDER_API_KEY` repo secret         queries api.render.com and picks the
+#                                           live panika-jeevan-sathi service
+#   4. none available                       the suite boots its own local server,
+#                                           so every branch/PR run still executes
+#                                           the complete real-browser journey
+#
+# Runs automatically:
+#   • every day at 04:15 UTC (09:45 IST) against the deployed production URL
+#   • on every push / PR to main (full suite as a pre-merge gate)
+#   • on demand from the Actions tab (workflow_dispatch)
+#
+# Every step also checks: console errors, failed API requests (HTTP >= 400),
+# broken links / missing assets (internal crawl), page loading and runtime
+# JS exceptions. Failures include screenshots and a report artifact.
+
+name: Browser E2E (Playwright)
+
+on:
+  schedule:
+    - cron: '15 4 * * *' # daily, 04:15 UTC = 09:45 IST
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Base URL to test (empty = auto-resolve the production URL)'
+        required: false
+        default: ''
+
+jobs:
+  browser-e2e:
+    name: Playwright end-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: browser-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Resolve production URL (SITE_URL auto-detection)
+        id: resolve
+        run: |
+          node ../scripts/resolve-prod-url.mjs --input "${{ inputs.site_url }}" --json > resolved.json
+          SITE_URL="$(node -e "const r = require('./resolved.json'); process.stdout.write(r.url || '')")"
+          echo "SITE_URL=$SITE_URL" >> "$GITHUB_ENV"
+          if [ -n "$SITE_URL" ]; then
+            echo "Targeting production: $SITE_URL"
+          else
+            echo "No production URL configured — suite will boot its own local server"
+          fi
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          PJS_PRODUCTION_URL: ${{ secrets.PJS_PRODUCTION_URL }}
+
+      - name: Install Playwright + Chromium (bundled in npm packages)
+        run: npm install --no-audit --no-fund
+
+      - name: Run the full browser E2E suite
+        run: node run.mjs
+        env:
+          SITE_URL: ${{ env.SITE_URL }}
+
+      - name: Upload screenshots & report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-e2e-artifacts
+          path: |
+            browser-tests/artifacts
+            browser-tests/report.md
+          if-no-files-found: ignore

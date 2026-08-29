@@ -95,7 +95,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   height: var(--header-h); display: flex; align-items: center; gap: 14px;
   max-width: 1140px; margin: 0 auto; padding: 0 18px;
 }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none !important; color: var(--ink); }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none !important; color: var(--ink); min-width: 0; }
+/* Keep the header inside narrow phone screens: the brand text may shrink and
+   ellipsize instead of pushing the menu button off-screen (15px overflow). */
+.brand > span:not(.brand-mark) { min-width: 0; overflow: hidden; }
+.brand-name, .brand-sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .brand-mark {
   width: 40px; height: 40px; border-radius: 13px; flex: none;
   background: linear-gradient(140deg, var(--brand-deep), var(--brand-2) 55%, var(--gold));

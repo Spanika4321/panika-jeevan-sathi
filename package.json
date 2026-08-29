@@ -10,6 +10,7 @@
     "check": "node scripts/check-syntax.mjs",
     "health": "node scripts/health-check.mjs",
     "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs",
+    "test:browser": "node browser-tests/run.mjs",
     "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs",
     "test:cloud": "node scripts/e2e-cloud-test.mjs",
     "test:sigv4": "node scripts/test-sigv4.mjs",
