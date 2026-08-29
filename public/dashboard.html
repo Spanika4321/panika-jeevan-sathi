@@ -83,6 +83,8 @@
         <div id="notifList"><div class="skeleton" style="height:60px"></div></div>
       </section>
 
+      <section class="card mb-3" id="boostCard"></section>
+
       <section class="card" style="background:linear-gradient(160deg,#4a0f24,#8e1f41);color:#fff;border:0">
         <h3 style="color:#fff">Free support</h3>
         <p style="font-size:14px;color:#f2dde6">Profile help, corrections or reporting a member — our team replies on WhatsApp.</p>
@@ -205,6 +207,15 @@
         <a class="btn ghost sm" href="/profile.html?id=${me.user.id}">View my profile</a>
         <a class="btn sm" href="/edit-profile.html">Edit</a>
       </div>`;
+
+    const featured = Boolean(profile.featured);
+    $('boostCard').innerHTML = featured
+      ? `<h3 class="mb-0">Your profile is featured</h3>
+         <p class="small muted">It appears at the top of search and matches. Every other feature stays free.</p>
+         <span class="chip gold">Featured</span>`
+      : `<h3 class="mb-0">Want more families to see you?</h3>
+         <p class="small muted">Optional highlight via UPI — not required. Search, interests and messaging stay free.</p>
+         <a class="btn gold sm" href="/support.html">Support / feature my profile</a>`;
 
     /* matches */
     const matches = await PJS.get('/api/matches?limit=8');

@@ -106,6 +106,17 @@ You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 Without SMTP the verification / reset links are shown on screen to the member and copied to
 `data/outbox/` (visible in the admin panel → **Emails**), so nothing is ever lost.
 
+## Earning money (₹0 to start)
+
+Do **not** buy Razorpay, Stripe or a paid SMS/email pack. After the site is live:
+
+1. Open **Admin → Earn** and paste your **UPI ID** (PhonePe / GPay / BHIM — free).
+2. Share `/support.html`. Members can send any amount. You confirm the UTR in the admin panel.
+3. Optional featured listing: when you confirm a “featured” UPI note, that profile appears first in search.
+4. When you have traffic, apply for **Google AdSense** (free) and paste `ca-pub-…` in the same Earn tab.
+
+Member registration, search, interests and messaging stay free.
+
 ## Backups
 
 Everything lives in `PJS_DATA_DIR`: the SQLite database, uploaded photos (`uploads/`) and the mail

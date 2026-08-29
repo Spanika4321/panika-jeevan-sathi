@@ -70,6 +70,7 @@
           <p style="margin:0;color:#f6e3ea">${PJS.esc(ageBits)}</p>
           ${p.headline ? `<p style="margin:6px 0 0;color:#f9eef2;font-family:var(--serif);font-size:17px">${PJS.esc(p.headline)}</p>` : ''}
           <div class="chips mt-2">
+            ${data.featured || p.featured ? `<span class="chip gold">Featured</span>` : ''}
             ${p.community ? `<span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff">${PJS.esc(p.community)}</span>` : ''}
             ${p.religion ? `<span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff">${PJS.esc(p.religion)}</span>` : ''}
             ${place ? `<span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff">${PJS.icons.pin} ${PJS.esc(place)}</span>` : ''}
