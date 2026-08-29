@@ -501,9 +501,19 @@
   PJS.onReady(async function () {
     if (!PJS.requireAuth()) return;
     if (!PJS.me || PJS.me.role !== 'admin') {
-      $('gate').innerHTML = `<div class="alert error"><b>Administrator access required</b>
-        This area is only for site administrators. Log in with an administrator account.
-        <div class="mt-1"><a class="btn sm" href="/login.html">Log in</a></div></div>`;
+      const email = PJS.me && PJS.me.email ? PJS.esc(PJS.me.email) : '';
+      $('gate').innerHTML = `<div class="alert error">
+        <b>Yeh account normal member hai — admin nahi</b>
+        Aap abhi <b>${email}</b> se logged in hain. Is account ka role <b>Member</b> hai, isliye admin panel nahi khulega.
+        <p class="small mt-1 mb-0">Site owner account se login karein (email: <b>sukulpanika939@gmail.com</b>).
+        Agar aap usi email se pehle register ho chuke ho, page refresh karke dubara try karein — server ab us account ko administrator bana deta hai.</p>
+        <div class="btn-row mt-2">
+          <a class="btn sm" href="/login.html?next=${encodeURIComponent('/admin.html')}">Log in as administrator</a>
+          <button class="btn ghost sm" id="adminLogout" type="button">Log out of this member account</button>
+        </div>
+      </div>`;
+      const lo = $('adminLogout');
+      if (lo) lo.onclick = () => PJS.logout();
       return;
     }
     $('panel').classList.remove('hide');

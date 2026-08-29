@@ -17,6 +17,7 @@ const dbLib = require('./lib/db');
 const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
+const ownerLib = require('./lib/owner');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -42,21 +43,31 @@ const api = apiLib.createApi({ db: driver, secret, dataDir: DATA_DIR });
 /* ------------------------------------------------------- first-run bootstrap */
 
 function ensureAdmin() {
-  const existing = driver.one('users', { role: 'admin' });
-  if (existing) return;
-  const email = (process.env.ADMIN_EMAIL || 'admin@panikajeevansathi.com').toLowerCase();
-  const provided = process.env.ADMIN_PASSWORD;
-  let password = provided;
-  let generated = false;
-  if (!password) {
-    password = authLib.randomToken(6) + 'Aa1';
-    generated = true;
-  }
+  const primary = (process.env.ADMIN_EMAIL || ownerLib.DEFAULT_OWNER_EMAIL).trim().toLowerCase();
+  const password = ownerLib.defaultOwnerPassword();
   const now = Date.now();
+
+  for (const email of ownerLib.ownerEmails()) {
+    const existing = driver.one('users', { email });
+    if (!existing) continue;
+    if (existing.role === 'admin' && existing.status === 'active' && Number(existing.email_verified) === 1) continue;
+    driver.update(
+      'users',
+      { id: existing.id },
+      { role: 'admin', status: 'active', email_verified: 1, verification_token: null }
+    );
+    console.log('');
+    console.log(`  Promoted existing member to administrator: ${email}`);
+    console.log('  Log in at /admin.html with this account’s existing password — it is no longer a normal user.');
+    console.log('');
+  }
+
+  if (driver.one('users', { email: primary })) return;
+
   const user = driver.insert('users', {
-    email,
+    email: primary,
     password_hash: authLib.hashPassword(password),
-    name: process.env.ADMIN_NAME || 'Site Administrator',
+    name: ownerLib.defaultOwnerName(),
     role: 'admin',
     status: 'active',
     email_verified: 1,
@@ -80,20 +91,19 @@ function ensureAdmin() {
 
   console.log('');
   console.log('  Administrator account created');
-  console.log(`  Email    : ${email}`);
-  console.log(`  Password : ${password}${generated ? '   (auto-generated — change it after first login)' : ''}`);
+  console.log(`  Email    : ${primary}`);
+  console.log(`  Password : ${password}`);
   console.log('  Panel    : /admin.html');
+  console.log('  This is the site-owner account — not a normal member.');
   console.log('');
-  if (generated) {
-    try {
-      fs.writeFileSync(
-        path.join(DATA_DIR, 'admin-credentials.txt'),
-        `email: ${email}\npassword: ${password}\nChange this password from the admin panel.\n`,
-        { mode: 0o600 }
-      );
-    } catch (_) {
-      /* ignore */
-    }
+  try {
+    fs.writeFileSync(
+      path.join(DATA_DIR, 'admin-credentials.txt'),
+      `email: ${primary}\npassword: ${password}\nLog in at /admin.html\nChange this password from Settings after first login.\n`,
+      { mode: 0o600 }
+    );
+  } catch (_) {
+    /* ignore */
   }
 }
 

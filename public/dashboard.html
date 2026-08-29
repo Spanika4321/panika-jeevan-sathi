@@ -121,6 +121,10 @@
 
     /* alerts */
     const alerts = [];
+    if (me.user.role === 'admin') {
+      alerts.push('<div class="alert success"><b>You are logged in as Administrator</b>' +
+        'This is the site-owner account, not a normal member. <a href="/admin.html">Open admin panel</a></div>');
+    }
     if (me.user.email_verified === false) {
       alerts.push('<div class="alert warn"><b>Please verify your email</b>' +
         'Verified profiles get more responses. <a href="#" id="resendVerify">Resend verification link</a></div>');
@@ -190,6 +194,7 @@
           <b style="font-size:16px">${PJS.esc(me.user.name)}</b>
           <div class="small muted">${PJS.esc([profile.age ? profile.age + ' yrs' : '', profile.city, profile.state].filter(Boolean).join(' · ') || 'Add your details')}</div>
           <div class="chips mt-1">
+            ${me.user.role === 'admin' ? '<span class="chip gold">Administrator</span>' : '<span class="chip">Member</span>'}
             ${me.user.email_verified ? '<span class="chip green">Email verified</span>' : '<span class="chip red">Email not verified</span>'}
             ${profile.visibility === 'hidden' ? '<span class="chip red">Hidden profile</span>' : '<span class="chip">Visible to members</span>'}
           </div>

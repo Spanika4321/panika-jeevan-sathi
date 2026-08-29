@@ -17,8 +17,10 @@ PORT=8080 node server.js
 
 Requirements: **Node.js 22.5 or newer** (uses the built-in `node:sqlite` driver). No `npm install` needed.
 
-On first start an administrator account is created. The generated password is printed once in the
-console and saved to `data/admin-credentials.txt` — log in at `/admin.html` and change it.
+On first start the **site-owner administrator** is created as `sukulpanika939@gmail.com` /
+`Panika@123` (override with `ADMIN_EMAIL` / `ADMIN_PASSWORD`). Log in at `/admin.html` and change
+the password. If you already registered that Gmail as a normal member, the next server start (or
+the next login) promotes it to administrator automatically — you will not stay a normal user.
 
 ```bash
 npm start          # run the site
@@ -103,6 +105,7 @@ lib/api.js              all REST endpoints
 lib/profiles.js         profile validation, privacy, search filters, match scoring
 lib/settings.js         editable website content
 lib/mailer.js           optional SMTP / outbox mailer
+lib/owner.js            site-owner emails that must stay administrators
 public/                 the website (HTML + CSS + JS, no build step, no CDN)
 public/assets/css/app.css
 public/assets/js/app.js     shared client: API, auth, chrome, helpers
@@ -137,7 +140,7 @@ GET/POST/PATCH/DELETE /api/admin/…   (administrators only)
 
 ## Tests
 
-`npm test` boots a real server on a temporary database and runs **114 assertions** covering:
+`npm test` boots a real server on a temporary database and runs **123 assertions** covering:
 
 registration, duplicate email, weak password, profile save/validation, photo upload + serving,
 rejection of non-images, every search filter, match scoring, interest flow (send → receive → accept,

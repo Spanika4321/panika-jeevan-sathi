@@ -160,7 +160,11 @@
       tabs[key].classList.toggle('active', key === which);
     });
     message.innerHTML = '';
-    window.history.replaceState({}, '', which === 'login' ? '/login.html' : '/login.html?tab=' + which);
+    const params = new URLSearchParams(window.location.search);
+    if (which === 'login') params.delete('tab');
+    else params.set('tab', which);
+    const qs = params.toString();
+    window.history.replaceState({}, '', '/login.html' + (qs ? '?' + qs : ''));
   }
 
   function alertBox(type, title, html) {
@@ -208,7 +212,10 @@
     if (res.ok) {
       PJS.me = res.user;
       alertBox('success', res.message || 'Logged in');
-      setTimeout(function () { window.location.href = nextUrl(); }, 350);
+      const dest = PJS.qs('next')
+        ? nextUrl()
+        : (res.user && res.user.role === 'admin' ? '/admin.html' : nextUrl());
+      setTimeout(function () { window.location.href = dest; }, 350);
       return;
     }
     if (res.code === 'email_not_verified') {
@@ -285,7 +292,9 @@
       return;
     }
     alertBox('success', res.message || 'Welcome!');
-    setTimeout(function () { window.location.href = '/edit-profile.html?welcome=1'; }, 400);
+    setTimeout(function () {
+      window.location.href = (res.user && res.user.role === 'admin') ? '/admin.html' : '/edit-profile.html?welcome=1';
+    }, 400);
   });
 
   /* ------------------------------------------------------------ forgot */
@@ -337,7 +346,13 @@
     const tab = PJS.qs('tab');
     show(tab === 'register' || tab === 'forgot' ? tab : 'login');
     if (PJS.me) {
-      alertBox('info', 'You are already logged in', '<a href="/dashboard.html">Go to your dashboard</a>');
+      const dest = PJS.me.role === 'admin' ? '/admin.html' : '/dashboard.html';
+      const label = PJS.me.role === 'admin' ? 'Open admin panel' : 'Go to your dashboard';
+      alertBox(
+        'info',
+        PJS.me.role === 'admin' ? 'You are logged in as Administrator' : 'You are already logged in',
+        '<a href="' + dest + '">' + label + '</a>'
+      );
     }
   });
 })();

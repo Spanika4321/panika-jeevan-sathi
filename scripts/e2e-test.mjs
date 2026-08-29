@@ -115,6 +115,7 @@ async function main() {
       PJS_DATA_DIR: DATA_DIR,
       ADMIN_EMAIL,
       ADMIN_PASSWORD,
+      OWNER_EMAILS: 'owner@test.com',
       NODE_NO_WARNINGS: '1'
     },
     stdio: ['ignore', 'pipe', 'pipe']
@@ -179,6 +180,7 @@ async function main() {
       looking_for: 'male'
     });
     check('female member registers', res.status === 200);
+    check('ordinary registration is a normal member, not admin', res.body.user.role === 'user');
     const meeraId = res.body.user.id;
 
     res = await meera.get('/api/me');
@@ -461,6 +463,20 @@ async function main() {
 
     res = await ravi.get('/api/admin/stats');
     check('non-admin blocked from admin API', res.status === 403);
+
+    const ownerCli = client();
+    res = await ownerCli.post('/api/auth/register', {
+      name: 'Site Owner',
+      email: 'owner@test.com',
+      password: 'Passw0rd123'
+    });
+    check(
+      'owner email registers as administrator, not a normal user',
+      res.status === 200 && res.body.user && res.body.user.role === 'admin',
+      JSON.stringify(res.body)
+    );
+    res = await ownerCli.get('/api/admin/stats');
+    check('owner account can open the admin panel API', res.status === 200);
 
     res = await admin.get('/api/admin/users?q=meera');
     check('admin user search', res.body.users.length === 1 && res.body.users[0].name === 'Meera Kanwar');
