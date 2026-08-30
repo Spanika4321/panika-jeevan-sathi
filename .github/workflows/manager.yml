@@ -1,0 +1,44 @@
+name: Agent Manager
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manager:
+    name: Manager — coordinate Pooja, Priya & Guardian
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Project syntax
+        run: npm run check
+
+      - name: Run Pooja
+        run: node agents/pooja.mjs
+
+      - name: Run Priya
+        run: node agents/priya.mjs
+
+      - name: Run Guardian
+        run: node scripts/health-check.mjs
+
+      - name: Save Manager report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manager-report
+          path: reports/agents/
+          if-no-files-found: ignore

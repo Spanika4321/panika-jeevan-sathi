@@ -1,0 +1,35 @@
+name: Priya — Community Growth Worker
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  priya:
+    name: Campaign & community growth
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Run Priya
+        run: node agents/priya.mjs
+
+      - name: Upload Priya report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priya-campaign-report
+          path: reports/agents/priya-latest.json
+          if-no-files-found: ignore

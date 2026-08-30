@@ -1,0 +1,23 @@
+{
+  "project": "PANIKA JEEVAN SATHI",
+  "site": "https://panikajeevansathi.onrender.com",
+  "guardian": "sardar",
+  "manager": "manager",
+  "workers": [
+    "pooja",
+    "priya"
+  ],
+  "daily": {
+    "backlink_opportunities": 10,
+    "campaign_ideas": 5,
+    "seo_tasks": 10,
+    "health_checks": true
+  },
+  "safety": {
+    "preserve_public_ui": true,
+    "no_private_message_reading": true,
+    "no_password_access": true,
+    "no_mass_social_posting": true,
+    "no_fake_success": true
+  }
+}

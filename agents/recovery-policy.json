@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "max_clones_per_worker_per_run": 1,
+  "clone_isolation": true,
+  "automatic_production_deploy": false,
+  "automatic_git_push": false,
+  "automatic_social_posting": false,
+  "private_message_access": false,
+  "password_access": false,
+  "guardian_final_verification": true,
+  "rollback_on_failed_verification": true
+}

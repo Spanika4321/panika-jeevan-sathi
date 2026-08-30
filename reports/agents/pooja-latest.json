@@ -1,0 +1,30 @@
+{
+  "agent": "Pooja",
+  "role": "SEO / Organic Growth Worker",
+  "generated_at": "2026-08-30T17:24:50.035Z",
+  "status": "BLOCKED",
+  "tasks": [
+    "Analyse indexability and technical SEO signals",
+    "Review sitemap/robots/canonical configuration",
+    "Identify relevant keyword opportunities",
+    "Prepare 10 genuine backlink opportunities",
+    "Reject irrelevant, paid, spam and duplicate backlink targets",
+    "Prepare internal-link improvement suggestions",
+    "Prepare search-content opportunities"
+  ],
+  "external": {
+    "google": {
+      "GOOGLE_SEARCH_CONSOLE_TOKEN": false
+    },
+    "gemini": {
+      "GEMINI_API_KEY": false
+    }
+  },
+  "policy": [
+    "No automated spam links",
+    "No fake backlinks",
+    "No fake success status",
+    "No production UI redesign"
+  ],
+  "reason": "External Google/Gemini credentials are not configured. Local analysis remains available."
+}

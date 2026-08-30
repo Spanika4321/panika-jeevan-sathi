@@ -1,0 +1,46 @@
+name: Worker Recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      worker:
+        description: "Failed worker"
+        required: true
+        type: choice
+        options:
+          - pooja
+          - priya
+
+permissions:
+  contents: read
+
+jobs:
+  recovery:
+    name: Isolated worker recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Create recovery clone
+        run: node scripts/worker-recovery.mjs "${{ inputs.worker }}"
+
+      - name: Run project syntax check
+        run: npm run check
+
+      - name: Run full tests
+        run: npm test
+
+      - name: Recovery policy
+        run: |
+          echo "Recovery clone verified."
+          echo "Production deployment NOT performed."
+          echo "Git push NOT performed."
+          echo "External posting NOT performed."
