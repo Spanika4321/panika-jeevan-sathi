@@ -2,7 +2,7 @@
   "name": "panika-jeevan-sathi",
   "version": "2.0.0",
   "private": true,
-  "description": "PANIKA JEEVAN SATHI \u2014 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
+  "description": "PANIKA JEEVAN SATHI — 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -28,5 +28,8 @@
     "adivasi",
     "free"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
 }

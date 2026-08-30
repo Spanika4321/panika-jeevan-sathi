@@ -1,7 +1,7 @@
 {
   "project": "PANIKA JEEVAN SATHI",
   "manager": "Manager",
-  "generated_at": "2026-08-30T17:24:53.493Z",
+  "generated_at": "2026-08-30T19:18:23.490Z",
   "hierarchy": {
     "sardar": "Guardian",
     "manager": "Manager",
@@ -13,11 +13,11 @@
   "workers": {
     "pooja": {
       "status": "PASS",
-      "output": "{\n  \"agent\": \"Pooja\",\n  \"role\": \"SEO / Organic Growth Worker\",\n  \"generated_at\": \"2026-08-30T17:24:50.035Z\",\n  \"status\": \"BLOCKED\",\n  \"tasks\": [\n    \"Analyse indexability and technical SEO signals\",\n    \"Review sitemap/robots/canonical configuration\",\n    \"Identify relevant keyword opportunities\",\n    \"Prepare 10 genuine backlink opportunities\",\n    \"Reject irrelevant, paid, spam and duplicate backlink targets\",\n    \"Prepare internal-link improvement suggestions\",\n    \"Prepare search-content opportunities\"\n  ],\n  \"external\": {\n    \"google\": {\n      \"GOOGLE_SEARCH_CONSOLE_TOKEN\": false\n    },\n    \"gemini\": {\n      \"GEMINI_API_KEY\": false\n    }\n  },\n  \"policy\": [\n    \"No automated spam links\",\n    \"No fake backlinks\",\n    \"No fake success status\",\n    \"No production UI redesign\"\n  ],\n  \"reason\": \"External Google/Gemini credentials are not configured. Local analysis remains available.\"\n}\n"
+      "output": "{\n  \"agent\": \"Pooja\",\n  \"role\": \"SEO / Organic Growth Worker\",\n  \"generated_at\": \"2026-08-30T19:18:19.914Z\",\n  \"status\": \"BLOCKED\",\n  \"tasks\": [\n    \"Analyse indexability and technical SEO signals\",\n    \"Review sitemap/robots/canonical configuration\",\n    \"Identify relevant keyword opportunities\",\n    \"Prepare 10 genuine backlink opportunities\",\n    \"Reject irrelevant, paid, spam and duplicate backlink targets\",\n    \"Prepare internal-link improvement suggestions\",\n    \"Prepare search-content opportunities\"\n  ],\n  \"external\": {\n    \"google\": {\n      \"GOOGLE_SEARCH_CONSOLE_TOKEN\": false\n    },\n    \"gemini\": {\n      \"GEMINI_API_KEY\": false\n    }\n  },\n  \"policy\": [\n    \"No automated spam links\",\n    \"No fake backlinks\",\n    \"No fake success status\",\n    \"No production UI redesign\"\n  ],\n  \"reason\": \"External Google/Gemini credentials are not configured. Local analysis remains available.\"\n}\n"
     },
     "priya": {
       "status": "PASS",
-      "output": "{\n  \"agent\": \"Priya\",\n  \"role\": \"Campaign / Community Growth Worker\",\n  \"generated_at\": \"2026-08-30T17:24:50.608Z\",\n  \"status\": \"BLOCKED\",\n  \"tasks\": [\n    \"Prepare community campaign ideas\",\n    \"Prepare Facebook-safe campaign drafts\",\n    \"Identify audience themes without scraping private data\",\n    \"Prepare daily content calendar\",\n    \"Analyse aggregate growth signals\",\n    \"Prepare referral and engagement ideas\",\n    \"Track campaign outcomes when analytics are available\"\n  ],\n  \"external\": {\n    \"meta\": {\n      \"META_ACCESS_TOKEN\": false,\n      \"META_PAGE_ID\": false\n    },\n    \"gemini\": {\n      \"GEMINI_API_KEY\": false\n    }\n  },\n  \"policy\": [\n    \"No unsolicited mass posting\",\n    \"No private-user surveillance\",\n    \"No scraping private Facebook groups\",\n    \"No fake engagement\",\n    \"No production UI redesign\"\n  ],\n  \"reason\": \"Meta publishing credentials are not configured. Campaign drafting remains available.\"\n}\n"
+      "output": "{\n  \"agent\": \"Priya\",\n  \"role\": \"Campaign / Community Growth Worker\",\n  \"generated_at\": \"2026-08-30T19:18:20.496Z\",\n  \"status\": \"BLOCKED\",\n  \"tasks\": [\n    \"Prepare community campaign ideas\",\n    \"Prepare Facebook-safe campaign drafts\",\n    \"Identify audience themes without scraping private data\",\n    \"Prepare daily content calendar\",\n    \"Analyse aggregate growth signals\",\n    \"Prepare referral and engagement ideas\",\n    \"Track campaign outcomes when analytics are available\"\n  ],\n  \"external\": {\n    \"meta\": {\n      \"META_ACCESS_TOKEN\": false,\n      \"META_PAGE_ID\": false\n    },\n    \"gemini\": {\n      \"GEMINI_API_KEY\": false\n    }\n  },\n  \"policy\": [\n    \"No unsolicited mass posting\",\n    \"No private-user surveillance\",\n    \"No scraping private Facebook groups\",\n    \"No fake engagement\",\n    \"No production UI redesign\"\n  ],\n  \"reason\": \"Meta publishing credentials are not configured. Campaign drafting remains available.\"\n}\n"
     }
   },
   "guardian": {

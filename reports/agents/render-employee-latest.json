@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-08-30T18:58:07.047Z",
+  "site": "https://panikajeevansathi.onrender.com",
+  "round": 14,
+  "batch": 200,
+  "passed": 198,
+  "failed": 2,
+  "status": "PROBLEM_FOUND",
+  "failures": [
+    {
+      "name": "Register page",
+      "path": "/register.html",
+      "url": "https://panikajeevansathi.onrender.com/register.html",
+      "status": 404,
+      "ok": false,
+      "final_url": "https://panikajeevansathi.onrender.com/register.html"
+    },
+    {
+      "name": "Forgot password",
+      "path": "/forgot-password.html",
+      "url": "https://panikajeevansathi.onrender.com/forgot-password.html",
+      "status": 404,
+      "ok": false,
+      "final_url": "https://panikajeevansathi.onrender.com/forgot-password.html"
+    }
+  ],
+  "policy": {
+    "automatic_production_deploy": false,
+    "automatic_git_push": false,
+    "automatic_database_changes": false,
+    "automatic_password_access": false
+  }
+}

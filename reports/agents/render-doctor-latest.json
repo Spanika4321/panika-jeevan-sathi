@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-08-30T19:11:00.723Z",
+  "site": "https://panikajeevansathi.onrender.com",
+  "doctor": "Pooja",
+  "total_routes_checked": 16,
+  "passed": 8,
+  "failed": 8,
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/login.html",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/register",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/register.html",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/signup",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/signup.html",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/forgot-password",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/forgot-password.html",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/reset-password",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/reset-password.html",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/profile.html",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/search.html",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/chat.html",
+      "status": 404,
+      "location": null,
+      "ok": false
+    },
+    {
+      "path": "/contact.html",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "location": null,
+      "ok": true
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "location": null,
+      "ok": true
+    }
+  ],
+  "diagnosis": "Some expected route guesses returned errors. Verify actual application routing before changing code.",
+  "repair_policy": {
+    "no_fake_fix": true,
+    "no_production_deploy": true,
+    "no_database_change": true,
+    "no_password_access": true,
+    "no_private_message_access": true
+  }
+}
