@@ -1,0 +1,83 @@
+name: Employee Reports — Every 10 Minutes
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  employee-report:
+    name: Pooja + Priya + Manager + Guardian
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Syntax
+        run: npm run check
+
+      - name: Pooja
+        id: pooja
+        continue-on-error: true
+        run: node agents/pooja.mjs
+
+      - name: Priya
+        id: priya
+        continue-on-error: true
+        run: node agents/priya.mjs
+
+      - name: Guardian
+        id: guardian
+        continue-on-error: true
+        run: node scripts/health-check.mjs
+
+      - name: Manager
+        id: manager
+        continue-on-error: true
+        run: node agents/manager.mjs
+
+      - name: Hindi employee report
+        if: always()
+        run: |
+          mkdir -p reports/agents
+
+          cat > reports/agents/email-cycle-status.md <<STATUS
+          # PANIKA JEEVAN SATHI — Email Cycle
+
+          समय: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          Pooja step: ${{ steps.pooja.outcome }}
+          Priya step: ${{ steps.priya.outcome }}
+          Guardian step: ${{ steps.guardian.outcome }}
+          Manager step: ${{ steps.manager.outcome }}
+
+          कोई PASS केवल वास्तविक command result पर आधारित माना जाएगा।
+          STATUS
+
+      - name: Send REAL email
+        if: always()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: node scripts/email-report.mjs
+
+      - name: Final status
+        if: always()
+        run: |
+          echo "=============================================="
+          echo "EMPLOYEE 10-MINUTE CYCLE FINISHED"
+          echo "POOJA: ${{ steps.pooja.outcome }}"
+          echo "PRIYA: ${{ steps.priya.outcome }}"
+          echo "GUARDIAN: ${{ steps.guardian.outcome }}"
+          echo "MANAGER: ${{ steps.manager.outcome }}"
+          echo "EMAIL: attempted"
+          echo "=============================================="
