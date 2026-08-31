@@ -1,0 +1,17 @@
+{
+  "id": "arjun",
+  "name": "Arjun",
+  "role": "Backlink & Directory Research Worker",
+  "reports_to": "manager",
+  "cadence": "daily 05:30 UTC",
+  "capabilities": [
+    "Maintains a curated, hand-verified target list",
+    "Flags spam / paid / link-farm candidates for rejection",
+    "Tracks outreach status per target (never auto-mails)"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.610Z",
+  "updated_at": "2026-08-31T00:29:17.610Z",
+  "storage_version": "1.0.0"
+}

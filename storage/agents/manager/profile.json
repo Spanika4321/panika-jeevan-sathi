@@ -1,0 +1,18 @@
+{
+  "id": "manager",
+  "name": "Manager",
+  "role": "Coordinator",
+  "reports_to": "guardian",
+  "cadence": "daily 04:00 UTC",
+  "capabilities": [
+    "Runs Pooja + Priya + Guardian in one cycle",
+    "Collects worker reports into one manager report",
+    "Assigns tasks through the shared job queue",
+    "Escalates failures to the incident register"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.591Z",
+  "updated_at": "2026-08-31T00:29:17.591Z",
+  "storage_version": "1.0.0"
+}

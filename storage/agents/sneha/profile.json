@@ -1,0 +1,17 @@
+{
+  "id": "sneha",
+  "name": "Sneha",
+  "role": "Security & Compliance Worker",
+  "reports_to": "guardian",
+  "cadence": "daily 06:30 UTC",
+  "capabilities": [
+    "Checks noindex on private pages",
+    "Verifies security headers on every response",
+    "Verifies no secrets are committed to the repo"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.625Z",
+  "updated_at": "2026-08-31T00:29:17.625Z",
+  "storage_version": "1.0.0"
+}

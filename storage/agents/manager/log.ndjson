@@ -1,0 +1,1 @@
+{"ts":"2026-08-31T00:29:34.028Z","event":"run","status":"OK","duration_ms":396,"summary":"manager cycle — pooja=PASS priya=PASS guardian=PASS","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}

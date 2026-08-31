@@ -1,0 +1,17 @@
+{
+  "agent": "amit",
+  "counters": {
+    "field_scans": 1,
+    "runs": 1,
+    "status_ok": 1
+  },
+  "history": [
+    {
+      "at": "2026-08-31T00:29:33.471Z",
+      "status": "OK",
+      "duration_ms": 47,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    }
+  ],
+  "updated_at": "2026-08-31T00:29:33.471Z"
+}

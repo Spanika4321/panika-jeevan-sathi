@@ -1,0 +1,30 @@
+{
+  "agent": "nisha",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Support & FAQ Knowledge Worker",
+      "at": "2026-08-31T00:29:17.673Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.674Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.674Z"
+    },
+    "support_themes": {
+      "value": [
+        "pricing",
+        "verification",
+        "photos",
+        "privacy",
+        "account"
+      ],
+      "at": "2026-08-31T00:29:33.506Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:33.506Z"
+}

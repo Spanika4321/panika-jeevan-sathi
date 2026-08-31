@@ -1,0 +1,20 @@
+{
+  "agent": "manager",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Coordinator",
+      "at": "2026-08-31T00:29:17.656Z"
+    },
+    "workflow": {
+      "value": "manager.yml",
+      "at": "2026-08-31T00:29:17.656Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.657Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:17.657Z"
+}

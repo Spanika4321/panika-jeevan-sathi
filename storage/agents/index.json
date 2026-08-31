@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "project": "PANIKA JEEVAN SATHI",
+  "created_at": "2026-08-31T00:29:17.578Z",
+  "agents": [
+    {
+      "id": "guardian",
+      "name": "Guardian (Sardar)",
+      "role": "Safety & Health Authority",
+      "reports_to": "owner",
+      "cadence": "daily 03:30 UTC + every push",
+      "capabilities": [
+        "Full site health check (95 checks)",
+        "Syntax + end-to-end test suite",
+        "Design lock verification (approved UI unchanged)",
+        "Security header verification",
+        "robots.txt / sitemap.xml verification"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.582Z",
+      "updated_at": "2026-08-31T00:29:17.796Z"
+    },
+    {
+      "id": "manager",
+      "name": "Manager",
+      "role": "Coordinator",
+      "reports_to": "guardian",
+      "cadence": "daily 04:00 UTC",
+      "capabilities": [
+        "Runs Pooja + Priya + Guardian in one cycle",
+        "Collects worker reports into one manager report",
+        "Assigns tasks through the shared job queue",
+        "Escalates failures to the incident register"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.591Z",
+      "updated_at": "2026-08-31T00:29:17.799Z"
+    },
+    {
+      "id": "pooja",
+      "name": "Pooja",
+      "role": "SEO / Organic Growth Worker",
+      "reports_to": "manager",
+      "cadence": "daily 04:30 UTC",
+      "capabilities": [
+        "Indexability + technical SEO analysis",
+        "sitemap/robots/canonical review",
+        "Keyword opportunity research (local, no paid API)",
+        "10 genuine backlink opportunity drafts per day",
+        "Rejects paid / spam / duplicate link targets"
+      ],
+      "requires": [
+        "GOOGLE_SEARCH_CONSOLE_TOKEN",
+        "GEMINI_API_KEY"
+      ],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.597Z",
+      "updated_at": "2026-08-31T00:29:17.801Z"
+    },
+    {
+      "id": "priya",
+      "name": "Priya",
+      "role": "Campaign / Community Growth Worker",
+      "reports_to": "manager",
+      "cadence": "daily 05:00 UTC",
+      "capabilities": [
+        "Community campaign ideas",
+        "Facebook-safe campaign drafts",
+        "Audience themes from aggregate signals only",
+        "Daily content calendar",
+        "Referral & engagement ideas"
+      ],
+      "requires": [
+        "META_ACCESS_TOKEN",
+        "META_PAGE_ID"
+      ],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.604Z",
+      "updated_at": "2026-08-31T00:29:17.802Z"
+    },
+    {
+      "id": "arjun",
+      "name": "Arjun",
+      "role": "Backlink & Directory Research Worker",
+      "reports_to": "manager",
+      "cadence": "daily 05:30 UTC",
+      "capabilities": [
+        "Maintains a curated, hand-verified target list",
+        "Flags spam / paid / link-farm candidates for rejection",
+        "Tracks outreach status per target (never auto-mails)"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.610Z",
+      "updated_at": "2026-08-31T00:29:17.803Z"
+    },
+    {
+      "id": "kavita",
+      "name": "Kavita",
+      "role": "Content & Blog Drafting Worker",
+      "reports_to": "manager",
+      "cadence": "daily 06:00 UTC",
+      "capabilities": [
+        "Drafts matrimonial/community articles (Hindi + English)",
+        "Suggests internal links between existing pages",
+        "Keeps a topic backlog in agent memory"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.616Z",
+      "updated_at": "2026-08-31T00:29:17.804Z"
+    },
+    {
+      "id": "rahul",
+      "name": "Rahul",
+      "role": "Uptime & Performance Worker",
+      "reports_to": "guardian",
+      "cadence": "every 6 hours",
+      "capabilities": [
+        "Records site reachability samples into metrics",
+        "Tracks response-time trend from stored history",
+        "Opens an incident when failures repeat"
+      ],
+      "requires": [
+        "SITE_URL"
+      ],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.621Z",
+      "updated_at": "2026-08-31T00:29:17.805Z"
+    },
+    {
+      "id": "sneha",
+      "name": "Sneha",
+      "role": "Security & Compliance Worker",
+      "reports_to": "guardian",
+      "cadence": "daily 06:30 UTC",
+      "capabilities": [
+        "Checks noindex on private pages",
+        "Verifies security headers on every response",
+        "Verifies no secrets are committed to the repo"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.625Z",
+      "updated_at": "2026-08-31T00:29:17.806Z"
+    },
+    {
+      "id": "amit",
+      "name": "Amit",
+      "role": "Profile Quality & Match Data Worker",
+      "reports_to": "manager",
+      "cadence": "daily 07:00 UTC",
+      "capabilities": [
+        "Aggregate, anonymised profile completeness stats",
+        "Suggests match-quality improvements",
+        "Never reads private messages or passwords"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.630Z",
+      "updated_at": "2026-08-31T00:29:17.806Z"
+    },
+    {
+      "id": "nisha",
+      "name": "Nisha",
+      "role": "Support & FAQ Knowledge Worker",
+      "reports_to": "manager",
+      "cadence": "daily 07:30 UTC",
+      "capabilities": [
+        "Builds the shared FAQ knowledge base",
+        "Summarises recurring support themes (aggregate only)",
+        "Drafts help-centre articles"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.635Z",
+      "updated_at": "2026-08-31T00:29:17.807Z"
+    },
+    {
+      "id": "vikram",
+      "name": "Vikram",
+      "role": "Analytics & Reporting Worker",
+      "reports_to": "manager",
+      "cadence": "daily 08:00 UTC",
+      "capabilities": [
+        "Rolls up all agent metrics into one daily scorecard",
+        "Computes streaks, failure rates, queue throughput",
+        "Writes the human-readable Hindi/Hinglish report"
+      ],
+      "requires": [],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.640Z",
+      "updated_at": "2026-08-31T00:29:17.809Z"
+    },
+    {
+      "id": "meera",
+      "name": "Meera",
+      "role": "Email & Notification Composer",
+      "reports_to": "manager",
+      "cadence": "every 10 minutes (with employee cycle)",
+      "capabilities": [
+        "Composes the owner email from verified step outcomes",
+        "Never marks a step PASS unless the command really passed"
+      ],
+      "requires": [
+        "RESEND_API_KEY"
+      ],
+      "autonomous": true,
+      "created_at": "2026-08-31T00:29:17.645Z",
+      "updated_at": "2026-08-31T00:29:17.810Z"
+    }
+  ],
+  "updated_at": "2026-08-31T00:29:17.810Z"
+}

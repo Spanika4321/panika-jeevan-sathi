@@ -1,0 +1,25 @@
+{
+  "agent": "meera",
+  "pending": [
+    {
+      "id": "task_4119e7781402367a",
+      "title": "Compose owner email from verified step outcomes",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.748Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c87abe6a2e92efb5",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:33.616Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:33.616Z"
+}

@@ -1,0 +1,33 @@
+{
+  "agent": "kavita",
+  "pending": [
+    {
+      "id": "task_223d513c8d25a427",
+      "title": "Draft \"Panika community matrimony guide\" article",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.737Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_098619c436dd3e81",
+      "title": "Suggest internal links between public pages",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.738Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_e2a755b617157d85",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:18.302Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:18.302Z"
+}

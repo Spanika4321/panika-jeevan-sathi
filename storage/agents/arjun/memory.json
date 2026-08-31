@@ -1,0 +1,40 @@
+{
+  "agent": "arjun",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Backlink & Directory Research Worker",
+      "at": "2026-08-31T00:29:17.663Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.663Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.664Z"
+    },
+    "target_categories": {
+      "value": [
+        "Community / cultural organisation websites (manual outreach only)",
+        "Matrimonial & marriage directory listings with free submission",
+        "Local Chhattisgarh news & community blogs",
+        "Open-source / free-project showcase directories",
+        "Educational & NGO resource pages"
+      ],
+      "at": "2026-08-31T00:29:18.244Z"
+    },
+    "rejection_rules": {
+      "value": [
+        "Paid link networks",
+        "Link farms / PBNs",
+        "Irrelevant foreign-language link dumps",
+        "Comment-spam forums",
+        "Any site requiring reciprocal paid placement"
+      ],
+      "at": "2026-08-31T00:29:18.246Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:18.246Z"
+}

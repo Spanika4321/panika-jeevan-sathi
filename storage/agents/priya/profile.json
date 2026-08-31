@@ -1,0 +1,22 @@
+{
+  "id": "priya",
+  "name": "Priya",
+  "role": "Campaign / Community Growth Worker",
+  "reports_to": "manager",
+  "cadence": "daily 05:00 UTC",
+  "capabilities": [
+    "Community campaign ideas",
+    "Facebook-safe campaign drafts",
+    "Audience themes from aggregate signals only",
+    "Daily content calendar",
+    "Referral & engagement ideas"
+  ],
+  "requires": [
+    "META_ACCESS_TOKEN",
+    "META_PAGE_ID"
+  ],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.604Z",
+  "updated_at": "2026-08-31T00:29:17.604Z",
+  "storage_version": "1.0.0"
+}

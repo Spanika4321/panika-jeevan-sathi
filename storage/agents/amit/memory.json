@@ -1,0 +1,62 @@
+{
+  "agent": "amit",
+  "short_term": {
+    "last_completeness_score": {
+      "value": 81,
+      "at": "2026-08-31T00:29:33.458Z"
+    }
+  },
+  "long_term": {
+    "role": {
+      "value": "Profile Quality & Match Data Worker",
+      "at": "2026-08-31T00:29:17.671Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.672Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.672Z"
+    },
+    "profile_fields": {
+      "value": [
+        "name",
+        "age",
+        "gender",
+        "height",
+        "religion",
+        "community",
+        "gotra",
+        "education",
+        "occupation",
+        "income",
+        "city",
+        "state",
+        "country",
+        "diet",
+        "smoking",
+        "drinking",
+        "about",
+        "photo",
+        "email",
+        "phone",
+        "familyType",
+        "manglik"
+      ],
+      "at": "2026-08-31T00:29:33.455Z"
+    },
+    "profile_fields_missing": {
+      "value": [
+        "weight",
+        "maritalStatus",
+        "motherTongue",
+        "dob",
+        "horoscope"
+      ],
+      "at": "2026-08-31T00:29:33.456Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:33.458Z"
+}

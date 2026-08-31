@@ -1,0 +1,1 @@
+{"ts":"2026-08-31T00:29:18.263Z","event":"run","status":"OK","duration_ms":46,"summary":"OK — 5 target categories curated, 5 rejection rules active. No outreach sent.","details":{"command":"agents/worker.mjs arjun","workflow":"agent-storage.yml"}}

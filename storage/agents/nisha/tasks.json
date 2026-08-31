@@ -1,0 +1,25 @@
+{
+  "agent": "nisha",
+  "pending": [
+    {
+      "id": "task_2e6d6140d9c4a28d",
+      "title": "Add 5 FAQ entries to the shared knowledge base",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.744Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_19004fa1d5ef0880",
+      "title": "Summarise recurring support themes",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.745Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:17.745Z"
+}

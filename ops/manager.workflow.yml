@@ -1,0 +1,85 @@
+# PANIKA JEEVAN SATHI — manager workflow
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, ~1 minute):
+# GitHub automated tools (apps/bots/agents) ko .github/workflows/ banane ya
+# update karne ki permission nahi hoti — isliye ye file yahan (ops/) rakhi hai.
+# Owner ko ek baar copy karna hai:
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly ye rakhein:  .github/workflows/manager.yml
+#   3. Is file ka POORA content paste karke commit kar dein.
+#      (REPLACE — purani file overwrite karo)
+# Uske baad ye automatically chalta rahega — koi aur step nahi.
+#
+# Runs     : daily 04:00 UTC   (aur Actions tab se "Run workflow" bhi)
+# What     : Manager coordinator (ab storage-aware)
+# Storage  : actions/cache se run-to-run memory preserve hoti hai
+# Guide    : ops/INSTALL-WORKFLOWS.md
+
+name: Agent Manager
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-storage
+  cancel-in-progress: false
+
+jobs:
+  manager:
+    name: Manager — coordinate Pooja, Priya & Guardian
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # Team ki pichhli memory / tasks / metrics wapas lao.
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      - name: Ensure storage
+        run: node scripts/agent-storage.mjs init
+
+      - name: Project syntax
+        run: npm run check
+
+      - name: Run Pooja
+        run: node agents/pooja.mjs
+
+      - name: Run Priya
+        run: node agents/priya.mjs
+
+      - name: Run Guardian
+        run: node scripts/health-check.mjs
+
+      # Poore team cycle ki memory agle run ke liye save karo.
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Save Manager report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manager-report
+          path: reports/agents/
+          if-no-files-found: ignore

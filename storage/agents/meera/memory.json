@@ -1,0 +1,25 @@
+{
+  "agent": "meera",
+  "short_term": {
+    "last_subject": {
+      "value": "PANIKA JEEVAN SATHI — agent storage cycle report",
+      "at": "2026-08-31T00:29:33.614Z"
+    }
+  },
+  "long_term": {
+    "role": {
+      "value": "Email & Notification Composer",
+      "at": "2026-08-31T00:29:17.677Z"
+    },
+    "workflow": {
+      "value": "employee-report.yml",
+      "at": "2026-08-31T00:29:17.678Z"
+    },
+    "requires": {
+      "value": "RESEND_API_KEY",
+      "at": "2026-08-31T00:29:17.678Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:33.614Z"
+}

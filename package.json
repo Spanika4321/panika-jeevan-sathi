@@ -15,7 +15,13 @@
     "test:sigv4": "node scripts/test-sigv4.mjs",
     "verify:cloud": "node scripts/verify-cloud.mjs",
     "deploy:render": "node scripts/deploy-render.mjs",
-    "cloud:setup": "node scripts/cloud-setup.mjs"
+    "cloud:setup": "node scripts/cloud-setup.mjs",
+    "storage": "node scripts/agent-storage.mjs",
+    "storage:init": "node scripts/agent-storage.mjs init",
+    "storage:status": "node scripts/agent-storage.mjs status",
+    "storage:doctor": "node scripts/agent-storage.mjs doctor",
+    "storage:report": "node scripts/agent-storage.mjs report",
+    "storage:cycle": "node scripts/agent-storage-cycle.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

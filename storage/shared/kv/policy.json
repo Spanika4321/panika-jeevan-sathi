@@ -1,0 +1,37 @@
+{
+  "namespace": "policy",
+  "values": {
+    "safety": {
+      "value": {
+        "preserve_public_ui": true,
+        "no_private_message_reading": true,
+        "no_password_access": true,
+        "no_mass_social_posting": true,
+        "no_fake_success": true,
+        "no_automatic_production_deploy": true,
+        "no_automatic_git_push": true
+      },
+      "at": "2026-08-31T00:29:17.652Z"
+    },
+    "hierarchy": {
+      "value": {
+        "sardar": "guardian",
+        "manager": "manager",
+        "workers": [
+          "pooja",
+          "priya",
+          "arjun",
+          "kavita",
+          "rahul",
+          "sneha",
+          "amit",
+          "nisha",
+          "vikram",
+          "meera"
+        ]
+      },
+      "at": "2026-08-31T00:29:17.653Z"
+    }
+  },
+  "updated_at": "2026-08-31T00:29:17.653Z"
+}

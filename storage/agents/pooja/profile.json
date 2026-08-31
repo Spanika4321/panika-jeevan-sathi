@@ -1,0 +1,22 @@
+{
+  "id": "pooja",
+  "name": "Pooja",
+  "role": "SEO / Organic Growth Worker",
+  "reports_to": "manager",
+  "cadence": "daily 04:30 UTC",
+  "capabilities": [
+    "Indexability + technical SEO analysis",
+    "sitemap/robots/canonical review",
+    "Keyword opportunity research (local, no paid API)",
+    "10 genuine backlink opportunity drafts per day",
+    "Rejects paid / spam / duplicate link targets"
+  ],
+  "requires": [
+    "GOOGLE_SEARCH_CONSOLE_TOKEN",
+    "GEMINI_API_KEY"
+  ],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.597Z",
+  "updated_at": "2026-08-31T00:29:17.597Z",
+  "storage_version": "1.0.0"
+}

@@ -1,4 +1,4 @@
-import { CONFIG, now, writeReport, envStatus, blocked } from './lib.mjs';
+import { CONFIG, now, writeReport, envStatus, blocked, persistRun } from './lib.mjs';
 
 const result = {
   agent: 'Pooja',
@@ -37,5 +37,12 @@ writeReport(
   'pooja-latest.json',
   JSON.stringify(result, null, 2) + '\n'
 );
+
+// Permanent storage: state + metrics + log + ledger + incident register.
+persistRun('pooja', {
+  status: result.status === 'BLOCKED' ? 'BLOCKED' : 'OK',
+  summary: result.reason || 'SEO analysis cycle completed.',
+  details: { external: result.external, tasks: result.tasks.length }
+});
 
 console.log(JSON.stringify(result, null, 2));

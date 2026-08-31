@@ -127,6 +127,12 @@ scripts/verify-cloud.mjs     check real Cloudflare credentials + a live site
 scripts/deploy-render.mjs    create/update the Render service and deploy it
 scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
 scripts/check-syntax.mjs    syntax check for every shipped script
+scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
+scripts/agent-storage-cycle.mjs  runs all 12 agents and records every run
+agents/                 AI agent team (Guardian, Manager, Pooja, Priya + 8 workers)
+agents/storage.mjs      agent storage engine (state, memory, tasks, ledger, queue)
+agents/roster.mjs       the 12-agent roster, hierarchy and safety rules
+storage/                permanent memory of all 12 AI agents (committed baseline)
 data/                   database, uploaded photos, outbox (git-ignored)
 ```
 
@@ -196,6 +202,36 @@ Back up by copying the `data/` folder — it contains the database and every upl
 
 **cPanel / hosting without Node 22.5+**: the site automatically falls back to the JSON file store, but
 Node 22.5+ with SQLite is strongly recommended for a live site.
+
+---
+
+## AI agent storage
+
+Twelve AI agents run on GitHub Actions, 24×7, and each one keeps a **permanent
+memory** in `storage/`:
+
+| | |
+| --- | --- |
+| `storage/agents/<id>/` | state, memory, tasks, metrics, log, inbox, outbox — one folder per agent |
+| `storage/shared/` | shared KV namespaces, durable job queue, hash-chained ledger, incidents, knowledge base |
+
+```bash
+npm run storage:init      # create the storage tree + register all 12 agents
+npm run storage:status    # status table for every agent
+npm run storage:doctor    # integrity check (corrupt JSON? ledger intact?)
+npm run storage:cycle     # run all 12 agents, snapshot, write the report
+npm run storage:report    # reports/agents/agent-storage-report.md
+```
+
+Agents: **Guardian (Sardar)** → **Manager** → Pooja, Priya, Arjun, Kavita,
+Rahul, Sneha, Amit, Nisha, Vikram, Meera.
+
+The ledger is hash-chained (`sha256(prevHash + entry)`), so a single edited
+line makes `doctor` fail. On GitHub Actions the storage is preserved between
+runs with `actions/cache`; if the cache is ever evicted, the committed
+baseline restores it.
+
+Full documentation: [`storage/README.md`](storage/README.md).
 
 ---
 

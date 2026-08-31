@@ -1,0 +1,18 @@
+{
+  "pending": [
+    {
+      "id": "job_6aaa2b6a984f81d9",
+      "type": "daily-rollup",
+      "payload": {
+        "scope": "all-agents"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T00:29:17.750Z",
+      "attempts": 0
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:17.750Z"
+}

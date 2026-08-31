@@ -1,0 +1,32 @@
+{
+  "agent": "sneha",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Security & Compliance Worker",
+      "at": "2026-08-31T00:29:17.669Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.670Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.670Z"
+    },
+    "private_page_count": {
+      "value": 13,
+      "at": "2026-08-31T00:29:33.409Z"
+    },
+    "last_scan": {
+      "value": {
+        "at": "2026-08-31T00:29:33.410Z",
+        "missingNoindex": [],
+        "suspicious": []
+      },
+      "at": "2026-08-31T00:29:33.410Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:33.410Z"
+}

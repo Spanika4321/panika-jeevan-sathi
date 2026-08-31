@@ -1,4 +1,4 @@
-import { CONFIG, now, writeReport, envStatus } from './lib.mjs';
+import { CONFIG, now, writeReport, envStatus, persistRun } from './lib.mjs';
 
 const result = {
   agent: 'Priya',
@@ -38,5 +38,12 @@ writeReport(
   'priya-latest.json',
   JSON.stringify(result, null, 2) + '\n'
 );
+
+// Permanent storage: state + metrics + log + ledger + incident register.
+persistRun('priya', {
+  status: result.status === 'BLOCKED' ? 'BLOCKED' : 'OK',
+  summary: result.reason || 'Campaign cycle completed.',
+  details: { external: result.external, tasks: result.tasks.length }
+});
 
 console.log(JSON.stringify(result, null, 2));

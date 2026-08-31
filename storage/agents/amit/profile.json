@@ -1,0 +1,17 @@
+{
+  "id": "amit",
+  "name": "Amit",
+  "role": "Profile Quality & Match Data Worker",
+  "reports_to": "manager",
+  "cadence": "daily 07:00 UTC",
+  "capabilities": [
+    "Aggregate, anonymised profile completeness stats",
+    "Suggests match-quality improvements",
+    "Never reads private messages or passwords"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.630Z",
+  "updated_at": "2026-08-31T00:29:17.630Z",
+  "storage_version": "1.0.0"
+}

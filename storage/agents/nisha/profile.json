@@ -1,0 +1,17 @@
+{
+  "id": "nisha",
+  "name": "Nisha",
+  "role": "Support & FAQ Knowledge Worker",
+  "reports_to": "manager",
+  "cadence": "daily 07:30 UTC",
+  "capabilities": [
+    "Builds the shared FAQ knowledge base",
+    "Summarises recurring support themes (aggregate only)",
+    "Drafts help-centre articles"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.635Z",
+  "updated_at": "2026-08-31T00:29:17.635Z",
+  "storage_version": "1.0.0"
+}

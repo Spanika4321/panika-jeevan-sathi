@@ -1,0 +1,50 @@
+{
+  "namespace": "scorecard",
+  "values": {
+    "latest": {
+      "value": {
+        "generated_at": "2026-08-31T00:29:33.559Z",
+        "agents": 12,
+        "total_runs": 9,
+        "agents_never_run": [
+          "manager",
+          "vikram",
+          "meera"
+        ],
+        "agents_with_failures": [],
+        "queue": {
+          "pending": 1,
+          "running": 0,
+          "done": 0,
+          "failed": 0,
+          "updated_at": "2026-08-31T00:29:17.750Z"
+        },
+        "ledger_ok": true
+      },
+      "at": "2026-08-31T00:29:33.560Z"
+    },
+    "week-2026-W36": {
+      "value": {
+        "generated_at": "2026-08-31T00:29:33.559Z",
+        "agents": 12,
+        "total_runs": 9,
+        "agents_never_run": [
+          "manager",
+          "vikram",
+          "meera"
+        ],
+        "agents_with_failures": [],
+        "queue": {
+          "pending": 1,
+          "running": 0,
+          "done": 0,
+          "failed": 0,
+          "updated_at": "2026-08-31T00:29:17.750Z"
+        },
+        "ledger_ok": true
+      },
+      "at": "2026-08-31T00:29:33.562Z"
+    }
+  },
+  "updated_at": "2026-08-31T00:29:33.562Z"
+}
