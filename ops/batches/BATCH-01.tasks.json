@@ -103,7 +103,7 @@
       "worker": "guardian",
       "worker_name": "Guardian (Sardar) — safety & health authority",
       "title": "Tree integrity at the pinned app commit",
-      "objective": "Verify the app code on the device is exactly the code Arena pinned. Two separate claims: (a) nothing tracked under server.js, lib/, public/, agents/ or scripts/ is locally modified on this device; (b) between base commit 8ef92b7b9c6296d72369535850990cfd79f1c223 and the checked-out HEAD, the RUNTIME code (server.js, lib/, public/, agents/) is byte-identical. Tooling commits ARE expected on top of the base commit (ops/batches/**, scripts/termux-batch.mjs, package.json script entries, reports/**) — that is why scripts/ and package.json are outside check (b). Syntax and the agent-team safety config must both be green.",
+      "objective": "Verify the app code on the device is exactly the code Arena pinned. Two separate claims: (a) nothing tracked under server.js, lib/, public/, agents/ or scripts/ is locally modified on this device; (b) between base commit 8ef92b7b9c6296d72369535850990cfd79f1c223 and the checked-out HEAD, the RUNTIME code (server.js, lib/, public/, agents/) is byte-identical. Tooling commits ARE expected on top of the base commit (ops/batches/**, scripts/termux-batch.mjs, package.json script entries, reports/**) — that is why scripts/ and package.json are outside check (b). Syntax and the agent-team safety config must both be green. The whitespace gate is scoped to code and tooling paths on purpose: reports/agents/*.evidence.md hold verbatim captured stdout/stderr, and right-stripping a captured line to satisfy a style check would falsify the evidence the whole protocol exists to protect.",
       "allowed": {
         "actions": [
           "read files",
@@ -158,7 +158,14 @@
             "diff",
             "--check",
             "8ef92b7b9c6296d72369535850990cfd79f1c223",
-            "HEAD"
+            "HEAD",
+            "--",
+            "server.js",
+            "lib",
+            "public",
+            "agents",
+            "scripts",
+            "package.json"
           ]
         ],
         "require_lines": [
@@ -191,7 +198,7 @@
             "agents"
           ]
         ],
-        "expect": "check-syntax prints '41 checked, 0 with syntax errors'; agent-team-check prints 'AGENT TEAM CHECK: PASS'; and both empty-checks print nothing. Any filename in list (a) means the device edited app code; any filename in list (b) means the batch is being run against a different app tree than the one Arena pinned.",
+        "expect": "check-syntax prints '41 checked, 0 with syntax errors'; agent-team-check prints 'AGENT TEAM CHECK: PASS'; and both empty-checks print nothing. Any filename in list (a) means the device edited app code; any filename in list (b) means the batch is being run against a different app tree than the one Arena pinned. git diff --check over the code paths must exit 0 (generated reports are whitespace-stripped by the renderer; raw evidence logs are excluded by design).",
         "report_path": "reports/agents/batch-01-t-02.evidence.md"
       },
       "requires": [],

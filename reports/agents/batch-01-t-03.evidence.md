@@ -1,11 +1,11 @@
 # BATCH-01 / T-03 — raw execution log
 executor : arena-coordinator-sandbox (linux/x64, node v22.22.3)
-head     : 62c68d53eb7cf6b6c7ae8c46a10e6fc932c304e5
+head     : eb84dba5ab3f629f7a79ae4858aaca79af38d68d
 objective: Boot the real server on a temporary data folder and run the guardian health check: page/asset availability, 404 handling, path-traversal block, robots.txt, sitemap.xml, SEO tags, noindex on private pages, security headers, /api/health, and the approved-design baseline lock. Writes only a dated report under reports/.
 verdict  : PASS
 
 $ node scripts/health-check.mjs
-(exit 0, 298ms)
+(exit 0, 277ms)
 --- stdout ---
 
 1. Availability — public pages

@@ -1,28 +1,28 @@
 # BATCH-01 — RESULT BATCH (TERMUX → ARENA)
 
-**Protocol:** arena-termux-batch/1 · **Finished:** 2026-08-31T18:57:16.968Z
+**Protocol:** arena-termux-batch/1 · **Finished:** 2026-08-31T18:57:39.244Z
 **Executor:** arena-coordinator-sandbox on linux/x64 · Node v22.22.3
-**Head:** `62c68d53eb7cf6b6c7ae8c46a10e6fc932c304e5` · **Branch:** arena/01a0591c-panika-jeevan-sathi · **Worktree:** clean
+**Head:** `eb84dba5ab3f629f7a79ae4858aaca79af38d68d` · **Branch:** arena/01a0591c-panika-jeevan-sathi · **Worktree:** clean
 **Head matches batch base:** NO · **Public UI drift:** none
-**Integrity token:** `1474fe28c2c854fd561ab30a1c07d2031120b253775b5509bfec18580b85caf2`
+**Integrity token:** `fa02d8de97eb1cfed59d25bfe8a5401f58e45726e8a01e7c11a79fae2c0d5f0e`
 
 ## Summary
 
 | total | PASS | FAIL | BLOCKED |
 | --- | --- | --- | --- |
-| 10 | 7 | 1 | 2 |
+| 10 | 8 | 1 | 1 |
 
 | Task | Worker | Status | Duration | Decisive evidence |
 | --- | --- | --- | --- | --- |
-| `T-01` | manager | PASS | 267ms | $ node scripts/termux-batch.mjs preflight --json |
-| `T-02` | guardian | FAIL | 629ms | $ node scripts/check-syntax.mjs |
-| `T-03` | guardian | PASS | 298ms | $ node scripts/health-check.mjs |
-| `T-04` | amit | PASS | 1566ms | $ node scripts/e2e-test.mjs |
-| `T-05` | amit | PASS | 1445ms | $ PJS_STORAGE=json node scripts/e2e-test.mjs |
-| `T-06` | vikram | PASS | 96ms | $ node scripts/agent-storage.mjs doctor |
-| `T-07` | rahul | BLOCKED | 344ms | $ curl -sS -o /dev/null --max-time 95 --connect-timeout 25 -w %{http_code} %{time_total} % |
-| `T-08` | sneha | PASS | 56ms | $ PJS_AGENT_STORAGE_BACKEND=memory git ls-files -- .env data uploads storage/snapshots |
-| `T-09` | nisha | BLOCKED | 0ms | Not executed by the runner by design. Commands to run: |
+| `T-01` | manager | PASS | 271ms | $ node scripts/termux-batch.mjs preflight --json |
+| `T-02` | guardian | FAIL | 623ms | $ node scripts/check-syntax.mjs |
+| `T-03` | guardian | PASS | 277ms | $ node scripts/health-check.mjs |
+| `T-04` | amit | PASS | 1512ms | $ node scripts/e2e-test.mjs |
+| `T-05` | amit | PASS | 1410ms | $ PJS_STORAGE=json node scripts/e2e-test.mjs |
+| `T-06` | vikram | PASS | 107ms | $ node scripts/agent-storage.mjs doctor |
+| `T-07` | rahul | BLOCKED | 349ms | $ curl -sS -o /dev/null --max-time 95 --connect-timeout 25 -w %{http_code} %{time_total} % |
+| `T-08` | sneha | PASS | 58ms | $ PJS_AGENT_STORAGE_BACKEND=memory git ls-files -- .env data uploads storage/snapshots |
+| `T-09` | nisha | PASS | 0ms | The resolution loop printed nothing (exit 0) → 0 UNRESOLVED links out of 18 distinct inter |
 | `T-10` | manager | PASS | 48ms | $ git status --porcelain -- data uploads storage lib public server.js |
 
 ## T-01 — Environment capability truth before anything else  →  **PASS**
@@ -30,13 +30,13 @@
 - **1. Task ID:** T-01
 - **2. Worker:** manager (runner-executed)
 - **3. Actual command/action performed:**
-  - `node scripts/termux-batch.mjs preflight --json` → exit 0, 267ms
+  - `node scripts/termux-batch.mjs preflight --json` → exit 0, 271ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
   ```
   $ node scripts/termux-batch.mjs preflight --json
-    exit 0 in 267ms  (expected 0)
+    exit 0 in 271ms  (expected 0)
           "node_ok_22_5": true,
         "missing_files": [],
             "error": "Command failed: curl -sS -o /dev/null --max-time 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/api/health\ncurl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in con"
@@ -56,21 +56,21 @@
 - **1. Task ID:** T-02
 - **2. Worker:** guardian (runner-executed)
 - **3. Actual command/action performed:**
-  - `node scripts/check-syntax.mjs` → exit 0, 582ms
-  - `node scripts/agent-team-check.mjs` → exit 0, 37ms
+  - `node scripts/check-syntax.mjs` → exit 0, 579ms
+  - `node scripts/agent-team-check.mjs` → exit 0, 33ms
   - `git status --porcelain --untracked-files=no -- server.js lib public agents scripts` → exit 0, 3ms
-  - `git diff --name-only 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD -- server.js lib public agents` → exit 0, 2ms
+  - `git diff --name-only 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD -- server.js lib public agents` → exit 0, 3ms
   - `git diff --check 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD` → exit 2 **(UNEXPECTED)**, 5ms
 - **4. Status:** FAIL
 - **5. Exact evidence:**
 
   ```
   $ node scripts/check-syntax.mjs
-    exit 0 in 582ms  (expected 0)
+    exit 0 in 579ms  (expected 0)
         41 checked, 0 with syntax errors
 
   $ node scripts/agent-team-check.mjs
-    exit 0 in 37ms  (expected 0)
+    exit 0 in 33ms  (expected 0)
       PASS: agents/README.md
       PASS: agents/config.json
       PASS: agents/lib.mjs
@@ -84,24 +84,24 @@
 
 
   $ git diff --name-only 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD -- server.js lib public agents
-    exit 0 in 2ms  (expected 0)
+    exit 0 in 3ms  (expected 0)
       agents/README.md
 
   $ git diff --check 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD
     exit 2 in 5ms  (UNEXPECTED)
-      +  curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
-      +  curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
-      +  curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
-      +000 0.031069 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      ++curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      ++000 0.188116 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
+      ++curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
+      +000 0.030908 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       +curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       +curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
-      +000 0.031300 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      +000 0.032613 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       +curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
-      +000 0.030529 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      +000 0.033780 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       +curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
-      +000 0.031000 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      +000 0.031142 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       +curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
-      +000 0.188116 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
+      +000 0.033209 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
       +curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
   ```
 
@@ -115,13 +115,13 @@
 - **1. Task ID:** T-03
 - **2. Worker:** guardian (runner-executed)
 - **3. Actual command/action performed:**
-  - `node scripts/health-check.mjs` → exit 0, 298ms
+  - `node scripts/health-check.mjs` → exit 0, 277ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
   ```
   $ node scripts/health-check.mjs
-    exit 0 in 298ms  (expected 0)
+    exit 0 in 277ms  (expected 0)
         ✓ /interests.html has noindex
         ✓ /shortlist.html has noindex
         ✓ /edit-profile.html has noindex
@@ -148,13 +148,13 @@
 - **1. Task ID:** T-04
 - **2. Worker:** amit (runner-executed)
 - **3. Actual command/action performed:**
-  - `node scripts/e2e-test.mjs` → exit 0, 1566ms
+  - `node scripts/e2e-test.mjs` → exit 0, 1512ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
   ```
   $ node scripts/e2e-test.mjs
-    exit 0 in 1566ms  (expected 0)
+    exit 0 in 1512ms  (expected 0)
         ✓ path traversal is blocked
         ✓ server file not reachable over HTTP: /data/admin-credentials.txt
         ✓ server file not reachable over HTTP: /data/panika-jeevan-sathi.db
@@ -181,13 +181,13 @@
 - **1. Task ID:** T-05
 - **2. Worker:** amit (runner-executed)
 - **3. Actual command/action performed:**
-  - `node scripts/e2e-test.mjs` → exit 0, 1445ms
+  - `node scripts/e2e-test.mjs` → exit 0, 1410ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
   ```
   $ PJS_STORAGE=json node scripts/e2e-test.mjs
-    exit 0 in 1445ms  (expected 0)
+    exit 0 in 1410ms  (expected 0)
         ✓ path traversal is blocked
         ✓ server file not reachable over HTTP: /data/admin-credentials.txt
         ✓ server file not reachable over HTTP: /data/panika-jeevan-sathi.db
@@ -214,14 +214,14 @@
 - **1. Task ID:** T-06
 - **2. Worker:** vikram (runner-executed)
 - **3. Actual command/action performed:**
-  - `node scripts/agent-storage.mjs doctor` → exit 0, 48ms
-  - `node scripts/agent-storage.mjs status` → exit 0, 48ms
+  - `node scripts/agent-storage.mjs doctor` → exit 0, 53ms
+  - `node scripts/agent-storage.mjs status` → exit 0, 54ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
   ```
   $ node scripts/agent-storage.mjs doctor
-    exit 0 in 48ms  (expected 0)
+    exit 0 in 53ms  (expected 0)
         ✓ storage root exists — storage
         ✓ agent registry readable — 12 agents
         ✓ agent stores complete — 0 missing file(s)
@@ -232,7 +232,7 @@
         ledger   : 12 entries / 0 broken
 
   $ node scripts/agent-storage.mjs status
-    exit 0 in 48ms  (expected 0)
+    exit 0 in 54ms  (expected 0)
       guardian   OK             1      0         0      0        2026-08-31T00:29:18.125Z
       manager    OK             1      0         0      0        2026-08-31T00:29:34.023Z
       pooja      BLOCKED        1      4         0      1        2026-08-31T00:29:18.168Z
@@ -259,48 +259,48 @@
 - **1. Task ID:** T-07
 - **2. Worker:** rahul (runner-executed)
 - **3. Actual command/action performed:**
-  - `curl -sS -o /dev/null --max-time 95 --connect-timeout 25 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/api/health` → exit 35 **(UNEXPECTED)**, 40ms
-  - `curl -sS --max-time 95 --connect-timeout 25 https://panikajeevansathi.onrender.com/api/health` → exit 35 **(UNEXPECTED)**, 40ms
+  - `curl -sS -o /dev/null --max-time 95 --connect-timeout 25 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/api/health` → exit 35 **(UNEXPECTED)**, 44ms
+  - `curl -sS --max-time 95 --connect-timeout 25 https://panikajeevansathi.onrender.com/api/health` → exit 35 **(UNEXPECTED)**, 41ms
   - `curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/` → exit 35 **(UNEXPECTED)**, 41ms
-  - `curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/robots.txt` → exit 35 **(UNEXPECTED)**, 42ms
+  - `curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/robots.txt` → exit 35 **(UNEXPECTED)**, 40ms
   - `curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/sitemap.xml` → exit 35 **(UNEXPECTED)**, 40ms
-  - `curl -sS -o /dev/null --max-time 45 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.coolstore.in/` → exit 35 **(UNEXPECTED)**, 42ms
-  - `node scripts/render-route-discovery.mjs` → exit 0, 99ms
+  - `curl -sS -o /dev/null --max-time 45 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.coolstore.in/` → exit 35 **(UNEXPECTED)**, 40ms
+  - `node scripts/render-route-discovery.mjs` → exit 0, 103ms
 - **4. Status:** BLOCKED
 - **5. Exact evidence:**
 
   ```
   $ curl -sS -o /dev/null --max-time 95 --connect-timeout 25 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/api/health
-    exit 35 in 40ms  (UNEXPECTED)
-      000 0.030908 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+    exit 35 in 44ms  (UNEXPECTED)
+      000 0.035894 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
 
   $ curl -sS --max-time 95 --connect-timeout 25 https://panikajeevansathi.onrender.com/api/health
-    exit 35 in 40ms  (UNEXPECTED)
+    exit 35 in 41ms  (UNEXPECTED)
       curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
 
   $ curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/
     exit 35 in 41ms  (UNEXPECTED)
-      000 0.032613 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      000 0.032964 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
 
   $ curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/robots.txt
-    exit 35 in 42ms  (UNEXPECTED)
-      000 0.033780 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+    exit 35 in 40ms  (UNEXPECTED)
+      000 0.030624 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
 
   $ curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/sitemap.xml
     exit 35 in 40ms  (UNEXPECTED)
-      000 0.031142 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
+      000 0.031844 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
       curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443
 
   $ curl -sS -o /dev/null --max-time 45 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.coolstore.in/
-    exit 35 in 42ms  (UNEXPECTED)
-      000 0.033209 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
+    exit 35 in 40ms  (UNEXPECTED)
+      000 0.031063 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
       curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443
 
   $ node scripts/render-route-discovery.mjs
-    exit 0 in 99ms  (expected 0)
+    exit 0 in 103ms  (expected 0)
       ✗ / -> fetch failed
       ✗ /login.html -> fetch failed
       ✗ /profile.html -> fetch failed
@@ -338,8 +338,8 @@
 - **2. Worker:** sneha (runner-executed)
 - **3. Actual command/action performed:**
   - `git ls-files -- .env data uploads storage/snapshots` → exit 0, 2ms
-  - `git grep -I -n -E (api[_-]?key|apikey|secret|password)[[:space:]]*[:=][[:space:]]*["'][A-Za-z0-9_.-]{16,} -- lib server.js public` → exit 1, 4ms
-  - `node agents/worker.mjs sneha` → exit 0, 50ms
+  - `git grep -I -n -E (api[_-]?key|apikey|secret|password)[[:space:]]*[:=][[:space:]]*["'][A-Za-z0-9_.-]{16,} -- lib server.js public` → exit 1, 5ms
+  - `node agents/worker.mjs sneha` → exit 0, 51ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
@@ -349,11 +349,11 @@
 
 
   $ PJS_AGENT_STORAGE_BACKEND=memory git grep -I -n -E (api[_-]?key|apikey|secret|password)[[:space:]]*[:=][[:space:]]*["'][A-Za-z0-9_.-]{16,} -- lib server.js public
-    exit 1 in 4ms  (expected 0/1)
+    exit 1 in 5ms  (expected 0/1)
 
 
   $ PJS_AGENT_STORAGE_BACKEND=memory node agents/worker.mjs sneha
-    exit 0 in 50ms  (expected 0)
+    exit 0 in 51ms  (expected 0)
         "status": "OK",
   ```
 
@@ -362,26 +362,25 @@
 - **8. Report path:** `reports/agents/batch-01-t-08.evidence.md`
 - **9. Remaining dependency/problem:** none
 
-## T-09 — Broken internal-link audit against the device copy (manual — pipelines need a shell)  →  **BLOCKED**
+## T-09 — Broken internal-link audit against the device copy (manual — pipelines need a shell)  →  **PASS**
 
 - **1. Task ID:** T-09
-- **2. Worker:** nisha (runner-executed)
+- **2. Worker:** nisha (manually executed, imported)
 - **3. Actual command/action performed:**
-- **4. Status:** BLOCKED
+  - `grep -rhoE 'href="/[^"]+"' public/*.html | sed -E 's/.*href="//; s/[?#].*//; s/"$//' | sort -u > /tmp/pjs-links.txt` → exit 0
+  - `while read -r p; do case "$p" in /api/*) continue;; esac; [ -f "public$p" ] || echo "UNRESOLVED $p"; done < /tmp/pjs-links.txt` → exit 0
+  - `wc -l < /tmp/pjs-links.txt` → exit 0
+- **4. Status:** PASS
 - **5. Exact evidence:**
 
   ```
-  Not executed by the runner by design. Commands to run:
-    $ grep -rhoE 'href="/[^"]+"' public/*.html | sed -E 's/.*href="//; s/[?#].*//; s/"$//' | sort -u > /tmp/pjs-links.txt
-    $ while read -r p; do case "$p" in /api/*) continue;; esac; [ -f "public$p" ] || echo "UNRESOLVED $p"; done < /tmp/pjs-links.txt
-    $ wc -l < /tmp/pjs-links.txt
-    $ node scripts/termux-batch.mjs template BATCH-01
+  The resolution loop printed nothing (exit 0) → 0 UNRESOLVED links out of 18 distinct internal hrefs: /admin.html /assets/css/app.css /assets/img/favicon.svg /contact.html /dashboard.html /edit-profile.html /index.html /interests.html /login.html /matches.html /messages.html /notifications.html /privacy.html /profile.html /search.html /settings.html /shortlist.html /terms.html. Neither /register.html nor /forgot-password.html appears in any public/*.html, which confirms the 2 'production failures' in reports/agents/render-employee-latest.json come from the hardcoded guess list in scripts/render-doctor.mjs, not from a broken link. Scope: static href literals only; JS-built links (/profile.html?id=) are covered by T-03/T-04 instead. No public/** file was modified and reports/ui-baseline-body.md5 was not regenerated.
   ```
 
 - **6. Files changed:** none
-- **7. Tests performed:** none
+- **7. Tests performed:** `static internal href extraction over public/*.html`, `existence check of each extracted path under public/`, `targeted grep for /register.html, /forgot-password.html, /signup, /chat.html across public/ lib/ server.js`
 - **8. Report path:** `reports/agents/batch-01-t-09-manual.evidence.md`
-- **9. Remaining dependency/problem:** this task is manual on Termux — run the exact commands in verify.instructions, then feed them back with --import <file.json> (see: node scripts/termux-batch.mjs template BATCH-01)
+- **9. Remaining dependency/problem:** none
 
 ## T-10 — Local-data safety: nothing real left behind or about to be committed  →  **PASS**
 
@@ -390,9 +389,9 @@
 - **3. Actual command/action performed:**
   - `git status --porcelain -- data uploads storage lib public server.js` → exit 0, 3ms
   - `git check-ignore -v data/` → exit 0, 2ms
-  - `git ls-files -- data uploads` → exit 0, 3ms
+  - `git ls-files -- data uploads` → exit 0, 2ms
   - `git diff --name-only HEAD -- server.js lib public agents storage` → exit 0, 3ms
-  - `node scripts/termux-batch.mjs list` → exit 0, 37ms
+  - `node scripts/termux-batch.mjs list` → exit 0, 38ms
 - **4. Status:** PASS
 - **5. Exact evidence:**
 
@@ -406,7 +405,7 @@
       .gitignore:2:data/	data/
 
   $ git ls-files -- data uploads
-    exit 0 in 3ms  (expected 0)
+    exit 0 in 2ms  (expected 0)
 
 
   $ git diff --name-only HEAD -- server.js lib public agents storage
@@ -414,7 +413,7 @@
 
 
   $ node scripts/termux-batch.mjs list
-    exit 0 in 37ms  (expected 0)
+    exit 0 in 38ms  (expected 0)
       BATCH-01     10 tasks  → no result batch yet
   ```
 

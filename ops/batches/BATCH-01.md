@@ -48,10 +48,10 @@ $ node scripts/termux-batch.mjs preflight --json
 | --- | --- |
 | 1. Task ID | `T-02` (order 2) |
 | 2. Assigned worker | guardian — Guardian (Sardar) — safety & health authority |
-| 3. Exact objective | Verify the app code on the device is exactly the code Arena pinned. Two separate claims: (a) nothing tracked under server.js, lib/, public/, agents/ or scripts/ is locally modified on this device; (b) between base commit 8ef92b7b9c6296d72369535850990cfd79f1c223 and the checked-out HEAD, the RUNTIME code (server.js, lib/, public/, agents/) is byte-identical. Tooling commits ARE expected on top of the base commit (ops/batches/**, scripts/termux-batch.mjs, package.json script entries, reports/**) — that is why scripts/ and package.json are outside check (b). Syntax and the agent-team safety config must both be green. |
+| 3. Exact objective | Verify the app code on the device is exactly the code Arena pinned. Two separate claims: (a) nothing tracked under server.js, lib/, public/, agents/ or scripts/ is locally modified on this device; (b) between base commit 8ef92b7b9c6296d72369535850990cfd79f1c223 and the checked-out HEAD, the RUNTIME code (server.js, lib/, public/, agents/) is byte-identical. Tooling commits ARE expected on top of the base commit (ops/batches/**, scripts/termux-batch.mjs, package.json script entries, reports/**) — that is why scripts/ and package.json are outside check (b). Syntax and the agent-team safety config must both be green. The whitespace gate is scoped to code and tooling paths on purpose: reports/agents/*.evidence.md hold verbatim captured stdout/stderr, and right-stripping a captured line to satisfy a style check would falsify the evidence the whole protocol exists to protect. |
 | 4. Allowed | actions: read files; run the repo's own syntax + team checks · files: `reports/agents/batch-01-t-02.evidence.md` |
 | 4b. Forbidden | editing any file to make a check pass; git checkout/reset/clean; any write outside reports/ |
-| 5. Verification | check-syntax prints '41 checked, 0 with syntax errors'; agent-team-check prints 'AGENT TEAM CHECK: PASS'; and both empty-checks print nothing. Any filename in list (a) means the device edited app code; any filename in list (b) means the batch is being run against a different app tree than the one Arena pinned. |
+| 5. Verification | check-syntax prints '41 checked, 0 with syntax errors'; agent-team-check prints 'AGENT TEAM CHECK: PASS'; and both empty-checks print nothing. Any filename in list (a) means the device edited app code; any filename in list (b) means the batch is being run against a different app tree than the one Arena pinned. git diff --check over the code paths must exit 0 (generated reports are whitespace-stripped by the renderer; raw evidence logs are excluded by design). |
 | 6. Expected report | The two PASS lines, plus the exact list of any file that appears in either empty-check (normally: none). |
 | 7. Stop condition | If either empty-check prints a name: STOP the batch, paste `git status --porcelain --untracked-files=no` and `git log --oneline -3`, and wait for Arena. Never 'fix' it by editing, stashing, checking out or resetting. |
 
@@ -60,7 +60,7 @@ $ node scripts/check-syntax.mjs
 $ node scripts/agent-team-check.mjs
 $ git status --porcelain --untracked-files=no -- server.js lib public agents scripts
 $ git diff --name-only 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD -- server.js lib public agents
-$ git diff --check 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD
+$ git diff --check 8ef92b7b9c6296d72369535850990cfd79f1c223 HEAD -- server.js lib public agents scripts package.json
 ```
 
 ## T-03 — 95-point site health + design lock, run locally on the device
