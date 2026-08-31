@@ -256,7 +256,16 @@
 
     $('pipeline').innerHTML = STAGES.map(([key, label], index) => {
       const stage = byKey[key];
-      const cls = !stage ? 'pending' : stage.status === 'OK' ? 'done' : stage.status === 'FALLBACK' ? 'pending' : 'blocked';
+      // Priya and the storage check report VERIFIED, which is a success — only
+      // a genuine failure may be painted red.
+      const succeeded = ['OK', 'VERIFIED'];
+      const cls = !stage
+        ? 'pending'
+        : succeeded.includes(stage.status)
+          ? 'done'
+          : stage.status === 'FALLBACK'
+            ? 'pending'
+            : 'blocked';
       const detail = stage ? `${stage.status}${stage.detail ? ` — ${stage.detail}` : ''}` : 'not reached';
       return `<div class="pipe-stage ${cls}">
         <span class="n">${index + 1}</span>
@@ -273,7 +282,9 @@
     }
     $('cycleMeta').textContent = meta.filter(Boolean).join(' · ');
 
-    const report = (result && result.report) || null;
+    // result.report is the report PAYLOAD (research / verification / manager),
+    // not the database row wrapper returned by /api/seo/reports/:id.
+    const report = result && result.report && result.report.research ? result.report : null;
     if (!report) {
       $('findings').innerHTML = empty(result ? 'This cycle produced no report. See the reason above.' : 'No cycle has run yet.');
       $('verification').innerHTML = '';
@@ -618,14 +629,15 @@
 
     const last = res.cycles.find((c) => c.report_id) || null;
     if (last && !state.lastRun) {
-      const report = await fetchReport(last.report_id);
-      if (report) {
+      const stored = await fetchReport(last.report_id); // { …row, report: payload }
+      const payload = stored && stored.report;
+      if (payload) {
         renderPipeline({
           cycle_no: last.cycle_no,
           state: last.status,
           duration_ms: last.duration_ms,
-          stages: (report.stages || []).map((s) => ({ stage: s.stage, status: s.status, detail: s.detail, duration_ms: s.duration_ms })),
-          report
+          stages: (payload.stages || []).map((s) => ({ stage: s.stage, status: s.status, detail: s.detail, duration_ms: s.duration_ms })),
+          report: payload
         });
       }
     }

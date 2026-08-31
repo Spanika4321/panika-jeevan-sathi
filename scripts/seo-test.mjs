@@ -648,6 +648,28 @@ async function partB() {
     check('the archive object was read back and checksummed', result.storage_verification.status === 'VERIFIED', JSON.stringify(result.storage_verification.checks.map((c) => c.status)));
     check('the stored report verifies against its checksum', result.checksum.length === 64);
 
+    // The first save happens before the report/verify stages exist, so the
+    // stored copy is rewritten with the complete trail. Both must be true.
+    const storedRow = seo.store.getReport(result.report_id);
+    const storedPayload = storedRow.report;
+    check(
+      'the stored report carries the complete 8-stage trail',
+      (storedPayload.stages || []).length === 8,
+      `${(storedPayload.stages || []).length} stages: ${(storedPayload.stages || []).map((x) => x.stage).join(',')}`
+    );
+    check(
+      'the stored trail ends with the storage verification',
+      (storedPayload.stages || []).slice(-1)[0].stage === 'verify',
+      JSON.stringify((storedPayload.stages || []).slice(-1)[0])
+    );
+    check('the stored report keeps the storage verification result', Boolean(storedPayload.storage_verification && storedPayload.storage_verification.status));
+    check(
+      'the rewritten payload still matches its stored checksum',
+      storedRow.checksum === seo.store.sha256(JSON.stringify(storedPayload)),
+      `${storedRow.checksum} vs ${seo.store.sha256(JSON.stringify(storedPayload))}`
+    );
+    check('the stored Markdown lists all eight stages', (storedRow.markdown.match(/^- `\w+` →/gm) || []).length === 8, String((storedRow.markdown.match(/^- `\w+` →/gm) || []).length));
+
     const payloadText = JSON.stringify(result.report);
     check('the report contains no API key', !payloadText.includes('stub-gemini'));
     check('the report contains no OAuth token', !payloadText.includes('ya29.stub-access-token') && !payloadText.includes('stub-refresh-token'));
@@ -794,6 +816,20 @@ async function partB() {
     check('the archived key is recorded on the report', driver.one('seo_reports', { id: result.report_id }).archive_key.startsWith('reports/seo-report-'));
     const keys = [...transport.objects.keys()];
     check('JSON + Markdown + latest are archived', keys.length >= 3, keys.join(', '));
+    // The stub keys objects by their full path (prefix + key), so match on the suffix.
+    const archiveKey = [...transport.objects.keys()].find((k) => k.endsWith(result.storage.archive.key));
+    check('the archived object exists under the configured prefix', Boolean(archiveKey), [...transport.objects.keys()].join(', '));
+    const archivedCopy = JSON.parse(transport.objects.get(archiveKey).toString('utf8'));
+    check(
+      'the archived object is the finalised report (checksum matches the database)',
+      archivedCopy.checksum === driver.one('seo_reports', { id: result.report_id }).checksum,
+      `${archivedCopy.checksum} vs ${driver.one('seo_reports', { id: result.report_id }).checksum}`
+    );
+    check(
+      'the archived report also carries all eight stages',
+      (archivedCopy.stages || []).length === 8,
+      `${(archivedCopy.stages || []).length} stages`
+    );
 
     const forbidden = makeTransport({ gemini: 'ok', s3: 'forbidden' });
     const broken = center({ env: envWith(Object.assign({ GEMINI_API_KEY: 'stub-gemini' }, filEnv)), transport: forbidden });

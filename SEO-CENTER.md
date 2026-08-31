@@ -277,5 +277,5 @@ An optional GitHub Actions template is in `ops/seo-center.workflow.yml`
 | `lib/s3.js` | S3-compatible object storage client (Fil One) |
 | `public/seo.html`, `public/assets/js/seo.js` | the dashboard |
 | `scripts/seo-cycle.mjs` | CLI / CI cycle runner |
-| `scripts/seo-test.mjs` | 139-check test suite (`npm run test:seo`) |
+| `scripts/seo-test.mjs` | 147-check test suite (`npm run test:seo`) |
 | `ops/seo-center.workflow.yml` | optional scheduled workflow |

@@ -44,7 +44,7 @@ const PRIVATE_PAGES = [
   '/profile.html', '/search.html', '/seo.html', '/reset-password.html', '/verify-email.html'
 ];
 const ASSETS = [
-  '/assets/css/app.css', '/assets/js/app.js', '/assets/js/cards.js',
+  '/assets/css/app.css', '/assets/js/app.js', '/assets/js/cards.js', '/assets/js/seo.js',
   '/assets/img/logo.svg', '/assets/img/favicon.svg'
 ];
 const SECURITY_HEADERS = ['x-content-type-options', 'x-frame-options', 'referrer-policy', 'permissions-policy'];
@@ -197,7 +197,7 @@ try {
       lines.push(`${hash}  public/${f}`);
     }
     const assetFiles = [
-      'assets/css/app.css', 'assets/js/app.js', 'assets/js/cards.js',
+      'assets/css/app.css', 'assets/js/app.js', 'assets/js/cards.js', 'assets/js/seo.js',
       'assets/img/favicon.svg', 'assets/img/logo.svg'
     ];
     for (const f of assetFiles.sort()) {

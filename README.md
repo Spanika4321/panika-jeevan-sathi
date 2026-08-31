@@ -135,7 +135,7 @@ scripts/verify-cloud.mjs     check real Cloudflare credentials + a live site
 scripts/deploy-render.mjs    create/update the Render service and deploy it
 scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
 scripts/check-syntax.mjs    syntax check for every shipped script
-scripts/seo-test.mjs        SEO Center test suite (139 checks, real pipeline)
+scripts/seo-test.mjs        SEO Center test suite (147 checks, real pipeline)
 scripts/seo-cycle.mjs       run one SEO cycle from the CLI / CI
 scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
 scripts/agent-storage-cycle.mjs  runs all 12 agents and records every run
