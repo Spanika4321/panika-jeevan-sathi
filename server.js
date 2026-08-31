@@ -19,6 +19,7 @@ const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
+const seoCenterLib = require('./lib/seo-center');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -65,6 +66,19 @@ const api = apiLib.createApi({
       photos: photos.stats()
     };
   }
+});
+
+/**
+ * SEO Center (permanent): real Search Console data → Gemini/Router AI →
+ * Pooja (research) → Priya (verification) → Manager (plan) → stored report.
+ * Admin-only endpoints under /api/seo/*, dashboard at /seo-center.html.
+ */
+const seoCenter = seoCenterLib.createSeoCenter({
+  dataDir: DATA_DIR,
+  secret,
+  db: driver,
+  auth: authLib,
+  log: (message) => console.log(message)
 });
 
 /** Write queued changes (database + photos) to the remote services. */
@@ -208,6 +222,15 @@ async function main() {
     console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored to R2)' : ''}`);
     console.log('  Free forever — no payments, no locked profiles.');
     console.log('');
+
+    // SEO Center cycle scheduler (Check → Search Data → AI → Pooja → Priya →
+    // Manager → Report → Verify). Enabled with SEO_SCHEDULER=1.
+    const seoSchedule = seoCenter.startScheduler();
+    if (seoSchedule.enabled) {
+      console.log(`  SEO Center scheduler ON — next cycle: ${seoSchedule.next.next_run_at} (${seoSchedule.next.mode}).`);
+    } else {
+      console.log('  SEO Center scheduler OFF — enable with SEO_SCHEDULER=1 (or use GitHub Actions / cron).');
+    }
   });
 }
 
@@ -286,6 +309,7 @@ const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/priv
 // Members-only or account pages — crawlers should stay out.
 const PRIVATE_PAGES = [
   'admin.html',
+  'seo-center.html',
   'settings.html',
   'dashboard.html',
   'matches.html',
@@ -326,6 +350,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, SECURITY_HEADERS);
     res.end();
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/seo/')) {
+    await seoCenter.handle(req, res, url);
     return;
   }
 
@@ -394,6 +423,7 @@ main().catch((err) => {
 
 async function shutdown() {
   console.log('\n  Shutting down…');
+  seoCenter.stopScheduler();
   // Give queued writes their last chance to reach the remote services.
   await persist();
   try {

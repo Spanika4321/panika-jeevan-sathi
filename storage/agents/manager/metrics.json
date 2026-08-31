@@ -1,8 +1,10 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 5,
+    "status_ok": 1,
+    "status_fail": 2,
+    "status_blocked": 2
   },
   "history": [
     {
@@ -10,7 +12,31 @@
       "status": "OK",
       "duration_ms": 396,
       "summary": "manager cycle — pooja=PASS priya=PASS guardian=PASS"
+    },
+    {
+      "at": "2026-08-31T02:14:02.937Z",
+      "status": "FAIL",
+      "duration_ms": 0,
+      "summary": "Recommendations withheld: Pooja=BLOCKED, Priya=BLOCKED. A final plan is released only after Priya's verification passes."
+    },
+    {
+      "at": "2026-08-31T02:15:56.857Z",
+      "status": "FAIL",
+      "duration_ms": 0,
+      "summary": "Recommendations withheld: Pooja=BLOCKED, Priya=BLOCKED. A final plan is released only after Priya's verification passes."
+    },
+    {
+      "at": "2026-08-31T02:18:48.585Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Recommendations withheld: upstream steps are BLOCKED (Pooja=BLOCKED, Priya=BLOCKED). Connect Search Console to get real data."
+    },
+    {
+      "at": "2026-08-31T02:21:03.055Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Recommendations withheld: upstream steps are BLOCKED (Pooja=BLOCKED, Priya=BLOCKED). Connect Search Console to get real data."
     }
   ],
-  "updated_at": "2026-08-31T00:29:34.026Z"
+  "updated_at": "2026-08-31T02:21:03.055Z"
 }
