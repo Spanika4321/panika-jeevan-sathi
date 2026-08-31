@@ -276,7 +276,10 @@
       const badge = badgeKey && PJS.counts[badgeKey] ? `<span class="nav-badge" data-badge="${badgeKey}">${PJS.counts[badgeKey]}</span>` : '';
       return `<a href="${item.href}" class="${active.trim()}">${item.label}${badge}</a>`;
     }).join('');
-    const extra = PJS.me.role === 'admin' ? `<a href="/admin.html" class="${current === '/admin.html' ? 'active' : ''}">Admin</a>` : '';
+    const extra = PJS.me.role === 'admin'
+      ? `<a href="/admin.html" class="${current === '/admin.html' ? 'active' : ''}">Admin</a>
+         <a href="/seo.html" class="${current === '/seo.html' ? 'active' : ''}">SEO</a>`
+      : '';
     holder.innerHTML = `<header class="site-header"><div class="bar">${brandHtml()}
       <nav class="nav-desktop">${links}${extra}
         <a href="/notifications.html" class="${current === '/notifications.html' ? 'active' : ''}">Alerts${
@@ -306,6 +309,7 @@
         <div class="sep"></div>
         <a href="/contact.html">${I.whatsapp} Contact / WhatsApp</a>
         ${PJS.me.role === 'admin' ? `<a href="/admin.html">${I.shield} Admin panel</a>` : ''}
+        ${PJS.me.role === 'admin' ? `<a href="/seo.html">${I.search} SEO Center</a>` : ''}
         <a href="/settings.html">${I.settings} Settings</a>
         <a href="#" id="drawerLogout">${I.logout} Log out</a>
       </div></div>`;

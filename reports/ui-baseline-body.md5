@@ -14,6 +14,7 @@ f31ed1c690bd61cd7dd537faf72090e9  public/messages.html
 7fd24474e8017e561a596ec43221b4af  public/profile.html
 26903da922e137ad77a65565a1066733  public/reset-password.html
 2fe1fa73e26e4d7b69c17b7364e9bb2b  public/search.html
+5662b37c72ba1c4ec6e49d0777e36343  public/seo.html
 38d3ee5ff367a85bd7053bceb24c5ce2  public/settings.html
 078768f0fb096eaf8d2179c1513273fb  public/shortlist.html
 83dd4f841da7f118dedc9899aa939abd  public/terms.html
@@ -21,5 +22,5 @@ f31ed1c690bd61cd7dd537faf72090e9  public/messages.html
 e228c53ac606a4c6f9036e7818b61b06  public/assets/css/app.css
 3ecb78d20d895dad77e54671180fe3a0  public/assets/img/favicon.svg
 3ecb78d20d895dad77e54671180fe3a0  public/assets/img/logo.svg
-fe85080737f6e88e142f392d7a8cea70  public/assets/js/app.js
+6785f159080293d71653d204ab7e3ddf  public/assets/js/app.js
 46946708e1bd99ee6247ad44a4be525d  public/assets/js/cards.js

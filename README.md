@@ -52,6 +52,11 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | — | SEO Center: Google Search Console OAuth ([SEO-CENTER.md](SEO-CENTER.md)) |
+| `GSC_REFRESH_TOKEN` / `GSC_SERVICE_ACCOUNT_JSON`, `GSC_SITE_URL` | — | SEO Center: alternative Google credentials + property |
+| `GEMINI_API_KEY` (`OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`) | — | SEO Center: AI engine, Gemini first with router fallback |
+| `FILONE_ENDPOINT`, `FILONE_BUCKET`, `FILONE_ACCESS_KEY_ID`, `FILONE_SECRET_ACCESS_KEY` | — | SEO Center: Fil One S3-compatible report archive |
+| `PJS_SEO_AUTO_CYCLE_MINUTES` | `0` (off) | Run an SEO cycle automatically every N minutes |
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
@@ -116,10 +121,13 @@ lib/profiles.js         profile validation, privacy, search filters, match scori
 lib/settings.js         editable website content
 lib/mailer.js           optional SMTP / outbox mailer
 lib/owner.js            site-owner emails that must stay administrators
+lib/seo/                SEO Center: Search Console, Gemini router, agents, storage
+lib/s3.js               S3-compatible object storage client (Fil One archive)
 public/                 the website (HTML + CSS + JS, no build step, no CDN)
 public/assets/css/app.css
 public/assets/js/app.js     shared client: API, auth, chrome, helpers
 public/assets/js/cards.js   profile cards + member actions
+public/assets/js/seo.js     SEO Center dashboard (admin only)
 scripts/e2e-test.mjs    full end-to-end test (boots a real server)
 scripts/e2e-cloud-test.mjs   member journey + cold-start test against D1 & R2
 scripts/test-sigv4.mjs  AWS SigV4 conformance (the official AWS test vectors)
@@ -127,6 +135,8 @@ scripts/verify-cloud.mjs     check real Cloudflare credentials + a live site
 scripts/deploy-render.mjs    create/update the Render service and deploy it
 scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
 scripts/check-syntax.mjs    syntax check for every shipped script
+scripts/seo-test.mjs        SEO Center test suite (139 checks, real pipeline)
+scripts/seo-cycle.mjs       run one SEO cycle from the CLI / CI
 scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
 scripts/agent-storage-cycle.mjs  runs all 12 agents and records every run
 agents/                 AI agent team (Guardian, Manager, Pooja, Priya + 8 workers)
@@ -155,6 +165,9 @@ POST /api/conversations/:id/read GET /api/unread
 GET  /api/notifications          POST /api/notifications/:id/read
 POST /api/reports                POST /api/contact          GET /api/site | /api/stories
 GET/POST/PATCH/DELETE /api/admin/…   (administrators only)
+GET  /api/seo/status | /properties | /overview | /queries | /pages
+GET  /api/seo/reports | /reports/:id | /cycles | /storage
+POST /api/seo/cycle | /disconnect | /ai/test       (administrators only)
 ```
 
 ---
@@ -172,6 +185,13 @@ all pages and assets returning 200, security headers, 404 handling, path-travers
 finally that **all data survives a full server restart**.
 
 The same suite passes on the JSON fallback store: `npm run test:json-store`.
+
+`npm run test:seo` covers the SEO Center: admin-only access, no credential leaks
+(sentinel keys are injected and must never appear in a response), `NOT_CONNECTED`
+/ `BLOCKED` instead of invented metrics, the full cycle against a stubbed
+transport (Search Console → Gemini → Pooja → Priya → Manager → permanent
+storage → verification), Priya rejecting fabricated claims, the Gemini → router
+fallback chain, Fil One archiving and encryption of the stored tokens.
 
 ---
 
@@ -232,6 +252,30 @@ runs with `actions/cache`; if the cache is ever evicted, the committed
 baseline restores it.
 
 Full documentation: [`storage/README.md`](storage/README.md).
+
+---
+
+## SEO Center
+
+A permanent, real-data SEO system at **`/seo.html`** (administrators only):
+
+```
+Google Search Console → SEO dashboard (clicks, impressions, CTR, position,
+queries, pages) → AI engine (Gemini → router fallback) → Pooja (research) →
+Priya (verification) → Manager (plan) → SEO report → permanent storage
+(database + disk + Fil One) → next cycle
+```
+
+- **Real data only** — every number comes from the Search Analytics API. With no
+  connection the page shows `NOT CONNECTED` / `BLOCKED` and no metrics at all.
+- **No fake PASS** — Priya recomputes every claim against the fetched rows; a
+  contradiction makes the report `REVIEW_REQUIRED`.
+- **Secrets stay on the server** — OAuth tokens are stored encrypted
+  (AES-256-GCM) and the API only ever returns booleans and labels.
+- **No automatic production deploy** — every report records
+  `production_deploy: NOT_TRIGGERED`.
+
+Setup, environment variables and the API reference: **[SEO-CENTER.md](SEO-CENTER.md)**.
 
 ---
 

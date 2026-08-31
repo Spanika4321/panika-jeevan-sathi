@@ -65,3 +65,27 @@ services:
         sync: false
       - key: R2_SECRET_ACCESS_KEY
         sync: false
+
+      # ---- SEO Center (all OPTIONAL — see SEO-CENTER.md) -------------------
+      # Without these the SEO Center at /seo.html reports NOT_CONNECTED and
+      # never shows sample data. Nothing here is required to run the site.
+      - key: GOOGLE_CLIENT_ID # Search Console OAuth client
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GSC_REFRESH_TOKEN # alternative to the browser OAuth flow
+        sync: false
+      - key: GSC_SITE_URL # e.g. https://panikajeevansathi.onrender.com/
+        sync: false
+      - key: GEMINI_API_KEY # AI engine (falls back to the rule engine without it)
+        sync: false
+      - key: FILONE_ENDPOINT # Fil One S3-compatible report archive
+        sync: false
+      - key: FILONE_BUCKET
+        sync: false
+      - key: FILONE_ACCESS_KEY_ID
+        sync: false
+      - key: FILONE_SECRET_ACCESS_KEY
+        sync: false
+      - key: PJS_SEO_AUTO_CYCLE_MINUTES # 0 = manual only; 720 = every 12 h
+        value: '0'

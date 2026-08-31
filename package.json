@@ -2,14 +2,15 @@
   "name": "panika-jeevan-sathi",
   "version": "2.0.0",
   "private": true,
-  "description": "PANIKA JEEVAN SATHI — 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
+  "description": "PANIKA JEEVAN SATHI \u2014 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
     "check": "node scripts/check-syntax.mjs",
     "health": "node scripts/health-check.mjs",
-    "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs",
+    "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs && node scripts/seo-test.mjs",
+    "test:seo": "node scripts/seo-test.mjs",
     "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs",
     "test:cloud": "node scripts/e2e-cloud-test.mjs",
     "test:sigv4": "node scripts/test-sigv4.mjs",
@@ -21,7 +22,10 @@
     "storage:status": "node scripts/agent-storage.mjs status",
     "storage:doctor": "node scripts/agent-storage.mjs doctor",
     "storage:report": "node scripts/agent-storage.mjs report",
-    "storage:cycle": "node scripts/agent-storage-cycle.mjs"
+    "storage:cycle": "node scripts/agent-storage-cycle.mjs",
+    "seo:status": "node scripts/seo-cycle.mjs --status",
+    "seo:cycle": "node scripts/seo-cycle.mjs",
+    "seo:report": "node scripts/seo-cycle.mjs --report"
   },
   "engines": {
     "node": ">=22.5.0"

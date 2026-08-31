@@ -41,7 +41,7 @@ const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/priv
 const PRIVATE_PAGES = [
   '/admin.html', '/settings.html', '/dashboard.html', '/matches.html', '/messages.html',
   '/notifications.html', '/interests.html', '/shortlist.html', '/edit-profile.html',
-  '/profile.html', '/search.html', '/reset-password.html', '/verify-email.html'
+  '/profile.html', '/search.html', '/seo.html', '/reset-password.html', '/verify-email.html'
 ];
 const ASSETS = [
   '/assets/css/app.css', '/assets/js/app.js', '/assets/js/cards.js',

@@ -32,6 +32,7 @@ Push karte waqt aapko ye error dikhta hai to yahin se copy karein:
 | 3 | `.github/workflows/priya.yml` | [`ops/priya.workflow.yml`](priya.workflow.yml) *(replace)* |
 | 4 | `.github/workflows/manager.yml` | [`ops/manager.workflow.yml`](manager.workflow.yml) *(replace)* |
 | 5 | `.github/workflows/employee-report.yml` | [`ops/employee-report.workflow.yml`](employee-report.workflow.yml) *(replace)* |
+| 6 | `.github/workflows/seo-center.yml` | [`ops/seo-center.workflow.yml`](seo-center.workflow.yml) *(naya — SEO Center cycle, secrets chahiye: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GSC_REFRESH_TOKEN`, `GEMINI_API_KEY`, `FILONE_*`, `SESSION_SECRET`)* |
 
 **Replace ka matlab:** purani file kholkar (pencil icon) poora content delete
 kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.

@@ -19,6 +19,7 @@ const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
+const seoLib = require('./lib/seo');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -54,10 +55,20 @@ if (!photoSetup.config && driver.kind === 'd1') {
   console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
 }
 
+/* SEO Center: Google Search Console → Gemini/router → Pooja → Priya → Manager
+   → permanent report storage. All credentials stay in this process. */
+const seo = seoLib.createSeoCenter({
+  db: driver,
+  dataDir: DATA_DIR,
+  secret,
+  log: (message) => console.log(message)
+});
+
 const api = apiLib.createApi({
   db: driver,
   secret,
   dataDir: DATA_DIR,
+  seo,
   photos,
   remoteStatus() {
     return {
@@ -200,6 +211,8 @@ async function main() {
     timer.unref();
   }
 
+  seo.startScheduler();
+
   server.listen(PORT, HOST, () => {
     console.log('');
     console.log('  PANIKA JEEVAN SATHI is running');
@@ -208,6 +221,20 @@ async function main() {
     console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored to R2)' : ''}`);
     console.log('  Free forever — no payments, no locked profiles.');
     console.log('');
+    seo
+      .status()
+      .then((state) => {
+        const gsc = state.google_search_console;
+        console.log(`  SEO Center : /seo.html`);
+        console.log(`    Search Console : ${gsc.state}${gsc.reason ? ` — ${gsc.reason}` : ''}`);
+        console.log(
+          `    AI engine      : ${state.ai.available.length ? state.ai.order.join(' → ') : 'deterministic rules only (no AI key configured)'}`
+        );
+        console.log(`    Report archive : ${state.storage.archive.state}`);
+        console.log(`    Automatic cycle: ${state.scheduler.enabled ? `every ${state.scheduler.interval_minutes} min` : 'off (PJS_SEO_AUTO_CYCLE_MINUTES not set)'}`);
+        console.log('');
+      })
+      .catch((err) => console.warn(`[seo] status check failed: ${err.message}`));
   });
 }
 
@@ -296,6 +323,7 @@ const PRIVATE_PAGES = [
   'edit-profile.html',
   'profile.html',
   'search.html',
+  'seo.html',
   'reset-password.html',
   'verify-email.html'
 ];
@@ -394,6 +422,7 @@ main().catch((err) => {
 
 async function shutdown() {
   console.log('\n  Shutting down…');
+  seo.stopScheduler();
   // Give queued writes their last chance to reach the remote services.
   await persist();
   try {

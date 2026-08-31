@@ -1,0 +1,133 @@
+# PANIKA JEEVAN SATHI — SEO Center workflow
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, ~1 minute):
+# GitHub automated tools (apps/bots/agents) ko .github/workflows/ banane ya
+# update karne ki permission nahi hoti — isliye ye file yahan (ops/) rakhi hai.
+# Owner ko ek baar copy karna hai:
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly ye rakhein:  .github/workflows/seo-center.yml
+#   3. Is file ka POORA content paste karke commit kar dein.
+#   4. Repo Settings → Secrets and variables → Actions mein ye secrets daalein:
+#        GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GSC_REFRESH_TOKEN  (ya
+#        GSC_SERVICE_ACCOUNT_JSON), GEMINI_API_KEY,
+#        FILONE_ENDPOINT, FILONE_BUCKET, FILONE_ACCESS_KEY_ID,
+#        FILONE_SECRET_ACCESS_KEY, SESSION_SECRET, PJS_SEO_SITE_URL
+#      Bina inke cycle BLOCKED rahega — kabhi fake report nahi banega.
+#
+# Runs     : daily 05:15 UTC (aur Actions tab se "Run workflow" bhi)
+# What     : ek poora SEO cycle — Search Console → Gemini → Pooja → Priya →
+#            Manager → permanent report → verify
+# Storage  : actions/cache se agent memory + report archive preserve hota hai
+# Guide    : ops/INSTALL-WORKFLOWS.md · SEO-CENTER.md
+
+name: SEO Center — full cycle
+
+on:
+  schedule:
+    - cron: '15 5 * * *'
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Search window in days (7-90)'
+        required: false
+        default: '28'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-center
+  cancel-in-progress: false
+
+jobs:
+  seo-cycle:
+    name: Search Console → AI → Pooja → Priya → Manager → report
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # Agent memory (Pooja / Priya / Manager) pichhle run se wapas lao.
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      # Reports ka local mirror bhi preserve karo (database production par hai,
+      # ye runner par sirf is run ka copy hai).
+      - name: Restore SEO report mirror
+        uses: actions/cache/restore@v4
+        with:
+          path: data/seo
+          key: seo-reports-${{ github.run_id }}
+          restore-keys: |
+            seo-reports-
+
+      - name: Show connection status (no secrets printed)
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_SITE_URL: ${{ secrets.PJS_SEO_SITE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FILONE_ENDPOINT: ${{ secrets.FILONE_ENDPOINT }}
+          FILONE_BUCKET: ${{ secrets.FILONE_BUCKET }}
+          FILONE_ACCESS_KEY_ID: ${{ secrets.FILONE_ACCESS_KEY_ID }}
+          FILONE_SECRET_ACCESS_KEY: ${{ secrets.FILONE_SECRET_ACCESS_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          PJS_STORAGE: sqlite
+        run: node scripts/seo-cycle.mjs --status
+
+      - name: Run one full SEO cycle
+        continue-on-error: true # BLOCKED (exit 2) ko fail mat maano — reason artifact mein jaata hai
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_SITE_URL: ${{ secrets.PJS_SEO_SITE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FILONE_ENDPOINT: ${{ secrets.FILONE_ENDPOINT }}
+          FILONE_BUCKET: ${{ secrets.FILONE_BUCKET }}
+          FILONE_ACCESS_KEY_ID: ${{ secrets.FILONE_ACCESS_KEY_ID }}
+          FILONE_SECRET_ACCESS_KEY: ${{ secrets.FILONE_SECRET_ACCESS_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          PJS_STORAGE: sqlite
+        run: node scripts/seo-cycle.mjs --days=${{ github.event.inputs.days || '28' }}
+
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Save SEO report mirror
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/seo
+          key: seo-reports-${{ github.run_id }}
+
+      - name: Upload the SEO report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-report-${{ github.run_id }}
+          path: data/seo
+          if-no-files-found: ignore
+          retention-days: 90

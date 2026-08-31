@@ -238,13 +238,35 @@ You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 | `R2_PREFIX` | `uploads` | folder inside the bucket |
 | `R2_ENDPOINT` | derived from the account id | override for other S3-compatible hosts |
 
+### SEO Center (all optional — [SEO-CENTER.md](SEO-CENTER.md))
+
+The SEO Center at `/seo.html` is administrator-only. Without these variables it
+reports `NOT_CONNECTED` and shows no metrics — it never displays sample data.
+
+| Variable | Notes |
+| --- | --- |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Search Console OAuth client (redirect URI: `SITE_URL` + `/api/seo/connect/callback`) |
+| `GSC_REFRESH_TOKEN` | alternative to the browser OAuth flow (needs the same client id/secret) |
+| `GSC_SERVICE_ACCOUNT_JSON` | or `GOOGLE_APPLICATION_CREDENTIALS` = path to the key file |
+| `GSC_SITE_URL` | the Search Console property, e.g. `https://panikajeevansathi.onrender.com/` |
+| `GEMINI_API_KEY` | primary AI engine; `OPENAI_API_KEY` / `OPENROUTER_API_KEY` / `GROQ_API_KEY` are fallbacks |
+| `FILONE_ENDPOINT`, `FILONE_BUCKET`, `FILONE_ACCESS_KEY_ID`, `FILONE_SECRET_ACCESS_KEY` | Fil One (S3-compatible) permanent report archive |
+| `PJS_SEO_AUTO_CYCLE_MINUTES` | `0` = manual only; `720` = a cycle every 12 hours |
+
+All of them stay server-side: the API returns only booleans and labels, and OAuth
+tokens are stored encrypted in the database. Reports are kept permanently in the
+database (`seo_reports`), mirrored under `PJS_DATA_DIR/seo/` and archived to Fil
+One when it is configured. On Render Free the disk mirror is ephemeral — the
+database and Fil One are the durable copies, which is why D1 + Fil One matter
+there.
+
 Without SMTP the verification / reset links are shown on screen to the member and copied to
 `data/outbox/` (visible in the admin panel → **Emails**), so nothing is ever lost.
 
 ## Backups
 
-Everything lives in `PJS_DATA_DIR`: the SQLite database, uploaded photos (`uploads/`) and the mail
-outbox. Back up by copying that folder; restore by copying it back and restarting.
+Everything lives in `PJS_DATA_DIR`: the SQLite database, uploaded photos (`uploads/`), the mail
+outbox and the SEO report mirror (`seo/`). Back up by copying that folder; restore by copying it back and restarting.
 With Cloudflare D1/R2 the data is already off-box; R2 is the photo store, D1 can be exported from
 the Cloudflare dashboard.
 
