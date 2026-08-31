@@ -20,6 +20,7 @@ const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
 const seoCenterLib = require('./lib/seo-center');
+const hardeningLib = require('./lib/http-hardening');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -54,6 +55,14 @@ if (photoSetup.config && driver.kind !== 'd1') {
 if (!photoSetup.config && driver.kind === 'd1') {
   console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
 }
+
+/* Delivery: gzip + ETag validators + CSP/HSTS headers + search-engine tags.
+   The HTML files on disk are never rewritten, so the approved design stays
+   byte-for-byte identical while the *served* page carries canonical/OG/JSON-LD. */
+const delivery = hardeningLib.create({
+  publicDir: PUBLIC_DIR,
+  log: (message) => console.log(message)
+});
 
 const api = apiLib.createApi({
   db: driver,
@@ -225,6 +234,7 @@ async function main() {
 
     // SEO Center cycle scheduler (Check → Search Data → AI → Pooja → Priya →
     // Manager → Report → Verify). Enabled with SEO_SCHEDULER=1.
+    delivery.warm();
     const seoSchedule = seoCenter.startScheduler();
     if (seoSchedule.enabled) {
       console.log(`  SEO Center scheduler ON — next cycle: ${seoSchedule.next.next_run_at} (${seoSchedule.next.mode}).`);
@@ -262,33 +272,9 @@ const SECURITY_HEADERS = {
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
 };
 
-function sendFile(res, filePath, { cache = false } = {}) {
-  fs.stat(filePath, (err, stat) => {
-    if (err || !stat.isFile()) {
-      const notFound = path.join(PUBLIC_DIR, '404.html');
-      if (fs.existsSync(notFound)) {
-        res.writeHead(404, Object.assign({ 'Content-Type': MIME['.html'] }, SECURITY_HEADERS));
-        fs.createReadStream(notFound).pipe(res);
-      } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('404 Not Found');
-      }
-      return;
-    }
-    const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(
-      200,
-      Object.assign(
-        {
-          'Content-Type': MIME[ext] || 'application/octet-stream',
-          'Content-Length': stat.size,
-          'Cache-Control': cache ? 'public, max-age=86400' : 'no-cache'
-        },
-        SECURITY_HEADERS
-      )
-    );
-    fs.createReadStream(filePath).pipe(res);
-  });
+/** Serve a static file through the delivery layer (gzip, ETag, CSP, head tags). */
+function sendFile(req, res, filePath, opts = {}) {
+  return delivery.respond(req, res, filePath, opts);
 }
 
 function resolveStatic(pathname) {
@@ -348,17 +334,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, SECURITY_HEADERS);
+    res.writeHead(204, delivery.headers(req));
     res.end();
     return;
   }
 
   if (url.pathname.startsWith('/api/seo/')) {
+    delivery.wrap(req, res);
     await seoCenter.handle(req, res, url);
     return;
   }
 
   if (url.pathname.startsWith('/api/')) {
+    delivery.wrap(req, res);
     await api.handle(req, res, url);
     await persist();
     return;
@@ -373,13 +361,26 @@ const server = http.createServer(async (req, res) => {
       res.end('Not found');
       return;
     }
-    sendFile(res, file, { cache: true });
+    sendFile(req, res, file, { cache: true, htmlPage: false });
+    return;
+  }
+
+  if (url.pathname === '/security.txt' || url.pathname === '/.well-known/security.txt') {
+    res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' }, delivery.headers(req)));
+    res.end(
+      'Contact: mailto:' + ownerLib.securityContact() + '\n' +
+      'Acknowledgements: We thank reporters and publish a fix within 72 hours of a confirmed report.\n' +
+      'Preferred-Languages: en, hi\n' +
+      'Canonical: ' + publicOrigin(req) + '/security.txt\n' +
+      'Policy: ' + publicOrigin(req) + '/privacy.html\n' +
+      'Expires: ' + new Date(Date.now() + 31536000000).toISOString().slice(0, 10) + '\n'
+    );
     return;
   }
 
   if (url.pathname === '/robots.txt') {
     const origin = publicOrigin(req);
-    res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, SECURITY_HEADERS));
+    res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, delivery.headers(req)));
     res.end(
       'User-agent: *\n' +
         'Allow: /\n' +
@@ -393,10 +394,21 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === '/sitemap.xml') {
     const origin = publicOrigin(req);
-    const urls = PUBLIC_PAGES.map(
-      (p) => `  <url><loc>${origin}${p}</loc><changefreq>weekly</changefreq></url>`
-    ).join('\n');
-    res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
+    const urls = PUBLIC_PAGES.map((p) => {
+      const file = path.join(PUBLIC_DIR, p === '/' ? 'index.html' : p);
+      let lastmod = new Date().toISOString().slice(0, 10);
+      try {
+        lastmod = fs.statSync(file).mtime.toISOString().slice(0, 10);
+      } catch (_) {
+        /* fall back to today */
+      }
+      return (
+        `  <url><loc>${origin}${p}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>${
+          p === '/' ? '1.0' : '0.6'
+        }</priority></url>`
+      );
+    }).join('\n');
+    res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, delivery.headers(req)));
     res.end(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
@@ -408,11 +420,15 @@ const server = http.createServer(async (req, res) => {
 
   const target = resolveStatic(url.pathname);
   if (!target) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.writeHead(403, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, delivery.headers(req)));
     res.end('Forbidden');
     return;
   }
-  sendFile(res, target, { cache: url.pathname.startsWith('/assets/') });
+  if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
+    delivery.respondNotFound(req, res);
+    return;
+  }
+  sendFile(req, res, target, { cache: url.pathname.startsWith('/assets/') });
 });
 
 main().catch((err) => {
