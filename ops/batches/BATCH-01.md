@@ -1,7 +1,7 @@
 # BATCH-01 — TASK BATCH (ARENA → TERMUX)
 
-**Protocol:** arena-termux-batch/1 · **Issued:** 2026-08-31T18:50:00Z · **By:** arena-coordinator
-**Execute on:** termux · **Base commit:** `8ef92b7b9c6296d72369535850990cfd79f1c223` · **Branch:** `arena/01a0591c-panika-jeevan-sathi`
+**Protocol:** arena-termux-batch/1 · **Issued:** 2026-08-31T19:00:00Z · **By:** arena-coordinator
+**Execute on:** termux · **Base commit:** `538beebd21e26fb8d1b9e3d4031d80f7dc81ae4c` · **Branch:** `arena/01a0591c-panika-jeevan-sathi`
 
 ## Why this batch
 
@@ -10,7 +10,7 @@
 - reports/agents/render-employee-latest.json still records 2 'production failures': /register.html and /forgot-password.html returning 404. Arena checked the tree: no page, no route and no link references either path (registration lives in /login.html?tab=register, reset lives in /reset-password.html), and the check that produced them is a hardcoded guess list in scripts/render-doctor.mjs. It is reported, NOT fixed, in this batch.
 - Two further defects are queued for a later batch and must not be patched here: scripts/agent-storage-cycle.mjs exits 1 when a worker is only BLOCKED (0 FAIL), and reports/agents/zero-survival-latest.json is a 268-byte stub from a run whose network probes never succeeded.
 - Termux is the only place some of these answers exist: real Android filesystem behaviour, real outbound network, the device's own Node build. Anything Arena could not measure is exactly what this batch measures.
-- Expect HEAD to be a tooling commit ON TOP of base_commit: this batch's own files (ops/batches/**, reports/agents/batch-01-*.evidence.md, ops/batches/BATCH-01.results.*) and scripts/termux-batch.mjs are added by Arena. That is allowed and is why T-02 pins only the runtime code (server.js, lib/, public/, agents/) for byte-equality. The runner records head_matches_base and Arena sees any drift in the result batch — it is never silently forgiven.
+- base_commit 538beebd21e2 is the commit that SHIPS this protocol (ops/TERMUX-BATCH-PROTOCOL.md, ops/batches/*, scripts/termux-batch.mjs, package.json batch scripts) on top of the app-code pin 8ef92b7b9c62. T-02 therefore pins the RUNTIME code (server.js, lib/, public/, agents/) to 8ef92b7b9c62 explicitly, so tooling commits can never mask or fake app-code drift; the runner also records head_matches_base and the validator prints any head drift as a warning.
 
 ## Ground rules for this batch
 
@@ -202,7 +202,7 @@ Run the four lines by hand in the repo root on Termux. Command 2 must print NOTH
 | --- | --- |
 | 1. Task ID | `T-10` (order 10) |
 | 2. Assigned worker | manager — Manager (coordinator on-device) |
-| 3. Exact objective | After all tests, prove no member data or throwaway database can leak into git and that the working copy holds no stray runtime artifacts: data/ and uploads/ stay ignored and untracked, the batch dirties only reports/ and ops/batches/, and no data/ directory was created inside the repo by T-03/T-04/T-05. |
+| 3. Exact objective | After all tests, prove no member data or throwaway database can leak into git and that the working copy holds no stray runtime artifacts: data/ and uploads/ stay ignored and untracked, the batch itself dirties only reports/ and ops/batches/ (the diff guard is therefore scoped to server.js, lib/, public/, agents/ and storage/ — the batch's own artifacts must never be mistaken for a violation), and no data/ directory was created inside the repo by T-03/T-04/T-05. |
 | 4. Allowed | actions: read-only git status/ls-files/check-ignore; list repo top-level entries · files: `reports/agents/batch-01-t-10.evidence.md` |
 | 4b. Forbidden | git add/commit/push; deleting files to make status look clean; modifying .gitignore; touching data/ if it already exists |
 | 5. Verification | All three empties print nothing; check-ignore prints the .gitignore rule that keeps data/ out of git; `termux-batch.mjs list` shows BATCH-01 with its task count. Any tracked file under data/ or uploads/ is a PII risk: report it, do not delete it. |
@@ -214,7 +214,7 @@ Run the four lines by hand in the repo root on Termux. Command 2 must print NOTH
 $ git status --porcelain -- data uploads storage lib public server.js
 $ git check-ignore -v data/
 $ git ls-files -- data uploads
-$ git diff --name-only HEAD
+$ git diff --name-only HEAD -- server.js lib public agents storage
 $ node scripts/termux-batch.mjs list
 ```
 

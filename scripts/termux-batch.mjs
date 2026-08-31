@@ -1168,6 +1168,11 @@ function executorMatches(res, opts) {
 
 /* ---------------------------------------------------------------- render */
 
+/** Generated reports must stay `git diff --check` clean: no trailing spaces. */
+function cleanMarkdown(lines) {
+  return lines.map((l) => String(l).replace(/[ \t]+$/, '')).join('\n');
+}
+
 function renderBatchMarkdown(batch) {
   const L = [];
   L.push(`# ${batch.batch_id} — TASK BATCH (ARENA → TERMUX)`);
@@ -1222,7 +1227,7 @@ function renderBatchMarkdown(batch) {
   L.push('That writes `ops/batches/' + batch.batch_id + '.results.json` + `.md`. Send both to ARENA (paste, or push the branch and say "batch done"). ARENA validates before deciding the next batch.');
   L.push('');
   L.push(`Task count: ${(batch.tasks ?? []).length}. Do not reorder, split or skip a task; if blocked, report it and continue with the next one.`);
-  return L.join('\n');
+  return cleanMarkdown(L);
 }
 
 function renderResultsMarkdown(res, batch) {
@@ -1285,7 +1290,7 @@ function renderResultsMarkdown(res, batch) {
   for (const [k, v] of Object.entries(res.not_done ?? {})) L.push(`- ${k}: ${v}`);
   L.push('');
   L.push('_No status above was inferred. PASS lines exist only where a command exited 0 and its output was captured._');
-  return L.join('\n');
+  return cleanMarkdown(L);
 }
 
 function cmdRender(id, opts) {
@@ -1297,7 +1302,7 @@ function cmdRender(id, opts) {
     return 1;
   }
   const md = renderResultsMarkdown(res, batch);
-  const out = path.join(BATCH_DIR, `${id}.results${opts.suffix ? `.${opts.suffix}` : ''}.md`);
+  const out = path.join(BATCH_DIR, `${id}.results${opts.suffixPart ?? ''}.md`);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, md);
   console.log(`rendered ${rel(out)} (${md.split('\n').length} lines)`);
