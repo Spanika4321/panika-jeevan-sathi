@@ -30,6 +30,14 @@ npm run storage:cycle     # sab 12 agents ek saath chalao
 
 Detail: [`../storage/README.md`](../storage/README.md)
 
+## Batches (ARENA ↔ TERMUX)
+
+Workers are also handed ordered work batches: Arena issues `ops/batches/BATCH-NN.tasks.json`, the
+execution environment runs it with `node scripts/termux-batch.mjs run BATCH-NN` and returns
+`BATCH-NN.results.{json,md}`. Arena only accepts a result batch whose every PASS sits on top of a
+command that really exited 0 — see [`../ops/TERMUX-BATCH-PROTOCOL.md`](../ops/TERMUX-BATCH-PROTOCOL.md)
+and the live backlog in [`../ops/batches/QUEUE.md`](../ops/batches/QUEUE.md).
+
 | Agent | Script |
 | --- | --- |
 | Guardian (Sardar) | `scripts/health-check.mjs` |

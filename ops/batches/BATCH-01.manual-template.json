@@ -1,0 +1,39 @@
+{
+  "protocol": "arena-termux-batch/1",
+  "batch_id": "BATCH-01",
+  "note": "Manual results for verify.mode=manual tasks only. This file records what was actually executed in the arena-coordinator-sandbox shell; on the phone, replace it with the device's own output.",
+  "results": [
+    {
+      "task_id": "T-09",
+      "worker": "nisha",
+      "action_performed": [
+        {
+          "cmd": "grep -rhoE 'href=\"/[^\"]+\"' public/*.html | sed -E 's/.*href=\"//; s/[?#].*//; s/\"$//' | sort -u > /tmp/pjs-links.txt",
+          "exit": 0,
+          "note": "no stdout by design (redirected); exit 0 from the grep/sed/sort pipeline"
+        },
+        {
+          "cmd": "while read -r p; do case \"$p\" in /api/*) continue;; esac; [ -f \"public$p\" ] || echo \"UNRESOLVED $p\"; done < /tmp/pjs-links.txt",
+          "exit": 0,
+          "note": "printed NOTHING — zero UNRESOLVED internal links; this is the decisive evidence"
+        },
+        {
+          "cmd": "wc -l < /tmp/pjs-links.txt",
+          "exit": 0,
+          "stdout": "18",
+          "note": "18 distinct static internal hrefs, all resolving to files under public/"
+        }
+      ],
+      "status": "PASS",
+      "evidence": "The resolution loop printed nothing (exit 0) → 0 UNRESOLVED links out of 18 distinct internal hrefs: /admin.html /assets/css/app.css /assets/img/favicon.svg /contact.html /dashboard.html /edit-profile.html /index.html /interests.html /login.html /matches.html /messages.html /notifications.html /privacy.html /profile.html /search.html /settings.html /shortlist.html /terms.html. Neither /register.html nor /forgot-password.html appears in any public/*.html, which confirms the 2 'production failures' in reports/agents/render-employee-latest.json come from the hardcoded guess list in scripts/render-doctor.mjs, not from a broken link. Scope: static href literals only; JS-built links (/profile.html?id=) are covered by T-03/T-04 instead. No public/** file was modified and reports/ui-baseline-body.md5 was not regenerated.",
+      "files_changed": [],
+      "tests_performed": [
+        "static internal href extraction over public/*.html",
+        "existence check of each extracted path under public/",
+        "targeted grep for /register.html, /forgot-password.html, /signup, /chat.html across public/ lib/ server.js"
+      ],
+      "report_path": "reports/agents/batch-01-t-09-manual.evidence.md",
+      "remaining_dependency": null
+    }
+  ]
+}
