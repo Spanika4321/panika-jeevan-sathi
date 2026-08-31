@@ -15,7 +15,23 @@
         "at": "2026-08-31T02:16:29.929Z"
       },
       "at": "2026-08-31T02:16:29.929Z"
+    },
+    "squad-last": {
+      "value": {
+        "at": "2026-08-31T06:38:33.531Z",
+        "workers": {
+          "arjun": "OK",
+          "kavita": "OK",
+          "rahul": "BLOCKED",
+          "sneha": "OK",
+          "amit": "OK",
+          "nisha": "OK",
+          "vikram": "OK",
+          "meera": "BLOCKED"
+        }
+      },
+      "at": "2026-08-31T06:38:33.531Z"
     }
   },
-  "updated_at": "2026-08-31T02:26:05.949Z"
+  "updated_at": "2026-08-31T06:38:33.531Z"
 }

@@ -9,3 +9,5 @@
 {"ts":"2026-08-31T02:21:03.058Z","event":"seo-center.cycle","cycle_id":"seo-20260831022103-81fe","report_id":"seo-report-20260831022103","status":"BLOCKED"}
 {"ts":"2026-08-31T02:26:05.945Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Recommendations withheld: upstream steps are BLOCKED (Pooja=BLOCKED, Priya=BLOCKED). Connect Search Console to get real data.","details":{"cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","engine":null}}
 {"ts":"2026-08-31T02:26:05.948Z","event":"seo-center.cycle","cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","status":"BLOCKED"}
+{"ts":"2026-08-31T06:37:58.097Z","event":"run","status":"OK","duration_ms":15881,"summary":"SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0.","details":{"squad":true,"workers":8,"fails":0}}
+{"ts":"2026-08-31T06:38:33.528Z","event":"run","status":"OK","duration_ms":15775,"summary":"SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0.","details":{"squad":true,"workers":8,"fails":0}}

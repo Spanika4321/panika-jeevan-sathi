@@ -124,15 +124,22 @@ message from Google — the cycle is recorded as FAIL/BLOCKED, never PASS.
 
 ## Proof that the agent team is really working
 
-1. `npm run seo:verify` — live round: real GSC API call, real Gemini + Router
+1. `npm run seo:squad` — **poora 12-agent team ek command mein SEO Center ke kaam pe**:
+   Manager har worker ko assignment deta hai (mailbox + task list + shared
+   queue), Guardian full health check chalta hai, Arjun backlink research,
+   Kavita content briefs, Rahul reachability, Sneha noindex/secrets audit,
+   Amit profile→landing ideas, Nisha FAQ, Vikram scorecard, Meera email
+   (BLOCKED without RESEND). Squad report:
+   `reports/agents/seo-squad-latest.json` + `.md`.
+2. `npm run seo:verify` — live round: real GSC API call, real Gemini + Router
    pings, storage write/read, Fil One upload probe. Every line is a real call;
    anything missing reports **NOT CONNECTED / BLOCKED**.
-2. `/seo-center.html` → **Run cycle now** → watch the 8 pipeline steps fill in.
-3. Open the resulting report — Priya's checks list each claim and the exact
+3. `/seo-center.html` → **Run cycle now** → watch the 8 pipeline steps fill in.
+4. Open the resulting report — Priya's checks list each claim and the exact
    evidence from the snapshot; Manager's plan carries the verified numbers.
-4. `npm run storage:status` — Pooja/Priya/Manager now have SEO-cycle runs,
+5. `npm run storage:status` — all 12 agents now have SEO-cycle / squad runs,
    summaries and failure streaks in their permanent memory.
-5. Cycle history and the report archive keep growing across restarts.
+6. Cycle history and the report archive keep growing across restarts.
 
 ## Safety
 

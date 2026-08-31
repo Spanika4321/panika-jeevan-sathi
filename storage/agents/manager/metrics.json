@@ -1,8 +1,8 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 6,
-    "status_ok": 1,
+    "runs": 8,
+    "status_ok": 3,
     "status_fail": 2,
     "status_blocked": 3
   },
@@ -42,7 +42,19 @@
       "status": "BLOCKED",
       "duration_ms": 0,
       "summary": "Recommendations withheld: upstream steps are BLOCKED (Pooja=BLOCKED, Priya=BLOCKED). Connect Search Console to get real data."
+    },
+    {
+      "at": "2026-08-31T06:37:58.096Z",
+      "status": "OK",
+      "duration_ms": 15881,
+      "summary": "SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0."
+    },
+    {
+      "at": "2026-08-31T06:38:33.526Z",
+      "status": "OK",
+      "duration_ms": 15775,
+      "summary": "SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0."
     }
   ],
-  "updated_at": "2026-08-31T02:26:05.944Z"
+  "updated_at": "2026-08-31T06:38:33.526Z"
 }

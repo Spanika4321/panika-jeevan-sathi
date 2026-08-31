@@ -24,7 +24,8 @@
     "storage:cycle": "node scripts/agent-storage-cycle.mjs",
     "seo:cycle": "node scripts/seo-cycle.mjs",
     "seo:verify": "node scripts/seo-cycle.mjs --verify",
-    "seo:selftest": "node scripts/seo-selftest.mjs"
+    "seo:selftest": "node scripts/seo-selftest.mjs",
+    "seo:squad": "node scripts/seo-agent-squad.mjs"
   },
   "engines": {
     "node": ">=22.5.0"
