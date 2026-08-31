@@ -2730,7 +2730,42 @@
       "theme": "account",
       "source": "aggregate",
       "tickets": 0
+    },
+    {
+      "id": "kb_8c30ff058360bab8",
+      "at": "2026-08-31T16:15:46.513Z",
+      "theme": "pricing",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_01213e5b20e0781a",
+      "at": "2026-08-31T16:15:46.513Z",
+      "theme": "verification",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_e5f0c50e1bd77b57",
+      "at": "2026-08-31T16:15:46.513Z",
+      "theme": "photos",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_fc6499b7180f5e17",
+      "at": "2026-08-31T16:15:46.513Z",
+      "theme": "privacy",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_72166b4dd53d1f7f",
+      "at": "2026-08-31T16:15:46.514Z",
+      "theme": "account",
+      "source": "aggregate",
+      "tickets": 0
     }
   ],
-  "updated_at": "2026-08-31T16:14:47.753Z"
+  "updated_at": "2026-08-31T16:15:46.514Z"
 }

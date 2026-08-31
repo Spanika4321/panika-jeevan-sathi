@@ -3,13 +3,13 @@
   "short_term": {
     "last_sample": {
       "value": {
-        "at": "2026-08-31T16:14:27.592Z",
+        "at": "2026-08-31T16:16:04.507Z",
         "attempts": 4,
         "tries": [
           {
             "attempt": 1,
             "http": null,
-            "ms": 39,
+            "ms": 36,
             "ok": false,
             "error": "fetch failed",
             "cause": "ECONNRESET"
@@ -17,7 +17,7 @@
           {
             "attempt": 2,
             "http": null,
-            "ms": 6,
+            "ms": 23,
             "ok": false,
             "error": "fetch failed",
             "cause": "ECONNRESET"
@@ -25,7 +25,7 @@
           {
             "attempt": 3,
             "http": null,
-            "ms": 26,
+            "ms": 45,
             "ok": false,
             "error": "fetch failed",
             "cause": "ECONNRESET"
@@ -45,7 +45,7 @@
         "error": "fetch failed",
         "cause": "ECONNRESET"
       },
-      "at": "2026-08-31T16:14:27.592Z"
+      "at": "2026-08-31T16:16:04.507Z"
     }
   },
   "long_term": {
@@ -63,5 +63,5 @@
     }
   },
   "facts": [],
-  "updated_at": "2026-08-31T16:14:27.592Z"
+  "updated_at": "2026-08-31T16:16:04.507Z"
 }

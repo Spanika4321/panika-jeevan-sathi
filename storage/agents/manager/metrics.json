@@ -1,9 +1,9 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 31,
+    "runs": 33,
     "status_ok": 2,
-    "status_blocked": 29
+    "status_blocked": 31
   },
   "history": [
     {
@@ -191,7 +191,19 @@
       "status": "BLOCKED",
       "duration_ms": 371,
       "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
+    },
+    {
+      "at": "2026-08-31T16:15:47.214Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "pooja=BLOCKED priya=BLOCKED guardian=OK"
+    },
+    {
+      "at": "2026-08-31T16:15:47.224Z",
+      "status": "BLOCKED",
+      "duration_ms": 410,
+      "summary": "queue job order_manager_blocked-dependency (agent-run): 95 passed, 0 failed"
     }
   ],
-  "updated_at": "2026-08-31T16:12:28.170Z"
+  "updated_at": "2026-08-31T16:15:47.224Z"
 }

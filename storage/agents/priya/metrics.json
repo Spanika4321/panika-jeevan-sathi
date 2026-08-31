@@ -1,8 +1,8 @@
 {
   "agent": "priya",
   "counters": {
-    "runs": 34,
-    "status_blocked": 34
+    "runs": 37,
+    "status_blocked": 37
   },
   "history": [
     {
@@ -208,7 +208,25 @@
       "status": "BLOCKED",
       "duration_ms": 44,
       "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T16:15:46.922Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T16:15:47.327Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T16:15:47.341Z",
+      "status": "BLOCKED",
+      "duration_ms": 46,
+      "summary": "queue job order_priya_credentials-needed (agent-run): Meta publishing credentials are not configured. Campaign drafting remains available."
     }
   ],
-  "updated_at": "2026-08-31T16:11:50.244Z"
+  "updated_at": "2026-08-31T16:15:47.342Z"
 }

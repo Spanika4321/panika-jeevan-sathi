@@ -824,10 +824,26 @@
       "created_at": "2026-08-31T16:14:48.240Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_4cb06af63c213a78",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:15:46.605Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_48cd299609633ec8",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:16:24.575Z",
+      "status": "pending",
+      "meta": {}
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T16:14:48.240Z"
+  "updated_at": "2026-08-31T16:16:24.575Z"
 }

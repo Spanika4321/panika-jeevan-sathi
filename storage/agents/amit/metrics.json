@@ -1,7 +1,7 @@
 {
   "agent": "amit",
   "counters": {
-    "field_scans": 78,
+    "field_scans": 79,
     "runs": 20,
     "status_ok": 20
   },
@@ -127,5 +127,5 @@
       "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
     }
   ],
-  "updated_at": "2026-08-31T16:14:47.691Z"
+  "updated_at": "2026-08-31T16:15:46.463Z"
 }

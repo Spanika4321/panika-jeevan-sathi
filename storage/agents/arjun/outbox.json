@@ -780,6 +780,16 @@
       "priority": "normal",
       "at": "2026-08-31T16:14:10.412Z",
       "read": false
+    },
+    {
+      "id": "msg_8f77bfcda0a1532f",
+      "from": "arjun",
+      "to": "pooja",
+      "subject": "Backlink category list ready for review",
+      "body": "Curated categories stored. No outreach performed — awaiting human approval.",
+      "priority": "normal",
+      "at": "2026-08-31T16:15:09.213Z",
+      "read": false
     }
   ]
 }

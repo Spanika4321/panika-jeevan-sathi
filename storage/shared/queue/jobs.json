@@ -1,78 +1,5 @@
 {
-  "pending": [
-    {
-      "id": "order_manager_blocked-dependency",
-      "type": "agent-run",
-      "payload": {
-        "agent": "manager",
-        "order_kind": "blocked-dependency",
-        "ordered_by": "owner-via-agent-orders"
-      },
-      "priority": "normal",
-      "created_at": "2026-08-31T15:58:20.384Z",
-      "attempts": 0
-    },
-    {
-      "id": "order_pooja_credentials-needed",
-      "type": "agent-run",
-      "payload": {
-        "agent": "pooja",
-        "order_kind": "credentials-needed",
-        "ordered_by": "owner-via-agent-orders"
-      },
-      "priority": "normal",
-      "created_at": "2026-08-31T15:58:20.388Z",
-      "attempts": 0
-    },
-    {
-      "id": "order_priya_credentials-needed",
-      "type": "agent-run",
-      "payload": {
-        "agent": "priya",
-        "order_kind": "credentials-needed",
-        "ordered_by": "owner-via-agent-orders"
-      },
-      "priority": "normal",
-      "created_at": "2026-08-31T15:58:20.393Z",
-      "attempts": 0
-    },
-    {
-      "id": "order_rahul_blocked-dependency",
-      "type": "agent-run",
-      "payload": {
-        "agent": "rahul",
-        "order_kind": "blocked-dependency",
-        "ordered_by": "owner-via-agent-orders"
-      },
-      "priority": "normal",
-      "created_at": "2026-08-31T15:58:20.398Z",
-      "attempts": 0
-    },
-    {
-      "id": "order_meera_credentials-needed",
-      "type": "agent-run",
-      "payload": {
-        "agent": "meera",
-        "order_kind": "credentials-needed",
-        "ordered_by": "owner-via-agent-orders"
-      },
-      "priority": "normal",
-      "created_at": "2026-08-31T15:58:20.402Z",
-      "attempts": 0
-    },
-    {
-      "id": "order_guardian_repair",
-      "type": "agent-run",
-      "payload": {
-        "agent": "guardian",
-        "order_kind": "repair",
-        "ordered_by": "owner-via-agent-orders"
-      },
-      "priority": "high",
-      "created_at": "2026-08-31T16:02:04.604Z",
-      "attempts": 0
-    }
-  ],
+  "pending": [],
   "running": [],
   "done": [
     {
@@ -622,8 +549,158 @@
         "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
       },
       "error": null
+    },
+    {
+      "id": "order_guardian_repair",
+      "type": "agent-run",
+      "payload": {
+        "agent": "guardian",
+        "order_kind": "repair",
+        "ordered_by": "owner-via-agent-orders"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T16:02:04.604Z",
+      "attempts": 1,
+      "claimed_by": "queue-worker",
+      "claimed_at": "2026-08-31T16:15:02.174Z",
+      "finished_at": "2026-08-31T16:15:46.807Z",
+      "result": {
+        "id": "order_guardian_repair",
+        "type": "agent-run",
+        "agent": "guardian",
+        "status": "OK",
+        "exit_code": 0,
+        "duration_ms": 44622,
+        "summary": "104 passed, 0 failed"
+      },
+      "error": null
+    },
+    {
+      "id": "order_manager_blocked-dependency",
+      "type": "agent-run",
+      "payload": {
+        "agent": "manager",
+        "order_kind": "blocked-dependency",
+        "ordered_by": "owner-via-agent-orders"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.384Z",
+      "attempts": 1,
+      "claimed_by": "queue-worker",
+      "claimed_at": "2026-08-31T16:15:46.811Z",
+      "finished_at": "2026-08-31T16:15:47.228Z",
+      "result": {
+        "id": "order_manager_blocked-dependency",
+        "type": "agent-run",
+        "agent": "manager",
+        "status": "BLOCKED",
+        "exit_code": 0,
+        "duration_ms": 410,
+        "summary": "95 passed, 0 failed"
+      },
+      "error": null
+    },
+    {
+      "id": "order_pooja_credentials-needed",
+      "type": "agent-run",
+      "payload": {
+        "agent": "pooja",
+        "order_kind": "credentials-needed",
+        "ordered_by": "owner-via-agent-orders"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.388Z",
+      "attempts": 1,
+      "claimed_by": "queue-worker",
+      "claimed_at": "2026-08-31T16:15:47.233Z",
+      "finished_at": "2026-08-31T16:15:47.288Z",
+      "result": {
+        "id": "order_pooja_credentials-needed",
+        "type": "agent-run",
+        "agent": "pooja",
+        "status": "BLOCKED",
+        "exit_code": 0,
+        "duration_ms": 47,
+        "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+      },
+      "error": null
+    },
+    {
+      "id": "order_priya_credentials-needed",
+      "type": "agent-run",
+      "payload": {
+        "agent": "priya",
+        "order_kind": "credentials-needed",
+        "ordered_by": "owner-via-agent-orders"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.393Z",
+      "attempts": 1,
+      "claimed_by": "queue-worker",
+      "claimed_at": "2026-08-31T16:15:47.293Z",
+      "finished_at": "2026-08-31T16:15:47.347Z",
+      "result": {
+        "id": "order_priya_credentials-needed",
+        "type": "agent-run",
+        "agent": "priya",
+        "status": "BLOCKED",
+        "exit_code": 0,
+        "duration_ms": 46,
+        "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+      },
+      "error": null
+    },
+    {
+      "id": "order_rahul_blocked-dependency",
+      "type": "agent-run",
+      "payload": {
+        "agent": "rahul",
+        "order_kind": "blocked-dependency",
+        "ordered_by": "owner-via-agent-orders"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.398Z",
+      "attempts": 1,
+      "claimed_by": "queue-worker",
+      "claimed_at": "2026-08-31T16:15:47.351Z",
+      "finished_at": "2026-08-31T16:16:24.523Z",
+      "result": {
+        "id": "order_rahul_blocked-dependency",
+        "type": "agent-run",
+        "agent": "rahul",
+        "status": "BLOCKED",
+        "exit_code": 0,
+        "duration_ms": 37163,
+        "summary": "Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya."
+      },
+      "error": null
+    },
+    {
+      "id": "order_meera_credentials-needed",
+      "type": "agent-run",
+      "payload": {
+        "agent": "meera",
+        "order_kind": "credentials-needed",
+        "ordered_by": "owner-via-agent-orders"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.402Z",
+      "attempts": 1,
+      "claimed_by": "queue-worker",
+      "claimed_at": "2026-08-31T16:16:24.528Z",
+      "finished_at": "2026-08-31T16:16:24.598Z",
+      "result": {
+        "id": "order_meera_credentials-needed",
+        "type": "agent-run",
+        "agent": "meera",
+        "status": "BLOCKED",
+        "exit_code": 0,
+        "duration_ms": 61,
+        "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+      },
+      "error": null
     }
   ],
   "failed": [],
-  "updated_at": "2026-08-31T16:14:48.241Z"
+  "updated_at": "2026-08-31T16:16:24.598Z"
 }

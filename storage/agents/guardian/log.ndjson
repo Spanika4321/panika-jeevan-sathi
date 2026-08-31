@@ -24,3 +24,5 @@
 {"ts":"2026-08-31T16:06:35.862Z","event":"run","status":"OK","duration_ms":44751,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
 {"ts":"2026-08-31T16:10:25.123Z","event":"run","status":"OK","duration_ms":44781,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
 {"ts":"2026-08-31T16:11:50.138Z","event":"run","status":"OK","duration_ms":44714,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T16:15:46.801Z","event":"run","status":"OK","duration_ms":44622,"summary":"queue job order_guardian_repair (agent-run): 104 passed, 0 failed","details":{"job_id":"order_guardian_repair","job_type":"agent-run","command":"scripts/health-check.mjs","exit_code":0}}
+{"ts":"2026-08-31T16:15:47.204Z","event":"run","status":"OK","duration_ms":0,"summary":"OK — 95 passed, 0 failed","details":{"runs":{"pooja":"BLOCKED","priya":"BLOCKED"},"duration_ms":263}}

@@ -1,8 +1,8 @@
 {
   "agent": "guardian",
   "counters": {
-    "runs": 26,
-    "status_ok": 24,
+    "runs": 28,
+    "status_ok": 26,
     "status_fail": 2
   },
   "history": [
@@ -161,7 +161,19 @@
       "status": "OK",
       "duration_ms": 44714,
       "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T16:15:46.800Z",
+      "status": "OK",
+      "duration_ms": 44622,
+      "summary": "queue job order_guardian_repair (agent-run): 104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T16:15:47.203Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
     }
   ],
-  "updated_at": "2026-08-31T16:11:50.137Z"
+  "updated_at": "2026-08-31T16:15:47.203Z"
 }

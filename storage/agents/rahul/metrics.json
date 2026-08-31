@@ -1,10 +1,10 @@
 {
   "agent": "rahul",
   "counters": {
-    "samples": 87,
-    "unreachable": 84,
-    "runs": 28,
-    "status_blocked": 28,
+    "samples": 89,
+    "unreachable": 86,
+    "runs": 30,
+    "status_blocked": 30,
     "reachable": 3,
     "cold_starts": 3
   },
@@ -176,7 +176,19 @@
       "status": "BLOCKED",
       "duration_ms": 37169,
       "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T16:16:04.513Z",
+      "status": "BLOCKED",
+      "duration_ms": 17131,
+      "summary": "Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T16:16:24.517Z",
+      "status": "BLOCKED",
+      "duration_ms": 37163,
+      "summary": "queue job order_rahul_blocked-dependency (agent-run): Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya."
     }
   ],
-  "updated_at": "2026-08-31T16:14:27.591Z"
+  "updated_at": "2026-08-31T16:16:24.517Z"
 }

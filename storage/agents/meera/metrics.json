@@ -1,8 +1,8 @@
 {
   "agent": "meera",
   "counters": {
-    "runs": 28,
-    "status_blocked": 28
+    "runs": 30,
+    "status_blocked": 30
   },
   "history": [
     {
@@ -172,7 +172,19 @@
       "status": "BLOCKED",
       "duration_ms": 49,
       "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T16:16:24.579Z",
+      "status": "BLOCKED",
+      "duration_ms": 15,
+      "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T16:16:24.593Z",
+      "status": "BLOCKED",
+      "duration_ms": 61,
+      "summary": "queue job order_meera_credentials-needed (agent-run): Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
     }
   ],
-  "updated_at": "2026-08-31T16:12:27.790Z"
+  "updated_at": "2026-08-31T16:16:24.593Z"
 }
