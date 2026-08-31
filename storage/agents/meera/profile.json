@@ -1,0 +1,18 @@
+{
+  "id": "meera",
+  "name": "Meera",
+  "role": "Email & Notification Composer",
+  "reports_to": "manager",
+  "cadence": "every 10 minutes (with employee cycle)",
+  "capabilities": [
+    "Composes the owner email from verified step outcomes",
+    "Never marks a step PASS unless the command really passed"
+  ],
+  "requires": [
+    "RESEND_API_KEY"
+  ],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.645Z",
+  "updated_at": "2026-08-31T00:29:17.645Z",
+  "storage_version": "1.0.0"
+}

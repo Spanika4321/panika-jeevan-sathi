@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { CONFIG, now, writeReport } from './lib.mjs';
+import { CONFIG, now, writeReport, persistRun } from './lib.mjs';
 
 function run(file) {
   try {
@@ -35,6 +35,18 @@ try {
   };
 }
 
+const guardianStatus = guardian.status === 'NOT_RUN' ? 'BLOCKED' : guardian.status;
+
+// Guardian (Sardar) ka result bhi permanent storage mein record karo.
+persistRun('guardian', {
+  status: guardianStatus,
+  summary:
+    guardian.status === 'NOT_RUN'
+      ? 'Guardian health check did not execute in this cycle.'
+      : 'Guardian health check executed via the manager cycle.',
+  details: { runs: { pooja: pooja.status, priya: priya.status } }
+});
+
 const report = {
   project: CONFIG.project,
   manager: 'Manager',
@@ -56,6 +68,16 @@ writeReport(
 );
 
 console.log(JSON.stringify(report, null, 2));
+
+// Manager ka apna run bhi storage mein record.
+persistRun('manager', {
+  status:
+    pooja.status === 'FAIL' || priya.status === 'FAIL' || guardian.status === 'FAIL'
+      ? 'FAIL'
+      : 'OK',
+  summary: `pooja=${pooja.status} priya=${priya.status} guardian=${guardian.status}`,
+  details: { production_deploy: report.production_deploy }
+});
 
 if (pooja.status === 'FAIL' ||
     priya.status === 'FAIL' ||

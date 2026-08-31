@@ -1,0 +1,20 @@
+{
+  "agent": "priya",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Campaign / Community Growth Worker",
+      "at": "2026-08-31T00:29:17.660Z"
+    },
+    "workflow": {
+      "value": "priya.yml",
+      "at": "2026-08-31T00:29:17.661Z"
+    },
+    "requires": {
+      "value": "META_ACCESS_TOKEN,META_PAGE_ID",
+      "at": "2026-08-31T00:29:17.662Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:17.662Z"
+}

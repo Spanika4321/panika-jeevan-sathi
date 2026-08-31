@@ -1,0 +1,119 @@
+# PANIKA JEEVAN SATHI — employee-report workflow
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, ~1 minute):
+# GitHub automated tools (apps/bots/agents) ko .github/workflows/ banane ya
+# update karne ki permission nahi hoti — isliye ye file yahan (ops/) rakhi hai.
+# Owner ko ek baar copy karna hai:
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly ye rakhein:  .github/workflows/employee-report.yml
+#   3. Is file ka POORA content paste karke commit kar dein.
+#      (REPLACE — purani file overwrite karo)
+# Uske baad ye automatically chalta rahega — koi aur step nahi.
+#
+# Runs     : har 10 minute   (aur Actions tab se "Run workflow" bhi)
+# What     : Pooja+Priya+Guardian+Manager + owner email
+# Storage  : actions/cache se run-to-run memory preserve hoti hai
+# Guide    : ops/INSTALL-WORKFLOWS.md
+
+name: Employee Reports — Every 10 Minutes
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  employee-report:
+    name: Pooja + Priya + Manager + Guardian
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # 10-minute cycle mein bhi agents ki memory preserve rahe.
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      - name: Ensure storage
+        run: node scripts/agent-storage.mjs init
+
+      - name: Syntax
+        run: npm run check
+
+      - name: Pooja
+        id: pooja
+        continue-on-error: true
+        run: node agents/pooja.mjs
+
+      - name: Priya
+        id: priya
+        continue-on-error: true
+        run: node agents/priya.mjs
+
+      - name: Guardian
+        id: guardian
+        continue-on-error: true
+        run: node scripts/health-check.mjs
+
+      - name: Manager
+        id: manager
+        continue-on-error: true
+        run: node agents/manager.mjs
+
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Hindi employee report
+        if: always()
+        run: |
+          mkdir -p reports/agents
+
+          cat > reports/agents/email-cycle-status.md <<STATUS
+          # PANIKA JEEVAN SATHI — Email Cycle
+
+          समय: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          Pooja step: ${{ steps.pooja.outcome }}
+          Priya step: ${{ steps.priya.outcome }}
+          Guardian step: ${{ steps.guardian.outcome }}
+          Manager step: ${{ steps.manager.outcome }}
+
+          कोई PASS केवल वास्तविक command result पर आधारित माना जाएगा।
+          STATUS
+
+      - name: Send REAL email
+        if: always()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: node scripts/email-report.mjs
+
+      - name: Final status
+        if: always()
+        run: |
+          echo "=============================================="
+          echo "EMPLOYEE 10-MINUTE CYCLE FINISHED"
+          echo "POOJA: ${{ steps.pooja.outcome }}"
+          echo "PRIYA: ${{ steps.priya.outcome }}"
+          echo "GUARDIAN: ${{ steps.guardian.outcome }}"
+          echo "MANAGER: ${{ steps.manager.outcome }}"
+          echo "EMAIL: attempted"
+          echo "=============================================="

@@ -1,0 +1,25 @@
+{
+  "agent": "vikram",
+  "pending": [
+    {
+      "id": "task_6e485d2525db907c",
+      "title": "Build daily agent scorecard",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.745Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_5111e1f29009f014",
+      "title": "Compute queue throughput",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.746Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:17.746Z"
+}

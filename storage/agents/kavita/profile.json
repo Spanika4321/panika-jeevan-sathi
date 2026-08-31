@@ -1,0 +1,17 @@
+{
+  "id": "kavita",
+  "name": "Kavita",
+  "role": "Content & Blog Drafting Worker",
+  "reports_to": "manager",
+  "cadence": "daily 06:00 UTC",
+  "capabilities": [
+    "Drafts matrimonial/community articles (Hindi + English)",
+    "Suggests internal links between existing pages",
+    "Keeps a topic backlog in agent memory"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.616Z",
+  "updated_at": "2026-08-31T00:29:17.616Z",
+  "storage_version": "1.0.0"
+}

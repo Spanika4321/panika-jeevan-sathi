@@ -1,0 +1,31 @@
+{
+  "agent": "rahul",
+  "short_term": {
+    "last_sample": {
+      "value": {
+        "at": "2026-08-31T00:29:18.391Z",
+        "http": null,
+        "ms": null,
+        "ok": false,
+        "error": "fetch failed"
+      },
+      "at": "2026-08-31T00:29:18.391Z"
+    }
+  },
+  "long_term": {
+    "role": {
+      "value": "Uptime & Performance Worker",
+      "at": "2026-08-31T00:29:17.667Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.668Z"
+    },
+    "requires": {
+      "value": "SITE_URL",
+      "at": "2026-08-31T00:29:17.668Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:18.391Z"
+}

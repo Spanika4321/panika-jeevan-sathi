@@ -110,7 +110,11 @@ jobs:
 
       - name: Read the public URL
         id: url
-        run: echo "site=$(grep -o 'PUBLIC URL : .*' deploy.log | head -1 | sed 's/PUBLIC URL : //')" >> "$GITHUB_OUTPUT"
+        run: |
+          # NOTE: block scalar is intentional — 'PUBLIC URL : ' contains ": "
+          # which breaks a single-line YAML mapping value.
+          site="$(grep -o 'PUBLIC URL : .*' deploy.log | head -1 | sed 's/PUBLIC URL : //')"
+          echo "site=$site" >> "$GITHUB_OUTPUT"
 
       - name: Verify the live website
         env:

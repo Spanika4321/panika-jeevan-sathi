@@ -1,0 +1,18 @@
+{
+  "namespace": "project",
+  "values": {
+    "name": {
+      "value": "PANIKA JEEVAN SATHI",
+      "at": "2026-08-31T00:29:17.650Z"
+    },
+    "site": {
+      "value": "https://panikajeevansathi.onrender.com",
+      "at": "2026-08-31T00:29:17.651Z"
+    },
+    "owner_email_file": {
+      "value": ".report-recipient",
+      "at": "2026-08-31T00:29:17.652Z"
+    }
+  },
+  "updated_at": "2026-08-31T00:29:17.652Z"
+}

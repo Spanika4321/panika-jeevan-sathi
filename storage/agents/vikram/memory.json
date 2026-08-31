@@ -1,0 +1,27 @@
+{
+  "agent": "vikram",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Analytics & Reporting Worker",
+      "at": "2026-08-31T00:29:17.675Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.676Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.677Z"
+    }
+  },
+  "facts": [
+    {
+      "id": "fact_fdc025d3a7420e36",
+      "text": "Daily rollup: 9 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T00:29:33.563Z"
+    }
+  ],
+  "updated_at": "2026-08-31T00:29:33.563Z"
+}

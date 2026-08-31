@@ -1,0 +1,33 @@
+{
+  "agent": "priya",
+  "pending": [
+    {
+      "id": "task_1d29610e317c22d1",
+      "title": "Draft this week community campaign (Facebook-safe)",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.731Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_2acb10f40d51b08f",
+      "title": "Prepare 5 content-calendar posts",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.733Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_037157d07426b08d",
+      "title": "List referral ideas for the Panika community",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.734Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:17.734Z"
+}

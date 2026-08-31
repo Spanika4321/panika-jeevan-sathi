@@ -1,0 +1,65 @@
+{
+  "agent": "amit",
+  "pending": [
+    {
+      "id": "task_c208851b2e30ad42",
+      "title": "Compute aggregate profile-completeness score",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.742Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_210f43a2e831c408",
+      "title": "Suggest match-quality improvements",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.743Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_638e3c0675fad1e4",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T00:29:33.459Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_d5b9f0e6646e38be",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T00:29:33.460Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6ee87ef17fdc8ef4",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T00:29:33.461Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_a35951f3aec01420",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T00:29:33.462Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_561f038d2b4a4f2f",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T00:29:33.462Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:33.462Z"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "rahul",
+  "name": "Rahul",
+  "role": "Uptime & Performance Worker",
+  "reports_to": "guardian",
+  "cadence": "every 6 hours",
+  "capabilities": [
+    "Records site reachability samples into metrics",
+    "Tracks response-time trend from stored history",
+    "Opens an incident when failures repeat"
+  ],
+  "requires": [
+    "SITE_URL"
+  ],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.621Z",
+  "updated_at": "2026-08-31T00:29:17.621Z",
+  "storage_version": "1.0.0"
+}

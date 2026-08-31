@@ -1,0 +1,25 @@
+{
+  "agent": "rahul",
+  "pending": [
+    {
+      "id": "task_58d42339b5b3a23c",
+      "title": "Sample site reachability",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.739Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_980d1df5daca533c",
+      "title": "Record response-time trend",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.740Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:17.740Z"
+}

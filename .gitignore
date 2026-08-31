@@ -5,3 +5,8 @@ data/
 .DS_Store
 .vercel
 .env*
+
+# AI agent storage — regenerable history (live state is committed,
+# purane snapshots/archives git mein hamesha ke liye jamne nahi diye jaate)
+storage/snapshots/
+storage/agents/*/archive/

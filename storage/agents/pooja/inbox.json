@@ -1,0 +1,15 @@
+{
+  "agent": "pooja",
+  "messages": [
+    {
+      "id": "msg_db698475a636bc58",
+      "from": "arjun",
+      "to": "pooja",
+      "subject": "Backlink category list ready for review",
+      "body": "Curated categories stored. No outreach performed — awaiting human approval.",
+      "priority": "normal",
+      "at": "2026-08-31T00:29:18.251Z",
+      "read": false
+    }
+  ]
+}

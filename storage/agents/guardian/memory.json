@@ -1,0 +1,20 @@
+{
+  "agent": "guardian",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Safety & Health Authority",
+      "at": "2026-08-31T00:29:17.654Z"
+    },
+    "workflow": {
+      "value": "guardian.yml",
+      "at": "2026-08-31T00:29:17.654Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.655Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:17.655Z"
+}

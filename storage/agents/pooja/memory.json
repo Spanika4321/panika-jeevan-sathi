@@ -1,0 +1,20 @@
+{
+  "agent": "pooja",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "SEO / Organic Growth Worker",
+      "at": "2026-08-31T00:29:17.658Z"
+    },
+    "workflow": {
+      "value": "pooja.yml",
+      "at": "2026-08-31T00:29:17.658Z"
+    },
+    "requires": {
+      "value": "GOOGLE_SEARCH_CONSOLE_TOKEN,GEMINI_API_KEY",
+      "at": "2026-08-31T00:29:17.659Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:17.659Z"
+}

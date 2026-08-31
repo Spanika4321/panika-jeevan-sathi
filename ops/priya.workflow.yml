@@ -1,0 +1,76 @@
+# PANIKA JEEVAN SATHI — priya workflow
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, ~1 minute):
+# GitHub automated tools (apps/bots/agents) ko .github/workflows/ banane ya
+# update karne ki permission nahi hoti — isliye ye file yahan (ops/) rakhi hai.
+# Owner ko ek baar copy karna hai:
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly ye rakhein:  .github/workflows/priya.yml
+#   3. Is file ka POORA content paste karke commit kar dein.
+#      (REPLACE — purani file overwrite karo)
+# Uske baad ye automatically chalta rahega — koi aur step nahi.
+#
+# Runs     : daily 05:00 UTC   (aur Actions tab se "Run workflow" bhi)
+# What     : Priya campaign worker (ab storage-aware)
+# Storage  : actions/cache se run-to-run memory preserve hoti hai
+# Guide    : ops/INSTALL-WORKFLOWS.md
+
+name: Priya — Community Growth Worker
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-storage
+  cancel-in-progress: false
+
+jobs:
+  priya:
+    name: Campaign & community growth
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # Priya ki pichhli memory / tasks / metrics wapas lao.
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      - name: Ensure storage
+        run: node scripts/agent-storage.mjs init
+
+      - name: Run Priya
+        run: node agents/priya.mjs
+
+      # Is run ki memory agle run ke liye save karo.
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Upload Priya report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priya-campaign-report
+          path: reports/agents/priya-latest.json
+          if-no-files-found: ignore

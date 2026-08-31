@@ -1,0 +1,67 @@
+{
+  "topic": "seo-baseline",
+  "entries": [
+    {
+      "id": "kb_32e0eb76c414ef7f",
+      "at": "2026-08-31T00:29:17.749Z",
+      "page": "/index.html",
+      "must_have": [
+        "title",
+        "meta description",
+        "canonical",
+        "lang"
+      ],
+      "tags": [
+        "seo"
+      ]
+    },
+    {
+      "id": "kb_09b2ca68eed8a661",
+      "at": "2026-08-31T00:29:17.749Z",
+      "page": "/about.html",
+      "must_have": [
+        "title",
+        "meta description"
+      ],
+      "tags": [
+        "seo"
+      ]
+    },
+    {
+      "id": "kb_e478769aa947c3eb",
+      "at": "2026-08-31T00:29:17.749Z",
+      "page": "/contact.html",
+      "must_have": [
+        "title",
+        "meta description"
+      ],
+      "tags": [
+        "seo"
+      ]
+    },
+    {
+      "id": "kb_56db1d0953d5f0db",
+      "at": "2026-08-31T00:29:17.749Z",
+      "file": "robots.txt",
+      "must_have": [
+        "sitemap declaration",
+        "private pages disallowed"
+      ],
+      "tags": [
+        "seo"
+      ]
+    },
+    {
+      "id": "kb_25619e1c0222bf0f",
+      "at": "2026-08-31T00:29:17.749Z",
+      "file": "sitemap.xml",
+      "must_have": [
+        "public pages only"
+      ],
+      "tags": [
+        "seo"
+      ]
+    }
+  ],
+  "updated_at": "2026-08-31T00:29:17.749Z"
+}

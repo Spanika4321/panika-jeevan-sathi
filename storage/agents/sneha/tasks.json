@@ -1,0 +1,33 @@
+{
+  "agent": "sneha",
+  "pending": [
+    {
+      "id": "task_bd438dc2d80bcfd8",
+      "title": "Verify noindex on every private page",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.740Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_15824f1bc0a52663",
+      "title": "Verify security headers on every response",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.741Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_3b188cd13d4cc16e",
+      "title": "Scan repo for accidentally committed secrets",
+      "priority": "normal",
+      "created_at": "2026-08-31T00:29:17.742Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [],
+  "failed": [],
+  "updated_at": "2026-08-31T00:29:17.742Z"
+}

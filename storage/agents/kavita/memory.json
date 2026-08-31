@@ -1,0 +1,41 @@
+{
+  "agent": "kavita",
+  "short_term": {},
+  "long_term": {
+    "role": {
+      "value": "Content & Blog Drafting Worker",
+      "at": "2026-08-31T00:29:17.665Z"
+    },
+    "workflow": {
+      "value": "agent-storage.yml",
+      "at": "2026-08-31T00:29:17.666Z"
+    },
+    "requires": {
+      "value": "none",
+      "at": "2026-08-31T00:29:17.666Z"
+    },
+    "topic_backlog": {
+      "value": [
+        "Panika community matrimony: a complete guide",
+        "How to write an honest profile that gets responses",
+        "What to check before saying yes — a family checklist",
+        "Free vs paid matrimony sites: what actually matters",
+        "Safety tips for first meetings"
+      ],
+      "at": "2026-08-31T00:29:18.298Z"
+    },
+    "internal_link_targets": {
+      "value": [
+        "about.html",
+        "contact.html",
+        "index.html",
+        "login.html",
+        "privacy.html",
+        "terms.html"
+      ],
+      "at": "2026-08-31T00:29:18.300Z"
+    }
+  },
+  "facts": [],
+  "updated_at": "2026-08-31T00:29:18.300Z"
+}

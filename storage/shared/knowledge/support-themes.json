@@ -1,0 +1,41 @@
+{
+  "topic": "support-themes",
+  "entries": [
+    {
+      "id": "kb_3a9335dbeea50e46",
+      "at": "2026-08-31T00:29:33.508Z",
+      "theme": "pricing",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_8ce1422e73cfa2f8",
+      "at": "2026-08-31T00:29:33.508Z",
+      "theme": "verification",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_c4f7087d6a4d1ec6",
+      "at": "2026-08-31T00:29:33.508Z",
+      "theme": "photos",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_bd64e1682e0a2bc9",
+      "at": "2026-08-31T00:29:33.508Z",
+      "theme": "privacy",
+      "source": "aggregate",
+      "tickets": 0
+    },
+    {
+      "id": "kb_056d2d3357a66e74",
+      "at": "2026-08-31T00:29:33.508Z",
+      "theme": "account",
+      "source": "aggregate",
+      "tickets": 0
+    }
+  ],
+  "updated_at": "2026-08-31T00:29:33.508Z"
+}

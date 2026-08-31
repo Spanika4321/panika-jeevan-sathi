@@ -1,0 +1,51 @@
+{
+  "topic": "faq",
+  "entries": [
+    {
+      "id": "kb_8faf33385b4f6cbf",
+      "at": "2026-08-31T00:29:17.749Z",
+      "q": "Kya site bilkul free hai?",
+      "a": "Haan — registration, search, interests aur messaging sab free hain.",
+      "tags": [
+        "pricing"
+      ]
+    },
+    {
+      "id": "kb_5316ae0bfe6a17f1",
+      "at": "2026-08-31T00:29:17.749Z",
+      "q": "Profile kaise verify hota hai?",
+      "a": "Email verification link se. Admin panel se manual review bhi ho sakta hai.",
+      "tags": [
+        "verification"
+      ]
+    },
+    {
+      "id": "kb_f63f4a3df7bd9083",
+      "at": "2026-08-31T00:29:17.749Z",
+      "q": "Photo kaise upload karein?",
+      "a": "Edit Profile page se. Photos sirf aapke account se judi hoti hain.",
+      "tags": [
+        "photos"
+      ]
+    },
+    {
+      "id": "kb_5ea6a2cbcfffdfeb",
+      "at": "2026-08-31T00:29:17.749Z",
+      "q": "Shortlist kya hai?",
+      "a": "Aapki pasand ke profiles ki private list — doosre users ise nahi dekh sakte.",
+      "tags": [
+        "privacy"
+      ]
+    },
+    {
+      "id": "kb_99b95ebf40a398b1",
+      "at": "2026-08-31T00:29:17.749Z",
+      "q": "Password bhool gaye?",
+      "a": "Login page par \"Forgot password\" se reset link bheja ja sakta hai.",
+      "tags": [
+        "account"
+      ]
+    }
+  ],
+  "updated_at": "2026-08-31T00:29:17.749Z"
+}

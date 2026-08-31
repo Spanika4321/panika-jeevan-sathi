@@ -1,0 +1,19 @@
+{
+  "id": "guardian",
+  "name": "Guardian (Sardar)",
+  "role": "Safety & Health Authority",
+  "reports_to": "owner",
+  "cadence": "daily 03:30 UTC + every push",
+  "capabilities": [
+    "Full site health check (95 checks)",
+    "Syntax + end-to-end test suite",
+    "Design lock verification (approved UI unchanged)",
+    "Security header verification",
+    "robots.txt / sitemap.xml verification"
+  ],
+  "requires": [],
+  "autonomous": true,
+  "created_at": "2026-08-31T00:29:17.582Z",
+  "updated_at": "2026-08-31T00:29:17.582Z",
+  "storage_version": "1.0.0"
+}

@@ -1,0 +1,1 @@
+{"ts":"2026-08-31T00:29:18.129Z","event":"run","status":"OK","duration_ms":312,"summary":"95 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
