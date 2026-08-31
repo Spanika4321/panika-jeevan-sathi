@@ -1,8 +1,8 @@
 {
   "agent": "pooja",
   "counters": {
-    "runs": 8,
-    "status_blocked": 8
+    "runs": 10,
+    "status_blocked": 10
   },
   "history": [
     {
@@ -52,7 +52,19 @@
       "status": "BLOCKED",
       "duration_ms": 0,
       "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T11:03:36.323Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "No real Search Console data available — research blocked."
+    },
+    {
+      "at": "2026-08-31T11:03:53.002Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "No real Search Console data available — research blocked."
     }
   ],
-  "updated_at": "2026-08-31T07:19:06.273Z"
+  "updated_at": "2026-08-31T11:03:53.002Z"
 }

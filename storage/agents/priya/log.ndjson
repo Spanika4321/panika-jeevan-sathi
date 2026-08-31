@@ -13,3 +13,7 @@
 {"ts":"2026-08-31T07:19:06.294Z","level":"info","event":"task.deferred","task":"Draft this week community campaign (Facebook-safe)"}
 {"ts":"2026-08-31T07:19:06.296Z","level":"info","event":"task.reviewed","task":"Prepare 5 content-calendar posts"}
 {"ts":"2026-08-31T07:19:06.298Z","level":"info","event":"task.deferred","task":"List referral ideas for the Panika community"}
+{"ts":"2026-08-31T11:03:36.334Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","engine":null}}
+{"ts":"2026-08-31T11:03:36.338Z","event":"seo-center.cycle","cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","status":"BLOCKED"}
+{"ts":"2026-08-31T11:03:53.014Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","engine":null}}
+{"ts":"2026-08-31T11:03:53.017Z","event":"seo-center.cycle","cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","status":"BLOCKED"}

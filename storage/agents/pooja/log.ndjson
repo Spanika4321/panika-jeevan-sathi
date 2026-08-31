@@ -15,3 +15,7 @@
 {"ts":"2026-08-31T07:19:06.283Z","level":"info","event":"task.verified","task":"Validate sitemap.xml entry list","status":"BLOCKED"}
 {"ts":"2026-08-31T07:19:06.287Z","level":"info","event":"task.deferred","task":"Draft 10 genuine backlink targets (no paid/spam)"}
 {"ts":"2026-08-31T07:19:06.290Z","level":"info","event":"task.verified","task":"Check canonical + meta description on index.html","status":"BLOCKED"}
+{"ts":"2026-08-31T11:03:36.324Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","engine":null}}
+{"ts":"2026-08-31T11:03:36.329Z","event":"seo-center.cycle","cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","status":"BLOCKED"}
+{"ts":"2026-08-31T11:03:53.004Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","engine":null}}
+{"ts":"2026-08-31T11:03:53.009Z","event":"seo-center.cycle","cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","status":"BLOCKED"}

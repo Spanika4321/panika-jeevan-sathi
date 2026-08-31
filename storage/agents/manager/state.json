@@ -1,9 +1,9 @@
 {
   "agent": "manager",
-  "status": "OK",
-  "last_run_at": "2026-08-31T07:16:59.640Z",
-  "last_status": "OK",
-  "runs": 11,
+  "status": "BLOCKED",
+  "last_run_at": "2026-08-31T11:03:53.019Z",
+  "last_status": "BLOCKED",
+  "runs": 13,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T07:16:59.640Z"
+  "updated_at": "2026-08-31T11:03:53.019Z"
 }

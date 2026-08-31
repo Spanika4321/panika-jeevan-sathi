@@ -398,6 +398,35 @@ try {
     check('no agent task is stuck in running', stuckTasks === 0, `${stuckTasks} stuck task(s)`);
   }
 
+  section('16b. Scheduler honesty');
+  {
+    // A reboot must never look like a completed SEO cycle. scheduleNextRun()
+    // arms the timer; only appendCycle() (a real run) may stamp last_run_at.
+    const src = fs.readFileSync(path.join(ROOT, 'lib', 'seo-center.js'), 'utf8');
+    // Slice the function body exactly: the next `  function ` line ends it, so
+    // this cannot be fooled (or make a false accusation) by its neighbours.
+    const bodyOf = (name) => {
+      const at = src.indexOf(`function ${name}(`);
+      if (at === -1) return '';
+      const next = src.indexOf('\n  function ', at + 1);
+      const body = src.slice(at, next === -1 ? src.length : next);
+      // Drop comment lines: this guard is about what the code writes, and a
+      // comment may legitimately *explain* the rule it must not break.
+      return body
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('//'))
+        .join('\n');
+    };
+    const fn = bodyOf('scheduleNextRun');
+    check(
+      'arming the scheduler does not stamp a fake "last run"',
+      fn.length > 0 && !/last_run_at/.test(fn),
+      fn.includes('last_run_at') ? 'scheduleNextRun writes last_run_at' : 'scheduleNextRun not found'
+    );
+    const append = bodyOf('appendCycle');
+    check('a real cycle records last_run_at with its status', append.includes('last_run_at') && append.includes('last_status'));
+  }
+
   if (!NO_ROLLUP) {
     /*
      * The installed GitHub workflow is allowed to run exactly four commands,

@@ -4,7 +4,7 @@
 
 ## STATUS: Healthy ✅
 
-- Checks passed: **144**
+- Checks passed: **146**
 - Checks failed: **0**
 
 Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags are in place, private pages are hidden from search engines, security headers are on, the API is responding, and the approved public design is unchanged.
@@ -26,4 +26,5 @@ Everything is working: all pages load, error handling is correct, robots.txt & s
 - 13. Search-engine presentation
 - 14. Member data safety (backup round trip)
 - 15. Agent job queue has a consumer
+- 16b. Scheduler honesty
 - 16. Cross-suite rollup (everything CI cannot be told to run)
