@@ -24,10 +24,32 @@
       "created_at": "2026-08-31T00:29:17.742Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_5d705c2b1fde05a2",
+      "title": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "created_at": "2026-08-31T06:37:42.244Z",
+      "status": "pending",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      }
+    },
+    {
+      "id": "task_7720c31c7a7d8a81",
+      "title": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "created_at": "2026-08-31T06:38:17.764Z",
+      "status": "pending",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      }
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.742Z"
+  "updated_at": "2026-08-31T06:38:17.764Z"
 }

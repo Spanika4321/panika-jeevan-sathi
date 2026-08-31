@@ -9,10 +9,186 @@
       "priority": "high",
       "created_at": "2026-08-31T00:29:17.750Z",
       "attempts": 0
+    },
+    {
+      "id": "job_1ebe4855d7c7c0d9",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "arjun",
+        "subject": "SEO Center: backlink research — keyword clusters"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.230Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_959391a1656a63b2",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "kavita",
+        "subject": "SEO Center: content briefs — public pages"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.235Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_3a8b075d389f4043",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "rahul",
+        "subject": "SEO Center: reachability samples"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.240Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_be14bb4cfa24d17f",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "sneha",
+        "subject": "SEO Center: noindex + secrets audit"
+      },
+      "priority": "critical",
+      "created_at": "2026-08-31T06:37:42.245Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_4ab3c0231048a908",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "amit",
+        "subject": "SEO Center: profile-quality → landing-page ideas"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.251Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_08a410da21c807e7",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "nisha",
+        "subject": "SEO Center: FAQ knowledge base"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.255Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_7877b93bd18007a1",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "vikram",
+        "subject": "SEO Center: scorecard rollup"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.260Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_a596ebc1a747f460",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "meera",
+        "subject": "SEO Center: owner email composer"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.264Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_b8d586ed6ab0eac9",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "arjun",
+        "subject": "SEO Center: backlink research — keyword clusters"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:38:17.754Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_1f9d32ae7f0fd92e",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "kavita",
+        "subject": "SEO Center: content briefs — public pages"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.757Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_71ea19fb80fb8001",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "rahul",
+        "subject": "SEO Center: reachability samples"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.762Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_feb840ba39f16772",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "sneha",
+        "subject": "SEO Center: noindex + secrets audit"
+      },
+      "priority": "critical",
+      "created_at": "2026-08-31T06:38:17.765Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_033b321cebb9f615",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "amit",
+        "subject": "SEO Center: profile-quality → landing-page ideas"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.768Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_c962ee0cd49b6a9e",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "nisha",
+        "subject": "SEO Center: FAQ knowledge base"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.772Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_33b16e1761037dac",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "vikram",
+        "subject": "SEO Center: scorecard rollup"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.775Z",
+      "attempts": 0
+    },
+    {
+      "id": "job_b60422bb4211074e",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "meera",
+        "subject": "SEO Center: owner email composer"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:38:17.777Z",
+      "attempts": 0
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.750Z"
+  "updated_at": "2026-08-31T06:38:17.777Z"
 }

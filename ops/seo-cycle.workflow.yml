@@ -1,0 +1,58 @@
+name: SEO Cycle (Pooja → Priya → Manager)
+
+on:
+  schedule:
+    # Daily 04:15 UTC — after Guardian (03:30) and Manager (04:00) cycles.
+    - cron: '15 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seo-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run one SEO Center cycle
+        run: node scripts/seo-cycle.mjs
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_SEARCH_CONSOLE_SITE: ${{ secrets.GOOGLE_SEARCH_CONSOLE_SITE }}
+          GOOGLE_SEARCH_CONSOLE_TOKEN: ${{ secrets.GOOGLE_SEARCH_CONSOLE_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_ROUTER_URL: ${{ secrets.GEMINI_ROUTER_URL }}
+          GEMINI_ROUTER_API_KEY: ${{ secrets.GEMINI_ROUTER_API_KEY }}
+          FIL_ONE_ENDPOINT: ${{ secrets.FIL_ONE_ENDPOINT }}
+          FIL_ONE_ACCESS_KEY: ${{ secrets.FIL_ONE_ACCESS_KEY }}
+          FIL_ONE_SECRET_KEY: ${{ secrets.FIL_ONE_SECRET_KEY }}
+          FIL_ONE_BUCKET: ${{ secrets.FIL_ONE_BUCKET }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          PJS_SEO_DATA_DIR: seo-ci-data
+
+      - name: Upload cycle evidence (reports + snapshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-cycle-report
+          path: seo-ci-data/
+          retention-days: 90
+
+      - name: Upload agent memory (pooja/priya/manager)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-agent-memory
+          path: |
+            storage/agents/pooja/
+            storage/agents/priya/
+            storage/agents/manager/
+            storage/shared/ledger/
+          retention-days: 90

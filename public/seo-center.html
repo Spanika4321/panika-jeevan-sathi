@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SEO Center — PANIKA JEEVAN SATHI</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#8e1f41">
+<link rel="icon" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/app.css">
+<style>
+  /* SEO Center — additive styles only; the shared app.css keeps the site look. */
+  .seo-flow { display:flex; flex-wrap:wrap; gap:6px; align-items:stretch; }
+  .seo-step { flex:1 1 130px; min-width:118px; background:rgba(255,255,255,.86); border:1px solid var(--line); border-radius:14px; padding:10px; text-align:center; }
+  .seo-step .k { font-size:11.5px; color:var(--muted, #7b7b86); letter-spacing:.04em; text-transform:uppercase; }
+  .seo-step .v { margin-top:6px; font-weight:600; font-size:13px; }
+  .seo-step .agent { margin-top:3px; font-size:11.5px; color:var(--brand); font-weight:600; }
+  .pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.03em; border:1px solid transparent; }
+  .pill.ok { background:var(--green-soft); color:var(--green); border-color:#bfe3d5; }
+  .pill.fail { background:var(--red-soft); color:var(--red); border-color:#f6cdc8; }
+  .pill.blocked { background:#f3e8d5; color:#9a6b15; border-color:#ead9b0; }
+  .pill.partial { background:var(--blue-soft); color:var(--blue); border-color:#c9dcf0; }
+  .pill.neutral { background:#f0f0f4; color:#5a5a68; border-color:#e2e2ea; }
+  .pill.running { background:var(--brand-soft); color:var(--brand); border-color:#f0d3de; animation:seopulse 1.2s infinite; }
+  @keyframes seopulse { 50% { opacity:.55; } }
+  .seo-card { background:rgba(255,255,255,.86); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px; }
+  .seo-card h3 { margin:0 0 2px; font-size:15.5px; }
+  .seo-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .seo-table th { text-align:left; color:var(--muted,#7b7b86); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; padding:8px 8px; border-bottom:1px solid var(--line); }
+  .seo-table td { padding:8px; border-bottom:1px solid #f0f0f4; vertical-align:top; word-break:break-word; }
+  .seo-table tr:hover td { background:#faf7f9; }
+  .seo-table .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+  .metric-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .metric { background:rgba(255,255,255,.86); border:1px solid var(--line); border-radius:16px; padding:16px; text-align:center; }
+  .metric .num { font-size:28px; font-weight:700; color:var(--brand); font-variant-numeric:tabular-nums; }
+  .metric .lbl { font-size:12px; color:var(--muted,#7b7b86); margin-top:2px; text-transform:uppercase; letter-spacing:.05em; }
+  .metric .sub { font-size:11px; color:var(--muted,#9b9ba7); margin-top:3px; }
+  .detail-box { background:#f7f4f6; border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-top:8px; font-size:12.5px; }
+  pre.seo-json { background:#21121a; color:#f3e3ea; border-radius:12px; padding:12px; overflow:auto; max-height:420px; font-size:11.5px; line-height:1.45; }
+  .check-line { display:flex; gap:8px; align-items:baseline; font-size:12.5px; padding:6px 0; border-bottom:1px dashed #ece6ea; }
+  .check-line:last-child { border-bottom:0; }
+  .inline-form { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; }
+  .inline-form .field { margin-bottom:0; min-width:220px; }
+  .banner { border-radius:14px; padding:12px 16px; margin-bottom:14px; font-size:14px; border:1px solid; }
+  .banner.ok { background:var(--green-soft); color:var(--green); border-color:#bfe3d5; }
+  .banner.err { background:var(--red-soft); color:var(--red); border-color:#f6cdc8; }
+  @media (min-width:640px) { .metric-grid { grid-template-columns:repeat(4,1fr); } }
+</style>
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<main>
+  <div class="container" style="padding-bottom:48px">
+
+    <div class="page-head row spread row-wrap">
+      <div>
+        <h1 class="mb-0">SEO Center</h1>
+        <p class="muted mb-0">Google Search Console data → AI engine → Pooja (research) → Priya (verification) → Manager (plan) → permanent report.</p>
+      </div>
+      <div class="row" style="gap:8px;align-items:center">
+        <span id="nextRun" class="pill neutral">scheduler: …</span>
+        <button id="btnCycle" class="btn">Run cycle now</button>
+        <button id="btnVerify" class="btn ghost">Verify integrations</button>
+      </div>
+    </div>
+
+    <div id="banners"></div>
+
+    <div id="gate" class="seo-card">
+      <h3>Admin access required</h3>
+      <p class="muted mb-2">The SEO Center shows real Google Search Console data and the agent pipeline, so only site administrators can open it.</p>
+      <a class="btn lg" href="/login.html">Log in as administrator</a>
+    </div>
+
+    <div id="app" class="hide">
+
+      <!-- integrations -->
+      <div class="grid">
+        <div class="seo-card">
+          <div class="row spread" style="align-items:flex-start">
+            <h3>Google Search Console</h3>
+            <span id="gscPill" class="pill neutral">…</span>
+          </div>
+          <p class="muted" id="gscDetail" style="font-size:13px;min-height:34px">…</p>
+          <div class="inline-form mt-2">
+            <div class="field">
+              <label for="cfgSite">Property (site)</label>
+              <input id="cfgSite" type="text" placeholder="sc-domain:panikajeevansathi.com">
+            </div>
+            <div class="field" style="min-width:110px">
+              <label for="cfgDays">Days</label>
+              <input id="cfgDays" type="number" min="1" max="90" value="28">
+            </div>
+            <button id="btnSaveConfig" class="btn ghost sm">Save</button>
+          </div>
+          <div class="btn-row mt-2" style="margin-bottom:0">
+            <button id="btnConnectGsc" class="btn sm">Connect Google Search Console</button>
+            <button id="btnDisconnectGsc" class="btn ghost sm">Disconnect</button>
+          </div>
+        </div>
+
+        <div class="seo-card">
+          <div class="row spread" style="align-items:flex-start">
+            <h3>AI Engine — Gemini → Router</h3>
+            <span id="aiPill" class="pill neutral">…</span>
+          </div>
+          <p class="muted" id="aiDetail" style="font-size:13px;min-height:34px">…</p>
+          <div class="detail-box mono" id="aiAttempts">No engine check yet.</div>
+        </div>
+
+        <div class="seo-card">
+          <div class="row spread" style="align-items:flex-start">
+            <h3>Permanent storage</h3>
+            <span id="storePill" class="pill neutral">…</span>
+          </div>
+          <p class="muted" style="font-size:13px">Local report archive + agent memory always; Fil One (S3) is mirrored when connected.</p>
+          <div class="detail-box" id="filOneDetail">…</div>
+        </div>
+      </div>
+
+      <!-- metrics -->
+      <section class="section-sm">
+        <div class="row spread row-wrap mb-2" style="align-items:center">
+          <h2 class="mb-0" style="font-size:18px">Google Search Console — real data</h2>
+          <div class="row" style="gap:8px;align-items:center">
+            <select id="rangeDays" class="sm">
+              <option value="7">Last 7 days</option>
+              <option value="28" selected>Last 28 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+            <button id="btnRefresh" class="btn ghost sm">Refresh from GSC</button>
+          </div>
+        </div>
+        <p class="tiny muted mb-2" id="dataMeta">No data loaded yet.</p>
+        <div class="metric-grid">
+          <div class="metric"><div class="num" id="mClicks">—</div><div class="lbl">Clicks</div></div>
+          <div class="metric"><div class="num" id="mImpressions">—</div><div class="lbl">Impressions</div></div>
+          <div class="metric"><div class="num" id="mCtr">—</div><div class="lbl">CTR</div></div>
+          <div class="metric"><div class="num" id="mPosition">—</div><div class="lbl">Avg position</div></div>
+        </div>
+        <p class="tiny muted mt-2" id="dataSource"></p>
+      </section>
+
+      <div class="grid">
+        <div class="seo-card">
+          <h3>Queries</h3>
+          <p class="tiny muted mb-2" id="queriesMeta">—</p>
+          <div style="overflow:auto"><table class="seo-table"><thead><tr>
+            <th>Query</th><th class="num">Clicks</th><th class="num">Impr.</th><th class="num">CTR</th><th class="num">Pos.</th>
+          </tr></thead><tbody id="queriesBody"></tbody></table></div>
+        </div>
+        <div class="seo-card">
+          <h3>Pages</h3>
+          <p class="tiny muted mb-2" id="pagesMeta">—</p>
+          <div style="overflow:auto"><table class="seo-table"><thead><tr>
+            <th>Page</th><th class="num">Clicks</th><th class="num">Impr.</th><th class="num">CTR</th><th class="num">Pos.</th>
+          </tr></thead><tbody id="pagesBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- pipeline -->
+      <section class="section-sm">
+        <h2 class="mb-2" style="font-size:18px">Cycle pipeline — Check → Search Data → AI → Pooja → Priya → Manager → Report → Verify</h2>
+        <div class="seo-flow" id="flow">
+          <div class="seo-step"><div class="k">1 · Check</div><div class="v" id="stCheck">—</div></div>
+          <div class="seo-step"><div class="k">2 · Search data</div><div class="v" id="stSearch">—</div></div>
+          <div class="seo-step"><div class="k">3 · AI engine</div><div class="v" id="stAi">—</div><div class="agent">Gemini → Router</div></div>
+          <div class="seo-step"><div class="k">4 · Pooja</div><div class="v" id="stPooja">—</div><div class="agent">SEO research</div></div>
+          <div class="seo-step"><div class="k">5 · Priya</div><div class="v" id="stPriya">—</div><div class="agent">Verification</div></div>
+          <div class="seo-step"><div class="k">6 · Manager</div><div class="v" id="stManager">—</div><div class="agent">Plan &amp; advice</div></div>
+          <div class="seo-step"><div class="k">7 · Report</div><div class="v" id="stReport">—</div></div>
+          <div class="seo-step"><div class="k">8 · Verify</div><div class="v" id="stVerify">—</div><div class="agent">→ next cycle</div></div>
+        </div>
+        <div class="detail-box" id="cycleDetail" style="margin-top:12px">No cycle has run yet. Press “Run cycle now”.</div>
+      </section>
+
+      <!-- history + reports -->
+      <div class="grid">
+        <div class="seo-card">
+          <h3>Cycle history</h3>
+          <div style="overflow:auto"><table class="seo-table"><thead><tr>
+            <th>Started</th><th>Trigger</th><th>Status</th><th>Report</th>
+          </tr></thead><tbody id="cyclesBody"></tbody></table></div>
+        </div>
+        <div class="seo-card">
+          <h3>Permanent reports</h3>
+          <div style="overflow:auto"><table class="seo-table"><thead><tr>
+            <th>Report</th><th>Period</th><th>P / P / M</th><th></th>
+          </tr></thead><tbody id="reportsBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- report viewer -->
+      <div id="reportView" class="seo-card hide">
+        <div class="row spread row-wrap" style="align-items:center">
+          <h3 id="rvTitle">Report</h3>
+          <div class="row" style="gap:8px">
+            <a id="rvMd" class="btn ghost sm" target="_blank" rel="noopener">Open markdown</a>
+            <button id="rvClose" class="btn ghost sm">Close</button>
+          </div>
+        </div>
+        <div id="rvBody"></div>
+      </div>
+
+      <!-- verify results -->
+      <div id="verifyCard" class="seo-card hide">
+        <h3>Live verification round</h3>
+        <p class="tiny muted mb-2" id="verifyMeta">—</p>
+        <div id="verifyBody"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<div id="siteFooter"></div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var S = {
+    ok: false,
+    status: null,
+    poll: null,
+    cycleRunning: false
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var fmt = function (n, d) {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    return Number(n).toLocaleString('en-IN', { maximumFractionDigits: d === undefined ? 0 : d });
+  };
+  var pct = function (r) { return r === null || r === undefined || !isFinite(r) ? '—' : (Number(r) * 100).toFixed(1) + '%'; };
+  var pos = function (r) { return r === null || r === undefined || !isFinite(r) ? '—' : Number(r).toFixed(1); };
+
+  function pill(status) {
+    status = String(status || '—').toUpperCase();
+    var cls = 'neutral';
+    if (status === 'PASS' || status === 'OK' || status === 'CONNECTED') cls = 'ok';
+    else if (status === 'FAIL' || status === 'ERROR') cls = 'fail';
+    else if (status === 'BLOCKED' || status === 'NOT_CONNECTED') cls = 'blocked';
+    else if (status === 'PARTIAL') cls = 'partial';
+    else if (status === 'RUNNING' || status === 'IN-FLIGHT') cls = 'running';
+    return '<span class="pill ' + cls + '">' + esc(status) + '</span>';
+  }
+
+  function banner(text, kind) {
+    var d = document.createElement('div');
+    d.className = 'banner ' + (kind || 'ok');
+    d.textContent = text;
+    $('banners').appendChild(d);
+  }
+
+  async function api(path, opts) {
+    var res = await fetch(path, opts || {});
+    var data = null;
+    try { data = await res.json(); } catch (_) { data = { ok: false, error: 'Bad response (' + res.status + ')' }; }
+    return { status: res.status, data: data };
+  }
+
+  /* --------------------------------------------------------------- status */
+
+  async function loadStatus() {
+    var res = await api('/api/seo/status');
+    if (res.status === 401 || res.status === 403) {
+      $('gate').classList.remove('hide');
+      $('app').classList.add('hide');
+      return;
+    }
+    $('gate').classList.add('hide');
+    $('app').classList.remove('hide');
+    S.status = res.data;
+
+    /* integrations */
+    var gsc = res.data.gsc || {};
+    $('gscPill').innerHTML = pill(gsc.status);
+    var gscDetail = [];
+    if (gsc.client_configured) gscDetail.push('OAuth client: ' + esc(gsc.client_id_masked));
+    else gscDetail.push('GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET are not set on the server — OAuth is BLOCKED.');
+    if (gsc.status === 'CONNECTED') {
+      gscDetail.push(gsc.has_refresh_token ? 'Refresh token stored (auto-renew).' : 'Connected without refresh token.');
+      if (gsc.expires_at) gscDetail.push('Token expires ' + new Date(gsc.expires_at).toLocaleString());
+    }
+    if (gsc.detail) gscDetail.push(esc(gsc.detail));
+    if (gsc.site) gscDetail.push('Property: ' + esc(gsc.site));
+    $('gscDetail').textContent = gscDetail.join(' · ');
+    $('cfgSite').value = (res.data.config && res.data.config.site) || '';
+    $('cfgDays').value = (res.data.config && res.data.config.days) || 28;
+
+    var ai = res.data.ai || {};
+    $('aiPill').innerHTML = pill(ai.status);
+    var aiParts = [];
+    if (ai.gemini.configured) aiParts.push('Gemini: ' + esc(ai.gemini.model) + ' @ ' + esc(ai.gemini.base));
+    else aiParts.push('Gemini: NOT CONNECTED (no GEMINI_API_KEY)');
+    if (ai.router.configured) aiParts.push('Router: ' + esc(ai.router.model) + ' @ ' + esc(ai.router.url));
+    else aiParts.push('Router: NOT CONNECTED (no GEMINI_ROUTER_URL + GEMINI_ROUTER_API_KEY)');
+    $('aiDetail').textContent = aiParts.join(' · ');
+    if (ai.last_check) {
+      $('aiAttempts').textContent = 'Last engine check: ' + (ai.last_check.ok ? 'answered via ' + ai.last_check.engine : 'FAILED — ' + ai.last_check.error) + ' (' + new Date(ai.last_check.at).toLocaleString() + ')';
+    }
+
+    var fil = res.data.filOne || {};
+    $('filOneDetail').textContent = fil.status === 'CONNECTED'
+      ? ('Fil One connected: ' + esc(fil.endpoint) + ' · bucket ' + esc(fil.bucket) + ' · region ' + esc(fil.region) + (fil.last_upload ? ' · last upload ' + new Date(fil.last_upload.at).toLocaleString() + ' → ' + fil.last_upload.status : ''))
+      : 'Fil One: NOT CONNECTED — set FIL_ONE_ENDPOINT, FIL_ONE_ACCESS_KEY, FIL_ONE_SECRET_KEY, FIL_ONE_BUCKET to mirror reports to S3 on Filecoin.';
+    var localTargets = (res.data.cycle.last && res.data.cycle.last.steps.report && res.data.cycle.last.steps.report.targets) || [];
+    $('storePill').innerHTML = pill(localTargets.some(function (t) { return t.name === 'local' && t.status === 'OK'; }) ? 'CONNECTED' : 'NOT_CONNECTED');
+
+    /* scheduler */
+    var sch = res.data.scheduler || {};
+    $('nextRun').textContent = sch.next_run_at
+      ? ('next cycle: ' + new Date(sch.next_run_at).toLocaleString() + ' · ' + sch.mode)
+      : 'scheduler: off (set SEO_SCHEDULER=1)';
+
+    /* metrics */
+    renderData(res.data.data);
+
+    /* pipeline */
+    S.cycleRunning = Boolean(res.data.cycle.running);
+    renderPipeline(res.data.cycle.last);
+
+    /* history + reports */
+    renderCycles(res.data.cycle.history || []);
+    renderReports(res.data.reports || []);
+
+    if (S.cycleRunning) {
+      $('btnCycle').disabled = true;
+      $('btnCycle').textContent = 'Cycle running…';
+      if (!S.poll) S.poll = setInterval(loadStatus, 5000);
+    } else {
+      $('btnCycle').disabled = false;
+      $('btnCycle').textContent = 'Run cycle now';
+      if (S.poll) { clearInterval(S.poll); S.poll = null; }
+    }
+  }
+
+  function renderData(data) {
+    if (!data) {
+      $('dataMeta').textContent = 'No snapshot yet — connect Search Console and run a cycle.';
+      $('dataSource').textContent = '';
+      ['mClicks', 'mImpressions', 'mCtr', 'mPosition'].forEach(function (id) { $(id).textContent = '—'; });
+      $('queriesBody').innerHTML = '<tr><td colspan="5" class="muted">NO DATA — BLOCKED</td></tr>';
+      $('pagesBody').innerHTML = '<tr><td colspan="5" class="muted">NO DATA — BLOCKED</td></tr>';
+      $('queriesMeta').textContent = '—';
+      $('pagesMeta').textContent = '—';
+      return;
+    }
+    var t = data.totals;
+    $('dataMeta').textContent = 'Snapshot fetched ' + new Date(data.fetched_at).toLocaleString() + ' · ' + data.range.start + ' → ' + data.range.end + ' · real Search Console API data';
+    $('dataSource').textContent = t ? '' : 'Search Console answered with ZERO rows for this period (that is real data — the site has no impressions yet).';
+    $('mClicks').textContent = t ? fmt(t.clicks) : '0';
+    $('mImpressions').textContent = t ? fmt(t.impressions) : '0';
+    $('mCtr').textContent = t ? pct(t.ctr) : '0.0%';
+    $('mPosition').textContent = t ? pos(t.position) : '—';
+    $('queriesMeta').textContent = data.queries.length ? ('Top ' + data.queries.length + ' queries by clicks') : 'No query rows.';
+    $('pagesMeta').textContent = data.pages.length ? ('Top ' + data.pages.length + ' pages by clicks') : 'No page rows.';
+    $('queriesBody').innerHTML = data.queries.map(function (q) {
+      return '<tr><td>' + esc(q.query) + '</td><td class="num">' + fmt(q.clicks) + '</td><td class="num">' + fmt(q.impressions) + '</td><td class="num">' + pct(q.ctr) + '</td><td class="num">' + pos(q.position) + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="muted">No rows.</td></tr>';
+    $('pagesBody').innerHTML = data.pages.map(function (p) {
+      return '<tr><td class="mono">' + esc(p.page) + '</td><td class="num">' + fmt(p.clicks) + '</td><td class="num">' + fmt(p.impressions) + '</td><td class="num">' + pct(p.ctr) + '</td><td class="num">' + pos(p.position) + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="muted">No rows.</td></tr>';
+  }
+
+  function stepPill(name) {
+    var last = S.status && S.status.cycle && S.status.cycle.last;
+    var st = last && last.steps && last.steps[name];
+    return st ? st.status || '—' : '—';
+  }
+
+  function renderPipeline(last) {
+    ['stCheck', 'stSearch', 'stAi', 'stPooja', 'stPriya', 'stManager', 'stReport', 'stVerify'].forEach(function (id) {
+      $(id).innerHTML = '—';
+    });
+    if (!last) return;
+    var map = {
+      stCheck: 'check', stSearch: 'search_data', stAi: 'ai_analysis',
+      stPooja: 'pooja', stPriya: 'priya', stManager: 'manager',
+      stReport: 'report', stVerify: 'verify'
+    };
+    Object.keys(map).forEach(function (id) {
+      var step = last.steps && last.steps[map[id]];
+      $(id).innerHTML = pill(step ? step.status : '—');
+    });
+    var parts = [];
+    parts.push('<b>' + pill(last.status) + '</b> cycle <span class="mono">' + esc(last.id) + '</span>');
+    parts.push('trigger: ' + esc(last.trigger || '—'));
+    parts.push('started ' + new Date(last.started_at).toLocaleString());
+    if (last.duration_ms) parts.push('took ' + fmt(last.duration_ms / 1000, 1) + 's');
+    var details = [];
+    if (last.steps && last.steps.search_data) {
+      if (last.steps.search_data.detail) details.push('Search data: ' + esc(last.steps.search_data.detail));
+      if (last.steps.search_data.totals) {
+        var t = last.steps.search_data.totals;
+        details.push('Real GSC totals — ' + fmt(t.clicks) + ' clicks, ' + fmt(t.impressions) + ' impressions, CTR ' + pct(t.ctr) + ', position ' + pos(t.position));
+      }
+    }
+    if (last.steps && last.steps.ai_analysis) {
+      var a = last.steps.ai_analysis;
+      if (a.engine && a.engine !== 'none') details.push('AI engine: ' + esc(a.engine) + (a.model ? ' (' + esc(a.model) + ')' : '') + (a.attempts && a.attempts.length ? ' · attempts: ' + esc(JSON.stringify(a.attempts)) : ''));
+      else if (a.engine === 'none') details.push('AI engine: NOT CONNECTED — ' + esc(a.error || 'Gemini and Router both unavailable') + ' (local rule-engine used below Router)');
+    }
+    if (last.steps && last.steps.pooja && last.steps.pooja.summary) details.push('Pooja: ' + esc(last.steps.pooja.summary));
+    if (last.steps && last.steps.priya && last.steps.priya.summary) details.push('Priya: ' + esc(last.steps.priya.summary));
+    if (last.steps && last.steps.manager && last.steps.manager.final_recommendation) details.push('Manager: ' + esc(last.steps.manager.final_recommendation));
+    if (last.steps && last.steps.report && last.steps.report.id) details.push('Report: ' + esc(last.steps.report.id) + ' — storage: ' + esc((last.steps.report.targets || []).map(function (t) { return t.name + '=' + t.status; }).join(', ')));
+    $('cycleDetail').innerHTML = parts.join(' · ') + (details.length ? '<br><br>' + details.join('<br>') : '');
+  }
+
+  function renderCycles(cycles) {
+    $('cyclesBody').innerHTML = cycles.map(function (c) {
+      return '<tr><td>' + esc(new Date(c.started_at).toLocaleString()) + '</td><td>' + esc(c.trigger || '—') + '</td><td>' + pill(c.status) + '</td><td>' + (c.report_id ? '<a href="#" data-report="' + esc(c.report_id) + '">' + esc(c.report_id) + '</a>' : '—') + '</td></tr>';
+    }).join('') || '<tr><td colspan="4" class="muted">No cycles yet.</td></tr>';
+  }
+
+  function renderReports(reports) {
+    $('reportsBody').innerHTML = reports.map(function (r) {
+      return '<tr><td><a href="#" data-report="' + esc(r.id) + '"><span class="mono">' + esc(r.id) + '</span></a></td><td>' + (r.period ? esc(r.period.start) + ' → ' + esc(r.period.end) : '—') + '</td><td>' + pill(r.pooja) + pill(r.priya) + pill(r.manager) + '</td><td><a href="#" data-report="' + esc(r.id) + '" class="btn ghost sm">View</a></td></tr>';
+    }).join('') || '<tr><td colspan="4" class="muted">No permanent reports yet — run a cycle.</td></tr>';
+  }
+
+  async function openReport(id) {
+    var res = await api('/api/seo/reports/' + encodeURIComponent(id));
+    if (!res.data.ok || !res.data.report) { alert('Report not found.'); return; }
+    var r = res.data.report;
+    $('reportView').classList.remove('hide');
+    $('rvTitle').textContent = r.id + ' — ' + (r.cycle_status || '?');
+    $('rvMd').href = '/api/seo/reports/' + encodeURIComponent(id) + '?format=md';
+    var h = [];
+    h.push('<div class="chips mt-2 mb-2"><span class="chip green">Period ' + esc((r.period && r.period.start) || '—') + ' → ' + esc((r.period && r.period.end) || '—') + '</span><span class="chip brand">AI: ' + esc(r.ai.engine) + (r.ai.model ? ' · ' + esc(r.ai.model) : '') + '</span><span class="chip">Cycle: ' + esc(r.cycle_status) + '</span></div>');
+
+    if (r.data && r.data.totals) {
+      h.push('<div class="metric-grid" style="margin-bottom:10px">');
+      h.push('<div class="metric"><div class="num">' + fmt(r.data.totals.clicks) + '</div><div class="lbl">Clicks</div></div>');
+      h.push('<div class="metric"><div class="num">' + fmt(r.data.totals.impressions) + '</div><div class="lbl">Impressions</div></div>');
+      h.push('<div class="metric"><div class="num">' + pct(r.data.totals.ctr) + '</div><div class="lbl">CTR</div></div>');
+      h.push('<div class="metric"><div class="num">' + pos(r.data.totals.position) + '</div><div class="lbl">Avg position</div></div>');
+      h.push('</div>');
+    } else {
+      h.push('<p class="muted">No Search Console rows for this period.</p>');
+    }
+
+    h.push('<h3 style="font-size:14.5px;margin:14px 0 6px">Pooja — SEO research <span class="pill ' + (r.pooja.status === 'PASS' ? 'ok' : 'blocked') + '">' + esc(r.pooja.status) + '</span></h3>');
+    var research = r.pooja.research || {};
+    h.push('<p class="muted" style="font-size:13px">' + esc(research.summary || '—') + (research.ai_note ? '<br><i>' + esc(research.ai_note) + '</i>' : '') + '</p>');
+    h.push('<div style="overflow:auto"><table class="seo-table"><thead><tr><th>Query</th><th>Opportunity</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">Pos.</th></tr></thead><tbody>');
+    (research.keyword_opportunities || []).forEach(function (o) {
+      h.push('<tr><td>' + esc(o.query) + '</td><td>' + esc(o.opportunity) + '<div class="tiny muted">' + esc(o.rationale || '') + '</div></td><td class="num">' + fmt(o.impressions) + '</td><td class="num">' + fmt(o.clicks) + '</td><td class="num">' + pos(o.position) + '</td></tr>');
+    });
+    h.push('</tbody></table></div>');
+
+    h.push('<h3 style="font-size:14.5px;margin:14px 0 6px">Page recommendations</h3><div style="overflow:auto"><table class="seo-table"><thead><tr><th>Page</th><th>Recommendation</th><th class="num">Impr.</th><th class="num">Clicks</th></tr></thead><tbody>');
+    (research.page_recommendations || []).forEach(function (p) {
+      h.push('<tr><td class="mono">' + esc(p.page) + '</td><td>' + esc(p.recommendation) + '</td><td class="num">' + fmt(p.impressions) + '</td><td class="num">' + fmt(p.clicks) + '</td></tr>');
+    });
+    h.push('</tbody></table></div>');
+
+    h.push('<h3 style="font-size:14.5px;margin:14px 0 6px">Priya — verification <span class="pill ' + (r.priya.status === 'PASS' ? 'ok' : r.priya.status === 'FAIL' ? 'fail' : 'blocked') + '">' + esc(r.priya.status) + '</span></h3>');
+    h.push('<p class="muted" style="font-size:13px">' + esc(r.priya.summary || '—') + '</p>');
+    (r.priya.checks || []).forEach(function (c) {
+      h.push('<div class="check-line">' + pill(c.status) + '<div><b>' + esc(c.id) + '</b>' + (c.claim ? ' · claim: <span class="mono">' + esc(String(c.claim).slice(0, 80)) + '</span>' : '') + '<div class="tiny muted">' + esc(c.evidence || '') + '</div></div></div>');
+    });
+
+    h.push('<h3 style="font-size:14.5px;margin:14px 0 6px">Manager — plan &amp; final recommendation <span class="pill ' + (r.manager.status === 'PASS' ? 'ok' : r.manager.status === 'FAIL' ? 'fail' : 'blocked') + '">' + esc(r.manager.status) + '</span></h3>');
+    h.push('<div style="overflow:auto"><table class="seo-table"><thead><tr><th>#</th><th>Action</th><th>Owner</th><th>Target</th><th>Due</th></tr></thead><tbody>');
+    (r.manager.plan || []).forEach(function (a) {
+      h.push('<tr><td>' + esc(a.priority) + '</td><td>' + esc(a.action) + '</td><td>' + esc(a.owner) + '</td><td>' + esc(a.target || '—') + '</td><td>' + esc(a.due || '—') + '</td></tr>');
+    });
+    h.push('</tbody></table></div>');
+    h.push('<p style="font-size:13.5px;margin-top:8px"><b>Final recommendation:</b> ' + esc(r.manager.final_recommendation || '—') + '</p>');
+    if ((r.manager.risks || []).length) {
+      h.push('<div class="detail-box"><b>Risks</b><br>' + (r.manager.risks || []).map(function (x) { return '· ' + esc(x); }).join('<br>') + '</div>');
+    }
+
+    h.push('<h3 style="font-size:14.5px;margin:14px 0 6px">Storage targets (permanent)</h3>');
+    (r.storage_targets || []).forEach(function (t) {
+      h.push('<div class="check-line">' + pill(t.status) + '<div><b>' + esc(t.name) + '</b><div class="tiny muted">' + esc(t.detail || '') + '</div></div></div>');
+    });
+
+    h.push('<details class="mt-2"><summary class="tiny muted" style="cursor:pointer">Raw report JSON</summary><pre class="seo-json">' + esc(JSON.stringify(r, null, 2)) + '</pre></details>');
+    $('rvBody').innerHTML = h.join('');
+    $('reportView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---------------------------------------------------------------- actions */
+
+  $('btnConnectGsc').addEventListener('click', async function () {
+    var res = await api('/api/seo/oauth/start', { method: 'POST' });
+    if (!res.data.ok) { banner(res.data.error || 'Could not start OAuth.', 'err'); return; }
+    window.location.href = res.data.url;
+  });
+
+  $('btnDisconnectGsc').addEventListener('click', async function () {
+    if (!confirm('Disconnect Google Search Console? Stored OAuth tokens will be deleted.')) return;
+    await api('/api/seo/oauth/disconnect', { method: 'POST' });
+    loadStatus();
+  });
+
+  $('btnSaveConfig').addEventListener('click', async function () {
+    var res = await api('/api/seo/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ site: $('cfgSite').value.trim(), days: Number($('cfgDays').value) || 28 })
+    });
+    if (res.data.ok) { banner('Property saved: ' + (res.data.config.site || '(none)') + ' · ' + res.data.config.days + ' days'); loadStatus(); }
+    else banner(res.data.error || 'Could not save config.', 'err');
+  });
+
+  $('btnCycle').addEventListener('click', async function () {
+    var res = await api('/api/seo/cycle/run', { method: 'POST' });
+    if (res.status === 202) {
+      banner('Cycle started — Check → Search Data → AI → Pooja → Priya → Manager → Report → Verify. The dashboard updates live.');
+      loadStatus();
+    } else if (res.status === 409) {
+      banner('A cycle is already running — please wait.', 'err');
+    } else {
+      banner(res.data.error || 'Could not start the cycle.', 'err');
+    }
+  });
+
+  $('btnRefresh').addEventListener('click', async function () {
+    var days = Number($('rangeDays').value) || 28;
+    $('btnRefresh').disabled = true;
+    $('btnRefresh').textContent = 'Fetching from Google…';
+    var res = await api('/api/seo/data?refresh=1&days=' + days);
+    $('btnRefresh').disabled = false;
+    $('btnRefresh').textContent = 'Refresh from GSC';
+    if (res.data.blocked) {
+      banner('Search data BLOCKED: ' + res.data.reason, 'err');
+      return;
+    }
+    renderData(res.data.data);
+  });
+
+  $('btnVerify').addEventListener('click', async function () {
+    $('btnVerify').disabled = true;
+    $('btnVerify').textContent = 'Verifying… (live API calls)';
+    var res = await api('/api/seo/verify', { method: 'POST' });
+    $('btnVerify').disabled = false;
+    $('btnVerify').textContent = 'Verify integrations';
+    if (!res.data.ok || !res.data.round) { banner(res.data.error || 'Verification failed to start.', 'err'); return; }
+    var round = res.data.round;
+    $('verifyCard').classList.remove('hide');
+    $('verifyMeta').textContent = 'Round ' + new Date(round.at).toLocaleString() + ' · ' + fmt(round.duration_ms) + ' ms — every check is a real live call, not a mock.';
+    $('verifyBody').innerHTML = round.checks.map(function (c) {
+      return '<div class="check-line">' + pill(c.status) + '<div><b>' + esc(c.label) + '</b><div class="tiny muted">' + esc(c.detail || '') + '</div></div></div>';
+    }).join('');
+    $('verifyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest('a[data-report]');
+    if (a) { ev.preventDefault(); openReport(a.getAttribute('data-report')); }
+  });
+
+  $('rvClose').addEventListener('click', function () {
+    $('reportView').classList.add('hide');
+  });
+
+  /* query params from the OAuth callback */
+  var qp = new URLSearchParams(window.location.search);
+  if (qp.get('gsc') === 'connected') banner('Google Search Console connected — real data can now be pulled.');
+  if (qp.get('gsc') === 'error') banner('Google Search Console connection failed: ' + (qp.get('reason') || 'unknown error'), 'err');
+  if (qp.get('gsc')) history.replaceState(null, '', '/seo-center.html');
+
+  loadStatus();
+})();
+</script>
+</body>
+</html>

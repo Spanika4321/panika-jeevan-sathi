@@ -56,10 +56,112 @@
       "created_at": "2026-08-31T00:29:33.462Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_8444d5be23410ad1",
+      "title": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.250Z",
+      "status": "pending",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      }
+    },
+    {
+      "id": "task_bf9c5b7ce8dd99ad",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T06:37:57.883Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_f2366fac9f3909f2",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T06:37:57.884Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_0304bab1f0639e8c",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T06:37:57.885Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_55569d66866578a5",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T06:37:57.886Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_0adb8091c4d16951",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T06:37:57.887Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_16a759fe35d828f8",
+      "title": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.768Z",
+      "status": "pending",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      }
+    },
+    {
+      "id": "task_29e602639b352607",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T06:38:33.327Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6e8336454b9183eb",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T06:38:33.328Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_0531cb2cced1dcfd",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T06:38:33.329Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_bced16af247e4b17",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T06:38:33.331Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_05c3623b8d0f89bf",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T06:38:33.332Z",
+      "status": "pending",
+      "meta": {}
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:33.462Z"
+  "updated_at": "2026-08-31T06:38:33.332Z"
 }

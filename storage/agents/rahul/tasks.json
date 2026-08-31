@@ -16,10 +16,32 @@
       "created_at": "2026-08-31T00:29:17.740Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_07075c881e0a91a2",
+      "title": "Record reachability samples for /seo-center.html and /robots.txt; track response-time trend from stored history.",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.240Z",
+      "status": "pending",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      }
+    },
+    {
+      "id": "task_cff916859fa6443b",
+      "title": "Record reachability samples for /seo-center.html and /robots.txt; track response-time trend from stored history.",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.760Z",
+      "status": "pending",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      }
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.740Z"
+  "updated_at": "2026-08-31T06:38:17.760Z"
 }
