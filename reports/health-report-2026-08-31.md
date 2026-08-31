@@ -21,3 +21,4 @@ Everything is working: all pages load, error handling is correct, robots.txt & s
 - 8. Security headers
 - 9. API health
 - 10. UI baseline (design lock)
+- 11. Full suite rollup (CI parity)

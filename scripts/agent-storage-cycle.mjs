@@ -99,13 +99,28 @@ function summarise(id, out) {
         if (parsed.status && parsed.summary) {
           return `${parsed.status} — ${String(parsed.summary).slice(0, 180)}`;
         }
-        if (parsed.status) return String(parsed.status);
-        if (parsed.summary) return String(parsed.summary).slice(0, 200);
-        // Manager report: workers + guardian ka status jodo.
-        if (parsed.workers && parsed.guardian) {
-          const w = parsed.workers;
-          return `manager cycle — pooja=${w.pooja?.status} priya=${w.priya?.status} guardian=${parsed.guardian?.status}`;
+        // Alag-alag agents alag field naam use karte hain — sab ko samjho.
+        const reasonField = parsed.summary || parsed.reason || parsed.detail || parsed.message;
+        if (reasonField) {
+          const text = String(reasonField).slice(0, 180);
+          return parsed.status ? `${parsed.status} — ${text}` : text;
         }
+        // Manager report: workers + guardian ka status jodo.
+        // NOTE: ye branch pehle `if (parsed.status) return parsed.status` ke
+        // *baad* tha, isliye Manager ka recorded summary sirf "BLOCKED" ban
+        // jaata tha — jisse kisi ko wajah pata hi nahi chalti thi (aur
+        // agent-team-check ka "stated reason" check FAIL hota tha).
+        if (parsed.workers || parsed.guardian) {
+          const w = parsed.workers || {};
+          const parts = Object.entries(w).map(([id, v]) => `${id}=${v?.status || '?'}`);
+          if (parsed.guardian) parts.push(`guardian=${parsed.guardian.status || '?'}`);
+          const blockedNote = Array.isArray(parsed.blocked) && parsed.blocked.length
+            ? ` | blocked: ${parsed.blocked.map((b) => (typeof b === 'string' ? b : b.agent || b.id || '?')).join(', ')}`
+            : '';
+          return `manager cycle — ${parts.join(' ')}${blockedNote}`.slice(0, 200);
+        }
+        // Bare status word ("BLOCKED") wajah nahi hai — usse summary mat banao.
+        if (parsed.status) return `${parsed.status} — (report mein alag summary nahi thi)`;
       }
     } catch {
       /* fall through */

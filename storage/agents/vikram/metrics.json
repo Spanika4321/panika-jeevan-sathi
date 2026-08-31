@@ -1,8 +1,8 @@
 {
   "agent": "vikram",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 22,
+    "status_ok": 22
   },
   "history": [
     {
@@ -10,7 +10,133 @@
       "status": "OK",
       "duration_ms": 48,
       "summary": "OK — Scorecard built: 9 total runs, 0 failing, 3 never run."
+    },
+    {
+      "at": "2026-08-31T11:23:06.755Z",
+      "status": "OK",
+      "duration_ms": 46,
+      "summary": "OK — Scorecard built: 21 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T11:31:46.444Z",
+      "status": "OK",
+      "duration_ms": 11,
+      "summary": "Scorecard built: 28 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T11:31:46.457Z",
+      "status": "OK",
+      "duration_ms": 51,
+      "summary": "queue job job_6aaa2b6a984f81d9 (daily-rollup): Scorecard built: 28 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T11:50:32.355Z",
+      "status": "OK",
+      "duration_ms": 38,
+      "summary": "OK — Scorecard built: 39 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T11:51:25.255Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — Scorecard built: 51 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T11:56:46.747Z",
+      "status": "OK",
+      "duration_ms": 39,
+      "summary": "OK — Scorecard built: 63 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T11:57:26.157Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — Scorecard built: 75 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T12:01:13.953Z",
+      "status": "OK",
+      "duration_ms": 62,
+      "summary": "OK — Scorecard built: 87 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T12:01:55.619Z",
+      "status": "OK",
+      "duration_ms": 45,
+      "summary": "OK — Scorecard built: 99 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T12:06:03.262Z",
+      "status": "OK",
+      "duration_ms": 41,
+      "summary": "OK — Scorecard built: 111 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T12:06:42.930Z",
+      "status": "OK",
+      "duration_ms": 46,
+      "summary": "OK — Scorecard built: 123 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T12:14:19.909Z",
+      "status": "OK",
+      "duration_ms": 54,
+      "summary": "OK — Scorecard built: 153 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T12:14:59.390Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — Scorecard built: 165 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T15:45:53.698Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — Scorecard built: 177 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T15:47:18.576Z",
+      "status": "OK",
+      "duration_ms": 44,
+      "summary": "OK — Scorecard built: 189 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T15:58:18.865Z",
+      "status": "OK",
+      "duration_ms": 46,
+      "summary": "OK — Scorecard built: 240 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T15:59:43.764Z",
+      "status": "OK",
+      "duration_ms": 59,
+      "summary": "OK — Scorecard built: 252 total runs, 1 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T16:05:37.422Z",
+      "status": "OK",
+      "duration_ms": 63,
+      "summary": "OK — Scorecard built: 264 total runs, 1 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T16:07:13.581Z",
+      "status": "OK",
+      "duration_ms": 61,
+      "summary": "OK — Scorecard built: 276 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T16:11:02.662Z",
+      "status": "OK",
+      "duration_ms": 54,
+      "summary": "OK — Scorecard built: 288 total runs, 0 failing, 0 never run."
+    },
+    {
+      "at": "2026-08-31T16:12:27.733Z",
+      "status": "OK",
+      "duration_ms": 49,
+      "summary": "OK — Scorecard built: 300 total runs, 0 failing, 0 never run."
     }
   ],
-  "updated_at": "2026-08-31T00:29:33.572Z"
+  "updated_at": "2026-08-31T16:12:27.733Z"
 }

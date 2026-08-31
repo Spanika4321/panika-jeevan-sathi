@@ -3,9 +3,9 @@
   "values": {
     "last": {
       "value": {
-        "at": "2026-08-31T00:29:34.030Z",
+        "at": "2026-08-31T16:12:28.174Z",
         "agents": 12,
-        "ok": 8,
+        "ok": 7,
         "fail": 0,
         "results": [
           {
@@ -13,31 +13,31 @@
             "name": "Guardian (Sardar)",
             "role": "Safety & Health Authority",
             "status": "OK",
-            "duration_ms": 312,
-            "summary": "95 passed, 0 failed"
+            "duration_ms": 44714,
+            "summary": "104 passed, 0 failed"
           },
           {
             "id": "pooja",
             "name": "Pooja",
             "role": "SEO / Organic Growth Worker",
             "status": "BLOCKED",
-            "duration_ms": 36,
-            "summary": "BLOCKED"
+            "duration_ms": 43,
+            "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
           },
           {
             "id": "priya",
             "name": "Priya",
             "role": "Campaign / Community Growth Worker",
             "status": "BLOCKED",
-            "duration_ms": 36,
-            "summary": "BLOCKED"
+            "duration_ms": 44,
+            "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
           },
           {
             "id": "arjun",
             "name": "Arjun",
             "role": "Backlink & Directory Research Worker",
             "status": "OK",
-            "duration_ms": 46,
+            "duration_ms": 43,
             "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
           },
           {
@@ -45,7 +45,7 @@
             "name": "Kavita",
             "role": "Content & Blog Drafting Worker",
             "status": "OK",
-            "duration_ms": 48,
+            "duration_ms": 39,
             "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
           },
           {
@@ -53,15 +53,15 @@
             "name": "Rahul",
             "role": "Uptime & Performance Worker",
             "status": "BLOCKED",
-            "duration_ms": 15042,
-            "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+            "duration_ms": 37169,
+            "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya."
           },
           {
             "id": "sneha",
             "name": "Sneha",
             "role": "Security & Compliance Worker",
             "status": "OK",
-            "duration_ms": 51,
+            "duration_ms": 47,
             "summary": "OK — 13 private pages noindex-verified, security headers present, no committed secrets found."
           },
           {
@@ -69,7 +69,7 @@
             "name": "Amit",
             "role": "Profile Quality & Match Data Worker",
             "status": "OK",
-            "duration_ms": 47,
+            "duration_ms": 51,
             "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
           },
           {
@@ -77,7 +77,7 @@
             "name": "Nisha",
             "role": "Support & FAQ Knowledge Worker",
             "status": "OK",
-            "duration_ms": 41,
+            "duration_ms": 39,
             "summary": "OK — FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only)."
           },
           {
@@ -85,29 +85,29 @@
             "name": "Vikram",
             "role": "Analytics & Reporting Worker",
             "status": "OK",
-            "duration_ms": 48,
-            "summary": "OK — Scorecard built: 9 total runs, 0 failing, 3 never run."
+            "duration_ms": 49,
+            "summary": "OK — Scorecard built: 300 total runs, 0 failing, 0 never run."
           },
           {
             "id": "meera",
             "name": "Meera",
             "role": "Email & Notification Composer",
             "status": "BLOCKED",
-            "duration_ms": 48,
+            "duration_ms": 49,
             "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
           },
           {
             "id": "manager",
             "name": "Manager",
             "role": "Coordinator",
-            "status": "OK",
-            "duration_ms": 396,
-            "summary": "manager cycle — pooja=PASS priya=PASS guardian=PASS"
+            "status": "BLOCKED",
+            "duration_ms": 371,
+            "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
           }
         ]
       },
-      "at": "2026-08-31T00:29:34.030Z"
+      "at": "2026-08-31T16:12:28.175Z"
     }
   },
-  "updated_at": "2026-08-31T00:29:34.030Z"
+  "updated_at": "2026-08-31T16:12:28.175Z"
 }

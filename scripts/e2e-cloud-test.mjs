@@ -21,6 +21,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { freePort } from './lib/free-port.mjs';
+
 import { createD1Mock, createR2Mock } from './lib/mock-cloud.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -49,7 +51,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 /* --------------------------------------------------------------- test server */
 
 async function startServer(env) {
-  const port = 4000 + Math.floor(Math.random() * 900);
+  const port = await freePort();
   const child = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
     env: { ...process.env, ...env, PORT: String(port), NODE_NO_WARNINGS: '1' },
@@ -138,6 +140,11 @@ const cloudEnv = {
   R2_PREFIX: 'uploads'
 };
 
+// Servers ko hamesha band karna hai — pehle agar beech mein koi assertion throw
+// ho jaata to child process (aur uska port) leak ho jaata tha.
+let serverA = null;
+let serverB = null;
+
 try {
   /* -------------------------------------------------- 1. full member journey */
 
@@ -192,7 +199,7 @@ try {
   const png =
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
-  let serverA = await startServer({ ...cloudEnv, PJS_DATA_DIR: dirA });
+  serverA = await startServer({ ...cloudEnv, PJS_DATA_DIR: dirA });
   let api = client(serverA.base);
 
   let res = await api.call('POST', '/api/auth/register', {
@@ -246,7 +253,7 @@ try {
   );
 
   // A brand-new instance: empty data folder, same D1 database and R2 bucket.
-  const serverB = await startServer({ ...cloudEnv, PJS_DATA_DIR: dirB });
+  serverB = await startServer({ ...cloudEnv, PJS_DATA_DIR: dirB });
   api = client(serverB.base);
 
   res = await api.call('POST', '/api/auth/login', { email, password });
@@ -305,13 +312,26 @@ try {
 
   check('D1 received batched statements', d1.statementCount() > 20, `statements=${d1.statementCount()}`);
   check('R2 served signed PUT/GET requests', r2.requests.length > 2, `requests=${r2.requests.length}`);
+  // Pehle ye check `? true : true` thi — yaani hamesha PASS, chahe ek bhi request
+  // signed na ho. Ab mock har request ka Authorization header record karta hai,
+  // isliye ye sach mein verify karta hai.
+  const unsigned = r2.requests.filter((r) => !r.signed);
+  const missingDate = r2.requests.filter((r) => !r.amzDate);
   check(
     'every R2 request carried a SigV4 signature',
-    r2.requests.length > 0 && !r2.requests.some((r) => r.method === 'PUT' || r.method === 'GET')
-      ? true
-      : true
+    r2.requests.length > 0 && unsigned.length === 0,
+    unsigned.length
+      ? `${unsigned.length}/${r2.requests.length} unsigned: ${unsigned.slice(0, 3).map((r) => `${r.method} ${r.key}`).join(', ')}${unsigned.length > 3 ? ` …(+${unsigned.length - 3})` : ''}`
+      : `${r2.requests.length}/${r2.requests.length} signed (AWS4-HMAC-SHA256 + 64-hex signature)`
+  );
+  check(
+    'every R2 request carried x-amz-date',
+    r2.requests.length > 0 && missingDate.length === 0,
+    missingDate.length ? `${missingDate.length} missing x-amz-date` : 'all requests dated'
   );
 } finally {
+  await stopServer(serverA);
+  await stopServer(serverB);
   d1.close();
   r2.close();
 }

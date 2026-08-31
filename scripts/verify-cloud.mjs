@@ -10,7 +10,12 @@
  *   node scripts/verify-cloud.mjs --url https://panika-jeevan-sathi.onrender.com
  *                                              # ...and the deployed website
  *
- * Exits non-zero (with a plain-English fix) if anything is wrong.
+ * Exit codes (verdict, not just pass/fail):
+ *   0 PASS     — real checks ran and all of them passed
+ *   1 FAIL     — a real check failed (fix listed)
+ *   2 BLOCKED  — nothing could be verified (no credentials). Nothing was
+ *                proven durable, so nothing is claimed durable.
+ *   3 PARTIAL  — some services verified, others not configured
  */
 
 import d1Lib from '../lib/d1.js';
@@ -21,7 +26,9 @@ const urlArg = args.includes('--url') ? args[args.indexOf('--url') + 1] : proces
 
 let passed = 0;
 let failed = 0;
+let blocked = 0;
 const problems = [];
+const blockers = [];
 
 function check(name, ok, detail = '') {
   if (ok) {
@@ -44,7 +51,9 @@ section('1. Cloudflare D1 (member database)');
 
 const d1Config = d1Lib.configFromEnv();
 if (!d1Config) {
-  console.log('  – CF_ACCOUNT_ID / CF_D1_DATABASE_ID / CF_D1_API_TOKEN are not set — skipping D1 checks.');
+  blocked += 1;
+  blockers.push('Cloudflare D1 is not configured (CF_ACCOUNT_ID / CF_D1_DATABASE_ID / CF_D1_API_TOKEN are not set)');
+  console.log('  – BLOCKED: CF_ACCOUNT_ID / CF_D1_DATABASE_ID / CF_D1_API_TOKEN are not set — D1 could not be verified.');
   console.log('    Without them the site falls back to a local SQLite file, which a');
   console.log('    Render Free instance loses every time it sleeps or redeploys.');
 } else {
@@ -97,8 +106,11 @@ section('2. Cloudflare R2 (profile photos)');
 
 const r2Config = r2Lib.configFromEnv();
 if (!r2Config) {
-  console.log('  – R2_* variables are not set — uploaded photos stay on the instance disk');
-  console.log('    and are lost whenever the Render Free instance restarts.');
+  blocked += 1;
+  blockers.push('Cloudflare R2 is not configured (R2_ACCOUNT_ID / R2_BUCKET / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY are not set)');
+  console.log('  – BLOCKED: R2_* variables are not set — photo storage could not be verified.');
+  console.log('    Uploaded photos stay on the instance disk and are lost whenever the');
+  console.log('    Render Free instance restarts.');
 } else {
   check('R2 environment variables are set', true, `bucket ${r2Config.bucket}`);
   const r2 = r2Lib.createClient(r2Config, { log: (m) => console.log(`      ${m}`) });
@@ -144,15 +156,40 @@ if (urlArg) {
     const missing = await fetch(`${base}/this-page-does-not-exist`);
     check('unknown page returns 404', missing.status === 404, `HTTP ${missing.status}`);
   } catch (err) {
-    check('deployed website responds', false, err.message);
+    // Host tak pahunch hi nahi paye => BLOCKED (na PASS, na "site toot gayi").
+    blocked += 1;
+    blockers.push(`Deployed website could not be reached (${err.message})`);
+    console.log(`  – BLOCKED: ${base} tak pahuncha nahi ja saka — ${err.message}`);
   }
 }
 
+/* --------------------------------------------------------------- verdict */
+
 console.log(
-  `\n──────────────────────────────────────────────\n  ${passed} passed, ${failed} failed\n`
+  `\n──────────────────────────────────────────────\n  ${passed} passed, ${failed} failed, ${blocked} blocked\n`
 );
+
 if (failed) {
-  console.log(`  fix: ${problems.join('; ')}\n`);
+  console.log(`  VERDICT: FAIL — fix: ${problems.join('; ')}\n`);
   process.exit(1);
 }
-console.log('  Storage is durable: members, profiles, messages and photos survive\n  a restart, a redeploy and the free-tier sleep.\n');
+
+if (passed === 0) {
+  console.log('  VERDICT: BLOCKED — kuch bhi verify nahi ho paya, isliye kuch bhi');
+  console.log('  "durable" nahi kaha ja raha.');
+  for (const b of blockers) console.log(`    • ${b}`);
+  console.log('\n  Aage badhne ke liye: CF_* / R2_* variables set karke dobara chalayein,');
+  console.log('  ya `--url` ke saath deployed site bhi check karein.\n');
+  process.exit(2);
+}
+
+if (blocked) {
+  console.log(`  VERDICT: PARTIAL — ${passed} check(s) passed, par ${blocked} service verify nahi ho paya:`);
+  for (const b of blockers) console.log(`    • ${b}`);
+  console.log('');
+  process.exit(3);
+}
+
+console.log('  VERDICT: PASS — storage verified durable: members, profiles, messages');
+console.log('  and photos survive a restart, a redeploy and the free-tier sleep.\n');
+process.exit(0);
