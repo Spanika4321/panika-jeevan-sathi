@@ -78,10 +78,10 @@ jobs:
           npx playwright install --with-deps chromium
           node scripts/browser-e2e.mjs
 
-      - name: 5) AWS SigV4 signature tests (R2 photo uploads)
+      - name: 9) AWS SigV4 signature tests (R2 photo uploads)
         run: node scripts/test-sigv4.mjs
 
-      - name: 6) Cloud storage tests (D1 + R2, local mocks)
+      - name: 10) Cloud storage tests (D1 + R2, local mocks)
         run: node scripts/e2e-cloud-test.mjs
 
       - name: Upload health report
