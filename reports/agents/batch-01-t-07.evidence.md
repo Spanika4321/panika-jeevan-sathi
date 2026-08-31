@@ -1,13 +1,13 @@
 # BATCH-01 / T-07 — raw execution log
 executor : arena-coordinator-sandbox (linux/x64, node v22.22.3)
-head     : 8ef92b7b9c6296d72369535850990cfd79f1c223
+head     : 62c68d53eb7cf6b6c7ae8c46a10e6fc932c304e5
 objective: From Termux's own network, measure the live service: /api/health body and status, / , /robots.txt, /sitemap.xml, the old cPanel host, and the actual route list discovered from served HTML. Render's free tier sleeps after 15 idle minutes, so the first request may take up to a minute — that is a wake-up, not an outage, and must be written up as such. PASS requires /api/health to return HTTP 200 with "ok":true; a refused/reset/unresolved connection is BLOCKED with the exact curl error; a 500 or an unhealthy body is FAIL.
 verdict  : BLOCKED
 
 $ curl -sS -o /dev/null --max-time 95 --connect-timeout 25 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/api/health
 (exit 35, 40ms)
 --- stdout ---
-000 0.031069 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
+000 0.030908 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 --- stderr ---
 curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 
@@ -21,39 +21,39 @@ curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevans
 
 
 $ curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/
-(exit 35, 39ms)
+(exit 35, 41ms)
 --- stdout ---
-000 0.031300 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
+000 0.032613 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 --- stderr ---
 curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 
 
 $ curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/robots.txt
-(exit 35, 38ms)
+(exit 35, 42ms)
 --- stdout ---
-000 0.030529 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
+000 0.033780 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 --- stderr ---
 curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 
 
 $ curl -sS -o /dev/null --max-time 60 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.onrender.com/sitemap.xml
-(exit 35, 39ms)
+(exit 35, 40ms)
 --- stdout ---
-000 0.031000 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
+000 0.031142 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 --- stderr ---
 curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.onrender.com:443 
 
 
 $ curl -sS -o /dev/null --max-time 45 --connect-timeout 20 -w %{http_code} %{time_total} %{errormsg} https://panikajeevansathi.coolstore.in/
-(exit 35, 197ms)
+(exit 35, 42ms)
 --- stdout ---
-000 0.188116 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443 
+000 0.033209 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443 
 --- stderr ---
 curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to panikajeevansathi.coolstore.in:443 
 
 
 $ node scripts/render-route-discovery.mjs
-(exit 0, 112ms)
+(exit 0, 99ms)
 --- stdout ---
 ==============================================
  POOJA — ACTUAL ROUTE DISCOVERY

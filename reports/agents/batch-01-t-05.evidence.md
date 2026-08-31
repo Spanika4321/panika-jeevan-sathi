@@ -1,11 +1,11 @@
 # BATCH-01 / T-05 — raw execution log
 executor : arena-coordinator-sandbox (linux/x64, node v22.22.3)
-head     : 8ef92b7b9c6296d72369535850990cfd79f1c223
+head     : 62c68d53eb7cf6b6c7ae8c46a10e6fc932c304e5
 objective: Repeat the full end-to-end journey with PJS_STORAGE=json so the JSON-store fallback is proven on the device, independent of node:sqlite. Both stores passing is what makes a Termux-hosted demo safe to talk about.
 verdict  : PASS
 
 $ PJS_STORAGE=json node scripts/e2e-test.mjs
-(exit 0, 1384ms)
+(exit 0, 1445ms)
 --- stdout ---
 
 1. Registration & login

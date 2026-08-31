@@ -1,11 +1,11 @@
 # BATCH-01 / T-06 — raw execution log
 executor : arena-coordinator-sandbox (linux/x64, node v22.22.3)
-head     : 8ef92b7b9c6296d72369535850990cfd79f1c223
+head     : 62c68d53eb7cf6b6c7ae8c46a10e6fc932c304e5
 objective: Prove the 12-agent storage tree on this device is readable, complete, JSON-valid and that the hash-chained ledger verifies end-to-end, with the queue and incident register reported as they are. Read-only: no cycle run, no snapshot, no state mutation (a partial CI cache must not be turned into committed history from a phone).
 verdict  : PASS
 
 $ node scripts/agent-storage.mjs doctor
-(exit 0, 47ms)
+(exit 0, 48ms)
 --- stdout ---
 AI AGENT STORAGE — DOCTOR
   backend: file
@@ -31,12 +31,12 @@ DOCTOR: PASS
 (none)
 
 $ node scripts/agent-storage.mjs status
-(exit 0, 50ms)
+(exit 0, 48ms)
 --- stdout ---
 ================================================================
  PANIKA JEEVAN SATHI — AI AGENT STORAGE STATUS
 ================================================================
- generated : 2026-08-31T18:52:06.647Z
+ generated : 2026-08-31T18:57:16.491Z
  backend   : file
  dir       : storage
  size      : 60.2 KB (108 files)
