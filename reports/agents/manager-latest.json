@@ -1,7 +1,8 @@
 {
   "project": "PANIKA JEEVAN SATHI",
   "manager": "Manager",
-  "generated_at": "2026-08-31T00:29:34.017Z",
+  "generated_at": "2026-08-31T12:14:59.772Z",
+  "status": "BLOCKED",
   "hierarchy": {
     "sardar": "Guardian",
     "manager": "Manager",
@@ -12,18 +13,29 @@
   },
   "workers": {
     "pooja": {
-      "status": "PASS",
-      "output": "{\n  \"agent\": \"Pooja\",\n  \"role\": \"SEO / Organic Growth Worker\",\n  \"generated_at\": \"2026-08-31T00:29:33.691Z\",\n  \"status\": \"BLOCKED\",\n  \"tasks\": [\n    \"Analyse indexability and technical SEO signals\",\n    \"Review sitemap/robots/canonical configuration\",\n    \"Identify relevant keyword opportunities\",\n    \"Prepare 10 genuine backlink opportunities\",\n    \"Reject irrelevant, paid, spam and duplicate backlink targets\",\n    \"Prepare internal-link improvement suggestions\",\n    \"Prepare search-content opportunities\"\n  ],\n  \"external\": {\n    \"google\": {\n      \"GOOGLE_SEARCH_CONSOLE_TOKEN\": false\n    },\n    \"gemini\": {\n      \"GEMINI_API_KEY\": false\n    }\n  },\n  \"policy\": [\n    \"No automated spam links\",\n    \"No fake backlinks\",\n    \"No fake success status\",\n    \"No production UI redesign\"\n  ],\n  \"reason\": \"External Google/Gemini credentials are not configured. Local analysis remains available.\"\n}\n"
+      "status": "BLOCKED",
+      "exit_code": 0,
+      "duration_ms": 31,
+      "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
     },
     "priya": {
-      "status": "PASS",
-      "output": "{\n  \"agent\": \"Priya\",\n  \"role\": \"Campaign / Community Growth Worker\",\n  \"generated_at\": \"2026-08-31T00:29:33.731Z\",\n  \"status\": \"BLOCKED\",\n  \"tasks\": [\n    \"Prepare community campaign ideas\",\n    \"Prepare Facebook-safe campaign drafts\",\n    \"Identify audience themes without scraping private data\",\n    \"Prepare daily content calendar\",\n    \"Analyse aggregate growth signals\",\n    \"Prepare referral and engagement ideas\",\n    \"Track campaign outcomes when analytics are available\"\n  ],\n  \"external\": {\n    \"meta\": {\n      \"META_ACCESS_TOKEN\": false,\n      \"META_PAGE_ID\": false\n    },\n    \"gemini\": {\n      \"GEMINI_API_KEY\": false\n    }\n  },\n  \"policy\": [\n    \"No unsolicited mass posting\",\n    \"No private-user surveillance\",\n    \"No scraping private Facebook groups\",\n    \"No fake engagement\",\n    \"No production UI redesign\"\n  ],\n  \"reason\": \"Meta publishing credentials are not configured. Campaign drafting remains available.\"\n}\n"
+      "status": "BLOCKED",
+      "exit_code": 0,
+      "duration_ms": 33,
+      "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
     }
   },
   "guardian": {
-    "status": "PASS",
-    "output": "\n1. Availability — public pages\n  ✓ / → 200\n  ✓ /about.html → 200\n  ✓ /contact.html → 200\n  ✓ /login.html → 200\n  ✓ /privacy.html → 200\n  ✓ /terms.html → 200\n\n2. Availability — member pages & assets\n  ✓ /admin.html → 200\n  ✓ /settings.html → 200\n  ✓ /dashboard.html → 200\n  ✓ /matches.html → 200\n  ✓ /messages.html → 200\n  ✓ /notifications.html → 200\n  ✓ /interests.html → 200\n  ✓ /shortlist.html → 200\n  ✓ /edit-profile.html → 200\n  ✓ /profile.html → 200\n  ✓ /search.html → 200\n  ✓ /reset-password.html → 200\n  ✓ /verify-email.html → 200\n  ✓ /assets/css/app.css → 200\n  ✓ /assets/js/app.js → 200\n  ✓ /assets/js/cards.js → 200\n  ✓ /assets/img/logo.svg → 200\n  ✓ /assets/img/favicon.svg → 200\n  ✓ /404.html → 200\n\n3. Error handling\n  ✓ unknown page returns 404\n  ✓ 404 page is branded\n  ✓ path traversal blocked\n\n4. robots.txt\n  ✓ robots.txt → 200\n  ✓ robots.txt allows public crawl\n  ✓ robots.txt blocks /admin.html\n  ✓ robots.txt blocks /dashboard.html\n  ✓ robots.txt blocks /messages.html\n  ✓ robots.txt blocks /profile.html\n  ✓ robots.txt blocks /api/\n  ✓ robots.txt blocks /uploads/ (member photos)\n  ✓ robots.txt advertises sitemap\n\n5. sitemap.xml\n  ✓ sitemap.xml → 200\n  ✓ sitemap is valid XML urlset\n  ✓ sitemap lists /\n  ✓ sitemap lists /about.html\n  ✓ sitemap lists /contact.html\n  ✓ sitemap lists /login.html\n  ✓ sitemap lists /privacy.html\n  ✓ sitemap lists /terms.html\n  ✓ sitemap does NOT list private pages\n\n6. SEO tags on public pages\n  ✓ /index.html has <title>\n  ✓ /index.html has meta description\n  ✓ /index.html has viewport\n  ✓ /index.html has lang attribute\n  ✓ /index.html is indexable (no noindex)\n  ✓ /about.html has <title>\n  ✓ /about.html has meta description\n  ✓ /about.html has viewport\n  ✓ /about.html has lang attribute\n  ✓ /about.html is indexable (no noindex)\n  ✓ /contact.html has <title>\n  ✓ /contact.html has meta description\n  ✓ /contact.html has viewport\n  ✓ /contact.html has lang attribute\n  ✓ /contact.html is indexable (no noindex)\n  ✓ /login.html has <title>\n  ✓ /login.html has meta description\n  ✓ /login.html has viewport\n  ✓ /login.html has lang attribute\n  ✓ /login.html is indexable (no noindex)\n  ✓ /privacy.html has <title>\n  ✓ /privacy.html has meta description\n  ✓ /privacy.html has viewport\n  ✓ /privacy.html has lang attribute\n  ✓ /privacy.html is indexable (no noindex)\n  ✓ /terms.html has <title>\n  ✓ /terms.html has meta description\n  ✓ /terms.html has viewport\n  ✓ /terms.html has lang attribute\n  ✓ /terms.html is indexable (no noindex)\n\n7. Private pages are noindex\n  ✓ /admin.html has noindex\n  ✓ /settings.html has noindex\n  ✓ /dashboard.html has noindex\n  ✓ /matches.html has noindex\n  ✓ /messages.html has noindex\n  ✓ /notifications.html has noindex\n  ✓ /interests.html has noindex\n  ✓ /shortlist.html has noindex\n  ✓ /edit-profile.html has noindex\n  ✓ /profile.html has noindex\n  ✓ /search.html has noindex\n  ✓ /reset-password.html has noindex\n  ✓ /verify-email.html has noindex\n\n8. Security headers\n  ✓ header x-content-type-options\n  ✓ header x-frame-options\n  ✓ header referrer-policy\n  ✓ header permissions-policy\n\n9. API health\n  ✓ /api/health responds ok\n\n10. UI baseline (design lock)\n  ✓ approved design unchanged (bodies, CSS, JS, images match baseline)\n\n──────────────────────────────────────────────────────────\n  95 passed, 0 failed — report: reports/health-report-2026-08-31.md\n──────────────────────────────────────────────────────────\n"
+    "status": "OK",
+    "exit_code": 0,
+    "duration_ms": 239,
+    "summary": "OK — 95 passed, 0 failed"
   },
+  "blocked": [
+    "pooja",
+    "priya"
+  ],
+  "honesty": "Worker status uske apne JSON output se liya gaya hai (exit 0 + BLOCKED => BLOCKED, PASS nahi).",
   "safety": {
     "preserve_public_ui": true,
     "no_private_message_reading": true,

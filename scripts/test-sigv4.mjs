@@ -242,6 +242,71 @@ check(
   '20260829T102030Z'
 );
 
+/* ------------------------------------- 4. S3 "GET Object" known-answer vector */
+/**
+ * lib/r2.js ka comment kehta hai ki signing AWS ke published S3 "GET Object"
+ * vector se verify hui hai. Wo vector upar wali 22 generic fixtures mein nahi
+ * hai (unmein `x-amz-content-sha256` header hi nahi hota, jo S3/R2 ke liye
+ * zaroori hai). Isliye wo claim ab *yahin* execute hota hai — known-answer
+ * test: published signature se exact match.
+ *
+ * Source: AWS documentation — "Example: GET Object" (SigV4 signing examples).
+ */
+
+console.log('\n4. S3 "GET Object" published vector (known-answer)');
+
+{
+  const EXPECTED_SIGNATURE = 'f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41';
+  const EMPTY_PAYLOAD_SHA = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+  const signed = signRequest({
+    method: 'GET',
+    url: 'https://examplebucket.s3.amazonaws.com/test.txt',
+    headers: { range: 'bytes=0-9', 'x-amz-date': '20130524T000000Z' },
+    payloadHash: EMPTY_PAYLOAD_SHA,
+    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    region: 'us-east-1',
+    service: 's3',
+    now: new Date('2013-05-24T00:00:00Z'),
+    contentShaHeader: true
+  });
+
+  check(
+    'canonical request matches the published one',
+    signed.canonicalRequest,
+    [
+      'GET',
+      '/test.txt',
+      '',
+      'host:examplebucket.s3.amazonaws.com',
+      'range:bytes=0-9',
+      `x-amz-content-sha256:${EMPTY_PAYLOAD_SHA}`,
+      'x-amz-date:20130524T000000Z',
+      '',
+      'host;range;x-amz-content-sha256;x-amz-date',
+      EMPTY_PAYLOAD_SHA
+    ].join('\n')
+  );
+
+  check('string-to-sign algorithm line', signed.stringToSign.split('\n')[0], 'AWS4-HMAC-SHA256');
+  check('credential scope', signed.scope, '20130524/us-east-1/s3/aws4_request');
+  check(
+    'signed headers include the S3 content hash',
+    signed.signedHeaders,
+    'host;range;x-amz-content-sha256;x-amz-date'
+  );
+  check('signature matches the published AWS value', signed.signature, EXPECTED_SIGNATURE);
+  check(
+    'Authorization header is well formed',
+    new RegExp(
+      `^AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request, ` +
+        `SignedHeaders=host;range;x-amz-content-sha256;x-amz-date, Signature=${EXPECTED_SIGNATURE}$`
+    ).test(signed.authorization),
+    true
+  );
+}
+
 console.log(
   `\n──────────────────────────────────────────────\n  ${passed} passed, ${failed} failed\n`
 );

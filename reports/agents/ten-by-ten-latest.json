@@ -1,0 +1,781 @@
+{
+  "generated_at": "2026-08-31T12:16:09.889Z",
+  "totals": {
+    "passed": 100,
+    "failed": 0
+  },
+  "grid": [
+    {
+      "row": 1,
+      "title": "1. Syntax & project config",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 2,
+      "title": "2. Live site — real server over HTTP",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 3,
+      "title": "3. Data layer — real writes, both stores",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 4,
+      "title": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 5,
+      "title": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 6,
+      "title": "6. Queue & orders — enqueue → claim → complete",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 7,
+      "title": "7. Honesty — no fake success (negative tests)",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 8,
+      "title": "8. Security — auth, cookies, traversal, secrets",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 9,
+      "title": "9. Recovery & backups — snapshots, ledger, incidents",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    },
+    {
+      "row": 10,
+      "title": "10. Delivery, CI & automation",
+      "cells": [
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓",
+        "✓"
+      ],
+      "passed": 10
+    }
+  ],
+  "results": [
+    {
+      "row": "1. Syntax & project config",
+      "check": "npm run check (browser + server code) exits 0",
+      "ok": true,
+      "detail": "  90 checked, 0 with syntax errors"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "syntax check actually covers server code (lib/, scripts/, agents/)",
+      "ok": true,
+      "detail": "49 server files scanned"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "syntax check catches a broken server file (negative test)",
+      "ok": true,
+      "detail": "exit 1"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "package.json wires the automation commands",
+      "ok": true,
+      "detail": "15 scripts wired"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "zero runtime dependencies (nothing to install on the host)",
+      "ok": true,
+      "detail": "no dependencies"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "engines.node is satisfied by the running Node",
+      "ok": true,
+      "detail": "requires >=22.5.0, running 22.22.3"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": ".node-version cannot install a Node older than engines requires",
+      "ok": true,
+      "detail": ".node-version=22 (major 22) vs engines >=22.5.0"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "render.yaml blueprint boots the real server with a health path",
+      "ok": true,
+      "detail": "startCommand + healthCheckPath + plan verified"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "Dockerfile and Procfile start the same server",
+      "ok": true,
+      "detail": "dockerfile=true, procfile=true"
+    },
+    {
+      "row": "1. Syntax & project config",
+      "check": "no committed secrets in tracked files",
+      "ok": true,
+      "detail": "228 tracked files scanned"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "/api/health reports ok and the storage kind",
+      "ok": true,
+      "detail": "HTTP 200, storage=sqlite"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "all 6 public pages return 200 with <title> + description",
+      "ok": true,
+      "detail": "6 pages indexable"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "all 13 member pages are 200 and noindex",
+      "ok": true,
+      "detail": "13 pages hidden from crawlers"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "all 5 assets return 200 with the right content-type",
+      "ok": true,
+      "detail": "5 assets served"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "unknown page returns 404 with the branded 404 page",
+      "ok": true,
+      "detail": "HTTP 404, branded=true"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "path traversal outside public/ is refused",
+      "ok": true,
+      "detail": "HTTP 404"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "robots.txt disallows every private route + api + uploads and advertises sitemap",
+      "ok": true,
+      "detail": "13 private routes + api + uploads blocked"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "sitemap.xml lists exactly the 6 public pages",
+      "ok": true,
+      "detail": "6 URLs: / /about.html /contact.html /login.html /privacy.html /terms.html"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "every response type carries all 4 security headers",
+      "ok": true,
+      "detail": "5 responses × 4 headers"
+    },
+    {
+      "row": "2. Live site — real server over HTTP",
+      "check": "a protected API route without a session returns 401",
+      "ok": true,
+      "detail": "/api/me=401 /api/conversations=401 /api/notifications=401 /api/shortlist=401"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "e2e suite on the SQLite store: all checks pass",
+      "ok": true,
+      "detail": "134 passed, 0 failed"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "e2e suite on the JSON fallback store: all checks pass",
+      "ok": true,
+      "detail": "134 passed, 0 failed"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "both stores produce the same result (no silent divergence)",
+      "ok": true,
+      "detail": "134 checks identical on both stores"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "data survives a server restart (proven by the suite)",
+      "ok": true,
+      "detail": "restart durability verified"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "SQL injection in a value is stored as data, not executed",
+      "ok": true,
+      "detail": "value stored verbatim, users rows=1 (table survived)"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "server boots on the JSON store when node:sqlite is unavailable",
+      "ok": true,
+      "detail": "KIND=json"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "unreachable D1 stops the server instead of serving an empty site",
+      "ok": true,
+      "detail": "exit 1, loud refusal=true"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "/uploads/ directory listing is not exposed",
+      "ok": true,
+      "detail": "HTTP 404"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "photo upload round-trip through the real API",
+      "ok": true,
+      "detail": "/uploads/u2-1788178389125.png → HTTP 200, 93 bytes, PNG magic=true"
+    },
+    {
+      "row": "3. Data layer — real writes, both stores",
+      "check": "admin bootstrap writes 0600 credentials and an admin-role account",
+      "ok": true,
+      "detail": "credentials=true, mode=600, admin panel=admin"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "SigV4 signing suite: all checks pass",
+      "ok": true,
+      "detail": "41 passed, 0 failed"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "cloud round-trip suite (D1 + R2, mocked): all checks pass",
+      "ok": true,
+      "detail": "20 passed, 0 failed"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "every R2 request really carried a SigV4 signature",
+      "ok": true,
+      "detail": "verified by the suite"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "a D1 outage is retried and nothing is lost",
+      "ok": true,
+      "detail": "outage + retry verified"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "database writes are batched to D1",
+      "ok": true,
+      "detail": "batching verified"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "verify-cloud without credentials reports BLOCKED (exit 2), not PASS",
+      "ok": true,
+      "detail": "exit 2"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "verify-cloud never claims durability it did not verify",
+      "ok": true,
+      "detail": "no durability claim without proof"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "verify-cloud names the exact missing variables",
+      "ok": true,
+      "detail": "both D1 and R2 blockers named"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "cloud config readers return null without credentials (no crash)",
+      "ok": true,
+      "detail": "null without keys, object with keys"
+    },
+    {
+      "row": "4. Cloud & crypto — D1/R2 round-trip and SigV4",
+      "check": "R2/S3 signature matches the published AWS \"GET Object\" vector",
+      "ok": true,
+      "detail": "known-answer test: canonical request + signature + Authorization all match"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "roster declares 1 sardar + 1 manager + 10 workers",
+      "ok": true,
+      "detail": "12 agents, 10 workers"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "every agent has a complete permanent store",
+      "ok": true,
+      "detail": "12 agents × 8 files"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "all 8 generic workers execute without error",
+      "ok": true,
+      "detail": "8/8 workers ran"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "the 4 dedicated agent scripts run",
+      "ok": true,
+      "detail": "pooja, priya, guardian, manager all ran"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "agent team contract check passes",
+      "ok": true,
+      "detail": "17 contract checks"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "the full cycle runs and records all 12 agents",
+      "ok": true,
+      "detail": "12 agents recorded (exit 1)"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "no agent is left in a failure streak after the cycle",
+      "ok": true,
+      "detail": "0 FAIL statuses"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "every BLOCKED agent names the exact credentials it needs",
+      "ok": true,
+      "detail": "pooja(GOOGLE_SEARCH_CONSOLE_TOKEN+GEMINI_API_KEY), priya(META_ACCESS_TOKEN+META_PAGE_ID), rahul(SITE_URL), meera(RESEND_API_KEY)"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "storage doctor passes with an intact ledger",
+      "ok": true,
+      "detail": "12 agents, ledger 173 entries / 0 broken"
+    },
+    {
+      "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
+      "check": "an unknown agent id is rejected instead of half-running",
+      "ok": true,
+      "detail": "exit 2"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "queue file parses with all four buckets",
+      "ok": true,
+      "detail": "pending=0 running=0 done=7 failed=0"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "enqueue puts a job in pending",
+      "ok": true,
+      "detail": "job job_bc97108efbd4c03f queued, pending=1"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "claimJob takes the high-priority job first",
+      "ok": true,
+      "detail": "claimed job_d9ed3e257d97716b (high)"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "claiming a job increments its attempt counter",
+      "ok": true,
+      "detail": "attempts=1"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "completeJob moves the job to done with its result",
+      "ok": true,
+      "detail": "done=1, result={\"status\":\"OK\"}"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "failJob moves the job to failed with the error",
+      "ok": true,
+      "detail": "failed=1, error=\"boom\""
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "the queue worker really drains pending jobs",
+      "ok": true,
+      "detail": "pending 2→0, done 0→2"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "no job is left stuck in running after the worker",
+      "ok": true,
+      "detail": "running=0, done=1"
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "an unknown job type is failed loudly, never silently dropped",
+      "ok": true,
+      "detail": "exit 1, failed=1, reason=\"unknown job type \"not-a-real-type\" (known: agent-run, daily-\""
+    },
+    {
+      "row": "6. Queue & orders — enqueue → claim → complete",
+      "check": "the order desk issues orders only for agents that are not OK",
+      "ok": true,
+      "detail": "7 healthy, 5 orders (4 need credentials)"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "manager reports a credential-blocked worker as BLOCKED, not PASS",
+      "ok": true,
+      "detail": "pooja=BLOCKED, priya=BLOCKED"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "manager lists the blocked workers and does not exit as failure",
+      "ok": true,
+      "detail": "exit 0, blocked=[pooja,priya], status=BLOCKED"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "manager guardian status matches the real health-check tally",
+      "ok": true,
+      "detail": "guardian=OK (OK — 95 passed, 0 failed)"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "the agent cycle exits non-zero while agents are blocked",
+      "ok": true,
+      "detail": "exit 1 with 5 non-OK agent(s): pooja=BLOCKED, priya=BLOCKED, rahul=BLOCKED, meera=BLOCKED, manager=BLOCKED"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "a BLOCKED run is recorded as BLOCKED in permanent state",
+      "ok": true,
+      "detail": "pooja.last_status=BLOCKED"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "live check on an unreachable host returns BLOCKED, not FAIL",
+      "ok": true,
+      "detail": "exit 2"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "live check on a real boot verifies content, not just status codes",
+      "ok": true,
+      "detail": "exit 0, content markers verified"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "guardian fails when a public page really breaks (negative test)",
+      "ok": true,
+      "detail": "exit 1 — broken page detected"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "storage doctor fails on a corrupt storage file (negative test)",
+      "ok": true,
+      "detail": "exit 1 — corruption detected"
+    },
+    {
+      "row": "7. Honesty — no fake success (negative tests)",
+      "check": "the ledger detects a tampered line (negative test)",
+      "ok": true,
+      "detail": "tamper detected: 1 broken line(s) of 186"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "session cookie is HttpOnly and SameSite",
+      "ok": true,
+      "detail": "Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "passwords are stored hashed, never in plain text",
+      "ok": true,
+      "detail": "sqlite: hash scrypt$16384$8$1… (plaintext absent)"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "the owner account is an admin, not a normal member",
+      "ok": true,
+      "detail": "login HTTP 200, role=admin"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "admin API rejects a normal member",
+      "ok": true,
+      "detail": "HTTP 403"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "unknown API route returns 404",
+      "ok": true,
+      "detail": "HTTP 404"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "OPTIONS preflight returns 204 with security headers",
+      "ok": true,
+      "detail": "HTTP 204"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "login with a wrong password is rejected",
+      "ok": true,
+      "detail": "HTTP 401"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "weak passwords and invalid emails are refused at registration",
+      "ok": true,
+      "detail": "weak=400, bad-email=400"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "a tampered session token is rejected",
+      "ok": true,
+      "detail": "HTTP 401"
+    },
+    {
+      "row": "8. Security — auth, cookies, traversal, secrets",
+      "check": "no secret-looking value is committed anywhere in the tree",
+      "ok": true,
+      "detail": "whole tree scanned"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "snapshot() creates a snapshot of the whole storage tree",
+      "ok": true,
+      "detail": "2026-08-31T12-15-00-971Z-1010-test: 107 files, 379677 bytes"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "listSnapshots() sees the snapshot that was just taken",
+      "ok": true,
+      "detail": "7 snapshot(s), latest 2026-08-31T12-15-01-121Z-1010-list"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "the live ledger hash-chain verifies",
+      "ok": true,
+      "detail": "186 entries, 0 broken"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "appending to the ledger keeps the chain verifiable",
+      "ok": true,
+      "detail": "187 entries still chained"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "opening an incident registers it",
+      "ok": true,
+      "detail": "open: test-incident"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "closing an incident clears it",
+      "ok": true,
+      "detail": "open after close: 0"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "doctor passes on the live storage tree",
+      "ok": true,
+      "detail": "agents   : 12"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "recovery clone script builds a clone that passes its own syntax check",
+      "ok": true,
+      "detail": "exit 0, clone syntax PASS"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "worker recovery completes end to end for a known worker",
+      "ok": true,
+      "detail": "exit 0, recovery complete"
+    },
+    {
+      "row": "9. Recovery & backups — snapshots, ledger, incidents",
+      "check": "storage layout is documented and snapshots stay out of git",
+      "ok": true,
+      "detail": "README=true, snapshots+archives gitignored"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "guardian workflow runs syntax + both e2e stores + health check",
+      "ok": true,
+      "detail": "4 CI steps present"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "health check rolls up the suites CI cannot run itself",
+      "ok": true,
+      "detail": "9 suites inside CI's own step"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "the rollup recursion guard works (PJS_HEALTH_NO_ROLLUP=1)",
+      "ok": true,
+      "detail": "rollup skipped, no recursion"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "a failing rolled-up suite fails the health check (negative test)",
+      "ok": true,
+      "detail": "exit 1, failing suite reported"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "npm run health passes end to end",
+      "ok": true,
+      "detail": "104 passed, 0 failed"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "the CI artifact path (health-report-latest.md) is really written",
+      "ok": true,
+      "detail": "805 bytes"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "DEPLOY.md documents every env var the blueprint declares",
+      "ok": true,
+      "detail": "11 env vars documented"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "the live check writes a machine-readable report",
+      "ok": true,
+      "detail": "PASS, 30 route checks recorded"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "order desk and queue worker are one command away",
+      "ok": true,
+      "detail": "npm run agent:orders + npm run queue:run wired"
+    },
+    {
+      "row": "10. Delivery, CI & automation",
+      "check": "one command runs this whole board (npm run check:all)",
+      "ok": true,
+      "detail": "check:all → node scripts/ten-by-ten.mjs"
+    }
+  ]
+}

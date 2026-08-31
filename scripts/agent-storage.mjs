@@ -472,11 +472,37 @@ function cmdReport() {
   return 0;
 }
 
+function cmdQueue() {
+  const stats = store.queueStats();
+  const file = path.join(store.PATHS.queue, 'jobs.json');
+  const q = JSON.parse(fs.readFileSync(file, 'utf8'));
+  console.log('JOB QUEUE');
+  console.log(`  file   : ${path.relative(ROOT, file)}`);
+  console.log(`  pending: ${stats.pending}   running: ${stats.running}   done: ${stats.done}   failed: ${stats.failed}`);
+  console.log(`  updated: ${stats.updated_at || 'never'}`);
+  const show = (label, list) => {
+    if (!list || !list.length) return;
+    console.log(`\n  ${label}:`);
+    for (const job of list) {
+      console.log(`    • ${job.id} [${job.type}] ${job.priority || 'normal'} created=${job.created_at}${job.finished_at ? ` finished=${job.finished_at}` : ''}${job.result ? ` → ${job.result.status || 'ok'}` : ''}${job.error ? ` → ERROR: ${job.error}` : ''}`);
+    }
+  };
+  show('pending', q.pending);
+  show('running', q.running);
+  show('failed', q.failed);
+  show('done (last 10)', (q.done || []).slice(-10));
+  if (stats.pending > 0) {
+    console.log('\n  Pending jobs chalane ke liye: node scripts/agent-queue-worker.mjs');
+  }
+  return 0;
+}
+
 function cmdHelp() {
   console.log(`AI Agent Storage CLI
 
   node scripts/agent-storage.mjs init      # storage tree + ${AGENTS.length} agents create karo
   node scripts/agent-storage.mjs status    # sab agents ki status table
+  node scripts/agent-storage.mjs queue     # shared job queue (pending/running/done/failed)
   node scripts/agent-storage.mjs list      # agent roster
   node scripts/agent-storage.mjs doctor    # integrity + retention check
   node scripts/agent-storage.mjs log <agent> [n]
@@ -501,6 +527,8 @@ function main() {
       return cmdList();
     case 'status':
       return cmdStatus();
+    case 'queue':
+      return cmdQueue();
     case 'doctor':
       return cmdDoctor();
     case 'log':

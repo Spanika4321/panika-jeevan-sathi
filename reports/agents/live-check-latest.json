@@ -1,0 +1,164 @@
+{
+  "target": "http://127.0.0.1:4586",
+  "generated_at": "2026-08-31T12:16:09.771Z",
+  "verdict": "PASS",
+  "totals": {
+    "passed": 30,
+    "failed": 0,
+    "blocked": 0,
+    "unreachable": 0
+  },
+  "attempts": 1,
+  "results": [
+    {
+      "name": "/api/health responds ok",
+      "verdict": "PASS",
+      "detail": "HTTP 200, storage=sqlite"
+    },
+    {
+      "name": "/ → 200 + indexable",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/about.html → 200 + indexable",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/contact.html → 200 + indexable",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/login.html → 200 + indexable",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/privacy.html → 200 + indexable",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/terms.html → 200 + indexable",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/admin.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/settings.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/dashboard.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/matches.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/messages.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/notifications.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/interests.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/shortlist.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/edit-profile.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/profile.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/search.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/reset-password.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/verify-email.html → 200 + noindex",
+      "verdict": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "/assets/css/app.css → 200 + correct content-type",
+      "verdict": "PASS",
+      "detail": "HTTP 200, text/css; charset=utf-8"
+    },
+    {
+      "name": "/assets/js/app.js → 200 + correct content-type",
+      "verdict": "PASS",
+      "detail": "HTTP 200, application/javascript; charset=utf-8"
+    },
+    {
+      "name": "/assets/js/cards.js → 200 + correct content-type",
+      "verdict": "PASS",
+      "detail": "HTTP 200, application/javascript; charset=utf-8"
+    },
+    {
+      "name": "/assets/img/logo.svg → 200 + correct content-type",
+      "verdict": "PASS",
+      "detail": "HTTP 200, image/svg+xml"
+    },
+    {
+      "name": "/assets/img/favicon.svg → 200 + correct content-type",
+      "verdict": "PASS",
+      "detail": "HTTP 200, image/svg+xml"
+    },
+    {
+      "name": "/robots.txt complete",
+      "verdict": "PASS",
+      "detail": "13 private routes disallowed + sitemap advertised"
+    },
+    {
+      "name": "/sitemap.xml lists the public pages",
+      "verdict": "PASS",
+      "detail": "6 URLs"
+    },
+    {
+      "name": "unknown page → 404",
+      "verdict": "PASS",
+      "detail": "HTTP 404"
+    },
+    {
+      "name": "path traversal blocked (no source leak)",
+      "verdict": "PASS",
+      "detail": "HTTP 404"
+    },
+    {
+      "name": "/uploads/ listing not exposed",
+      "verdict": "PASS",
+      "detail": "HTTP 404"
+    }
+  ]
+}

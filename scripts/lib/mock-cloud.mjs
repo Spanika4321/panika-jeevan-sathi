@@ -169,10 +169,20 @@ export function createR2Mock(options = {}) {
       const url = new URL(req.url, 'http://127.0.0.1');
       const rawKey = decodeURIComponent(url.pathname.replace(new RegExp(`^/${bucket}/?`), ''));
       const key = rawKey.startsWith(`${prefix}/`) ? rawKey.slice(prefix.length + 1) : rawKey;
-      requests.push({ method: req.method, key, url: req.url });
 
       // Every request must carry a SigV4 signature and the matching body hash.
       const auth = req.headers.authorization || '';
+      // Auth header bhi record karo — warna test "har request signed thi" prove
+      // nahi kar sakta (pehle wali check `? true : true` thi, yaani hamesha pass).
+      requests.push({
+        method: req.method,
+        key,
+        url: req.url,
+        auth,
+        amzDate: req.headers['x-amz-date'] || null,
+        contentSha: req.headers['x-amz-content-sha256'] || null,
+        signed: /^AWS4-HMAC-SHA256 Credential=.+\/\d{8}\/.+\/s3\/aws4_request, SignedHeaders=.+, Signature=[0-9a-f]{64}$/.test(auth)
+      });
       if (!/^AWS4-HMAC-SHA256 Credential=.+\/\d{8}\/.+\/s3\/aws4_request, SignedHeaders=.+, Signature=[0-9a-f]{64}$/.test(auth)) {
         res.writeHead(403, { 'Content-Type': 'application/xml' });
         res.end('<Error><Code>SignatureDoesNotMatch</Code><Message>Bad SigV4 header</Message></Error>');
