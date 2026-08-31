@@ -21,7 +21,15 @@
     "storage:status": "node scripts/agent-storage.mjs status",
     "storage:doctor": "node scripts/agent-storage.mjs doctor",
     "storage:report": "node scripts/agent-storage.mjs report",
-    "storage:cycle": "node scripts/agent-storage-cycle.mjs"
+    "storage:cycle": "node scripts/agent-storage-cycle.mjs",
+    "batch": "node scripts/termux-batch.mjs",
+    "batch:list": "node scripts/termux-batch.mjs list",
+    "batch:show": "node scripts/termux-batch.mjs show BATCH-01",
+    "batch:preflight": "node scripts/termux-batch.mjs preflight",
+    "batch:baseline": "node scripts/termux-batch.mjs baseline BATCH-01",
+    "batch:run": "node scripts/termux-batch.mjs run BATCH-01",
+    "batch:check": "node scripts/termux-batch.mjs validate BATCH-01",
+    "batch:decide": "node scripts/termux-batch.mjs decide BATCH-01"
   },
   "engines": {
     "node": ">=22.5.0"
