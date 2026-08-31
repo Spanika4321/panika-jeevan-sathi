@@ -21,7 +21,265 @@
       "text": "Daily rollup: 9 total runs, 0 agent(s) with failures.",
       "tags": [],
       "at": "2026-08-31T00:29:33.563Z"
+    },
+    {
+      "id": "fact_86543c617cbca07b",
+      "text": "Daily rollup: 21 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:23:06.745Z"
+    },
+    {
+      "id": "fact_070afe8c5f4183a0",
+      "text": "Daily rollup: 28 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:31:46.440Z"
+    },
+    {
+      "id": "fact_e250e617cf3f840a",
+      "text": "Daily rollup: 30 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:36:01.974Z"
+    },
+    {
+      "id": "fact_85ef89efeb549a4d",
+      "text": "Daily rollup: 30 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:49:39.091Z"
+    },
+    {
+      "id": "fact_bf4deb550049c0cf",
+      "text": "Daily rollup: 30 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:49:55.080Z"
+    },
+    {
+      "id": "fact_c030f6cb367ce503",
+      "text": "Daily rollup: 30 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:50:16.812Z"
+    },
+    {
+      "id": "fact_a18318d2b395053c",
+      "text": "Daily rollup: 39 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:50:32.348Z"
+    },
+    {
+      "id": "fact_fcf7706323f14d55",
+      "text": "Daily rollup: 42 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:51:09.656Z"
+    },
+    {
+      "id": "fact_b3f122d807b3b752",
+      "text": "Daily rollup: 51 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:51:25.246Z"
+    },
+    {
+      "id": "fact_369da54593affcec",
+      "text": "Daily rollup: 54 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:54:16.675Z"
+    },
+    {
+      "id": "fact_0879dad54b05a761",
+      "text": "Daily rollup: 54 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:55:14.345Z"
+    },
+    {
+      "id": "fact_0c408d7261252b18",
+      "text": "Daily rollup: 54 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:55:53.753Z"
+    },
+    {
+      "id": "fact_5392293b051f3384",
+      "text": "Daily rollup: 54 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:56:09.763Z"
+    },
+    {
+      "id": "fact_31395646670e3115",
+      "text": "Daily rollup: 54 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:56:31.179Z"
+    },
+    {
+      "id": "fact_307b672a18a0f3ff",
+      "text": "Daily rollup: 63 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:56:46.739Z"
+    },
+    {
+      "id": "fact_c06ece94e2e88d9e",
+      "text": "Daily rollup: 66 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:57:10.589Z"
+    },
+    {
+      "id": "fact_1d9076a21d4a77f7",
+      "text": "Daily rollup: 75 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:57:26.150Z"
+    },
+    {
+      "id": "fact_3f8c3a3fc72bd0ea",
+      "text": "Daily rollup: 78 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:57:51.873Z"
+    },
+    {
+      "id": "fact_dc0a5dc188e6c205",
+      "text": "Daily rollup: 78 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T11:58:36.079Z"
+    },
+    {
+      "id": "fact_e9172fbdb8f49a33",
+      "text": "Daily rollup: 78 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:00:19.646Z"
+    },
+    {
+      "id": "fact_3cd08de9a2641932",
+      "text": "Daily rollup: 78 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:00:35.738Z"
+    },
+    {
+      "id": "fact_606e680003314392",
+      "text": "Daily rollup: 78 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:00:58.105Z"
+    },
+    {
+      "id": "fact_77ea49b4e06fe88d",
+      "text": "Daily rollup: 87 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:01:13.921Z"
+    },
+    {
+      "id": "fact_989f577a340d1034",
+      "text": "Daily rollup: 90 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:01:39.943Z"
+    },
+    {
+      "id": "fact_4650624c3b64c435",
+      "text": "Daily rollup: 99 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:01:55.608Z"
+    },
+    {
+      "id": "fact_f5d0745e886258bb",
+      "text": "Daily rollup: 102 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:02:21.977Z"
+    },
+    {
+      "id": "fact_bf47d2ec3076b716",
+      "text": "Daily rollup: 102 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:03:06.333Z"
+    },
+    {
+      "id": "fact_96b87d5558a196ed",
+      "text": "Daily rollup: 102 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:05:09.997Z"
+    },
+    {
+      "id": "fact_fd40a4b1e899c0c6",
+      "text": "Daily rollup: 102 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:05:26.000Z"
+    },
+    {
+      "id": "fact_426bc3a951b5e474",
+      "text": "Daily rollup: 102 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:05:47.629Z"
+    },
+    {
+      "id": "fact_49a15677f20b3ed6",
+      "text": "Daily rollup: 111 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:06:03.254Z"
+    },
+    {
+      "id": "fact_72dcf1518a6d9295",
+      "text": "Daily rollup: 114 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:06:27.332Z"
+    },
+    {
+      "id": "fact_2fd78e42810baca0",
+      "text": "Daily rollup: 123 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:06:42.920Z"
+    },
+    {
+      "id": "fact_b77c826ef0904eb6",
+      "text": "Daily rollup: 126 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:07:09.593Z"
+    },
+    {
+      "id": "fact_d57f58ab5994f173",
+      "text": "Daily rollup: 126 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:07:53.705Z"
+    },
+    {
+      "id": "fact_d46707926ccb5556",
+      "text": "Daily rollup: 144 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:13:26.747Z"
+    },
+    {
+      "id": "fact_99abb49981ad5d92",
+      "text": "Daily rollup: 144 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:13:42.654Z"
+    },
+    {
+      "id": "fact_1437bf6d501b2140",
+      "text": "Daily rollup: 144 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:14:04.249Z"
+    },
+    {
+      "id": "fact_8709b86263376c8d",
+      "text": "Daily rollup: 153 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:14:19.901Z"
+    },
+    {
+      "id": "fact_17092475ff3e6205",
+      "text": "Daily rollup: 156 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:14:43.727Z"
+    },
+    {
+      "id": "fact_303108d20f0dc007",
+      "text": "Daily rollup: 165 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:14:59.382Z"
+    },
+    {
+      "id": "fact_23b07e42b04cd691",
+      "text": "Daily rollup: 168 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:15:25.727Z"
+    },
+    {
+      "id": "fact_be9dcf33f4ec49cb",
+      "text": "Daily rollup: 168 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T12:16:09.471Z"
     }
   ],
-  "updated_at": "2026-08-31T00:29:33.563Z"
+  "updated_at": "2026-08-31T12:16:09.471Z"
 }

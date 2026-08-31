@@ -1,9 +1,9 @@
 {
   "agent": "rahul",
   "status": "BLOCKED",
-  "last_run_at": "2026-08-31T00:29:33.359Z",
+  "last_run_at": "2026-08-31T12:14:59.187Z",
   "last_status": "BLOCKED",
-  "runs": 1,
+  "runs": 14,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T00:29:33.359Z"
+  "updated_at": "2026-08-31T12:14:59.187Z"
 }

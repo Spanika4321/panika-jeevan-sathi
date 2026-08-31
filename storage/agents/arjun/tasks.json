@@ -24,10 +24,346 @@
       "created_at": "2026-08-31T00:29:18.249Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_ab486cb8fdbaf8b8",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:22:51.465Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_1e9b7c4bb8a6d56d",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:35:46.688Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_d24b0cea68a5c8dd",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:49:23.836Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_92825233c15916ee",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:49:39.837Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_bcdc3cb775255415",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:50:01.588Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_d1e5c31f89ae1e93",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:50:17.100Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c5d51f4cac50a303",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:50:54.423Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_bed3452bb6d6ed06",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:51:09.966Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7e99f2e663e07dd2",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:54:01.425Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_bc5b552b05f9f23a",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:54:59.074Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_00dae5eca660d517",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:55:38.528Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_80e6a08242285540",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:55:54.522Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7eb706f3bc35c212",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:56:15.960Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_115a779653ad8be1",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:56:31.478Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_be9b082060bf7c0f",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:56:55.366Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_5ab2ac03ab3f5d80",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:57:10.884Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_a768a526c96d3ee1",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:57:36.613Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_26b9a7633ddba818",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T11:58:20.852Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_f6cd4bc25fd07e16",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:00:04.375Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6c580bd51913532d",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:00:20.461Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_589c8ab3f903112a",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:00:42.834Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_a553152f56492aec",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:00:58.513Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8360d228af71c9f4",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:01:24.665Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_99e96a0e928ca0f6",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:01:40.298Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_a4e5c5cb5ca9b2c7",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:02:06.723Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_2a336c5c9ce77d80",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:02:51.096Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7db821f0f042d9e7",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:04:54.751Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_f26cdd5360445e92",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:05:10.771Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_46ccabef91ec2223",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:05:32.379Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_9defd8f2940af064",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:05:47.965Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_df9ff67ec3d78e93",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:06:12.109Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_332101eccca0d65d",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:06:27.631Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_5d26ddd86135062d",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:06:54.339Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_3fac4aedd7bfe2bc",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:07:38.464Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6f001a98867a900b",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:13:11.513Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_971e8827b085b9b0",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:13:27.432Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_728e78db9fd81a98",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:13:49.009Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_309b8957499bda66",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:14:04.583Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_d258002bbd76a0d5",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:14:28.494Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_eeb6d868706380fa",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:14:44.086Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_da9712c702aa6202",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:15:10.481Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_d6d1e14aa5cc85ae",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T12:15:54.242Z",
+      "status": "pending",
+      "meta": {}
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:18.249Z"
+  "updated_at": "2026-08-31T12:15:54.242Z"
 }

@@ -1,8 +1,8 @@
 {
   "agent": "kavita",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 12,
+    "status_ok": 12
   },
   "history": [
     {
@@ -10,7 +10,73 @@
       "status": "OK",
       "duration_ms": 48,
       "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T11:22:51.517Z",
+      "status": "OK",
+      "duration_ms": 35,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T11:50:17.148Z",
+      "status": "OK",
+      "duration_ms": 32,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T11:51:10.015Z",
+      "status": "OK",
+      "duration_ms": 33,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T11:56:31.529Z",
+      "status": "OK",
+      "duration_ms": 35,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T11:57:10.930Z",
+      "status": "OK",
+      "duration_ms": 32,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T12:00:58.589Z",
+      "status": "OK",
+      "duration_ms": 37,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T12:01:40.348Z",
+      "status": "OK",
+      "duration_ms": 35,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T12:05:48.019Z",
+      "status": "OK",
+      "duration_ms": 36,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T12:06:27.680Z",
+      "status": "OK",
+      "duration_ms": 33,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T12:14:04.648Z",
+      "status": "OK",
+      "duration_ms": 42,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T12:14:44.143Z",
+      "status": "OK",
+      "duration_ms": 38,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
     }
   ],
-  "updated_at": "2026-08-31T00:29:18.314Z"
+  "updated_at": "2026-08-31T12:14:44.143Z"
 }

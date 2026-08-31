@@ -1,10 +1,10 @@
 {
   "agent": "rahul",
   "counters": {
-    "samples": 1,
-    "unreachable": 1,
-    "runs": 1,
-    "status_blocked": 1
+    "samples": 44,
+    "unreachable": 44,
+    "runs": 14,
+    "status_blocked": 14
   },
   "history": [
     {
@@ -12,7 +12,85 @@
       "status": "BLOCKED",
       "duration_ms": 15042,
       "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T11:23:06.562Z",
+      "status": "BLOCKED",
+      "duration_ms": 15040,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T11:50:32.188Z",
+      "status": "BLOCKED",
+      "duration_ms": 15034,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T11:51:25.057Z",
+      "status": "BLOCKED",
+      "duration_ms": 15036,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T11:56:46.571Z",
+      "status": "BLOCKED",
+      "duration_ms": 15035,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T11:57:25.970Z",
+      "status": "BLOCKED",
+      "duration_ms": 15034,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:01:13.651Z",
+      "status": "BLOCKED",
+      "duration_ms": 15039,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:01:55.392Z",
+      "status": "BLOCKED",
+      "duration_ms": 15036,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:06:03.066Z",
+      "status": "BLOCKED",
+      "duration_ms": 15041,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:06:42.723Z",
+      "status": "BLOCKED",
+      "duration_ms": 15035,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:08:38.984Z",
+      "status": "BLOCKED",
+      "duration_ms": 67,
+      "summary": "Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:08:53.928Z",
+      "status": "BLOCKED",
+      "duration_ms": 15034,
+      "summary": "queue job order_rahul_credentials-needed (agent-run): Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:14:19.697Z",
+      "status": "BLOCKED",
+      "duration_ms": 15041,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+    },
+    {
+      "at": "2026-08-31T12:14:59.192Z",
+      "status": "BLOCKED",
+      "duration_ms": 15041,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
     }
   ],
-  "updated_at": "2026-08-31T00:29:33.362Z"
+  "updated_at": "2026-08-31T12:15:54.375Z"
 }

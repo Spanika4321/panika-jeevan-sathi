@@ -22,7 +22,7 @@
  *   node scripts/health-check.mjs
  */
 
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -241,6 +241,61 @@ try {
 } finally {
   child.kill('SIGTERM');
   try { fs.rmSync(DATA_DIR, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+}
+
+/* ------------------------------------------- 11. full suite rollup (CI parity) */
+/**
+ * GitHub par `.github/workflows/*` edit karne ki permission is app ke paas nahi
+ * hai (manifest mein `workflows` declare hi nahi), isliye baaki suites ko CI
+ * mein le jaane ka ek hi raasta hai: unhe usi script ke andar chalana jo CI
+ * pehle se chalata hai. Ye section wahi karta hai.
+ *
+ * Recursion guard: har child ko PJS_HEALTH_NO_ROLLUP=1 milta hai, aur agar ye
+ * variable set hai to section skip ho jaata hai — warna
+ * health-check → manager → health-check … infinite loop ban jaata.
+ */
+
+section('11. Full suite rollup (CI parity)');
+
+if (process.env.PJS_HEALTH_NO_ROLLUP === '1') {
+  console.log('  ↷ skipped — PJS_HEALTH_NO_ROLLUP=1 (recursion guard: caller already ran the suites)');
+  // Skip ko pass count mein nahi gina jaata — warna "check hua" jhooth hota.
+} else {
+  const SUITES = [
+    ['Syntax — browser + server code', ['scripts/check-syntax.mjs'], {}, [0]],
+    ['E2E — SQLite store', ['scripts/e2e-test.mjs'], {}, [0]],
+    ['E2E — JSON fallback store', ['scripts/e2e-test.mjs'], { PJS_STORAGE: 'json' }, [0]],
+    ['Cloudflare SigV4 request signing', ['scripts/test-sigv4.mjs'], {}, [0]],
+    ['Cloud round-trip (D1 + R2, mocked)', ['scripts/e2e-cloud-test.mjs'], {}, [0]],
+    ['Agent team contract', ['scripts/agent-team-check.mjs'], {}, [0]],
+    ['Agent storage integrity (doctor)', ['scripts/agent-storage.mjs', 'doctor'], {}, [0]],
+    ['Order desk (agents that are not working)', ['scripts/agent-orders.mjs', '--dry-run'], {}, [0]],
+    // verify-cloud bina credentials ke BLOCKED (exit 2) deta hai — wo failure
+    // nahi, "verify nahi ho paya" hai. Isliye 0 aur 2 dono acceptable hain.
+    ['Cloud credential verdict', ['scripts/verify-cloud.mjs'], {}, [0, 2]]
+  ];
+
+  for (const [name, args, env, okCodes] of SUITES) {
+    const started = Date.now();
+    let code = 0;
+    let out = '';
+    try {
+      out = execFileSync(process.execPath, args, {
+        cwd: ROOT,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: 10 * 60 * 1000,
+        env: { ...process.env, PJS_HEALTH_NO_ROLLUP: '1', ...env }
+      });
+    } catch (err) {
+      code = typeof err.status === 'number' ? err.status : 1;
+      out = String(err.stdout || '') + String(err.stderr || err.message || '');
+    }
+    const ms = Date.now() - started;
+    const tally = String(out).match(/(\d+)\s+passed,\s*(\d+)\s+failed/i);
+    const detail = tally ? `${tally[1]} passed, ${tally[2]} failed` : `exit ${code}`;
+    check(`${name}`, okCodes.includes(code), `${detail} in ${ms}ms`);
+  }
 }
 
 /* ---------------------------------------------------------------- report */

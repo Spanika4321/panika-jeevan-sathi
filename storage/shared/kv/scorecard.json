@@ -3,48 +3,40 @@
   "values": {
     "latest": {
       "value": {
-        "generated_at": "2026-08-31T00:29:33.559Z",
+        "generated_at": "2026-08-31T12:16:09.467Z",
         "agents": 12,
-        "total_runs": 9,
-        "agents_never_run": [
-          "manager",
-          "vikram",
-          "meera"
-        ],
+        "total_runs": 168,
+        "agents_never_run": [],
         "agents_with_failures": [],
         "queue": {
-          "pending": 1,
+          "pending": 5,
           "running": 0,
-          "done": 0,
+          "done": 7,
           "failed": 0,
-          "updated_at": "2026-08-31T00:29:17.750Z"
+          "updated_at": "2026-08-31T12:14:21.156Z"
         },
         "ledger_ok": true
       },
-      "at": "2026-08-31T00:29:33.560Z"
+      "at": "2026-08-31T12:16:09.469Z"
     },
     "week-2026-W36": {
       "value": {
-        "generated_at": "2026-08-31T00:29:33.559Z",
+        "generated_at": "2026-08-31T12:16:09.467Z",
         "agents": 12,
-        "total_runs": 9,
-        "agents_never_run": [
-          "manager",
-          "vikram",
-          "meera"
-        ],
+        "total_runs": 168,
+        "agents_never_run": [],
         "agents_with_failures": [],
         "queue": {
-          "pending": 1,
+          "pending": 5,
           "running": 0,
-          "done": 0,
+          "done": 7,
           "failed": 0,
-          "updated_at": "2026-08-31T00:29:17.750Z"
+          "updated_at": "2026-08-31T12:14:21.156Z"
         },
         "ledger_ok": true
       },
-      "at": "2026-08-31T00:29:33.562Z"
+      "at": "2026-08-31T12:16:09.470Z"
     }
   },
-  "updated_at": "2026-08-31T00:29:33.562Z"
+  "updated_at": "2026-08-31T12:16:09.470Z"
 }

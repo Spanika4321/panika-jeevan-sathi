@@ -1,9 +1,9 @@
 {
   "agent": "kavita",
   "status": "OK",
-  "last_run_at": "2026-08-31T00:29:18.312Z",
+  "last_run_at": "2026-08-31T12:14:44.139Z",
   "last_status": "OK",
-  "runs": 1,
+  "runs": 12,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T00:29:18.312Z"
+  "updated_at": "2026-08-31T12:14:44.139Z"
 }

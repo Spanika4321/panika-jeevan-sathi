@@ -11,6 +11,7 @@ const allowedWorkers = new Set(['pooja', 'priya']);
 
 if (!allowedWorkers.has(worker)) {
   console.error(`RECOVERY BLOCKED: unknown worker "${worker}"`);
+  console.error(`Usage: node scripts/recovery-clone.mjs ${[...allowedWorkers].join('|')}`);
   process.exit(1);
 }
 
@@ -21,9 +22,16 @@ if (fs.existsSync(cloneDir)) {
 
 fs.mkdirSync(cloneDir, { recursive: true });
 
+// Clone ek *chalne layak* copy honi chahiye: agents + scripts ke saath server,
+// lib aur public bhi. Pehle public/lib copy nahi hote the, isliye clone ke
+// andar `node scripts/check-syntax.mjs` hamesha ENOENT se crash karta tha aur
+// recovery kabhi complete nahi hoti thi.
 const filesToCopy = [
   'agents',
   'scripts',
+  'lib',
+  'public',
+  'server.js',
   'package.json',
   '.node-version'
 ];
