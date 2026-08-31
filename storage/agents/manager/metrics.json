@@ -1,10 +1,10 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 5,
+    "runs": 6,
     "status_ok": 1,
     "status_fail": 2,
-    "status_blocked": 2
+    "status_blocked": 3
   },
   "history": [
     {
@@ -36,7 +36,13 @@
       "status": "BLOCKED",
       "duration_ms": 0,
       "summary": "Recommendations withheld: upstream steps are BLOCKED (Pooja=BLOCKED, Priya=BLOCKED). Connect Search Console to get real data."
+    },
+    {
+      "at": "2026-08-31T02:26:05.944Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Recommendations withheld: upstream steps are BLOCKED (Pooja=BLOCKED, Priya=BLOCKED). Connect Search Console to get real data."
     }
   ],
-  "updated_at": "2026-08-31T02:21:03.055Z"
+  "updated_at": "2026-08-31T02:26:05.944Z"
 }

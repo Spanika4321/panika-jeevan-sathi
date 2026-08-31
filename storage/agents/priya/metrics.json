@@ -1,8 +1,8 @@
 {
   "agent": "priya",
   "counters": {
-    "runs": 5,
-    "status_blocked": 5
+    "runs": 6,
+    "status_blocked": 6
   },
   "history": [
     {
@@ -34,7 +34,13 @@
       "status": "BLOCKED",
       "duration_ms": 0,
       "summary": "Nothing to verify — Pooja was blocked."
+    },
+    {
+      "at": "2026-08-31T02:26:05.938Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Nothing to verify — Pooja was blocked."
     }
   ],
-  "updated_at": "2026-08-31T02:21:03.050Z"
+  "updated_at": "2026-08-31T02:26:05.938Z"
 }
