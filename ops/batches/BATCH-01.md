@@ -11,6 +11,7 @@
 - Two further defects are queued for a later batch and must not be patched here: scripts/agent-storage-cycle.mjs exits 1 when a worker is only BLOCKED (0 FAIL), and reports/agents/zero-survival-latest.json is a 268-byte stub from a run whose network probes never succeeded.
 - Termux is the only place some of these answers exist: real Android filesystem behaviour, real outbound network, the device's own Node build. Anything Arena could not measure is exactly what this batch measures.
 - base_commit 538beebd21e2 is the commit that SHIPS this protocol (ops/TERMUX-BATCH-PROTOCOL.md, ops/batches/*, scripts/termux-batch.mjs, package.json batch scripts) on top of the app-code pin 8ef92b7b9c62. T-02 therefore pins the RUNTIME code (server.js, lib/, public/, agents/) to 8ef92b7b9c62 explicitly, so tooling commits can never mask or fake app-code drift; the runner also records head_matches_base and the validator prints any head drift as a warning.
+- head_policy is "descendant-ok-with-app-code-pin": Termux must be AT or AHEAD of base_commit (a pure fast-forward pull). Being ahead is only forgiven because T-02 itself asserts server.js/lib/public/agents are byte-identical to app pin 8ef92b7b9c62 — a validator pass without that task passing is treated as a violation, not a warning.
 
 ## Ground rules for this batch
 

@@ -199,6 +199,8 @@ const SAFE_GIT = new Set([
   'describe',
   'hash-object',
   'cat-file',
+  'merge-base',
+  'rev-list',
   'config'
 ]);
 
@@ -339,6 +341,15 @@ function defaultExecutorId() {
   if (process.env.GITHUB_ACTIONS === 'true') return 'github-actions-runner';
   if (process.env.PREFIX && String(process.env.PREFIX).includes('com.termux')) return 'termux-device';
   return `${os.platform()}-${os.hostname()}`;
+}
+
+function runGitOk(args) {
+  try {
+    execFileSync('git', args, { cwd: ROOT, stdio: ['ignore', 'ignore', 'ignore'] });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function probeVersion(bin) {
@@ -576,8 +587,20 @@ async function cmdRun(id, opts) {
   }
 
   const executor = buildExecutor(opts.executor);
+  const descendant =
+    executor.git_head === batch.base_commit
+      ? true
+      : runGitOk(['merge-base', '--is-ancestor', batch.base_commit, executor.git_head]);
+  const aheadBy = descendant
+    ? Number(git(['rev-list', '--count', `${batch.base_commit}..${executor.git_head}`]) || 0)
+    : null;
   if (executor.git_head !== batch.base_commit) {
-    console.log(`! head ${executor.git_head.slice(0, 12)} != batch base ${batch.base_commit.slice(0, 12)} — recording as stale/branch-drift, continuing without faking anything.`);
+    console.log(
+      `! head ${executor.git_head.slice(0, 12)} != batch base ${batch.base_commit.slice(0, 12)} — ` +
+        (descendant
+          ? `descendant, ${aheadBy} commit(s) past the pin (T-02 is what proves the app code itself did not move)`
+          : 'NOT a descendant: this box is running a different tree than the batch was cut for')
+    );
   }
 
   const started = now();
@@ -883,6 +906,9 @@ async function cmdRun(id, opts) {
     base_commit: batch.base_commit,
     executor,
     head_matches_base: executor.git_head === batch.base_commit,
+    head_is_descendant_of_base: descendant,
+    head_ahead_of_base_by: aheadBy,
+    head_policy: batch.head_policy ?? 'strict',
     public_ui_fingerprint_before: executor.public_ui_fingerprint,
     public_ui_fingerprint_after: publicFingerprint().sha256,
     public_ui_drift: uiDrift,
@@ -953,6 +979,8 @@ function token(payload) {
     batch_id: payload.batch_id,
     base_commit: payload.base_commit,
     head_matches_base: payload.head_matches_base,
+    head_is_descendant_of_base: payload.head_is_descendant_of_base,
+    head_ahead_of_base_by: payload.head_ahead_of_base_by,
     public_ui_fingerprint_before: payload.public_ui_fingerprint_before,
     public_ui_fingerprint_after: payload.public_ui_fingerprint_after,
     started_at: payload.started_at,
@@ -1007,9 +1035,20 @@ function cmdValidate(id, opts) {
   if (!res.summary) violations.push('summary{} missing');
 
   if (batch.base_commit && res.executor?.git_head && res.executor.git_head !== batch.base_commit) {
-    warnings.push(
-      `executed on head ${res.executor.git_head.slice(0, 12)} but batch was cut for ${batch.base_commit.slice(0, 12)} — results describe a different tree (stale or post-repair head).`
-    );
+    const allowedDrift =
+      (batch.head_policy ?? 'strict') === 'descendant-ok-with-app-code-pin' &&
+      res.head_is_descendant_of_base === true &&
+      (batch.tasks ?? []).some((t) => /diff --name-only/.test((t.verify?.commands ?? []).join(' ')));
+    const distance = res.head_ahead_of_base_by;
+    if (allowedDrift && res.head_is_descendant_of_base) {
+      warnings.push(
+        `head ${String(res.executor.git_head).slice(0, 12)} is ${distance == null ? '?' : distance} commit(s) past batch base ${batch.base_commit.slice(0, 12)} — accepted because head_policy is "${batch.head_policy}" and the app-code pin is asserted by a task's own diff check. If that task did not PASS, this drift is NOT forgiven.`
+      );
+    } else {
+      violations.push(
+        `executed on head ${String(res.executor.git_head).slice(0, 12)} which is ${res.head_is_descendant_of_base ? 'a descendant but not covered by the batch head_policy' : 'NOT a descendant of'} the batch base ${batch.base_commit.slice(0, 12)} — results describe a different tree than the one Arena pinned.`
+      );
+    }
   }
 
   /* 1. Shape of the batch itself. */
