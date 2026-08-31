@@ -69,6 +69,14 @@ corrections are visible rather than silently edited away:
 3. T-08/T-05's `env` overrides were initially read from the wrong level (`task.env` only), so the memory
    backend silently did not apply and the sneha run dirtied `storage/agents/sneha/*` + appended ledger
    line 13 — visible in `files_changed`, which is exactly why the runner measures the tree after every task.
+4. `cmdRender` ignored `--suffix` for the markdown filename and wrote `BATCH-01.results.md` next to the
+   sandbox file — a stray artifact that would have been mistaken for the real Termux result. Fixed, and the
+   `head aa836de… is 4 commit(s) past base` warning that the validator now prints is the same class of
+   self-check: drift is stated, never hidden.
+5. T-02's `git diff --check` gate originally covered the whole range and therefore failed on the batch's own
+   raw evidence logs (verbatim `curl`/`git` output legitimately contains trailing spaces). The gate is now
+   scoped to code + tooling paths, because stripping captured output to satisfy a style check would falsify
+   the evidence — the renderer still emits whitespace-clean reports, so generated files stay inside the gate.
 
 Tooling negative tests (all actually run, 2026-08-31): fake PASS → REJECTED; silently dropped task →
 REJECTED; appended byte in `public/index.html` → batch refused before execution (fingerprint drift);

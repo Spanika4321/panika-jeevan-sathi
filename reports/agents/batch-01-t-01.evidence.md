@@ -1,16 +1,16 @@
 # BATCH-01 / T-01 — raw execution log
 executor : arena-coordinator-sandbox (linux/x64, node v22.22.3)
-head     : eb84dba5ab3f629f7a79ae4858aaca79af38d68d
+head     : aa836de9021d87a3d4aea69c8a2aa35feeebec5f
 objective: Produce the device's real capability record: Node version (must be >= 22.5 for node:sqlite, otherwise the JSON store fallback is the only supported mode), git and curl presence, free disk, current HEAD and branch, worktree cleanliness, the public/ UI file count and fingerprint, and whether the production hosts answer from this network. No check may be assumed; every line must come from a command that ran.
 verdict  : PASS
 
 $ node scripts/termux-batch.mjs preflight --json
-(exit 0, 271ms)
+(exit 0, 330ms)
 --- stdout ---
 {
   "protocol": "arena-termux-batch/1",
   "runner_version": "1.0.0",
-  "generated_at": "2026-08-31T18:57:34.814Z",
+  "generated_at": "2026-08-31T18:57:59.527Z",
   "executor": {
     "id": "arena-coordinator-sandbox",
     "hostname": "e2b.local",
@@ -28,7 +28,7 @@ $ node scripts/termux-batch.mjs preflight --json
     "termux_detected": false,
     "termux_android_release": null,
     "cwd": "/home/user/panika-jeevan-sathi",
-    "git_head": "eb84dba5ab3f629f7a79ae4858aaca79af38d68d",
+    "git_head": "aa836de9021d87a3d4aea69c8a2aa35feeebec5f",
     "git_branch": "arena/01a0591c-panika-jeevan-sathi",
     "tree_dirty": false,
     "disk_free_mb": 19732,
@@ -37,7 +37,7 @@ $ node scripts/termux-batch.mjs preflight --json
     "public_ui_fingerprint": "5469d2287361f57f84cca9a587b29025a6dc955d0fed79cbaa091a3975ecb531",
     "public_ui_files": 25
   },
-  "git_head_short": "eb84dba5ab3f",
+  "git_head_short": "aa836de9021d",
   "missing_files": [],
   "live_probes": [
     {

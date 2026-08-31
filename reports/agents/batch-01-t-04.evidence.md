@@ -1,11 +1,11 @@
 # BATCH-01 / T-04 — raw execution log
 executor : arena-coordinator-sandbox (linux/x64, node v22.22.3)
-head     : eb84dba5ab3f629f7a79ae4858aaca79af38d68d
+head     : aa836de9021d87a3d4aea69c8a2aa35feeebec5f
 objective: Run the end-to-end suite on-device: register → login → create/edit profile → photo upload → search/filters → interest → accept → message → receive → notifications → shortlist → privacy → report → admin → logout → re-login, plus 'data survives a server restart'. This is the check that proves the device's Node build actually has a working node:sqlite.
 verdict  : PASS
 
 $ node scripts/e2e-test.mjs
-(exit 0, 1512ms)
+(exit 0, 1750ms)
 --- stdout ---
 
 1. Registration & login

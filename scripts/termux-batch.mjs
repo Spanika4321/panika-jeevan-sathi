@@ -1038,7 +1038,9 @@ function cmdValidate(id, opts) {
     const allowedDrift =
       (batch.head_policy ?? 'strict') === 'descendant-ok-with-app-code-pin' &&
       res.head_is_descendant_of_base === true &&
-      (batch.tasks ?? []).some((t) => /diff --name-only/.test((t.verify?.commands ?? []).join(' ')));
+      (batch.tasks ?? []).some((t) =>
+        (t.verify?.commands ?? []).some((c) => Array.isArray(c) && c.slice(1).join(' ').includes('diff --name-only'))
+      );
     const distance = res.head_ahead_of_base_by;
     if (allowedDrift && res.head_is_descendant_of_base) {
       warnings.push(
@@ -1389,9 +1391,9 @@ function cmdTemplate(id) {
 /* -------------------------------------------------------------- decide */
 
 /** Arena's decision helper: which tasks must be re-run/repaired next batch. */
-function cmdDecide(id) {
+function cmdDecide(id, suffixPart = '') {
   const { batch } = loadBatch(id);
-  const res = readJSON(batchFile(id, 'results'));
+  const res = readJSON(batchFile(id, `results${suffixPart}`));
   if (!res) {
     console.error('no result batch to decide from yet');
     return 1;
@@ -1475,7 +1477,7 @@ async function main() {
     case 'template':
       return id ? cmdTemplate(id) : usage();
     case 'decide':
-      return id ? cmdDecide(id) : usage();
+      return id ? cmdDecide(id, suffixPart('--suffix')) : usage();
     case 'help':
     case '--help':
     case '-h':
