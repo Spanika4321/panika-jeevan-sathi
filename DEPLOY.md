@@ -307,15 +307,23 @@ npm run seo:squad      # all 12 agents do their share in one round
 
 ```bash
 curl -i https://your-domain/api/health      # {"ok":true,...}
-curl -I https://your-domain/                # 200
+curl -I https://your-domain/                # 200 (expect content-encoding: gzip, etag, content-security-policy)
+
+# or the same checks as one verdict — PASS / FAIL / BLOCKED, never a guess
+SITE_URL=https://your-domain npm run check:live
 ```
+
+`check:live` deliberately answers **BLOCKED** when the host never answered (Render's free plan
+sleeps, and the first request can take a minute to wake it) — an unreachable host is not a pass
+and not a failure, and the script says so instead of picking a colour for you.
 
 Then run the member flow once: register → complete profile → search → interest → accept → message →
 log out → log in again (data must still be there). Locally `npm test` runs 134 automated assertions
 covering exactly this.
 
 ```bash
-npm run test:all       # 43 files parsed, 134 e2e assertions, 135 Guardian checks, 49 render-contract checks, SEO anti-fake self-test
+npm run test:all       # 43 files parsed · 134 e2e assertions · 144 Guardian checks · 49 render-contract checks · SEO anti-fake PASS
+npm run check:live     # against the deployment itself: 21 routes, gzip, CSP, ETag, noindex, sitemap, admin gate
 npm run health         # the Guardian board on its own (design lock, SEO, headers, backup round trip, queue)
 npm run seo:status     # every pipeline stage: CONNECTED / BLOCKED, and which key unlocks it
 npm run backup         # verifiable snapshot of data/ + storage/

@@ -36,7 +36,8 @@
     "test:all": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs && node scripts/health-check.mjs && node scripts/browser-e2e.mjs && node scripts/seo-selftest.mjs",
     "queue:drain": "node scripts/queue-drain.mjs",
     "queue:status": "node scripts/queue-drain.mjs --status",
-    "tasks:work": "node scripts/tasks-work.mjs"
+    "tasks:work": "node scripts/tasks-work.mjs",
+    "check:live": "node scripts/render-real-check.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

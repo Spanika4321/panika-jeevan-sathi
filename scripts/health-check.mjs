@@ -124,8 +124,20 @@ function ldBlocksValid(html) {
   }
 }
 
-function runNode(script, args = []) {
-  const res = spawnSync(process.execPath, [path.join(ROOT, script), ...args], { encoding: 'utf8', cwd: ROOT });
+/**
+ * Section 16 runs other suites, and one of them (agent-team-check → Manager)
+ * runs the Guardian again. That flag is what stops the recursion, and it is
+ * inherited by every child so no nested run can re-enter the rollup.
+ */
+const NO_ROLLUP = process.env.PJS_HEALTH_NO_ROLLUP === '1';
+
+function runNode(script, args = [], { timeout = 300000, env = {} } = {}) {
+  const res = spawnSync(process.execPath, [path.join(ROOT, script), ...args], {
+    encoding: 'utf8',
+    cwd: ROOT,
+    timeout,
+    env: Object.assign({}, process.env, { PJS_HEALTH_NO_ROLLUP: '1' }, env)
+  });
   const out = `${res.stdout || ''}${res.stderr || ''}`;
   return { status: res.status, tail: out.split('\n').filter((l) => l.includes('✗') || l.includes('FAIL')).join(' | ').slice(0, 160) };
 }
@@ -211,60 +223,6 @@ try {
     let ok = false;
     try { ok = JSON.parse(r.text).ok === true; } catch (_) { /* ignore */ }
     check('/api/health responds ok', r.status === 200 && ok, r.text.slice(0, 120));
-  }
-
-  section('15. Agent job queue has a consumer');
-  {
-    // A queue nobody drains is a polite way of forgetting a task, so the
-    // Guardian checks that every pending job type has a real handler.
-    const queueFile = path.join(ROOT, 'storage', 'shared', 'queue', 'jobs.json');
-    const drainFile = path.join(ROOT, 'scripts', 'queue-drain.mjs');
-    let pending = [];
-    let running = 0;
-    let handlers = [];
-    try {
-      const q = JSON.parse(fs.readFileSync(queueFile, 'utf8'));
-      pending = q.pending || [];
-      running = (q.running || []).length;
-    } catch (err) {
-      check('queue file is readable', false, err.message);
-    }
-    try {
-      const src = fs.readFileSync(drainFile, 'utf8');
-      handlers = [...src.matchAll(/^\s{2}'([a-z0-9._-]+)':/gm)].map((m) => m[1]);
-    } catch (err) {
-      check('queue runner exists', false, err.message);
-    }
-    const types = [...new Set(pending.map((j) => j.type))];
-    const unhandled = types.filter((t) => !handlers.includes(t));
-    check(`queue runner exists (${handlers.length} handler(s))`, handlers.length > 0);
-    check(
-      `every pending job type has a handler (${pending.length} pending)`,
-      unhandled.length === 0,
-      unhandled.length ? `no handler for: ${unhandled.join(', ')}` : ''
-    );
-    check('no job is stuck in running', running === 0, `${running} job(s) claimed and never settled`);
-    // Per-agent to-do lists must not grow forever either.
-    const tasksRoot = path.join(ROOT, 'storage', 'agents');
-    let worst = { id: '-', pending: 0 };
-    let stuckTasks = 0;
-    try {
-      for (const id of fs.readdirSync(tasksRoot)) {
-        const file = path.join(tasksRoot, id, 'tasks.json');
-        if (!fs.existsSync(file)) continue;
-        const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
-        if ((doc.pending || []).length > worst.pending) worst = { id, pending: (doc.pending || []).length };
-        stuckTasks += (doc.running || []).length;
-      }
-    } catch (_) {
-      /* storage tree is created by npm run storage:init */
-    }
-    check(
-      `no agent task list is growing unbounded (largest: ${worst.id} ${worst.pending})`,
-      worst.pending <= 40,
-      `${worst.id} has ${worst.pending} pending tasks — run: npm run tasks:work`
-    );
-    check('no agent task is stuck in running', stuckTasks === 0, `${stuckTasks} stuck task(s)`);
   }
 
   section('10. UI baseline (design lock)');
@@ -384,6 +342,95 @@ try {
     check('a snapshot can be backed up, verified and restored', backup.status === 0, backup.tail);
     const tamper = runNode('scripts/backup.mjs', ['--list']);
     check('backup listing works', tamper.status === 0, tamper.tail);
+  }
+
+  section('15. Agent job queue has a consumer');
+  {
+    // A queue nobody drains is a polite way of forgetting a task, so the
+    // Guardian checks that every pending job type has a real handler.
+    const queueFile = path.join(ROOT, 'storage', 'shared', 'queue', 'jobs.json');
+    const drainFile = path.join(ROOT, 'scripts', 'queue-drain.mjs');
+    let pending = [];
+    let running = 0;
+    let handlers = [];
+    try {
+      const q = JSON.parse(fs.readFileSync(queueFile, 'utf8'));
+      pending = q.pending || [];
+      running = (q.running || []).length;
+    } catch (err) {
+      check('queue file is readable', false, err.message);
+    }
+    try {
+      const src = fs.readFileSync(drainFile, 'utf8');
+      handlers = [...src.matchAll(/^\s{2}'([a-z0-9._-]+)':/gm)].map((m) => m[1]);
+    } catch (err) {
+      check('queue runner exists', false, err.message);
+    }
+    const types = [...new Set(pending.map((j) => j.type))];
+    const unhandled = types.filter((t) => !handlers.includes(t));
+    check(`queue runner exists (${handlers.length} handler(s))`, handlers.length > 0);
+    check(
+      `every pending job type has a handler (${pending.length} pending)`,
+      unhandled.length === 0,
+      unhandled.length ? `no handler for: ${unhandled.join(', ')}` : ''
+    );
+    check('no job is stuck in running', running === 0, `${running} job(s) claimed and never settled`);
+    // Per-agent to-do lists must not grow forever either.
+    const tasksRoot = path.join(ROOT, 'storage', 'agents');
+    let worst = { id: '-', pending: 0 };
+    let stuckTasks = 0;
+    try {
+      for (const id of fs.readdirSync(tasksRoot)) {
+        const file = path.join(tasksRoot, id, 'tasks.json');
+        if (!fs.existsSync(file)) continue;
+        const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
+        if ((doc.pending || []).length > worst.pending) worst = { id, pending: (doc.pending || []).length };
+        stuckTasks += (doc.running || []).length;
+      }
+    } catch (_) {
+      /* storage tree is created by npm run storage:init */
+    }
+    check(
+      `no agent task list is growing unbounded (largest: ${worst.id} ${worst.pending})`,
+      worst.pending <= 40,
+      `${worst.id} has ${worst.pending} pending tasks — run: npm run tasks:work`
+    );
+    check('no agent task is stuck in running', stuckTasks === 0, `${stuckTasks} stuck task(s)`);
+  }
+
+  if (!NO_ROLLUP) {
+    /*
+     * The installed GitHub workflow is allowed to run exactly four commands,
+     * and `.github/workflows/` cannot be changed from here — so the other test
+     * suites are folded into the one entry point CI does run. A green Guardian
+     * board therefore really means: SEO anti-fake, browser render contract,
+     * SigV4 signing, the mocked cloud round trip and the agent-team wiring all
+     * passed too, not just the HTTP checks.
+     */
+    section('16. Cross-suite rollup (everything CI cannot be told to run)');
+    const suites = [
+      ['SEO anti-fake self-test', 'scripts/seo-selftest.mjs', []],
+      ['render contract + browser pass', 'scripts/browser-e2e.mjs', []],
+      ['AWS SigV4 signing vectors', 'scripts/test-sigv4.mjs', []],
+      ['D1 + R2 round trip (mocked cloud)', 'scripts/e2e-cloud-test.mjs', []],
+      ['agent team wiring', 'scripts/agent-team-check.mjs', []],
+      ['zero-survival manager round', 'scripts/zero-survival-manager.mjs', []],
+      // The live-route matrix, run against the very server this check booted:
+      // it verifies the whole site through the outside HTTP path (headers,
+      // noindex, canonical, the admin gate) instead of trusting internal state.
+      ['live route matrix (this boot)', 'scripts/render-real-check.mjs', ['--attempts', '2']]
+    ];
+    for (const [label, script, args] of suites) {
+      if (!fs.existsSync(path.join(ROOT, script))) {
+        check(`${label}`, false, `${script} is missing`);
+        continue;
+      }
+      const r = runNode(script, args, {
+        timeout: 420000,
+        env: script.endsWith('render-real-check.mjs') ? { SITE_URL: BASE } : {}
+      });
+      check(label, r.status === 0, r.status === 0 ? '' : r.tail || `exit ${r.status}`);
+    }
   }
 
 } finally {

@@ -164,6 +164,29 @@ GET/POST/PATCH/DELETE /api/admin/…   (administrators only)
 
 ---
 
+## One command runs everything (and CI really runs it)
+
+`.github/workflows/` cannot be edited by automated tools unless the GitHub App carries the
+`workflows` permission, and this repo's app does not — so the Guardian board is the **single
+entry point** CI is allowed to run, and `scripts/health-check.mjs` section 16 rolls up every
+other suite inside it:
+
+```
+1  public pages        6 SEO tags          11 gzip / ETag / 304
+2  member pages        7 noindex            12 CSP nonce + HSTS + security.txt
+3  404 + traversal      8 headers           13 canonical / OG / JSON-LD / sitemap
+4  robots.txt           9 /api/health       14 backup → verify → restore → tamper
+5  sitemap.xml                            15 job queue + task lists have consumers
+                                            16 seo-selftest · browser-e2e · sigv4
+                                                cloud round trip · agent-team · zero-survival
+                                                live route matrix (against its own boot)
+```
+
+A green Guardian board therefore means all of that passed — not just the HTTP status codes.
+Optional CI extras (daily SEO cron, agent-storage persistence) live in `ops/*.workflow.yml`
+and are pasted by a human per [`ops/INSTALL-WORKFLOWS.md`](ops/INSTALL-WORKFLOWS.md); the
+in-app `SEO_SCHEDULER=1` covers the daily cycle without any workflow file.
+
 ## Delivery hardening (no visual change)
 
 `lib/http-hardening.js` is the layer between the app and the internet. It changes how the

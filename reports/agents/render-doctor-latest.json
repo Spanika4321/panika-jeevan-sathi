@@ -1,106 +1,106 @@
 {
-  "generated_at": "2026-08-30T19:11:00.723Z",
+  "generated_at": "2026-08-31T10:54:43.690Z",
   "site": "https://panikajeevansathi.onrender.com",
   "doctor": "Pooja",
   "total_routes_checked": 16,
-  "passed": 8,
-  "failed": 8,
+  "passed": 0,
+  "failed": 16,
   "results": [
     {
       "path": "/",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/login.html",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/register",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/register.html",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/signup",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/signup.html",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/forgot-password",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/forgot-password.html",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/reset-password",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/reset-password.html",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/profile.html",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/search.html",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/chat.html",
-      "status": 404,
-      "location": null,
-      "ok": false
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/contact.html",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/robots.txt",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "path": "/sitemap.xml",
-      "status": 200,
-      "location": null,
-      "ok": true
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
     }
   ],
   "diagnosis": "Some expected route guesses returned errors. Verify actual application routing before changing code.",
