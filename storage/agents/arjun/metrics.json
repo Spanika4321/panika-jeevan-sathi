@@ -1,8 +1,8 @@
 {
   "agent": "arjun",
   "counters": {
-    "runs": 12,
-    "status_ok": 12
+    "runs": 20,
+    "status_ok": 20
   },
   "history": [
     {
@@ -76,7 +76,55 @@
       "status": "OK",
       "duration_ms": 35,
       "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T15:45:16.337Z",
+      "status": "OK",
+      "duration_ms": 49,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T15:46:41.208Z",
+      "status": "OK",
+      "duration_ms": 47,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T15:57:41.472Z",
+      "status": "OK",
+      "duration_ms": 47,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T15:59:06.286Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T16:05:00.013Z",
+      "status": "OK",
+      "duration_ms": 42,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T16:06:36.032Z",
+      "status": "OK",
+      "duration_ms": 50,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T16:10:25.264Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T16:11:50.298Z",
+      "status": "OK",
+      "duration_ms": 43,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
     }
   ],
-  "updated_at": "2026-08-31T12:14:44.098Z"
+  "updated_at": "2026-08-31T16:11:50.298Z"
 }

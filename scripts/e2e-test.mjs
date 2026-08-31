@@ -18,9 +18,13 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { freePort } from './lib/free-port.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-e2e-'));
-const PORT = 3000 + Math.floor(Math.random() * 400);
+// Port guess nahi karte (purana `3000 + random(400)` preview server aur doosre
+// suites se takra jaata tha) — OS se free port maangte hain.
+const PORT = await freePort();
 const BASE = `http://127.0.0.1:${PORT}`;
 
 let passed = 0;

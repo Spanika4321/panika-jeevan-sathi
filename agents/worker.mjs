@@ -24,7 +24,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import * as store from './storage.mjs';
-import { AGENTS, SAFETY, agentById, missingRequirements } from './roster.mjs';
+import { AGENTS, SAFETY, agentById, missingRequirements, envValue } from './roster.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -168,31 +168,64 @@ function runKavita() {
 }
 
 async function runRahul() {
-  const siteUrl = process.env.SITE_URL || 'https://panikajeevansathi.onrender.com';
+  // Default roster mein hai (agents/roster.mjs → rahul.defaults.SITE_URL),
+  // isliye SITE_URL "missing credential" nahi hai — asli wajah network/HTTP.
+  const siteUrl = envValue(agent, 'SITE_URL');
   const missing = missingRequirements(agent);
 
-  // Honest sampling: agar network available nahi to SKIPPED, FAIL nahi.
-  let sample;
-  try {
+  /**
+   * Render ka free plan sote hue service ko jagaata hai: pehla request aksar
+   * 503 (ya slow/aborted) hota hai aur 20-50 second baad hi service uthti hai.
+   * Purana code ek hi shot leta tha — ek cold start = FAIL + critical incident
+   * = agent-team-check FAIL = guardian FAIL. Ab transient (5xx / network) par
+   * backoff ke saath retry hota hai; *permanent* 5xx abhi bhi FAIL hai.
+   */
+  const attempts = Math.max(1, Number(process.env.PJS_RAHUL_ATTEMPTS || 4));
+  const timeoutMs = Math.max(1000, Number(process.env.PJS_RAHUL_TIMEOUT_MS || 20000));
+  const backoff = [0, 2000, 5000, 10000];
+
+  const tries = [];
+  let sample = null;
+
+  for (let i = 0; i < attempts; i += 1) {
+    if (i > 0) await new Promise((r) => setTimeout(r, backoff[Math.min(i, backoff.length - 1)]));
     const started = Date.now();
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
-    const res = await fetch(siteUrl, { signal: controller.signal, redirect: 'follow' });
-    clearTimeout(timer);
-    sample = { http: res.status, ms: Date.now() - started, ok: res.ok };
-  } catch (err) {
-    sample = { http: null, ms: null, ok: false, error: String(err.message || err) };
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch(siteUrl, { signal: controller.signal, redirect: 'follow' });
+      clearTimeout(timer);
+      sample = { http: res.status, ms: Date.now() - started, ok: res.ok };
+    } catch (err) {
+      sample = {
+        http: null,
+        ms: Date.now() - started,
+        ok: false,
+        error: String(err.message || err),
+        cause: String(err.cause && (err.cause.code || err.cause.message) || '') || undefined
+      };
+    }
+    tries.push({ attempt: i + 1, ...sample });
+    if (sample.ok) break;
+    // 4xx = asli client-side problem, retry se theek nahi hoga → turant report.
+    if (sample.http !== null && sample.http < 500) break;
   }
+
+  const attemptsUsed = tries.length;
+  const coldStart = sample.ok && attemptsUsed > 1;
 
   store.bumpMetric(id, 'samples');
   if (sample.ok) store.bumpMetric(id, 'reachable');
   else store.bumpMetric(id, 'unreachable');
-  store.remember(id, 'last_sample', { at: new Date().toISOString(), ...sample });
+  if (coldStart) store.bumpMetric(id, 'cold_starts');
+  store.remember(id, 'last_sample', { at: new Date().toISOString(), attempts: attemptsUsed, tries, ...sample });
 
   if (sample.http === null) {
-    return finish('BLOCKED', `Network se ${siteUrl} reach nahi ho paya — koi fake status nahi diya gaya.`, {
+    return finish('BLOCKED', `Network se ${siteUrl} reach nahi ho paya (${attemptsUsed} attempts) — koi fake status nahi diya gaya.`, {
       siteUrl,
-      sample,
+      attempts: attemptsUsed,
+      tries,
+      reason: sample.cause || sample.error,
       missing_env: missing
     });
   }
@@ -203,13 +236,18 @@ async function runRahul() {
       agent: id,
       severity: 'critical',
       title: `Site unreachable (HTTP ${sample.http})`,
-      detail: `${siteUrl} returned ${sample.http}`
+      detail: `${siteUrl} returned ${sample.http} on all ${attemptsUsed} attempt(s)`
     });
-    return finish('FAIL', `Site responded HTTP ${sample.http} — incident opened.`, { siteUrl, sample });
+    return finish('FAIL', `Site responded HTTP ${sample.http} on all ${attemptsUsed} attempts — incident opened.`, {
+      siteUrl, attempts: attemptsUsed, tries, sample
+    });
   }
 
   store.closeIncident('site-unreachable', { note: `Recovered: HTTP ${sample.http}` });
-  return finish('OK', `${siteUrl} reachable — HTTP ${sample.http} in ${sample.ms}ms.`, { siteUrl, sample });
+  const note = coldStart ? ` (cold start: ${attemptsUsed} attempts)` : '';
+  return finish('OK', `${siteUrl} reachable — HTTP ${sample.http} in ${sample.ms}ms${note}.`, {
+    siteUrl, attempts: attemptsUsed, tries, sample, cold_start: coldStart
+  });
 }
 
 function runSneha() {

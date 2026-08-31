@@ -1,9 +1,9 @@
 {
   "agent": "meera",
   "status": "BLOCKED",
-  "last_run_at": "2026-08-31T12:14:59.436Z",
+  "last_run_at": "2026-08-31T16:12:27.788Z",
   "last_status": "BLOCKED",
-  "runs": 14,
+  "runs": 28,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T12:14:59.436Z"
+  "updated_at": "2026-08-31T16:12:27.788Z"
 }

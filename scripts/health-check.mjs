@@ -29,12 +29,15 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { freePort } from './lib/free-port.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const REPORT_DIR = path.join(ROOT, 'reports');
 const BASELINE_FILE = path.join(REPORT_DIR, 'ui-baseline-body.md5');
 const DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-health-'));
-const PORT = 3500 + Math.floor(Math.random() * 400);
+// OS-assigned free port — fixed range collide karti thi (dekho scripts/lib/free-port.mjs).
+const PORT = await freePort();
 const BASE = `http://127.0.0.1:${PORT}`;
 
 const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html'];

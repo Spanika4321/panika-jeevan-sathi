@@ -96,10 +96,74 @@
       "created_at": "2026-08-31T12:16:09.839Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_5686273d4043e250",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T15:45:54.132Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:45:55.112Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_5ea29dc059d5e797",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T15:47:19.010Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:49:38.513Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_4fc57d3b30efc333",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T15:49:47.923Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:50:30.010Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_0404ab2cd9c4fa10",
+      "title": "Manager BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:50:30.651Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:53:55.541Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_fe2613edf5007717",
+      "title": "Manager BLOCKED — wajah dekhni hai (run hua tha, 2026-08-31T15:58:19.332Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.382Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_3fd78763fed4579b",
+      "title": "Manager BLOCKED — wajah dekhni hai (run hua tha, 2026-08-31T15:59:44.244Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:02:04.608Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c9880b7a3fe664c3",
+      "title": "Manager BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:11:03.126Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:11:04.146Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_95e2b54d3b98abaa",
+      "title": "Manager BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:12:28.166Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:14:48.223Z",
+      "status": "pending",
+      "meta": {}
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T12:16:09.839Z"
+  "updated_at": "2026-08-31T16:14:48.223Z"
 }

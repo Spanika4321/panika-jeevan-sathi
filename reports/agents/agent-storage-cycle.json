@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T12:14:59.858Z",
+  "generated_at": "2026-08-31T16:12:28.254Z",
   "storage_version": "1.0.0",
   "quick": false,
   "results": [
@@ -8,7 +8,7 @@
       "name": "Guardian (Sardar)",
       "role": "Safety & Health Authority",
       "status": "OK",
-      "duration_ms": 21844,
+      "duration_ms": 44714,
       "summary": "104 passed, 0 failed"
     },
     {
@@ -16,23 +16,23 @@
       "name": "Pooja",
       "role": "SEO / Organic Growth Worker",
       "status": "BLOCKED",
-      "duration_ms": 29,
-      "summary": "BLOCKED"
+      "duration_ms": 43,
+      "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
     },
     {
       "id": "priya",
       "name": "Priya",
       "role": "Campaign / Community Growth Worker",
       "status": "BLOCKED",
-      "duration_ms": 30,
-      "summary": "BLOCKED"
+      "duration_ms": 44,
+      "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
     },
     {
       "id": "arjun",
       "name": "Arjun",
       "role": "Backlink & Directory Research Worker",
       "status": "OK",
-      "duration_ms": 35,
+      "duration_ms": 43,
       "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
     },
     {
@@ -40,7 +40,7 @@
       "name": "Kavita",
       "role": "Content & Blog Drafting Worker",
       "status": "OK",
-      "duration_ms": 38,
+      "duration_ms": 39,
       "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
     },
     {
@@ -48,15 +48,15 @@
       "name": "Rahul",
       "role": "Uptime & Performance Worker",
       "status": "BLOCKED",
-      "duration_ms": 15041,
-      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+      "duration_ms": 37169,
+      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya."
     },
     {
       "id": "sneha",
       "name": "Sneha",
       "role": "Security & Compliance Worker",
       "status": "OK",
-      "duration_ms": 45,
+      "duration_ms": 47,
       "summary": "OK — 13 private pages noindex-verified, security headers present, no committed secrets found."
     },
     {
@@ -64,7 +64,7 @@
       "name": "Amit",
       "role": "Profile Quality & Match Data Worker",
       "status": "OK",
-      "duration_ms": 47,
+      "duration_ms": 51,
       "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
     },
     {
@@ -72,7 +72,7 @@
       "name": "Nisha",
       "role": "Support & FAQ Knowledge Worker",
       "status": "OK",
-      "duration_ms": 36,
+      "duration_ms": 39,
       "summary": "OK — FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only)."
     },
     {
@@ -80,15 +80,15 @@
       "name": "Vikram",
       "role": "Analytics & Reporting Worker",
       "status": "OK",
-      "duration_ms": 43,
-      "summary": "OK — Scorecard built: 165 total runs, 0 failing, 0 never run."
+      "duration_ms": 49,
+      "summary": "OK — Scorecard built: 300 total runs, 0 failing, 0 never run."
     },
     {
       "id": "meera",
       "name": "Meera",
       "role": "Email & Notification Composer",
       "status": "BLOCKED",
-      "duration_ms": 42,
+      "duration_ms": 49,
       "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
     },
     {
@@ -96,32 +96,32 @@
       "name": "Manager",
       "role": "Coordinator",
       "status": "BLOCKED",
-      "duration_ms": 335,
-      "summary": "BLOCKED"
+      "duration_ms": 371,
+      "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
     }
   ],
   "snapshot": {
-    "name": "2026-08-31T12-14-59-783Z-cycle",
-    "files": 107,
-    "bytes": 379677
+    "name": "2026-08-31T16-12-28-175Z-cycle",
+    "files": 108,
+    "bytes": 685346
   },
   "doctor": {
     "ok": true,
     "backend": "file",
     "dir": "/home/user/panika-jeevan-sathi/storage",
     "agents": 12,
-    "files": 107,
+    "files": 108,
     "snapshots": 7,
     "queue": {
-      "pending": 5,
+      "pending": 6,
       "running": 0,
-      "done": 7,
+      "done": 22,
       "failed": 0,
-      "updated_at": "2026-08-31T12:14:21.156Z"
+      "updated_at": "2026-08-31T16:11:04.169Z"
     },
     "openIncidents": 0,
     "ledger": {
-      "checked": 186,
+      "checked": 344,
       "broken": 0
     },
     "checks": [
@@ -148,7 +148,7 @@
       {
         "name": "ledger chain intact",
         "ok": true,
-        "detail": "186 entries, 0 problem(s)"
+        "detail": "344 entries, 0 problem(s)"
       },
       {
         "name": "incident register readable",
@@ -159,7 +159,7 @@
   },
   "status": {
     "project": "PANIKA JEEVAN SATHI",
-    "generated_at": "2026-08-31T12:14:59.852Z",
+    "generated_at": "2026-08-31T16:12:28.243Z",
     "version": "1.0.0",
     "backend": "file",
     "dir": "/home/user/panika-jeevan-sathi/storage",
@@ -169,15 +169,16 @@
         "name": "Guardian (Sardar)",
         "role": "Safety & Health Authority",
         "status": "OK",
-        "runs": 15,
-        "last_run_at": "2026-08-31T12:14:43.974Z",
+        "runs": 26,
+        "last_run_at": "2026-08-31T16:11:50.133Z",
         "consecutive_failures": 0,
-        "pending_tasks": 0,
+        "pending_tasks": 1,
         "done_tasks": 0,
-        "unread": 22,
+        "unread": 38,
         "counters": {
-          "runs": 15,
-          "status_ok": 15
+          "runs": 26,
+          "status_ok": 24,
+          "status_fail": 2
         }
       },
       {
@@ -185,16 +186,16 @@
         "name": "Manager",
         "role": "Coordinator",
         "status": "BLOCKED",
-        "runs": 17,
-        "last_run_at": "2026-08-31T12:14:59.776Z",
+        "runs": 31,
+        "last_run_at": "2026-08-31T16:12:28.166Z",
         "consecutive_failures": 0,
-        "pending_tasks": 11,
+        "pending_tasks": 19,
         "done_tasks": 0,
-        "unread": 33,
+        "unread": 66,
         "counters": {
-          "runs": 17,
+          "runs": 31,
           "status_ok": 2,
-          "status_blocked": 15
+          "status_blocked": 29
         }
       },
       {
@@ -202,15 +203,15 @@
         "name": "Pooja",
         "role": "SEO / Organic Growth Worker",
         "status": "BLOCKED",
-        "runs": 17,
-        "last_run_at": "2026-08-31T12:14:44.013Z",
+        "runs": 34,
+        "last_run_at": "2026-08-31T16:11:50.188Z",
         "consecutive_failures": 0,
-        "pending_tasks": 15,
+        "pending_tasks": 23,
         "done_tasks": 0,
-        "unread": 41,
+        "unread": 76,
         "counters": {
-          "runs": 17,
-          "status_blocked": 17
+          "runs": 34,
+          "status_blocked": 34
         }
       },
       {
@@ -218,15 +219,15 @@
         "name": "Priya",
         "role": "Campaign / Community Growth Worker",
         "status": "BLOCKED",
-        "runs": 17,
-        "last_run_at": "2026-08-31T12:14:44.052Z",
+        "runs": 34,
+        "last_run_at": "2026-08-31T16:11:50.241Z",
         "consecutive_failures": 0,
-        "pending_tasks": 14,
+        "pending_tasks": 22,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 17,
-          "status_blocked": 17
+          "runs": 34,
+          "status_blocked": 34
         }
       },
       {
@@ -234,15 +235,15 @@
         "name": "Arjun",
         "role": "Backlink & Directory Research Worker",
         "status": "OK",
-        "runs": 12,
-        "last_run_at": "2026-08-31T12:14:44.094Z",
+        "runs": 20,
+        "last_run_at": "2026-08-31T16:11:50.295Z",
         "consecutive_failures": 0,
-        "pending_tasks": 43,
+        "pending_tasks": 78,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 12,
-          "status_ok": 12
+          "runs": 20,
+          "status_ok": 20
         }
       },
       {
@@ -250,15 +251,15 @@
         "name": "Kavita",
         "role": "Content & Blog Drafting Worker",
         "status": "OK",
-        "runs": 12,
-        "last_run_at": "2026-08-31T12:14:44.139Z",
+        "runs": 20,
+        "last_run_at": "2026-08-31T16:11:50.341Z",
         "consecutive_failures": 0,
-        "pending_tasks": 43,
+        "pending_tasks": 78,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 12,
-          "status_ok": 12
+          "runs": 20,
+          "status_ok": 20
         }
       },
       {
@@ -266,17 +267,19 @@
         "name": "Rahul",
         "role": "Uptime & Performance Worker",
         "status": "BLOCKED",
-        "runs": 14,
-        "last_run_at": "2026-08-31T12:14:59.187Z",
+        "runs": 28,
+        "last_run_at": "2026-08-31T16:12:27.516Z",
         "consecutive_failures": 0,
-        "pending_tasks": 13,
+        "pending_tasks": 21,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "samples": 42,
-          "unreachable": 42,
-          "runs": 14,
-          "status_blocked": 14
+          "samples": 85,
+          "unreachable": 82,
+          "runs": 28,
+          "status_blocked": 28,
+          "reachable": 3,
+          "cold_starts": 3
         }
       },
       {
@@ -284,15 +287,15 @@
         "name": "Sneha",
         "role": "Security & Compliance Worker",
         "status": "OK",
-        "runs": 12,
-        "last_run_at": "2026-08-31T12:14:59.241Z",
+        "runs": 20,
+        "last_run_at": "2026-08-31T16:12:27.571Z",
         "consecutive_failures": 0,
         "pending_tasks": 3,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 12,
-          "status_ok": 12
+          "runs": 20,
+          "status_ok": 20
         }
       },
       {
@@ -300,16 +303,16 @@
         "name": "Amit",
         "role": "Profile Quality & Match Data Worker",
         "status": "OK",
-        "runs": 12,
-        "last_run_at": "2026-08-31T12:14:59.295Z",
+        "runs": 20,
+        "last_run_at": "2026-08-31T16:12:27.629Z",
         "consecutive_failures": 0,
-        "pending_tasks": 207,
+        "pending_tasks": 382,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "field_scans": 41,
-          "runs": 12,
-          "status_ok": 12
+          "field_scans": 76,
+          "runs": 20,
+          "status_ok": 20
         }
       },
       {
@@ -317,15 +320,15 @@
         "name": "Nisha",
         "role": "Support & FAQ Knowledge Worker",
         "status": "OK",
-        "runs": 12,
-        "last_run_at": "2026-08-31T12:14:59.337Z",
+        "runs": 20,
+        "last_run_at": "2026-08-31T16:12:27.674Z",
         "consecutive_failures": 0,
         "pending_tasks": 2,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 12,
-          "status_ok": 12
+          "runs": 20,
+          "status_ok": 20
         }
       },
       {
@@ -333,15 +336,15 @@
         "name": "Vikram",
         "role": "Analytics & Reporting Worker",
         "status": "OK",
-        "runs": 14,
-        "last_run_at": "2026-08-31T12:14:59.388Z",
+        "runs": 22,
+        "last_run_at": "2026-08-31T16:12:27.730Z",
         "consecutive_failures": 0,
         "pending_tasks": 2,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 14,
-          "status_ok": 14
+          "runs": 22,
+          "status_ok": 22
         }
       },
       {
@@ -349,24 +352,24 @@
         "name": "Meera",
         "role": "Email & Notification Composer",
         "status": "BLOCKED",
-        "runs": 14,
-        "last_run_at": "2026-08-31T12:14:59.436Z",
+        "runs": 28,
+        "last_run_at": "2026-08-31T16:12:27.788Z",
         "consecutive_failures": 0,
-        "pending_tasks": 54,
+        "pending_tasks": 100,
         "done_tasks": 0,
         "unread": 0,
         "counters": {
-          "runs": 14,
-          "status_blocked": 14
+          "runs": 28,
+          "status_blocked": 28
         }
       }
     ],
     "queue": {
-      "pending": 5,
+      "pending": 6,
       "running": 0,
-      "done": 7,
+      "done": 22,
       "failed": 0,
-      "updated_at": "2026-08-31T12:14:21.156Z"
+      "updated_at": "2026-08-31T16:11:04.169Z"
     },
     "namespaces": [
       "cycle",
@@ -381,52 +384,52 @@
     ],
     "snapshots": [
       {
-        "name": "2026-08-31T11-57-26-555Z-cycle",
-        "created_at": "2026-08-31T11:57:26.556Z",
-        "files": 107,
-        "bytes": 177786
+        "name": "2026-08-31T15-47-19-019Z-cycle",
+        "created_at": "2026-08-31T15:47:19.020Z",
+        "files": 108,
+        "bytes": 445723
       },
       {
-        "name": "2026-08-31T12-01-14-484Z-cycle",
-        "created_at": "2026-08-31T12:01:14.485Z",
-        "files": 107,
-        "bytes": 212914
+        "name": "2026-08-31T15-58-19-341Z-cycle",
+        "created_at": "2026-08-31T15:58:19.342Z",
+        "files": 108,
+        "bytes": 552908
       },
       {
-        "name": "2026-08-31T12-01-56-022Z-cycle",
-        "created_at": "2026-08-31T12:01:56.023Z",
-        "files": 107,
-        "bytes": 233886
+        "name": "2026-08-31T15-59-44-260Z-cycle",
+        "created_at": "2026-08-31T15:59:44.264Z",
+        "files": 108,
+        "bytes": 577512
       },
       {
-        "name": "2026-08-31T12-06-03-650Z-cycle",
-        "created_at": "2026-08-31T12:06:03.651Z",
-        "files": 107,
-        "bytes": 269050
+        "name": "2026-08-31T16-05-37-886Z-cycle",
+        "created_at": "2026-08-31T16:05:37.887Z",
+        "files": 108,
+        "bytes": 618478
       },
       {
-        "name": "2026-08-31T12-06-43-339Z-cycle",
-        "created_at": "2026-08-31T12:06:43.340Z",
-        "files": 107,
-        "bytes": 290049
+        "name": "2026-08-31T16-07-14-176Z-cycle",
+        "created_at": "2026-08-31T16:07:14.178Z",
+        "files": 108,
+        "bytes": 635657
       },
       {
-        "name": "2026-08-31T12-14-20-311Z-cycle",
-        "created_at": "2026-08-31T12:14:20.313Z",
-        "files": 107,
-        "bytes": 356840
+        "name": "2026-08-31T16-11-03-135Z-cycle",
+        "created_at": "2026-08-31T16:11:03.137Z",
+        "files": 108,
+        "bytes": 662957
       },
       {
-        "name": "2026-08-31T12-14-59-783Z-cycle",
-        "created_at": "2026-08-31T12:14:59.784Z",
-        "files": 107,
-        "bytes": 379677
+        "name": "2026-08-31T16-12-28-175Z-cycle",
+        "created_at": "2026-08-31T16:12:28.176Z",
+        "files": 108,
+        "bytes": 685346
       }
     ],
     "open_incidents": [],
     "ledger": {
       "ok": true,
-      "checked": 186,
+      "checked": 344,
       "broken": 0,
       "problems": [],
       "files": [

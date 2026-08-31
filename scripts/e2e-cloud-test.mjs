@@ -21,6 +21,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { freePort } from './lib/free-port.mjs';
+
 import { createD1Mock, createR2Mock } from './lib/mock-cloud.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -49,7 +51,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 /* --------------------------------------------------------------- test server */
 
 async function startServer(env) {
-  const port = 4000 + Math.floor(Math.random() * 900);
+  const port = await freePort();
   const child = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
     env: { ...process.env, ...env, PORT: String(port), NODE_NO_WARNINGS: '1' },

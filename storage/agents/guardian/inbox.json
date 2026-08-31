@@ -240,6 +240,166 @@
       "priority": "normal",
       "at": "2026-08-31T12:16:09.849Z",
       "read": false
+    },
+    {
+      "id": "msg_fdeabbd79b809023",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T15:45:54.132Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T15:45:55.115Z",
+      "read": false
+    },
+    {
+      "id": "msg_6277b9a64e2bea30",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T15:45:55.133Z",
+      "read": false
+    },
+    {
+      "id": "msg_d45a3d0907780720",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T15:47:19.010Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T15:49:38.515Z",
+      "read": false
+    },
+    {
+      "id": "msg_78f2da7be42586c0",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T15:49:38.526Z",
+      "read": false
+    },
+    {
+      "id": "msg_d96618089aef6fcf",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T15:49:47.923Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T15:50:30.012Z",
+      "read": false
+    },
+    {
+      "id": "msg_f8861458d2075fc5",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T15:50:30.027Z",
+      "read": false
+    },
+    {
+      "id": "msg_3d8bebf71dc55617",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:50:30.651Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"queue job order_manager_blocked-dependency (agent-run): 95 passed, 0 failed\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T15:53:55.544Z",
+      "read": false
+    },
+    {
+      "id": "msg_928204dcc007f009",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:51:07.906Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"queue job order_rahul_credentials-needed (agent-run): Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya.\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T15:53:55.557Z",
+      "read": false
+    },
+    {
+      "id": "msg_254471c8984897e5",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — wajah dekhni hai (run hua tha, 2026-08-31T15:58:19.332Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T15:58:20.385Z",
+      "read": false
+    },
+    {
+      "id": "msg_05ce2b2d77ba35da",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:58:18.655Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya.\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T15:58:20.399Z",
+      "read": false
+    },
+    {
+      "id": "msg_e91b20f859a00066",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — wajah dekhni hai (run hua tha, 2026-08-31T15:59:44.244Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T16:02:04.610Z",
+      "read": false
+    },
+    {
+      "id": "msg_a17591710852e808",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:59:43.519Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya.\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T16:02:04.622Z",
+      "read": false
+    },
+    {
+      "id": "msg_5ae8f5369c433a16",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:11:03.126Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T16:11:04.149Z",
+      "read": false
+    },
+    {
+      "id": "msg_5f766685c30b8422",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:11:02.430Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya.\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T16:11:04.165Z",
+      "read": false
+    },
+    {
+      "id": "msg_5a15b6179a7c355f",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:12:28.166Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T16:14:48.225Z",
+      "read": false
+    },
+    {
+      "id": "msg_385f8a4d0effd327",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:12:27.516Z)",
+      "body": "Agent ne khud ye wajah likhi thi: \"BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya (4 attempts) — koi fake status nahi diya gaya.\" — koi credential missing nahi hai.",
+      "priority": "normal",
+      "at": "2026-08-31T16:14:48.237Z",
+      "read": false
     }
   ]
 }

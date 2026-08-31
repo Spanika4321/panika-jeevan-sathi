@@ -1,7 +1,7 @@
 {
   "project": "PANIKA JEEVAN SATHI",
   "manager": "Manager",
-  "generated_at": "2026-08-31T12:14:59.772Z",
+  "generated_at": "2026-08-31T16:12:28.161Z",
   "status": "BLOCKED",
   "hierarchy": {
     "sardar": "Guardian",
@@ -15,20 +15,20 @@
     "pooja": {
       "status": "BLOCKED",
       "exit_code": 0,
-      "duration_ms": 31,
+      "duration_ms": 36,
       "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
     },
     "priya": {
       "status": "BLOCKED",
       "exit_code": 0,
-      "duration_ms": 33,
+      "duration_ms": 35,
       "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
     }
   },
   "guardian": {
     "status": "OK",
     "exit_code": 0,
-    "duration_ms": 239,
+    "duration_ms": 266,
     "summary": "OK — 95 passed, 0 failed"
   },
   "blocked": [

@@ -1,8 +1,8 @@
 {
   "agent": "priya",
   "counters": {
-    "runs": 17,
-    "status_blocked": 17
+    "runs": 34,
+    "status_blocked": 34
   },
   "history": [
     {
@@ -106,7 +106,109 @@
       "status": "BLOCKED",
       "duration_ms": 30,
       "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:45:16.281Z",
+      "status": "BLOCKED",
+      "duration_ms": 43,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:46:41.155Z",
+      "status": "BLOCKED",
+      "duration_ms": 41,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:49:47.622Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:49:48.026Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:49:48.038Z",
+      "status": "BLOCKED",
+      "duration_ms": 45,
+      "summary": "queue job order_priya_credentials-needed (agent-run): Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:50:30.305Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:50:30.757Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:50:30.771Z",
+      "status": "BLOCKED",
+      "duration_ms": 45,
+      "summary": "queue job order_priya_credentials-needed (agent-run): Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:53:58.042Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:53:58.456Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:53:58.468Z",
+      "status": "BLOCKED",
+      "duration_ms": 42,
+      "summary": "queue job order_priya_credentials-needed (agent-run): Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T15:57:41.417Z",
+      "status": "BLOCKED",
+      "duration_ms": 35,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:59:06.237Z",
+      "status": "BLOCKED",
+      "duration_ms": 33,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T16:04:59.964Z",
+      "status": "BLOCKED",
+      "duration_ms": 34,
+      "summary": "BLOCKED — (report mein alag summary nahi thi)"
+    },
+    {
+      "at": "2026-08-31T16:06:35.972Z",
+      "status": "BLOCKED",
+      "duration_ms": 41,
+      "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T16:10:25.212Z",
+      "status": "BLOCKED",
+      "duration_ms": 37,
+      "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
+    },
+    {
+      "at": "2026-08-31T16:11:50.244Z",
+      "status": "BLOCKED",
+      "duration_ms": 44,
+      "summary": "BLOCKED — Meta publishing credentials are not configured. Campaign drafting remains available."
     }
   ],
-  "updated_at": "2026-08-31T12:14:44.056Z"
+  "updated_at": "2026-08-31T16:11:50.244Z"
 }

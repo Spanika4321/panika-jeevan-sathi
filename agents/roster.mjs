@@ -163,7 +163,11 @@ export const AGENTS = [
       'Tracks response-time trend from stored history',
       'Opens an incident when failures repeat'
     ],
-    requires: ['SITE_URL'],
+    // SITE_URL ka built-in default hai (defaults dekho), isliye ye "missing
+    // credential" nahi hai. Rahul BLOCKED hota hai to wajah network/HTTP hoti
+    // hai — usse credential problem batana galat diagnosis tha.
+    requires: [],
+    defaults: { SITE_URL: 'https://panikajeevansathi.onrender.com' },
     priority: 'high'
   },
   {
@@ -250,8 +254,20 @@ export function workerIds() {
   return HIERARCHY.workers.slice();
 }
 
+/**
+ * Sirf wo env keys jinke bina agent sach mein kaam nahi kar sakta.
+ * Jis key ka roster mein `defaults` diya hai, uski kami blocker nahi hai —
+ * warna owner ko galat kaam bata dete hain ("SITE_URL set karo") jabki asli
+ * wajah kuch aur (network / HTTP error) hoti hai.
+ */
 export function missingRequirements(agent) {
-  return (agent.requires || []).filter((key) => !process.env[key]);
+  const defaults = agent.defaults || {};
+  return (agent.requires || []).filter((key) => !process.env[key] && defaults[key] === undefined);
 }
 
-export default { HIERARCHY, SAFETY, AGENTS, agentById, workerIds, missingRequirements };
+/** Env key ki effective value (env → roster default → undefined). */
+export function envValue(agent, key) {
+  return process.env[key] ?? (agent.defaults || {})[key];
+}
+
+export default { HIERARCHY, SAFETY, AGENTS, agentById, workerIds, missingRequirements, envValue };

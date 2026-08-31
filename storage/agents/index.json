@@ -19,7 +19,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.582Z",
-      "updated_at": "2026-08-31T12:16:09.817Z"
+      "updated_at": "2026-08-31T16:14:48.202Z"
     },
     {
       "id": "manager",
@@ -36,7 +36,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.591Z",
-      "updated_at": "2026-08-31T12:16:09.819Z"
+      "updated_at": "2026-08-31T16:14:48.204Z"
     },
     {
       "id": "pooja",
@@ -57,7 +57,7 @@
       ],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.597Z",
-      "updated_at": "2026-08-31T12:16:09.820Z"
+      "updated_at": "2026-08-31T16:14:48.205Z"
     },
     {
       "id": "priya",
@@ -78,7 +78,7 @@
       ],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.604Z",
-      "updated_at": "2026-08-31T12:16:09.822Z"
+      "updated_at": "2026-08-31T16:14:48.207Z"
     },
     {
       "id": "arjun",
@@ -94,7 +94,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.610Z",
-      "updated_at": "2026-08-31T12:16:09.823Z"
+      "updated_at": "2026-08-31T16:14:48.208Z"
     },
     {
       "id": "kavita",
@@ -110,7 +110,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.616Z",
-      "updated_at": "2026-08-31T12:16:09.825Z"
+      "updated_at": "2026-08-31T16:14:48.209Z"
     },
     {
       "id": "rahul",
@@ -123,12 +123,10 @@
         "Tracks response-time trend from stored history",
         "Opens an incident when failures repeat"
       ],
-      "requires": [
-        "SITE_URL"
-      ],
+      "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.621Z",
-      "updated_at": "2026-08-31T12:16:09.826Z"
+      "updated_at": "2026-08-31T16:14:48.210Z"
     },
     {
       "id": "sneha",
@@ -144,7 +142,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.625Z",
-      "updated_at": "2026-08-31T12:16:09.827Z"
+      "updated_at": "2026-08-31T16:14:48.210Z"
     },
     {
       "id": "amit",
@@ -160,7 +158,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.630Z",
-      "updated_at": "2026-08-31T12:16:09.828Z"
+      "updated_at": "2026-08-31T16:14:48.211Z"
     },
     {
       "id": "nisha",
@@ -176,7 +174,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.635Z",
-      "updated_at": "2026-08-31T12:16:09.829Z"
+      "updated_at": "2026-08-31T16:14:48.212Z"
     },
     {
       "id": "vikram",
@@ -192,7 +190,7 @@
       "requires": [],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.640Z",
-      "updated_at": "2026-08-31T12:16:09.830Z"
+      "updated_at": "2026-08-31T16:14:48.212Z"
     },
     {
       "id": "meera",
@@ -209,8 +207,8 @@
       ],
       "autonomous": true,
       "created_at": "2026-08-31T00:29:17.645Z",
-      "updated_at": "2026-08-31T12:16:09.831Z"
+      "updated_at": "2026-08-31T16:14:48.213Z"
     }
   ],
-  "updated_at": "2026-08-31T12:16:09.831Z"
+  "updated_at": "2026-08-31T16:14:48.213Z"
 }

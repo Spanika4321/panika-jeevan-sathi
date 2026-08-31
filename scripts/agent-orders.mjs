@@ -50,6 +50,22 @@ const KEY_HELP = {
   SITE_URL: 'Production URL (default: https://panikajeevansathi.onrender.com)'
 };
 
+/**
+ * Agent ne khud kya wajah record ki thi? (metrics.history ka aakhri entry)
+ * Ye guess nahi hai — yahi text agent ne apne run mein likha tha.
+ */
+function recordedReason(agentId) {
+  try {
+    const metrics = store.readAgentDoc(agentId, 'metrics.json', { history: [] });
+    const history = Array.isArray(metrics.history) ? metrics.history : [];
+    const last = history[history.length - 1];
+    const summary = last && typeof last.summary === 'string' ? last.summary.trim() : '';
+    return summary.length >= 12 ? summary : '';
+  } catch {
+    return '';
+  }
+}
+
 function orderFor(agent, state) {
   const missing = missingRequirements(agent);
   // NOTE: store.status() ka summary field `status` hai (state file ka
@@ -97,11 +113,15 @@ function orderFor(agent, state) {
     // Credentials ki kami nahi — kisi aur wajah se BLOCKED (jaise Manager, jo
     // apne workers ke BLOCKED hone par khud BLOCKED report karta hai).
     // Ise "chala hi nahi" mat bolo — wo chala tha, aur usne sach bataya tha.
+    const reason = recordedReason(agent.id);
     return {
       ...base,
       kind: 'blocked-dependency',
-      title: `${agent.name} BLOCKED — dependents/wajah dekhni hai (run hua tha, ${state.last_run_at || 'time unknown'})`,
-      owner_action: 'Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.',
+      title: `${agent.name} BLOCKED — ${reason ? 'wajah recorded hai' : 'wajah dekhni hai'} (run hua tha, ${state.last_run_at || 'time unknown'})`,
+      recorded_reason: reason || null,
+      owner_action: reason
+        ? `Agent ne khud ye wajah likhi thi: "${reason}" — koi credential missing nahi hai.`
+        : 'Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.',
       local_work_possible: true,
       queue: { type: 'agent-run', payload: { agent: agent.id }, priority: 'normal' }
     };

@@ -112,10 +112,74 @@
       "created_at": "2026-08-31T12:16:09.848Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_02a896a13612e066",
+      "title": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:45:55.131Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_468b9fc985fce870",
+      "title": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:49:38.524Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8ddb92b234397d5c",
+      "title": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:50:30.025Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_9abdf11b023b5b82",
+      "title": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:51:07.906Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:53:55.555Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_57d979176d67e7c6",
+      "title": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:58:18.655Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.397Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_56f3830003763001",
+      "title": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T15:59:43.519Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:02:04.620Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_84442e54cd281af0",
+      "title": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:11:02.430Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:11:04.162Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_e788495e3e3e7e70",
+      "title": "Rahul BLOCKED — wajah recorded hai (run hua tha, 2026-08-31T16:12:27.516Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:14:48.235Z",
+      "status": "pending",
+      "meta": {}
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T12:16:09.848Z"
+  "updated_at": "2026-08-31T16:14:48.235Z"
 }

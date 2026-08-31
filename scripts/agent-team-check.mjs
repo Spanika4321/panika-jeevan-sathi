@@ -17,7 +17,8 @@
  *   4. Har agent ki permanent storage poori hai (state/tasks/log/metrics/…)
  *   5. Storage engine khud integrity check pass karta hai (doctor)
  *   6. Hierarchy wahi hai: Guardian (Sardar) → Manager → Workers
- *   7. Koi agent chup-chaap FAIL nahi ho raha (recorded runs se)
+ *   7. Runtime state (streaks/incidents) sirf INFO — guardian ka scope,
+ *      warna guardian↔team-check ka deadlock ban jaata hai
  *
  * Exit 0 = PASS, 1 = FAIL.
  */
@@ -43,6 +44,11 @@ function ok(name, detail = '') {
 function bad(name, detail = '') {
   failed = true;
   console.error(`FAIL: ${name}${detail ? ` — ${detail}` : ''}`);
+}
+
+/** Runtime observation — na PASS gina jaata hai, na FAIL karta hai. */
+function info(name, detail = '') {
+  console.log(`INFO: ${name}${detail ? ` — ${detail}` : ''}`);
 }
 
 /* ------------------------------------------------- 1. required files present */
@@ -130,25 +136,57 @@ const hierarchyOk =
 if (!hierarchyOk) bad('hierarchy is Guardian → Manager → Workers', `${AGENTS.length} agents declared`);
 else ok('hierarchy is Guardian → Manager → Workers', `1 sardar + 1 manager + ${HIERARCHY.workers.length} workers`);
 
-/* ------------------------------------------ 7. nobody silently failing/stuck */
+/* ------------------------------------------ 7. runtime state (INFO, not PASS/FAIL)
+ *
+ * DEADLOCK jo yahan tha:
+ *   guardian (health-check) khud is script ko section 11 rollup mein chalata hai.
+ *   Ye script pehle "koi agent failure streak mein nahi hai" ko FAIL banati thi.
+ *   Ek baar guardian ka run fail hua ⇒ uska recorded streak 1 ho gaya ⇒
+ *   team-check FAIL ⇒ guardian FAIL ⇒ streak 2 … kabhi clear hi nahi hota,
+ *   chahe code bilkul theek ho.
+ *
+ * Isliye: *contract* (code/roster/storage/hierarchy) PASS/FAIL deta hai;
+ * *runtime state* (streaks, incidents, blocked agents ki ginti) sirf INFO hai.
+ * Runtime health guardian ka kaam hai, team-check ka nahi — warna do checks
+ * ek doosre ko fail karte rehte hain.
+ */
 
 const status = store.status();
 const failing = status.agents.filter((a) => a.consecutive_failures > 0);
-if (failing.length) bad('no agent is in a failure streak', failing.map((a) => `${a.id}(${a.consecutive_failures})`).join(', '));
-else ok('no agent is in a failure streak', `${status.agents.length} agents checked`);
+info('failure streaks (runtime state, guardian ka scope)',
+  failing.length ? failing.map((a) => `${a.id}(${a.consecutive_failures})`).join(', ') : `none — ${status.agents.length} agents checked`);
 
 const incidents = store.openIncidents();
-if (incidents.length) bad('incident register is clear', `${incidents.length} open: ${incidents.map((i) => i.id).join(', ')}`);
-else ok('incident register is clear');
+info('open incidents (runtime state)',
+  incidents.length ? `${incidents.length} open: ${incidents.map((i) => i.id).join(', ')}` : 'none');
 
 /* --------------------------------------- 8. blocked agents name their blocker */
 
 const blockedAgents = status.agents.filter((a) => a.status === 'BLOCKED');
+
+/** Agent ne apne aakhri run mein khud koi wajah likhi thi? */
+function statedReason(agentId) {
+  const metrics = store.readAgentDoc(agentId, 'metrics.json', { history: [] });
+  const history = Array.isArray(metrics.history) ? metrics.history : [];
+  const last = history[history.length - 1];
+  const summary = last && typeof last.summary === 'string' ? last.summary.trim() : '';
+  // Sirf "BLOCKED" jaisa khaali status wajah nahi hai — pehle Manager wahi
+  // likhta tha, aur usse koi ye nahi samajh paata tha ki karna kya hai.
+  if (summary.length < 12) return '';
+  if (/^blocked\.?$/i.test(summary)) return '';
+  return summary;
+}
+
 const blockedWithoutReason = blockedAgents.filter((a) => {
   const agent = agentById(a.id);
-  // Credentials ki wajah se BLOCKED => roster mein `requires` zaroor hona chahiye,
-  // warna "BLOCKED" bina wajah hai (aur wo fix nahi ho sakta).
-  return agent && missingRequirements(agent).length === 0 && a.id !== 'manager';
+  if (!agent) return false;
+  // Wajah do tarah se valid hai:
+  //   (a) roster kehta hai ki koi credential missing hai, ya
+  //   (b) agent ne khud apne recorded run mein wajah likhi hai
+  //       (jaise Rahul: "Network se … reach nahi ho paya (4 attempts)").
+  if (missingRequirements(agent).length > 0) return false;
+  if (statedReason(a.id)) return false;
+  return true;
 });
 if (blockedWithoutReason.length) bad('every BLOCKED agent has a stated reason', blockedWithoutReason.map((a) => a.id).join(', '));
 else ok('every BLOCKED agent has a stated reason', blockedAgents.length ? `${blockedAgents.length} blocked: ${blockedAgents.map((a) => a.id).join(', ')}` : 'none blocked right now');

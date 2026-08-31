@@ -3,40 +3,40 @@
   "values": {
     "latest": {
       "value": {
-        "generated_at": "2026-08-31T12:16:09.467Z",
+        "generated_at": "2026-08-31T16:14:47.801Z",
         "agents": 12,
-        "total_runs": 168,
+        "total_runs": 303,
         "agents_never_run": [],
         "agents_with_failures": [],
         "queue": {
-          "pending": 5,
+          "pending": 6,
           "running": 0,
-          "done": 7,
+          "done": 22,
           "failed": 0,
-          "updated_at": "2026-08-31T12:14:21.156Z"
+          "updated_at": "2026-08-31T16:11:04.169Z"
         },
         "ledger_ok": true
       },
-      "at": "2026-08-31T12:16:09.469Z"
+      "at": "2026-08-31T16:14:47.806Z"
     },
     "week-2026-W36": {
       "value": {
-        "generated_at": "2026-08-31T12:16:09.467Z",
+        "generated_at": "2026-08-31T16:14:47.801Z",
         "agents": 12,
-        "total_runs": 168,
+        "total_runs": 303,
         "agents_never_run": [],
         "agents_with_failures": [],
         "queue": {
-          "pending": 5,
+          "pending": 6,
           "running": 0,
-          "done": 7,
+          "done": 22,
           "failed": 0,
-          "updated_at": "2026-08-31T12:14:21.156Z"
+          "updated_at": "2026-08-31T16:11:04.169Z"
         },
         "ledger_ok": true
       },
-      "at": "2026-08-31T12:16:09.470Z"
+      "at": "2026-08-31T16:14:47.808Z"
     }
   },
-  "updated_at": "2026-08-31T12:16:09.470Z"
+  "updated_at": "2026-08-31T16:14:47.808Z"
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T12:16:09.889Z",
+  "generated_at": "2026-08-31T16:14:48.290Z",
   "totals": {
     "passed": 100,
     "failed": 0
@@ -181,13 +181,13 @@
       "row": "1. Syntax & project config",
       "check": "npm run check (browser + server code) exits 0",
       "ok": true,
-      "detail": "  90 checked, 0 with syntax errors"
+      "detail": "  91 checked, 0 with syntax errors"
     },
     {
       "row": "1. Syntax & project config",
       "check": "syntax check actually covers server code (lib/, scripts/, agents/)",
       "ok": true,
-      "detail": "49 server files scanned"
+      "detail": "50 server files scanned"
     },
     {
       "row": "1. Syntax & project config",
@@ -235,7 +235,7 @@
       "row": "1. Syntax & project config",
       "check": "no committed secrets in tracked files",
       "ok": true,
-      "detail": "228 tracked files scanned"
+      "detail": "235 tracked files scanned"
     },
     {
       "row": "2. Live site — real server over HTTP",
@@ -349,7 +349,7 @@
       "row": "3. Data layer — real writes, both stores",
       "check": "photo upload round-trip through the real API",
       "ok": true,
-      "detail": "/uploads/u2-1788178389125.png → HTTP 200, 93 bytes, PNG magic=true"
+      "detail": "/uploads/u2-1788192502187.png → HTTP 200, 93 bytes, PNG magic=true"
     },
     {
       "row": "3. Data layer — real writes, both stores",
@@ -445,7 +445,7 @@
       "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
       "check": "agent team contract check passes",
       "ok": true,
-      "detail": "17 contract checks"
+      "detail": "15 contract checks"
     },
     {
       "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
@@ -461,15 +461,15 @@
     },
     {
       "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
-      "check": "every BLOCKED agent names the exact credentials it needs",
+      "check": "every BLOCKED agent states a real reason (keys, ya recorded wajah)",
       "ok": true,
-      "detail": "pooja(GOOGLE_SEARCH_CONSOLE_TOKEN+GEMINI_API_KEY), priya(META_ACCESS_TOKEN+META_PAGE_ID), rahul(SITE_URL), meera(RESEND_API_KEY)"
+      "detail": "pooja(GOOGLE_SEARCH_CONSOLE_TOKEN+GEMINI_API_KEY), priya(META_ACCESS_TOKEN+META_PAGE_ID), rahul(recorded reason), meera(RESEND_API_KEY), manager(recorded reason)"
     },
     {
       "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
       "check": "storage doctor passes with an intact ledger",
       "ok": true,
-      "detail": "12 agents, ledger 173 entries / 0 broken"
+      "detail": "12 agents, ledger 331 entries / 0 broken"
     },
     {
       "row": "5. Agent team — 12 agents, roster ↔ handlers, storage",
@@ -481,19 +481,19 @@
       "row": "6. Queue & orders — enqueue → claim → complete",
       "check": "queue file parses with all four buckets",
       "ok": true,
-      "detail": "pending=0 running=0 done=7 failed=0"
+      "detail": "pending=6 running=0 done=22 failed=0"
     },
     {
       "row": "6. Queue & orders — enqueue → claim → complete",
       "check": "enqueue puts a job in pending",
       "ok": true,
-      "detail": "job job_bc97108efbd4c03f queued, pending=1"
+      "detail": "job job_945e7096ef3e74b5 queued, pending=1"
     },
     {
       "row": "6. Queue & orders — enqueue → claim → complete",
       "check": "claimJob takes the high-priority job first",
       "ok": true,
-      "detail": "claimed job_d9ed3e257d97716b (high)"
+      "detail": "claimed job_49f6b49e87e100ab (high)"
     },
     {
       "row": "6. Queue & orders — enqueue → claim → complete",
@@ -535,7 +535,7 @@
       "row": "6. Queue & orders — enqueue → claim → complete",
       "check": "the order desk issues orders only for agents that are not OK",
       "ok": true,
-      "detail": "7 healthy, 5 orders (4 need credentials)"
+      "detail": "7 healthy, 5 orders (3 need credentials)"
     },
     {
       "row": "7. Honesty — no fake success (negative tests)",
@@ -595,7 +595,7 @@
       "row": "7. Honesty — no fake success (negative tests)",
       "check": "the ledger detects a tampered line (negative test)",
       "ok": true,
-      "detail": "tamper detected: 1 broken line(s) of 186"
+      "detail": "tamper detected: 1 broken line(s) of 344"
     },
     {
       "row": "8. Security — auth, cookies, traversal, secrets",
@@ -661,25 +661,25 @@
       "row": "9. Recovery & backups — snapshots, ledger, incidents",
       "check": "snapshot() creates a snapshot of the whole storage tree",
       "ok": true,
-      "detail": "2026-08-31T12-15-00-971Z-1010-test: 107 files, 379677 bytes"
+      "detail": "2026-08-31T16-12-29-522Z-1010-test: 108 files, 685346 bytes"
     },
     {
       "row": "9. Recovery & backups — snapshots, ledger, incidents",
       "check": "listSnapshots() sees the snapshot that was just taken",
       "ok": true,
-      "detail": "7 snapshot(s), latest 2026-08-31T12-15-01-121Z-1010-list"
+      "detail": "7 snapshot(s), latest 2026-08-31T16-12-29-680Z-1010-list"
     },
     {
       "row": "9. Recovery & backups — snapshots, ledger, incidents",
       "check": "the live ledger hash-chain verifies",
       "ok": true,
-      "detail": "186 entries, 0 broken"
+      "detail": "344 entries, 0 broken"
     },
     {
       "row": "9. Recovery & backups — snapshots, ledger, incidents",
       "check": "appending to the ledger keeps the chain verifiable",
       "ok": true,
-      "detail": "187 entries still chained"
+      "detail": "345 entries still chained"
     },
     {
       "row": "9. Recovery & backups — snapshots, ledger, incidents",

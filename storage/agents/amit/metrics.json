@@ -1,9 +1,9 @@
 {
   "agent": "amit",
   "counters": {
-    "field_scans": 43,
-    "runs": 12,
-    "status_ok": 12
+    "field_scans": 78,
+    "runs": 20,
+    "status_ok": 20
   },
   "history": [
     {
@@ -77,7 +77,55 @@
       "status": "OK",
       "duration_ms": 47,
       "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T15:45:53.594Z",
+      "status": "OK",
+      "duration_ms": 48,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T15:47:18.478Z",
+      "status": "OK",
+      "duration_ms": 51,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T15:58:18.767Z",
+      "status": "OK",
+      "duration_ms": 51,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T15:59:43.647Z",
+      "status": "OK",
+      "duration_ms": 55,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T16:05:37.306Z",
+      "status": "OK",
+      "duration_ms": 55,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T16:07:13.433Z",
+      "status": "OK",
+      "duration_ms": 67,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T16:11:02.554Z",
+      "status": "OK",
+      "duration_ms": 50,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T16:12:27.631Z",
+      "status": "OK",
+      "duration_ms": 51,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
     }
   ],
-  "updated_at": "2026-08-31T12:16:09.395Z"
+  "updated_at": "2026-08-31T16:14:47.691Z"
 }

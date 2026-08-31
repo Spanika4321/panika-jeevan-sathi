@@ -1,9 +1,9 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 17,
+    "runs": 31,
     "status_ok": 2,
-    "status_blocked": 15
+    "status_blocked": 29
   },
   "history": [
     {
@@ -107,7 +107,91 @@
       "status": "BLOCKED",
       "duration_ms": 335,
       "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:45:54.135Z",
+      "status": "BLOCKED",
+      "duration_ms": 381,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:47:19.014Z",
+      "status": "BLOCKED",
+      "duration_ms": 377,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:49:47.916Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "pooja=BLOCKED priya=BLOCKED guardian=OK"
+    },
+    {
+      "at": "2026-08-31T15:49:47.926Z",
+      "status": "BLOCKED",
+      "duration_ms": 409,
+      "summary": "queue job order_manager_blocked-dependency (agent-run): 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:50:30.642Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "pooja=BLOCKED priya=BLOCKED guardian=OK"
+    },
+    {
+      "at": "2026-08-31T15:50:30.654Z",
+      "status": "BLOCKED",
+      "duration_ms": 465,
+      "summary": "queue job order_manager_blocked-dependency (agent-run): 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:53:58.351Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "pooja=BLOCKED priya=BLOCKED guardian=OK"
+    },
+    {
+      "at": "2026-08-31T15:53:58.361Z",
+      "status": "BLOCKED",
+      "duration_ms": 420,
+      "summary": "queue job order_manager_blocked-dependency (agent-run): 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:58:19.334Z",
+      "status": "BLOCKED",
+      "duration_ms": 413,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:59:44.252Z",
+      "status": "BLOCKED",
+      "duration_ms": 414,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T16:05:37.880Z",
+      "status": "BLOCKED",
+      "duration_ms": 395,
+      "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
+    },
+    {
+      "at": "2026-08-31T16:07:14.167Z",
+      "status": "BLOCKED",
+      "duration_ms": 468,
+      "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
+    },
+    {
+      "at": "2026-08-31T16:11:03.129Z",
+      "status": "BLOCKED",
+      "duration_ms": 398,
+      "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
+    },
+    {
+      "at": "2026-08-31T16:12:28.170Z",
+      "status": "BLOCKED",
+      "duration_ms": 371,
+      "summary": "manager cycle — pooja=BLOCKED priya=BLOCKED guardian=OK | blocked: pooja, priya"
     }
   ],
-  "updated_at": "2026-08-31T12:14:59.779Z"
+  "updated_at": "2026-08-31T16:12:28.170Z"
 }

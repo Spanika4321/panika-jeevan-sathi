@@ -36,6 +36,8 @@ import crypto from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { freePort } from './lib/free-port.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 const asJSON = argv.includes('--json');
@@ -123,7 +125,7 @@ let serverBase = null;
 let serverDataDir = null;
 let serverExited = null;
 const serverLog = [];
-const serverPort = 4200 + Math.floor(Math.random() * 600); // health-check 3500-3899 use karta hai — takraav se bacho
+const serverPort = await freePort(); // OS-assigned: koi bhi fixed range kabhi na kabhi occupied milti hai
 
 function bootServer(env = {}) {
   return new Promise((resolve, reject) => {
@@ -650,19 +652,27 @@ row('5. Agent team — 12 agents, roster ↔ handlers, storage', [
     const failing = doc.results.filter((r) => r.status === 'FAIL');
     return { ok: failing.length === 0, detail: failing.length ? `failing: ${failing.map((f) => f.id).join(', ')}` : '0 FAIL statuses' };
   }),
-  c('every BLOCKED agent names the exact credentials it needs', async () => {
+  c('every BLOCKED agent states a real reason (keys, ya recorded wajah)', async () => {
+    // Pehle ye check sirf "missing credentials" ko valid wajah maanta tha.
+    // Wo galat tha: Rahul ka SITE_URL default hai, uski asli wajah network
+    // hoti hai. Ab wajah do tarah se valid hai — missing keys, ya agent ka
+    // apna recorded summary (bare "BLOCKED" nahi chalega).
     const { AGENTS, missingRequirements } = await import(path.join(ROOT, 'agents/roster.mjs'));
     const doc = JSON.parse(fs.readFileSync(path.join(ROOT, 'reports/agents/agent-storage-cycle.json'), 'utf8'));
-    const blocked = doc.results.filter((r) => r.status === 'BLOCKED' && r.id !== 'manager');
-    const unnamed = blocked.filter((b) => {
+    const blocked = doc.results.filter((r) => r.status === 'BLOCKED');
+    const why = (b) => {
       const agent = AGENTS.find((a) => a.id === b.id);
-      return !agent || missingRequirements(agent).length === 0;
-    });
+      const keys = agent ? missingRequirements(agent) : [];
+      if (keys.length) return { ok: true, why: keys.join('+') };
+      const summary = String(b.summary || '').trim();
+      const real = summary.length >= 12 && !/^blocked\.?$/i.test(summary) && !/alag summary nahi/i.test(summary);
+      return { ok: real, why: real ? 'recorded reason' : 'NO REASON' };
+    };
+    const results = blocked.map((b) => ({ id: b.id, ...why(b) }));
+    const unnamed = results.filter((r) => !r.ok);
     return {
       ok: unnamed.length === 0,
-      detail: blocked.length
-        ? `${blocked.map((b) => `${b.id}(${(AGENTS.find((a) => a.id === b.id)?.requires || []).join('+') || 'no keys needed'})`).join(', ')}`
-        : 'nothing blocked'
+      detail: results.length ? results.map((r) => `${r.id}(${r.why})`).join(', ') : 'nothing blocked'
     };
   }),
   c('storage doctor passes with an intact ledger', async () => {

@@ -456,10 +456,378 @@
       "created_at": "2026-08-31T12:16:09.851Z",
       "status": "pending",
       "meta": {}
+    },
+    {
+      "id": "task_9131ab1891f7b210",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:36:05.993Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_996c2e77f3a3389c",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:38:39.429Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_aeadcf4b32233fcc",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:43:53.165Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_f1ad78417280812d",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:44:31.449Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c34eb113e2a3b759",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:45:15.955Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_e380b2774f799e1a",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:45:53.740Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_91facb70bf889352",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:45:55.135Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_1e20a97d5d4a185b",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:46:40.857Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_cbb4ed689cd2e045",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:47:18.621Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_95bf27e7924768ce",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:48:08.199Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6c302c9a7693cbfe",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:49:38.143Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_24e79cc2e61789f2",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:49:38.528Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_a423b8d0395d5459",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:50:25.251Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8527e9ff9cee0451",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:50:30.029Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_2f50585e330eb927",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:51:07.960Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c11232966baefbbc",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:53:03.137Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7aca34c78535fcfa",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:53:55.560Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7a9b4878a5ba9741",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:54:35.723Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_47c17dbe992cf118",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:55:23.662Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_94daab3c1858509b",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:56:18.465Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_683221b24d9ddb3f",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:56:56.664Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_f01c829c4198838b",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:57:41.136Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8cbe5676c6acb436",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:18.908Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c218d3cb63df3556",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:58:20.401Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_e3fb2736bf4c0a3e",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:59:05.957Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_dabd8a1c764c0f46",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T15:59:43.816Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6388cabf149e8c20",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:00:34.338Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_d7a03bb11f8d1fc1",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:02:04.218Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_41ebcabbbc7b61cb",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:02:04.625Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_00adeb66833ced83",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:03:06.462Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_5e20813af90fdb27",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:03:47.042Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_592e8d17289176b2",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:04:59.676Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_874c46555e692c3d",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:05:37.465Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_c8989b9276d6829f",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:06:35.637Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_4c1d31187e1b1a26",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:07:13.636Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6f4d4d6fb0b34d16",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:08:05.866Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_df96249c81292a7c",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:09:02.036Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_39d7d82189eae616",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:09:40.243Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8968c86b88536066",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:10:24.923Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_a72f3d3e7d90f4a6",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:11:02.712Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_e201bf7028ff7458",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:11:04.168Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_f5e8f7d6267e7dfc",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:11:49.921Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7ca0627241868ec0",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:12:27.782Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6aee730f8d46e1d6",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:13:17.973Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8e99548b219bb2a4",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:14:47.868Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_bfdaa9fa8251a356",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "priority": "normal",
+      "created_at": "2026-08-31T16:14:48.240Z",
+      "status": "pending",
+      "meta": {}
     }
   ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T12:16:09.851Z"
+  "updated_at": "2026-08-31T16:14:48.240Z"
 }

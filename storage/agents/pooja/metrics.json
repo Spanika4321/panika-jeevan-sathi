@@ -1,8 +1,8 @@
 {
   "agent": "pooja",
   "counters": {
-    "runs": 17,
-    "status_blocked": 17
+    "runs": 34,
+    "status_blocked": 34
   },
   "history": [
     {
@@ -106,7 +106,109 @@
       "status": "BLOCKED",
       "duration_ms": 29,
       "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:45:16.231Z",
+      "status": "BLOCKED",
+      "duration_ms": 38,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:46:41.107Z",
+      "status": "BLOCKED",
+      "duration_ms": 38,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:49:47.577Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:49:47.970Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:49:47.983Z",
+      "status": "BLOCKED",
+      "duration_ms": 46,
+      "summary": "queue job order_pooja_credentials-needed (agent-run): External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:50:30.256Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:50:30.701Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:50:30.714Z",
+      "status": "BLOCKED",
+      "duration_ms": 46,
+      "summary": "queue job order_pooja_credentials-needed (agent-run): External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:53:58.000Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:53:58.403Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:53:58.416Z",
+      "status": "BLOCKED",
+      "duration_ms": 42,
+      "summary": "queue job order_pooja_credentials-needed (agent-run): External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T15:57:41.376Z",
+      "status": "BLOCKED",
+      "duration_ms": 36,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T15:59:06.196Z",
+      "status": "BLOCKED",
+      "duration_ms": 36,
+      "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-08-31T16:04:59.922Z",
+      "status": "BLOCKED",
+      "duration_ms": 33,
+      "summary": "BLOCKED — (report mein alag summary nahi thi)"
+    },
+    {
+      "at": "2026-08-31T16:06:35.922Z",
+      "status": "BLOCKED",
+      "duration_ms": 42,
+      "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T16:10:25.167Z",
+      "status": "BLOCKED",
+      "duration_ms": 35,
+      "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
+    },
+    {
+      "at": "2026-08-31T16:11:50.191Z",
+      "status": "BLOCKED",
+      "duration_ms": 43,
+      "summary": "BLOCKED — External Google/Gemini credentials are not configured. Local analysis remains available."
     }
   ],
-  "updated_at": "2026-08-31T12:14:44.018Z"
+  "updated_at": "2026-08-31T16:11:50.192Z"
 }

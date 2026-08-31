@@ -1,8 +1,17 @@
 {
   "agent": "guardian",
-  "pending": [],
+  "pending": [
+    {
+      "id": "task_4a34235c503bce9f",
+      "title": "Guardian (Sardar) FAIL hua — dobara chalao aur incident band karo",
+      "priority": "high",
+      "created_at": "2026-08-31T16:02:04.603Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.584Z"
+  "updated_at": "2026-08-31T16:02:04.603Z"
 }

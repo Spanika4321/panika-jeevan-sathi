@@ -13,3 +13,14 @@
 {"ts":"2026-08-31T12:08:54.351Z","event":"run","status":"OK","duration_ms":0,"summary":"OK — 95 passed, 0 failed","details":{"runs":{"pooja":"BLOCKED","priya":"BLOCKED"},"duration_ms":237}}
 {"ts":"2026-08-31T12:14:04.465Z","event":"run","status":"OK","duration_ms":21692,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
 {"ts":"2026-08-31T12:14:43.979Z","event":"run","status":"OK","duration_ms":21844,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T15:45:16.185Z","event":"run","status":"OK","duration_ms":44625,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T15:46:41.063Z","event":"run","status":"OK","duration_ms":44673,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T15:49:47.908Z","event":"run","status":"OK","duration_ms":0,"summary":"OK — 95 passed, 0 failed","details":{"runs":{"pooja":"BLOCKED","priya":"BLOCKED"},"duration_ms":270}}
+{"ts":"2026-08-31T15:50:30.631Z","event":"run","status":"OK","duration_ms":0,"summary":"OK — 95 passed, 0 failed","details":{"runs":{"pooja":"BLOCKED","priya":"BLOCKED"},"duration_ms":305}}
+{"ts":"2026-08-31T15:53:58.342Z","event":"run","status":"OK","duration_ms":0,"summary":"OK — 95 passed, 0 failed","details":{"runs":{"pooja":"BLOCKED","priya":"BLOCKED"},"duration_ms":284}}
+{"ts":"2026-08-31T15:57:41.333Z","event":"run","status":"OK","duration_ms":44577,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T15:59:06.151Z","event":"run","status":"FAIL","duration_ms":44553,"summary":"103 passed, 1 failed [non-zero exit]","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T16:04:59.880Z","event":"run","status":"FAIL","duration_ms":45131,"summary":"103 passed, 1 failed [non-zero exit]","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T16:06:35.862Z","event":"run","status":"OK","duration_ms":44751,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T16:10:25.123Z","event":"run","status":"OK","duration_ms":44781,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T16:11:50.138Z","event":"run","status":"OK","duration_ms":44714,"summary":"104 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}

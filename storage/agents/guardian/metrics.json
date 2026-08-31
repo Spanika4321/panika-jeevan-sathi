@@ -1,8 +1,9 @@
 {
   "agent": "guardian",
   "counters": {
-    "runs": 15,
-    "status_ok": 15
+    "runs": 26,
+    "status_ok": 24,
+    "status_fail": 2
   },
   "history": [
     {
@@ -94,7 +95,73 @@
       "status": "OK",
       "duration_ms": 21844,
       "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:45:16.170Z",
+      "status": "OK",
+      "duration_ms": 44625,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:46:41.061Z",
+      "status": "OK",
+      "duration_ms": 44673,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:49:47.908Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:50:30.630Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:53:58.341Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:57:41.332Z",
+      "status": "OK",
+      "duration_ms": 44577,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T15:59:06.150Z",
+      "status": "FAIL",
+      "duration_ms": 44553,
+      "summary": "103 passed, 1 failed [non-zero exit]"
+    },
+    {
+      "at": "2026-08-31T16:04:59.880Z",
+      "status": "FAIL",
+      "duration_ms": 45131,
+      "summary": "103 passed, 1 failed [non-zero exit]"
+    },
+    {
+      "at": "2026-08-31T16:06:35.861Z",
+      "status": "OK",
+      "duration_ms": 44751,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T16:10:25.122Z",
+      "status": "OK",
+      "duration_ms": 44781,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T16:11:50.137Z",
+      "status": "OK",
+      "duration_ms": 44714,
+      "summary": "104 passed, 0 failed"
     }
   ],
-  "updated_at": "2026-08-31T12:14:43.978Z"
+  "updated_at": "2026-08-31T16:11:50.137Z"
 }
