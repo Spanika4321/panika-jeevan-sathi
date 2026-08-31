@@ -1,8 +1,105 @@
 {
   "agent": "manager",
-  "pending": [],
+  "pending": [
+    {
+      "id": "task_348132c33c9bfcbb",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T11:50:42.635Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_837e986c6086eb20",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T11:55:14.829Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_e682342568dd8f29",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T11:56:47.977Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_7b322c9d1cb467d2",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T11:58:36.424Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_b2579acf21ac7716",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:01:15.845Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_5836be1a13ab5e25",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:03:06.697Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_44052444a534f0c1",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:06:04.518Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_089dc6466766a0b4",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:07:54.079Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_6b876f2e0ff57e8f",
+      "title": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:08:11.879Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_8c2964634b96aef7",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:06:43.327Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:08:38.216Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_2964a4ad413e9f3e",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:14:20.303Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:14:21.144Z",
+      "status": "pending",
+      "meta": {}
+    },
+    {
+      "id": "task_de60eb2ea7103f87",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:14:59.776Z)",
+      "priority": "normal",
+      "created_at": "2026-08-31T12:16:09.839Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
   "running": [],
   "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.592Z"
+  "updated_at": "2026-08-31T12:16:09.839Z"
 }

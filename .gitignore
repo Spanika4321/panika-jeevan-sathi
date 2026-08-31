@@ -10,3 +10,6 @@ data/
 # purane snapshots/archives git mein hamesha ke liye jamne nahi diye jaate)
 storage/snapshots/
 storage/agents/*/archive/
+
+# Recovery clones (regenerable, never committed)
+.agent-recovery/

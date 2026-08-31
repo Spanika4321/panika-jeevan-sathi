@@ -1,8 +1,8 @@
 {
   "agent": "arjun",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 12,
+    "status_ok": 12
   },
   "history": [
     {
@@ -10,7 +10,73 @@
       "status": "OK",
       "duration_ms": 46,
       "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T11:22:51.475Z",
+      "status": "OK",
+      "duration_ms": 39,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T11:50:17.110Z",
+      "status": "OK",
+      "duration_ms": 33,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T11:51:09.976Z",
+      "status": "OK",
+      "duration_ms": 32,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T11:56:31.489Z",
+      "status": "OK",
+      "duration_ms": 36,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T11:57:10.893Z",
+      "status": "OK",
+      "duration_ms": 33,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T12:00:58.537Z",
+      "status": "OK",
+      "duration_ms": 50,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T12:01:40.308Z",
+      "status": "OK",
+      "duration_ms": 40,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T12:05:47.977Z",
+      "status": "OK",
+      "duration_ms": 39,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T12:06:27.642Z",
+      "status": "OK",
+      "duration_ms": 35,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T12:14:04.597Z",
+      "status": "OK",
+      "duration_ms": 45,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
+    },
+    {
+      "at": "2026-08-31T12:14:44.098Z",
+      "status": "OK",
+      "duration_ms": 35,
+      "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
     }
   ],
-  "updated_at": "2026-08-31T00:29:18.262Z"
+  "updated_at": "2026-08-31T12:14:44.098Z"
 }

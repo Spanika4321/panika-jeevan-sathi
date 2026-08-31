@@ -1,4 +1,365 @@
 {
   "agent": "manager",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_6906d758fe8d6414",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:50:42.640Z",
+      "read": false
+    },
+    {
+      "id": "msg_e5ab5ffbf9fb80b9",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T11:50:42.643Z",
+      "read": false
+    },
+    {
+      "id": "msg_ef5ed396aa43b455",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:50:42.648Z",
+      "read": false
+    },
+    {
+      "id": "msg_a982b43c9e465d63",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:55:14.838Z",
+      "read": false
+    },
+    {
+      "id": "msg_dd58109d3a4b4d8c",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T11:55:14.842Z",
+      "read": false
+    },
+    {
+      "id": "msg_3d1207143e8176c5",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:55:14.850Z",
+      "read": false
+    },
+    {
+      "id": "msg_ab80ecff42f1f3cb",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:56:47.982Z",
+      "read": false
+    },
+    {
+      "id": "msg_468fb6f923228aaf",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T11:56:47.984Z",
+      "read": false
+    },
+    {
+      "id": "msg_6dd21a69b09d84f1",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:56:47.989Z",
+      "read": false
+    },
+    {
+      "id": "msg_9aa93f56436e93fa",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:58:36.429Z",
+      "read": false
+    },
+    {
+      "id": "msg_3f511acf4d105086",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T11:58:36.432Z",
+      "read": false
+    },
+    {
+      "id": "msg_a88e2995b0392597",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T11:58:36.438Z",
+      "read": false
+    },
+    {
+      "id": "msg_a90c5e703c8ba737",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:01:15.867Z",
+      "read": false
+    },
+    {
+      "id": "msg_5d99319513b3548e",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:01:15.887Z",
+      "read": false
+    },
+    {
+      "id": "msg_fdbeae1b74c6240c",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:01:15.919Z",
+      "read": false
+    },
+    {
+      "id": "msg_58ef0d8d07c595ca",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:03:06.703Z",
+      "read": false
+    },
+    {
+      "id": "msg_07dd30be4f5edc2b",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:03:06.706Z",
+      "read": false
+    },
+    {
+      "id": "msg_c058ff78cb5d74d4",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:03:06.712Z",
+      "read": false
+    },
+    {
+      "id": "msg_89fde1caffd9787b",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:06:04.524Z",
+      "read": false
+    },
+    {
+      "id": "msg_caccd7c4a0040b27",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:06:04.526Z",
+      "read": false
+    },
+    {
+      "id": "msg_c697d88b7f7d6d85",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:06:04.532Z",
+      "read": false
+    },
+    {
+      "id": "msg_30c4088c84cb87a2",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:07:54.085Z",
+      "read": false
+    },
+    {
+      "id": "msg_1d79d0b83c898997",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:07:54.089Z",
+      "read": false
+    },
+    {
+      "id": "msg_b1abd3dfe3d799df",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:07:54.096Z",
+      "read": false
+    },
+    {
+      "id": "msg_45ed17f8c8df2fae",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:11.883Z",
+      "read": false
+    },
+    {
+      "id": "msg_fedbfc91fa1ff32f",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:11.886Z",
+      "read": false
+    },
+    {
+      "id": "msg_3e95cfa174beae30",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:11.891Z",
+      "read": false
+    },
+    {
+      "id": "msg_b938da1bb6c3fb38",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:38.221Z",
+      "read": false
+    },
+    {
+      "id": "msg_3685a33e93fd7c13",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:38.224Z",
+      "read": false
+    },
+    {
+      "id": "msg_04c2e9adb6166ee3",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:38.229Z",
+      "read": false
+    },
+    {
+      "id": "msg_345b1b53a13f72b3",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:14:21.149Z",
+      "read": false
+    },
+    {
+      "id": "msg_e4106acccd5fec5e",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:14:21.152Z",
+      "read": false
+    },
+    {
+      "id": "msg_7410142e2ed586a9",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:14:21.157Z",
+      "read": false
+    },
+    {
+      "id": "msg_3dbf42190ef2a7bb",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:16:09.844Z",
+      "read": false
+    },
+    {
+      "id": "msg_b02fd4f18c474f6b",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Priya BLOCKED — 2 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "priority": "normal",
+      "at": "2026-08-31T12:16:09.847Z",
+      "read": false
+    },
+    {
+      "id": "msg_d8675fd88aaccd53",
+      "from": "guardian",
+      "to": "manager",
+      "subject": "Meera BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "priority": "normal",
+      "at": "2026-08-31T12:16:09.852Z",
+      "read": false
+    }
+  ]
 }

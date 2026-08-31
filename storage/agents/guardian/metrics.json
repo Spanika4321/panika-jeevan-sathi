@@ -1,8 +1,8 @@
 {
   "agent": "guardian",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 15,
+    "status_ok": 15
   },
   "history": [
     {
@@ -10,7 +10,91 @@
       "status": "OK",
       "duration_ms": 312,
       "summary": "95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T11:22:51.352Z",
+      "status": "OK",
+      "duration_ms": 253,
+      "summary": "95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T11:30:02.117Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T11:50:17.005Z",
+      "status": "OK",
+      "duration_ms": 21784,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T11:51:09.862Z",
+      "status": "OK",
+      "duration_ms": 21565,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T11:56:31.378Z",
+      "status": "OK",
+      "duration_ms": 21493,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T11:57:10.786Z",
+      "status": "OK",
+      "duration_ms": 21758,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:00:58.358Z",
+      "status": "OK",
+      "duration_ms": 22455,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:01:40.181Z",
+      "status": "OK",
+      "duration_ms": 22888,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:05:47.858Z",
+      "status": "OK",
+      "duration_ms": 21740,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:06:27.528Z",
+      "status": "OK",
+      "duration_ms": 21924,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:08:38.747Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:08:54.350Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "OK — 95 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:14:04.464Z",
+      "status": "OK",
+      "duration_ms": 21692,
+      "summary": "104 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T12:14:43.978Z",
+      "status": "OK",
+      "duration_ms": 21844,
+      "summary": "104 passed, 0 failed"
     }
   ],
-  "updated_at": "2026-08-31T00:29:18.128Z"
+  "updated_at": "2026-08-31T12:14:43.978Z"
 }

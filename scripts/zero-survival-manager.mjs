@@ -45,28 +45,44 @@ console.log(fs.existsSync('uploads')?'Uploads directory: FOUND':'Uploads directo
 
 console.log('\n[8] DECISION');
 
-let decision='NEEDS_REVIEW';
+// "Pahunch nahi paye" aur "site toot gayi" alag cheezein hain.
+// curl 000 = host tak connection hi nahi bana (BLOCKED) — iska matlab site
+// down hai, ye nahi kaha ja sakta.
+const renderCode = curl.out.trim();
+const cpanelCode = cp.out.trim();
+const renderReachable = renderCode === '200';
+const cpanelReachable = cpanelCode === '200';
 
-if(tests.ok && curl.out.trim()==='200' && cp.out.trim()==='200'){
- decision='CPANEL_AVAILABLE_FOR_MIGRATION_TEST';
-}else if(tests.ok && curl.out.trim()==='200'){
- decision='RENDER_WORKING_BUT_PERSISTENCE_MUST_BE_VERIFIED';
-}else if(!tests.ok){
- decision='LOCAL_REPAIR_REQUIRED';
-}else{
- decision='HOSTING_INVESTIGATION_REQUIRED';
+let decision = 'NEEDS_REVIEW';
+
+if (!tests.ok) {
+  decision = 'LOCAL_REPAIR_REQUIRED';
+} else if (renderReachable && cpanelReachable) {
+  decision = 'CPANEL_AVAILABLE_FOR_MIGRATION_TEST';
+} else if (renderReachable) {
+  decision = 'RENDER_WORKING_BUT_PERSISTENCE_MUST_BE_VERIFIED';
+} else {
+  // Render Free plan sota hai; ya is network se route nahi hai.
+  decision = 'RENDER_UNREACHABLE_FROM_HERE_BLOCKED_NOT_PROVEN_DOWN';
 }
+
+console.log('  render HTTP code : ' + (renderCode || '(none)'));
+console.log('  cPanel HTTP code : ' + (cpanelCode || '(none)'));
+console.log('  local tests      : ' + (tests.ok ? 'PASS' : 'FAIL'));
 
 fs.mkdirSync('reports/agents',{recursive:true});
 fs.writeFileSync(
  'reports/agents/zero-survival-latest.json',
  JSON.stringify({
   time:new Date().toISOString(),
-  render_status:curl.out.trim(),
-  cpanel_status:cp.out.trim(),
+  render_status:renderCode,
+  cpanel_status:cpanelCode,
+  render_reachable:renderReachable,
+  cpanel_reachable:cpanelReachable,
   local_tests:tests.ok,
   agents:agents.ok,
   decision,
+  honesty:'HTTP 000 = host tak pahuncha nahi gaya (BLOCKED). Ise "site down" nahi maana gaya.',
   paid_service_activated:false,
   production_ui_changed:false
  },null,2)+'\n'
@@ -81,3 +97,7 @@ console.log('==============================================');
 
 if(tests.ok) console.log('ALL LOCAL TESTS: PASS');
 else console.log('ALL LOCAL TESTS: FAIL — REPAIR REQUIRED');
+
+// Local tests fail hon => non-zero. Hosting unreachable => exit 0 (BLOCKED),
+// kyunki wo local repair ka signal nahi hai.
+if (!tests.ok) process.exitCode = 1;

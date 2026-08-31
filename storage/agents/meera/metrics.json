@@ -1,8 +1,8 @@
 {
   "agent": "meera",
   "counters": {
-    "runs": 1,
-    "status_blocked": 1
+    "runs": 14,
+    "status_blocked": 14
   },
   "history": [
     {
@@ -10,7 +10,85 @@
       "status": "BLOCKED",
       "duration_ms": 48,
       "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T11:23:06.804Z",
+      "status": "BLOCKED",
+      "duration_ms": 43,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T11:50:32.394Z",
+      "status": "BLOCKED",
+      "duration_ms": 34,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T11:51:25.300Z",
+      "status": "BLOCKED",
+      "duration_ms": 40,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T11:56:46.792Z",
+      "status": "BLOCKED",
+      "duration_ms": 41,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T11:57:26.203Z",
+      "status": "BLOCKED",
+      "duration_ms": 41,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:01:14.017Z",
+      "status": "BLOCKED",
+      "duration_ms": 55,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:01:55.667Z",
+      "status": "BLOCKED",
+      "duration_ms": 41,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:06:03.310Z",
+      "status": "BLOCKED",
+      "duration_ms": 41,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:06:42.973Z",
+      "status": "BLOCKED",
+      "duration_ms": 34,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:08:53.980Z",
+      "status": "BLOCKED",
+      "duration_ms": 13,
+      "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:08:53.991Z",
+      "status": "BLOCKED",
+      "duration_ms": 54,
+      "summary": "queue job order_meera_credentials-needed (agent-run): Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:14:19.959Z",
+      "status": "BLOCKED",
+      "duration_ms": 43,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T12:14:59.438Z",
+      "status": "BLOCKED",
+      "duration_ms": 42,
+      "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
     }
   ],
-  "updated_at": "2026-08-31T00:29:33.625Z"
+  "updated_at": "2026-08-31T12:14:59.438Z"
 }

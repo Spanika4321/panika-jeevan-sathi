@@ -173,6 +173,52 @@ finally that **all data survives a full server restart**.
 
 The same suite passes on the JSON fallback store: `npm run test:json-store`.
 
+### The whole board in one command
+
+```bash
+npm run check:all     # 10 areas × 10 checks = 100 real verifications
+npm run health        # Guardian health check + full suite rollup (104 checks)
+npm run check:live    # deployed URL check (PASS / FAIL / BLOCKED / PARTIAL)
+```
+
+`npm run check:all` (`scripts/ten-by-ten.mjs`) prints a 10 × 10 matrix and exits non-zero if any
+cell fails. Every cell runs the real code path — a booted server, real database writes, the actual
+test suites, real storage files — and it includes **negative tests** (a page is deliberately broken
+in a throwaway copy, a storage file is corrupted, a ledger line is tampered with, signing is
+simulated as broken) so a green board cannot be produced by checks that always pass.
+
+| # | Area | What it proves |
+| --- | --- | --- |
+| 1 | Syntax & project config | browser **and** server code parse; blueprint/Dockerfile/Procfile agree |
+| 2 | Live site | real HTTP boot: pages, assets, robots, sitemap, headers, 404, traversal |
+| 3 | Data layer | both stores, restart durability, SQL-injection probe, photo round-trip, admin bootstrap |
+| 4 | Cloud & crypto | D1/R2 round-trip, outage retry, SigV4 vs the published AWS vector |
+| 5 | Agent team | 12 agents, roster ↔ handlers, complete storage, contract check |
+| 6 | Queue & orders | enqueue → claim → complete, priority, failures, the real consumer |
+| 7 | Honesty | BLOCKED stays BLOCKED; nothing claims success without proof |
+| 8 | Security | hashed passwords, cookie flags, admin gate, tampered tokens, secret scan |
+| 9 | Recovery & backups | snapshots, hash-chained ledger, incidents, recovery clone |
+| 10 | Delivery & CI | workflow steps, rollup + recursion guard, docs, one-command automation |
+
+### Orders for agents that are not working
+
+```bash
+npm run agent:orders   # kaun kaam nahi kar raha + uske liye concrete order
+npm run queue:run      # orders ko actually chalao (shared job queue ka consumer)
+npm run queue:status   # pending / running / done / failed
+```
+
+`agent:orders` reads each agent's own recorded run (never a guess) and issues an order per
+non-working agent — naming the exact missing environment variable when that is the blocker. Orders
+land in the agent's task list **and** in the shared job queue, which `queue:run` drains. A job whose
+agent is still blocked is completed as `BLOCKED`, never as a fake `OK`.
+
+### Verdicts, not just pass/fail
+
+`PASS (0)` · `FAIL (1)` · `BLOCKED (2)` · `PARTIAL (3)` — used by `verify:cloud` and `check:live`.
+"Host tak pahunch nahi paye" is BLOCKED, not FAIL: nothing was proven broken, and nothing is claimed
+to be working.
+
 ---
 
 ## Deploying

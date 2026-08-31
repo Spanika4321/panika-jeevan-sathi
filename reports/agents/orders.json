@@ -1,0 +1,203 @@
+{
+  "generated_at": "2026-08-31T12:16:09.856Z",
+  "dry_run": false,
+  "hierarchy": {
+    "sardar": "guardian",
+    "manager": "manager",
+    "workers": [
+      "pooja",
+      "priya",
+      "arjun",
+      "kavita",
+      "rahul",
+      "sneha",
+      "amit",
+      "nisha",
+      "vikram",
+      "meera"
+    ]
+  },
+  "totals": {
+    "agents": 12,
+    "healthy": 7,
+    "ordered": 5,
+    "blocked_on_credentials": 4,
+    "blocked_on_dependency": 1,
+    "needs_repair": 0,
+    "never_run": 0
+  },
+  "healthy": [
+    "guardian",
+    "arjun",
+    "kavita",
+    "sneha",
+    "amit",
+    "nisha",
+    "vikram"
+  ],
+  "orders": [
+    {
+      "agent": "manager",
+      "name": "Manager",
+      "role": "Coordinator",
+      "reports_to": "guardian",
+      "current_status": "BLOCKED",
+      "last_run_at": "2026-08-31T12:14:59.776Z",
+      "created_at": "2026-08-31T12:16:09.838Z",
+      "source": "agent-orders.mjs",
+      "kind": "blocked-dependency",
+      "title": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:14:59.776Z)",
+      "owner_action": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "local_work_possible": true,
+      "queue": {
+        "type": "agent-run",
+        "payload": {
+          "agent": "manager"
+        },
+        "priority": "normal"
+      }
+    },
+    {
+      "agent": "pooja",
+      "name": "Pooja",
+      "role": "SEO / Organic Growth Worker",
+      "reports_to": "manager",
+      "current_status": "BLOCKED",
+      "last_run_at": "2026-08-31T12:14:44.013Z",
+      "created_at": "2026-08-31T12:16:09.838Z",
+      "source": "agent-orders.mjs",
+      "kind": "credentials-needed",
+      "title": "Pooja BLOCKED — 2 credential(s) chahiye",
+      "needs": [
+        {
+          "env": "GOOGLE_SEARCH_CONSOLE_TOKEN",
+          "how": "Google Search Console → API token (SEO data ke liye)"
+        },
+        {
+          "env": "GEMINI_API_KEY",
+          "how": "Google AI Studio → GEMINI_API_KEY (AI analysis ke liye)"
+        }
+      ],
+      "owner_action": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): GOOGLE_SEARCH_CONSOLE_TOKEN, GEMINI_API_KEY",
+      "local_work_possible": true,
+      "queue": {
+        "type": "agent-run",
+        "payload": {
+          "agent": "pooja"
+        },
+        "priority": "normal"
+      },
+      "note": "Keys milne tak agent local analysis karta rahega aur BLOCKED hi report karega — fake PASS kabhi nahi."
+    },
+    {
+      "agent": "priya",
+      "name": "Priya",
+      "role": "Campaign / Community Growth Worker",
+      "reports_to": "manager",
+      "current_status": "BLOCKED",
+      "last_run_at": "2026-08-31T12:14:44.052Z",
+      "created_at": "2026-08-31T12:16:09.839Z",
+      "source": "agent-orders.mjs",
+      "kind": "credentials-needed",
+      "title": "Priya BLOCKED — 2 credential(s) chahiye",
+      "needs": [
+        {
+          "env": "META_ACCESS_TOKEN",
+          "how": "Meta for Developers → page access token"
+        },
+        {
+          "env": "META_PAGE_ID",
+          "how": "Meta → Facebook page ID"
+        }
+      ],
+      "owner_action": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): META_ACCESS_TOKEN, META_PAGE_ID",
+      "local_work_possible": true,
+      "queue": {
+        "type": "agent-run",
+        "payload": {
+          "agent": "priya"
+        },
+        "priority": "normal"
+      },
+      "note": "Keys milne tak agent local analysis karta rahega aur BLOCKED hi report karega — fake PASS kabhi nahi."
+    },
+    {
+      "agent": "rahul",
+      "name": "Rahul",
+      "role": "Uptime & Performance Worker",
+      "reports_to": "guardian",
+      "current_status": "BLOCKED",
+      "last_run_at": "2026-08-31T12:14:59.187Z",
+      "created_at": "2026-08-31T12:16:09.839Z",
+      "source": "agent-orders.mjs",
+      "kind": "credentials-needed",
+      "title": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "needs": [
+        {
+          "env": "SITE_URL",
+          "how": "Production URL (default: https://panikajeevansathi.onrender.com)"
+        }
+      ],
+      "owner_action": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "local_work_possible": true,
+      "queue": {
+        "type": "agent-run",
+        "payload": {
+          "agent": "rahul"
+        },
+        "priority": "normal"
+      },
+      "note": "Keys milne tak agent local analysis karta rahega aur BLOCKED hi report karega — fake PASS kabhi nahi."
+    },
+    {
+      "agent": "meera",
+      "name": "Meera",
+      "role": "Email & Notification Composer",
+      "reports_to": "manager",
+      "current_status": "BLOCKED",
+      "last_run_at": "2026-08-31T12:14:59.436Z",
+      "created_at": "2026-08-31T12:16:09.839Z",
+      "source": "agent-orders.mjs",
+      "kind": "credentials-needed",
+      "title": "Meera BLOCKED — 1 credential(s) chahiye",
+      "needs": [
+        {
+          "env": "RESEND_API_KEY",
+          "how": "Resend.com → API key (owner email reports ke liye)"
+        }
+      ],
+      "owner_action": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): RESEND_API_KEY",
+      "local_work_possible": true,
+      "queue": {
+        "type": "agent-run",
+        "payload": {
+          "agent": "meera"
+        },
+        "priority": "normal"
+      },
+      "note": "Keys milne tak agent local analysis karta rahega aur BLOCKED hi report karega — fake PASS kabhi nahi."
+    }
+  ],
+  "enqueued_jobs": [
+    "order_manager_blocked-dependency",
+    "order_pooja_credentials-needed",
+    "order_priya_credentials-needed",
+    "order_rahul_credentials-needed",
+    "order_meera_credentials-needed"
+  ],
+  "tasks_added_for": [
+    "manager",
+    "pooja",
+    "priya",
+    "rahul",
+    "meera"
+  ],
+  "queue": {
+    "pending": 5,
+    "running": 0,
+    "done": 7,
+    "failed": 0,
+    "updated_at": "2026-08-31T12:16:09.852Z"
+  },
+  "next_step": "node scripts/agent-queue-worker.mjs"
+}

@@ -1,4 +1,245 @@
 {
   "agent": "guardian",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_5490388f4589c488",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T11:50:42.637Z",
+      "read": false
+    },
+    {
+      "id": "msg_80ef35ae1d082b42",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T11:50:42.645Z",
+      "read": false
+    },
+    {
+      "id": "msg_14eae0eac1837221",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T11:55:14.834Z",
+      "read": false
+    },
+    {
+      "id": "msg_b7be795ef80731df",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T11:55:14.845Z",
+      "read": false
+    },
+    {
+      "id": "msg_ed6a039ebb1950a4",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T11:56:47.979Z",
+      "read": false
+    },
+    {
+      "id": "msg_89e1096a1e52042d",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T11:56:47.987Z",
+      "read": false
+    },
+    {
+      "id": "msg_e842d1f038d7dfc3",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T11:58:36.426Z",
+      "read": false
+    },
+    {
+      "id": "msg_620543026887311e",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T11:58:36.435Z",
+      "read": false
+    },
+    {
+      "id": "msg_ca5812f99fb75e7d",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:01:15.848Z",
+      "read": false
+    },
+    {
+      "id": "msg_f75a422d4a9a5867",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:01:15.913Z",
+      "read": false
+    },
+    {
+      "id": "msg_91ad3f8b0597e130",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:03:06.699Z",
+      "read": false
+    },
+    {
+      "id": "msg_450f7ccf67403be8",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:03:06.709Z",
+      "read": false
+    },
+    {
+      "id": "msg_c65d66e2abb8d57d",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:06:04.520Z",
+      "read": false
+    },
+    {
+      "id": "msg_c11649ac4868210f",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:06:04.529Z",
+      "read": false
+    },
+    {
+      "id": "msg_53cf13ba6d0f5ebf",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:07:54.082Z",
+      "read": false
+    },
+    {
+      "id": "msg_bd26eccc7d1045f9",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:07:54.092Z",
+      "read": false
+    },
+    {
+      "id": "msg_a6ac6a161652383b",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager abhi tak chala hi nahi — pehla run queue mein",
+      "body": "Kuch nahi karna — queue worker pehla run khud karega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:11.880Z",
+      "read": false
+    },
+    {
+      "id": "msg_614ee835b312f0f8",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:11.889Z",
+      "read": false
+    },
+    {
+      "id": "msg_2ca7dc3e39b51bbe",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:06:43.327Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:38.218Z",
+      "read": false
+    },
+    {
+      "id": "msg_e94919e5119fdcd3",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:08:38.227Z",
+      "read": false
+    },
+    {
+      "id": "msg_d47474c39b5dc25d",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:14:20.303Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:14:21.146Z",
+      "read": false
+    },
+    {
+      "id": "msg_00317d4d63a52daa",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:14:21.154Z",
+      "read": false
+    },
+    {
+      "id": "msg_7e5d8b0f86375d33",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Manager BLOCKED — dependents/wajah dekhni hai (run hua tha, 2026-08-31T12:14:59.776Z)",
+      "body": "Iska reason uske report mein hai (reports/agents/*-latest.json). Queue worker dobara chala kar taaza status laayega.",
+      "priority": "normal",
+      "at": "2026-08-31T12:16:09.841Z",
+      "read": false
+    },
+    {
+      "id": "msg_1be0c97703192850",
+      "from": "guardian",
+      "to": "guardian",
+      "subject": "Rahul BLOCKED — 1 credential(s) chahiye",
+      "body": "Ye env keys set karein (Render dashboard → Environment, ya GitHub → Secrets): SITE_URL",
+      "priority": "normal",
+      "at": "2026-08-31T12:16:09.849Z",
+      "read": false
+    }
+  ]
 }

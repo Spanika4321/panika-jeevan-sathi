@@ -1,1 +1,17 @@
 {"ts":"2026-08-31T00:29:34.028Z","event":"run","status":"OK","duration_ms":396,"summary":"manager cycle — pooja=PASS priya=PASS guardian=PASS","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T11:23:07.130Z","event":"run","status":"OK","duration_ms":319,"summary":"manager cycle — pooja=PASS priya=PASS guardian=PASS","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T11:30:02.125Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"pooja=BLOCKED priya=BLOCKED guardian=OK","details":{"blocked":["pooja","priya"],"production_deploy":"NOT_AUTOMATICALLY_TRIGGERED"}}
+{"ts":"2026-08-31T11:50:32.700Z","event":"run","status":"BLOCKED","duration_ms":300,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T11:51:25.632Z","event":"run","status":"BLOCKED","duration_ms":324,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T11:56:47.130Z","event":"run","status":"BLOCKED","duration_ms":328,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T11:57:26.551Z","event":"run","status":"BLOCKED","duration_ms":340,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T12:01:14.477Z","event":"run","status":"BLOCKED","duration_ms":417,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T12:01:56.017Z","event":"run","status":"BLOCKED","duration_ms":337,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T12:06:03.647Z","event":"run","status":"BLOCKED","duration_ms":329,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T12:06:43.333Z","event":"run","status":"BLOCKED","duration_ms":350,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T12:08:38.758Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"pooja=BLOCKED priya=BLOCKED guardian=OK","details":{"blocked":["pooja","priya"],"production_deploy":"NOT_AUTOMATICALLY_TRIGGERED"}}
+{"ts":"2026-08-31T12:08:38.771Z","event":"run","status":"BLOCKED","duration_ms":398,"summary":"queue job order_manager_first-run (agent-run): 95 passed, 0 failed","details":{"job_id":"order_manager_first-run","job_type":"agent-run","command":"agents/manager.mjs","exit_code":0}}
+{"ts":"2026-08-31T12:08:54.360Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"pooja=BLOCKED priya=BLOCKED guardian=OK","details":{"blocked":["pooja","priya"],"production_deploy":"NOT_AUTOMATICALLY_TRIGGERED"}}
+{"ts":"2026-08-31T12:08:54.368Z","event":"run","status":"BLOCKED","duration_ms":368,"summary":"queue job order_manager_blocked-dependency (agent-run): 95 passed, 0 failed","details":{"job_id":"order_manager_blocked-dependency","job_type":"agent-run","command":"agents/manager.mjs","exit_code":0}}
+{"ts":"2026-08-31T12:14:20.307Z","event":"run","status":"BLOCKED","duration_ms":341,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T12:14:59.779Z","event":"run","status":"BLOCKED","duration_ms":335,"summary":"BLOCKED","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
