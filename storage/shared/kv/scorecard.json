@@ -3,40 +3,40 @@
   "values": {
     "latest": {
       "value": {
-        "generated_at": "2026-08-31T06:38:33.441Z",
+        "generated_at": "2026-08-31T07:17:15.122Z",
         "agents": 12,
-        "total_runs": 44,
+        "total_runs": 111,
         "agents_never_run": [],
         "agents_with_failures": [],
         "queue": {
-          "pending": 17,
-          "running": 0,
-          "done": 0,
-          "failed": 0,
-          "updated_at": "2026-08-31T06:38:17.777Z"
+          "pending": 0,
+          "running": 1,
+          "done": 28,
+          "failed": 4,
+          "updated_at": "2026-08-31T07:17:15.091Z"
         },
         "ledger_ok": true
       },
-      "at": "2026-08-31T06:38:33.443Z"
+      "at": "2026-08-31T07:17:15.124Z"
     },
     "week-2026-W36": {
       "value": {
-        "generated_at": "2026-08-31T06:38:33.441Z",
+        "generated_at": "2026-08-31T07:17:15.122Z",
         "agents": 12,
-        "total_runs": 44,
+        "total_runs": 111,
         "agents_never_run": [],
         "agents_with_failures": [],
         "queue": {
-          "pending": 17,
-          "running": 0,
-          "done": 0,
-          "failed": 0,
-          "updated_at": "2026-08-31T06:38:17.777Z"
+          "pending": 0,
+          "running": 1,
+          "done": 28,
+          "failed": 4,
+          "updated_at": "2026-08-31T07:17:15.091Z"
         },
         "ledger_ok": true
       },
-      "at": "2026-08-31T06:38:33.444Z"
+      "at": "2026-08-31T07:17:15.125Z"
     }
   },
-  "updated_at": "2026-08-31T06:38:33.444Z"
+  "updated_at": "2026-08-31T07:17:15.125Z"
 }

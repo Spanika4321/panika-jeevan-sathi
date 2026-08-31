@@ -2,166 +2,908 @@
   "agent": "amit",
   "pending": [
     {
+      "id": "task_5318df54f642bff3",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:17:15.026Z",
+      "status": "pending",
+      "meta": {}
+    }
+  ],
+  "running": [],
+  "done": [
+    {
       "id": "task_c208851b2e30ad42",
       "title": "Compute aggregate profile-completeness score",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.742Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.535Z",
+      "finished_at": "2026-08-31T07:19:21.535Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_210f43a2e831c408",
       "title": "Suggest match-quality improvements",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.743Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.537Z",
+      "finished_at": "2026-08-31T07:19:21.538Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_638e3c0675fad1e4",
       "title": "Consider adding profile field: weight",
       "priority": "low",
       "created_at": "2026-08-31T00:29:33.459Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.539Z",
+      "finished_at": "2026-08-31T07:19:21.540Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_d5b9f0e6646e38be",
       "title": "Consider adding profile field: maritalStatus",
       "priority": "low",
       "created_at": "2026-08-31T00:29:33.460Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.541Z",
+      "finished_at": "2026-08-31T07:19:21.542Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_6ee87ef17fdc8ef4",
       "title": "Consider adding profile field: motherTongue",
       "priority": "low",
       "created_at": "2026-08-31T00:29:33.461Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.543Z",
+      "finished_at": "2026-08-31T07:19:21.544Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_a35951f3aec01420",
       "title": "Consider adding profile field: dob",
       "priority": "low",
       "created_at": "2026-08-31T00:29:33.462Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.546Z",
+      "finished_at": "2026-08-31T07:19:21.546Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_561f038d2b4a4f2f",
       "title": "Consider adding profile field: horoscope",
       "priority": "low",
       "created_at": "2026-08-31T00:29:33.462Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.548Z",
+      "finished_at": "2026-08-31T07:19:21.548Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_8444d5be23410ad1",
       "title": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.250Z",
-      "status": "pending",
+      "status": "done",
       "meta": {
         "source": "seo-center",
         "squad": "seo-agent-squad"
-      }
+      },
+      "started_at": "2026-08-31T07:19:21.549Z",
+      "finished_at": "2026-08-31T07:19:21.550Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_bf9c5b7ce8dd99ad",
       "title": "Consider adding profile field: weight",
       "priority": "low",
       "created_at": "2026-08-31T06:37:57.883Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.552Z",
+      "finished_at": "2026-08-31T07:19:21.552Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_f2366fac9f3909f2",
       "title": "Consider adding profile field: maritalStatus",
       "priority": "low",
       "created_at": "2026-08-31T06:37:57.884Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.554Z",
+      "finished_at": "2026-08-31T07:19:21.554Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_0304bab1f0639e8c",
       "title": "Consider adding profile field: motherTongue",
       "priority": "low",
       "created_at": "2026-08-31T06:37:57.885Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.556Z",
+      "finished_at": "2026-08-31T07:19:21.557Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_55569d66866578a5",
       "title": "Consider adding profile field: dob",
       "priority": "low",
       "created_at": "2026-08-31T06:37:57.886Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.558Z",
+      "finished_at": "2026-08-31T07:19:21.559Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_0adb8091c4d16951",
       "title": "Consider adding profile field: horoscope",
       "priority": "low",
       "created_at": "2026-08-31T06:37:57.887Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.560Z",
+      "finished_at": "2026-08-31T07:19:21.561Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_16a759fe35d828f8",
       "title": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.768Z",
-      "status": "pending",
+      "status": "done",
       "meta": {
         "source": "seo-center",
         "squad": "seo-agent-squad"
-      }
+      },
+      "started_at": "2026-08-31T07:19:21.562Z",
+      "finished_at": "2026-08-31T07:19:21.562Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_29e602639b352607",
       "title": "Consider adding profile field: weight",
       "priority": "low",
       "created_at": "2026-08-31T06:38:33.327Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.564Z",
+      "finished_at": "2026-08-31T07:19:21.565Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_6e8336454b9183eb",
       "title": "Consider adding profile field: maritalStatus",
       "priority": "low",
       "created_at": "2026-08-31T06:38:33.328Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.566Z",
+      "finished_at": "2026-08-31T07:19:21.567Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_0531cb2cced1dcfd",
       "title": "Consider adding profile field: motherTongue",
       "priority": "low",
       "created_at": "2026-08-31T06:38:33.329Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.568Z",
+      "finished_at": "2026-08-31T07:19:21.569Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_bced16af247e4b17",
       "title": "Consider adding profile field: dob",
       "priority": "low",
       "created_at": "2026-08-31T06:38:33.331Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.570Z",
+      "finished_at": "2026-08-31T07:19:21.571Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_05c3623b8d0f89bf",
       "title": "Consider adding profile field: horoscope",
       "priority": "low",
       "created_at": "2026-08-31T06:38:33.332Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.572Z",
+      "finished_at": "2026-08-31T07:19:21.572Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_4ff603388246a7c7",
+      "title": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.134Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.574Z",
+      "finished_at": "2026-08-31T07:19:21.574Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_bfc86277e0f4225d",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:11:46.796Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.575Z",
+      "finished_at": "2026-08-31T07:19:21.576Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_f35eb2f9772b2178",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:11:46.797Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.578Z",
+      "finished_at": "2026-08-31T07:19:21.578Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_003b5f2238d6345f",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:11:46.798Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.579Z",
+      "finished_at": "2026-08-31T07:19:21.580Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_66c46e1d89e28e7f",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:11:46.800Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.581Z",
+      "finished_at": "2026-08-31T07:19:21.582Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_43e4a859952e4585",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:11:46.801Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.583Z",
+      "finished_at": "2026-08-31T07:19:21.584Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_0f67ba0856b46edc",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:14:05.376Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.585Z",
+      "finished_at": "2026-08-31T07:19:21.586Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_d842571c2c4cac22",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:14:05.377Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.587Z",
+      "finished_at": "2026-08-31T07:19:21.588Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_56b01a8363620700",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:14:05.378Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.589Z",
+      "finished_at": "2026-08-31T07:19:21.590Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_fcf757e96f7580b2",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:14:05.380Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.591Z",
+      "finished_at": "2026-08-31T07:19:21.592Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_1a0cc32b55d18eae",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:14:05.380Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.593Z",
+      "finished_at": "2026-08-31T07:19:21.593Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_143ee1aba32a039f",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:15:59.597Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.467Z",
+      "finished_at": "2026-08-31T07:19:31.469Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_a5ef4bd3194c561e",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:15:59.598Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.470Z",
+      "finished_at": "2026-08-31T07:19:31.471Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_0f12148059d6ab96",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:15:59.600Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.473Z",
+      "finished_at": "2026-08-31T07:19:31.473Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_247a1e638c980351",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:15:59.601Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.475Z",
+      "finished_at": "2026-08-31T07:19:31.475Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_673f1cd7b304c8b5",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:15:59.602Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.477Z",
+      "finished_at": "2026-08-31T07:19:31.478Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_78579e5b63cfb8d7",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:14.892Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.479Z",
+      "finished_at": "2026-08-31T07:19:31.480Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_47667450c2c88ce5",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:14.893Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.481Z",
+      "finished_at": "2026-08-31T07:19:31.481Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_c3bfd0d4a9da913e",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:14.894Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.483Z",
+      "finished_at": "2026-08-31T07:19:31.483Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_b1ae6cad64723d3f",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:14.895Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.484Z",
+      "finished_at": "2026-08-31T07:19:31.485Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_51bca6eac77d41fb",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:14.896Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.487Z",
+      "finished_at": "2026-08-31T07:19:31.487Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_bc461a3f1bf8fe9d",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:30.169Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.488Z",
+      "finished_at": "2026-08-31T07:19:31.489Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_cfe874b563f97256",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:30.170Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.490Z",
+      "finished_at": "2026-08-31T07:19:31.491Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_cc6381b689cc5b77",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:30.172Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.492Z",
+      "finished_at": "2026-08-31T07:19:31.493Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_6ef5b4b9508b432c",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:30.173Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.495Z",
+      "finished_at": "2026-08-31T07:19:31.495Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_fdb2c46fa5bc1ec3",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:30.174Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.497Z",
+      "finished_at": "2026-08-31T07:19:31.497Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_7bbcb2879d1b7709",
+      "title": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.863Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:31.499Z",
+      "finished_at": "2026-08-31T07:19:31.500Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_6d3dd29dcdad82d3",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:59.483Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.501Z",
+      "finished_at": "2026-08-31T07:19:31.503Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_44a1c15a0911255e",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:59.484Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.504Z",
+      "finished_at": "2026-08-31T07:19:31.505Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_0c6bbf4b6300598f",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:59.485Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.507Z",
+      "finished_at": "2026-08-31T07:19:31.508Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_3e32f5beb20fd6ed",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:59.486Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.510Z",
+      "finished_at": "2026-08-31T07:19:31.511Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_1a18534a6a4824a3",
+      "title": "Consider adding profile field: horoscope",
+      "priority": "low",
+      "created_at": "2026-08-31T07:16:59.487Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.512Z",
+      "finished_at": "2026-08-31T07:19:31.513Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_6c8b5bfaefee4fb3",
+      "title": "Consider adding profile field: weight",
+      "priority": "low",
+      "created_at": "2026-08-31T07:17:15.017Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.515Z",
+      "finished_at": "2026-08-31T07:19:31.515Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_16a7f70199c6183a",
+      "title": "Consider adding profile field: maritalStatus",
+      "priority": "low",
+      "created_at": "2026-08-31T07:17:15.019Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.517Z",
+      "finished_at": "2026-08-31T07:19:31.518Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_a70e01bcfc9cd1f9",
+      "title": "Consider adding profile field: motherTongue",
+      "priority": "low",
+      "created_at": "2026-08-31T07:17:15.020Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.519Z",
+      "finished_at": "2026-08-31T07:19:31.520Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_b49b70a265eb8c5c",
+      "title": "Consider adding profile field: dob",
+      "priority": "low",
+      "created_at": "2026-08-31T07:17:15.025Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:31.521Z",
+      "finished_at": "2026-08-31T07:19:31.522Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T06:38:33.332Z"
+  "updated_at": "2026-08-31T07:19:31.522Z"
 }

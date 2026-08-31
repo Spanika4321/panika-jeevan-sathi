@@ -243,10 +243,65 @@ Without SMTP the verification / reset links are shown on screen to the member an
 
 ## Backups
 
-Everything lives in `PJS_DATA_DIR`: the SQLite database, uploaded photos (`uploads/`) and the mail
-outbox. Back up by copying that folder; restore by copying it back and restarting.
-With Cloudflare D1/R2 the data is already off-box; R2 is the photo store, D1 can be exported from
-the Cloudflare dashboard.
+`npm run backup` writes a verifiable snapshot of **everything that matters** — the member database
+and photos (`data/`) plus the 12 agents' permanent memory (`storage/`) — into `.backups/pjs-<timestamp>/`
+with a sha256 manifest, then immediately re-hashes every file to prove the snapshot is readable:
+
+```bash
+npm run backup                       # snapshot + integrity verification
+npm run backup -- --keep 14          # prune, keeping the 14 newest
+npm run backup -- --list             # what exists, and how many members each snapshot held
+npm run backup -- --verify .backups/pjs-20260831T071500   # prove it is restorable
+npm run backup -- --dest /mnt/usb    # straight onto another disk
+npm run restore -- .backups/pjs-20260831T071500           # dry run: shows the diff, writes nothing
+npm run restore -- .backups/pjs-20260831T071500 --force   # apply (old data kept in data-replaced-*/)
+```
+
+A restore refuses to run if the manifest does not verify, because a half-written snapshot replacing
+live member data silently is the one failure mode this site cannot afford. `npm run backup:selftest`
+(round trip + tamper detection) is part of the Guardian health check, so a broken backup path fails
+CI instead of being discovered during an incident.
+
+With Cloudflare D1/R2 the data is already off-box — but those hold *today's* state, not a rewind
+point, so the snapshot above is still what you keep.
+
+## SEO Center — connecting the real pipeline (one-time, ~10 minutes)
+
+`/seo-center.html` is the admin-only growth dashboard. It shows **only real**
+Google Search Console data and never invents numbers: while a credential is
+missing the stage reads `BLOCKED` / `NOT CONNECTED`, and that honest state is
+itself verified by `npm run seo:selftest`.
+
+```bash
+npm run seo:status     # what is connected, what is missing, and where to get it
+```
+
+1. **Google Cloud Console** → APIs & Services → enable *Google Search Console API* →
+   *Credentials* → create an **OAuth client ID (Web application)**:
+   - Authorized redirect URI, exactly:
+     `https://panikajeevansathi.onrender.com/api/seo/oauth/callback`
+     (add `http://localhost:3000/api/seo/oauth/callback` too, for local runs)
+   - set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on the service.
+2. **Search Console** → Add property → **Domain** → `panikajeevansathi.com` → verify with the
+   DNS TXT record (or paste the HTML-tag token into `GOOGLE_SITE_VERIFICATION`, which the site
+   injects into every public page at render time). The property string to store is
+   `sc-domain:panikajeevansathi.com` (`GOOGLE_SEARCH_CONSOLE_SITE`).
+3. **Gemini** — aistudio.google.com → *Create API key* → `GEMINI_API_KEY`
+   (optionally a second, OpenAI-compatible fallback: `GEMINI_ROUTER_URL` +
+   `GEMINI_ROUTER_API_KEY` + `GEMINI_ROUTER_MODEL`).
+4. **Daily run** — either `SEO_SCHEDULER=1` on the service (the dashboard shows the next
+   run time), or copy `ops/seo-cycle.workflow.yml` to `.github/workflows/seo-cycle.yml`
+   for the free GitHub Actions cron.
+5. Optional permanence: `FIL_ONE_*` mirrors every report to Filecoin/S3 storage;
+   `RESEND_API_KEY` lets Meera actually email the owner report.
+
+Then verify the whole chain end to end:
+
+```bash
+npm run seo:cycle      # Check → Search Data → AI → Pooja → Priya → Manager → Report → Verify
+npm run seo:verify     # the reports are really readable back from permanent storage
+npm run seo:squad      # all 12 agents do their share in one round
+```
 
 ## Checks after deploying
 
@@ -258,3 +313,15 @@ curl -I https://your-domain/                # 200
 Then run the member flow once: register → complete profile → search → interest → accept → message →
 log out → log in again (data must still be there). Locally `npm test` runs 134 automated assertions
 covering exactly this.
+
+```bash
+npm run test:all       # 43 files parsed, 134 e2e assertions, 135 Guardian checks, 49 render-contract checks, SEO anti-fake self-test
+npm run health         # the Guardian board on its own (design lock, SEO, headers, backup round trip, queue)
+npm run seo:status     # every pipeline stage: CONNECTED / BLOCKED, and which key unlocks it
+npm run backup         # verifiable snapshot of data/ + storage/
+```
+
+Expected shape of a healthy answer: every stage that needs no credential is
+`CONNECTED`, the credential-gated ones say `BLOCKED` with the exact variable
+name. A `PASS` that appeared without credentials would itself be the bug — the
+`seo:selftest` suite exists to prove the pipeline cannot invent one.

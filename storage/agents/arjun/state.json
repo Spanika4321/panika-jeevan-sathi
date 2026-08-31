@@ -1,9 +1,15 @@
 {
   "agent": "arjun",
   "status": "OK",
-  "last_run_at": "2026-08-31T06:38:18.115Z",
+  "last_run_at": "2026-08-31T07:19:06.344Z",
   "last_status": "OK",
-  "runs": 3,
+  "runs": 11,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T06:38:18.115Z"
+  "updated_at": "2026-08-31T07:19:06.344Z",
+  "last_job": {
+    "id": "job_eb4d035e70f67a71",
+    "type": "seo-center.assignment",
+    "at": "2026-08-31T07:16:59.752Z",
+    "status": "OK"
+  }
 }

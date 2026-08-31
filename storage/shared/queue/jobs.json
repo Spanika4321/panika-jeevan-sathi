@@ -1,25 +1,72 @@
 {
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
-      "id": "job_6aaa2b6a984f81d9",
-      "type": "daily-rollup",
+      "id": "job_b60422bb4211074e",
+      "type": "seo-center.assignment",
       "payload": {
-        "scope": "all-agents"
+        "worker": "meera",
+        "subject": "SEO Center: owner email composer"
       },
       "priority": "high",
-      "created_at": "2026-08-31T00:29:17.750Z",
-      "attempts": 0
+      "created_at": "2026-08-31T06:38:17.777Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:44.264Z",
+      "finished_at": "2026-08-31T07:15:44.314Z",
+      "result": {
+        "worker": "meera",
+        "status": "BLOCKED",
+        "subject": "SEO Center: owner email composer",
+        "detail": "],",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
-      "id": "job_1ebe4855d7c7c0d9",
+      "id": "job_a59363070b22d928",
       "type": "seo-center.assignment",
       "payload": {
         "worker": "arjun",
         "subject": "SEO Center: backlink research — keyword clusters"
       },
       "priority": "high",
-      "created_at": "2026-08-31T06:37:42.230Z",
-      "attempts": 0
+      "created_at": "2026-08-31T07:11:31.124Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:44.317Z",
+      "finished_at": "2026-08-31T07:15:44.364Z",
+      "result": {
+        "worker": "arjun",
+        "status": "OK",
+        "subject": "SEO Center: backlink research — keyword clusters",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_6627bfa5b0bb84dc",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "meera",
+        "subject": "SEO Center: owner email composer"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T07:11:31.142Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:44.367Z",
+      "finished_at": "2026-08-31T07:15:44.414Z",
+      "result": {
+        "worker": "meera",
+        "status": "BLOCKED",
+        "subject": "SEO Center: owner email composer",
+        "detail": "],",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_959391a1656a63b2",
@@ -30,7 +77,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.235Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:44.417Z",
+      "finished_at": "2026-08-31T07:15:44.461Z",
+      "result": {
+        "worker": "kavita",
+        "status": "OK",
+        "subject": "SEO Center: content briefs — public pages",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_3a8b075d389f4043",
@@ -41,7 +99,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.240Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:44.463Z",
+      "finished_at": "2026-08-31T07:15:59.499Z",
+      "result": {
+        "worker": "rahul",
+        "status": "BLOCKED",
+        "subject": "SEO Center: reachability samples",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_be14bb4cfa24d17f",
@@ -52,7 +121,18 @@
       },
       "priority": "critical",
       "created_at": "2026-08-31T06:37:42.245Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:59.503Z",
+      "finished_at": "2026-08-31T07:15:59.557Z",
+      "result": {
+        "worker": "sneha",
+        "status": "OK",
+        "subject": "SEO Center: noindex + secrets audit",
+        "detail": "}",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_4ab3c0231048a908",
@@ -63,7 +143,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.251Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:59.560Z",
+      "finished_at": "2026-08-31T07:15:59.616Z",
+      "result": {
+        "worker": "amit",
+        "status": "OK",
+        "subject": "SEO Center: profile-quality → landing-page ideas",
+        "detail": "],",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_08a410da21c807e7",
@@ -74,7 +165,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.255Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:59.619Z",
+      "finished_at": "2026-08-31T07:15:59.666Z",
+      "result": {
+        "worker": "nisha",
+        "status": "OK",
+        "subject": "SEO Center: FAQ knowledge base",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_7877b93bd18007a1",
@@ -85,29 +187,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.260Z",
-      "attempts": 0
-    },
-    {
-      "id": "job_a596ebc1a747f460",
-      "type": "seo-center.assignment",
-      "payload": {
-        "worker": "meera",
-        "subject": "SEO Center: owner email composer"
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:59.668Z",
+      "finished_at": "2026-08-31T07:15:59.717Z",
+      "result": {
+        "worker": "vikram",
+        "status": "OK",
+        "subject": "SEO Center: scorecard rollup",
+        "detail": "}",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
       },
-      "priority": "high",
-      "created_at": "2026-08-31T06:37:42.264Z",
-      "attempts": 0
-    },
-    {
-      "id": "job_b8d586ed6ab0eac9",
-      "type": "seo-center.assignment",
-      "payload": {
-        "worker": "arjun",
-        "subject": "SEO Center: backlink research — keyword clusters"
-      },
-      "priority": "high",
-      "created_at": "2026-08-31T06:38:17.754Z",
-      "attempts": 0
+      "error": null
     },
     {
       "id": "job_1f9d32ae7f0fd92e",
@@ -118,7 +209,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.757Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:59.719Z",
+      "finished_at": "2026-08-31T07:15:59.769Z",
+      "result": {
+        "worker": "kavita",
+        "status": "OK",
+        "subject": "SEO Center: content briefs — public pages",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_71ea19fb80fb8001",
@@ -129,7 +231,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.762Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:59.771Z",
+      "finished_at": "2026-08-31T07:16:14.811Z",
+      "result": {
+        "worker": "rahul",
+        "status": "BLOCKED",
+        "subject": "SEO Center: reachability samples",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_feb840ba39f16772",
@@ -140,7 +253,18 @@
       },
       "priority": "critical",
       "created_at": "2026-08-31T06:38:17.765Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:14.813Z",
+      "finished_at": "2026-08-31T07:16:14.859Z",
+      "result": {
+        "worker": "sneha",
+        "status": "OK",
+        "subject": "SEO Center: noindex + secrets audit",
+        "detail": "}",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_033b321cebb9f615",
@@ -151,7 +275,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.768Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:14.861Z",
+      "finished_at": "2026-08-31T07:16:14.908Z",
+      "result": {
+        "worker": "amit",
+        "status": "OK",
+        "subject": "SEO Center: profile-quality → landing-page ideas",
+        "detail": "],",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_c962ee0cd49b6a9e",
@@ -162,7 +297,18 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.772Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:14.910Z",
+      "finished_at": "2026-08-31T07:16:14.954Z",
+      "result": {
+        "worker": "nisha",
+        "status": "OK",
+        "subject": "SEO Center: FAQ knowledge base",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
       "id": "job_33b16e1761037dac",
@@ -173,22 +319,392 @@
       },
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.775Z",
-      "attempts": 0
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:14.956Z",
+      "finished_at": "2026-08-31T07:16:14.998Z",
+      "result": {
+        "worker": "vikram",
+        "status": "OK",
+        "subject": "SEO Center: scorecard rollup",
+        "detail": "}",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     },
     {
-      "id": "job_b60422bb4211074e",
+      "id": "job_36fb32958ef83b92",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "kavita",
+        "subject": "SEO Center: content briefs — public pages"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.127Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:14.999Z",
+      "finished_at": "2026-08-31T07:16:15.039Z",
+      "result": {
+        "worker": "kavita",
+        "status": "OK",
+        "subject": "SEO Center: content briefs — public pages",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_f57eacf10cf5e473",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "rahul",
+        "subject": "SEO Center: reachability samples"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.130Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:15.041Z",
+      "finished_at": "2026-08-31T07:16:30.075Z",
+      "result": {
+        "worker": "rahul",
+        "status": "BLOCKED",
+        "subject": "SEO Center: reachability samples",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_67aa465962f876db",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "sneha",
+        "subject": "SEO Center: noindex + secrets audit"
+      },
+      "priority": "critical",
+      "created_at": "2026-08-31T07:11:31.133Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:30.079Z",
+      "finished_at": "2026-08-31T07:16:30.133Z",
+      "result": {
+        "worker": "sneha",
+        "status": "OK",
+        "subject": "SEO Center: noindex + secrets audit",
+        "detail": "}",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_9cb83f176b3b13fc",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "amit",
+        "subject": "SEO Center: profile-quality → landing-page ideas"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.135Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:30.137Z",
+      "finished_at": "2026-08-31T07:16:30.185Z",
+      "result": {
+        "worker": "amit",
+        "status": "OK",
+        "subject": "SEO Center: profile-quality → landing-page ideas",
+        "detail": "],",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_ec52d2c9cec8875d",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "nisha",
+        "subject": "SEO Center: FAQ knowledge base"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.137Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:30.187Z",
+      "finished_at": "2026-08-31T07:16:30.232Z",
+      "result": {
+        "worker": "nisha",
+        "status": "OK",
+        "subject": "SEO Center: FAQ knowledge base",
+        "detail": "]",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_5987409d20f2ba41",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "vikram",
+        "subject": "SEO Center: scorecard rollup"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.139Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:30.234Z",
+      "finished_at": "2026-08-31T07:16:30.283Z",
+      "result": {
+        "worker": "vikram",
+        "status": "OK",
+        "subject": "SEO Center: scorecard rollup",
+        "detail": "}",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_eb4d035e70f67a71",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "arjun",
+        "subject": "SEO Center: backlink research — keyword clusters"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T07:16:43.850Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:59.690Z",
+      "finished_at": "2026-08-31T07:16:59.749Z",
+      "result": {
+        "worker": "arjun",
+        "status": "OK",
+        "subject": "SEO Center: backlink research — keyword clusters",
+        "detail": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_f116f67e4e226fbe",
       "type": "seo-center.assignment",
       "payload": {
         "worker": "meera",
         "subject": "SEO Center: owner email composer"
       },
       "priority": "high",
-      "created_at": "2026-08-31T06:38:17.777Z",
-      "attempts": 0
+      "created_at": "2026-08-31T07:16:43.872Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:59.754Z",
+      "finished_at": "2026-08-31T07:16:59.813Z",
+      "result": {
+        "worker": "meera",
+        "status": "BLOCKED",
+        "subject": "SEO Center: owner email composer",
+        "detail": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_b6da7c48861a5234",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "kavita",
+        "subject": "SEO Center: content briefs — public pages"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.853Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:59.816Z",
+      "finished_at": "2026-08-31T07:16:59.864Z",
+      "result": {
+        "worker": "kavita",
+        "status": "OK",
+        "subject": "SEO Center: content briefs — public pages",
+        "detail": "5 topics in backlog, 6 internal-link targets identified.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_2c89375ca572aa4a",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "rahul",
+        "subject": "SEO Center: reachability samples"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.858Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:16:59.867Z",
+      "finished_at": "2026-08-31T07:17:14.906Z",
+      "result": {
+        "worker": "rahul",
+        "status": "BLOCKED",
+        "subject": "SEO Center: reachability samples",
+        "detail": "Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_d44f7891aa4eec86",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "sneha",
+        "subject": "SEO Center: noindex + secrets audit"
+      },
+      "priority": "critical",
+      "created_at": "2026-08-31T07:16:43.861Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:17:14.911Z",
+      "finished_at": "2026-08-31T07:17:14.970Z",
+      "result": {
+        "worker": "sneha",
+        "status": "OK",
+        "subject": "SEO Center: noindex + secrets audit",
+        "detail": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_da00d2d8b42f42ce",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "amit",
+        "subject": "SEO Center: profile-quality → landing-page ideas"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.864Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:17:14.973Z",
+      "finished_at": "2026-08-31T07:17:15.040Z",
+      "result": {
+        "worker": "amit",
+        "status": "OK",
+        "subject": "SEO Center: profile-quality → landing-page ideas",
+        "detail": "22/27 profile fields detected in the data model (score 81/100). No private data read.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_1c43c1777ea5ed54",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "nisha",
+        "subject": "SEO Center: FAQ knowledge base"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.867Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:17:15.042Z",
+      "finished_at": "2026-08-31T07:17:15.088Z",
+      "result": {
+        "worker": "nisha",
+        "status": "OK",
+        "subject": "SEO Center: FAQ knowledge base",
+        "detail": "FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only).",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
+    },
+    {
+      "id": "job_95ab1cfd82709dfb",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "vikram",
+        "subject": "SEO Center: scorecard rollup"
+      },
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.869Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:17:15.091Z",
+      "finished_at": "2026-08-31T07:17:15.140Z",
+      "result": {
+        "worker": "vikram",
+        "status": "OK",
+        "subject": "SEO Center: scorecard rollup",
+        "detail": "Scorecard built: 111 total runs, 0 failing, 0 never run.",
+        "note": "executed by scripts/queue-drain.mjs from the durable queue"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
-  "failed": [],
-  "updated_at": "2026-08-31T06:38:17.777Z"
+  "failed": [
+    {
+      "id": "job_6aaa2b6a984f81d9",
+      "type": "daily-rollup",
+      "payload": {
+        "scope": "all-agents"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T00:29:17.750Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:30.844Z",
+      "finished_at": "2026-08-31T07:15:30.900Z",
+      "result": null,
+      "error": "Cannot read properties of undefined (reading 'toUpperCase')"
+    },
+    {
+      "id": "job_1ebe4855d7c7c0d9",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "arjun",
+        "subject": "SEO Center: backlink research — keyword clusters"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.230Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:30.901Z",
+      "finished_at": "2026-08-31T07:15:30.949Z",
+      "result": null,
+      "error": "Cannot read properties of undefined (reading 'toUpperCase')"
+    },
+    {
+      "id": "job_a596ebc1a747f460",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "meera",
+        "subject": "SEO Center: owner email composer"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.264Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:30.950Z",
+      "finished_at": "2026-08-31T07:15:30.995Z",
+      "result": null,
+      "error": "Cannot read properties of undefined (reading 'toUpperCase')"
+    },
+    {
+      "id": "job_b8d586ed6ab0eac9",
+      "type": "seo-center.assignment",
+      "payload": {
+        "worker": "arjun",
+        "subject": "SEO Center: backlink research — keyword clusters"
+      },
+      "priority": "high",
+      "created_at": "2026-08-31T06:38:17.754Z",
+      "attempts": 1,
+      "claimed_by": "queue-drain",
+      "claimed_at": "2026-08-31T07:15:36.317Z",
+      "finished_at": "2026-08-31T07:15:36.376Z",
+      "result": null,
+      "error": "Cannot read properties of undefined (reading 'toUpperCase')\n    at runAgent (file:///home/user/panika-jeevan-sathi/scripts/queue-drain.mjs:71:75) |     at seo-center.assignment (file:///home/user/panika-jeevan-sathi/scripts/queue-drain.mjs:93:20)"
+    }
+  ],
+  "updated_at": "2026-08-31T07:17:15.140Z"
 }

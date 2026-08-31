@@ -20,6 +20,26 @@
       "priority": "critical",
       "at": "2026-08-31T06:38:17.763Z",
       "read": false
+    },
+    {
+      "id": "msg_060b1b956b75b673",
+      "from": "manager",
+      "to": "sneha",
+      "subject": "SEO Center: noindex + secrets audit",
+      "body": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "at": "2026-08-31T07:11:31.131Z",
+      "read": false
+    },
+    {
+      "id": "msg_da221962fa73feb1",
+      "from": "manager",
+      "to": "sneha",
+      "subject": "SEO Center: noindex + secrets audit",
+      "body": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "at": "2026-08-31T07:16:43.859Z",
+      "read": false
     }
   ]
 }

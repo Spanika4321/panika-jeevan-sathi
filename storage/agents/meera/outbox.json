@@ -1,4 +1,15 @@
 {
   "agent": "meera",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_5eac7a098e4649b6",
+      "from": "meera",
+      "to": "manager",
+      "subject": "15 task(s) need an owner decision (meera)",
+      "body": "Moved out of meera's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Compose owner email from verified step outcomes\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n… and 5 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:21.641Z",
+      "read": false
+    }
+  ]
 }

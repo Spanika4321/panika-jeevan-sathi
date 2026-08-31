@@ -1,8 +1,8 @@
 {
   "agent": "guardian",
   "counters": {
-    "runs": 3,
-    "status_ok": 3
+    "runs": 6,
+    "status_ok": 6
   },
   "history": [
     {
@@ -22,7 +22,25 @@
       "status": "OK",
       "duration_ms": 288,
       "summary": "Health check executed during the SEO Center squad round."
+    },
+    {
+      "at": "2026-08-31T07:11:31.568Z",
+      "status": "OK",
+      "duration_ms": 423,
+      "summary": "Health check executed during the SEO Center squad round."
+    },
+    {
+      "at": "2026-08-31T07:13:50.066Z",
+      "status": "OK",
+      "duration_ms": 401,
+      "summary": "132 passed, 0 failed"
+    },
+    {
+      "at": "2026-08-31T07:16:44.264Z",
+      "status": "OK",
+      "duration_ms": 389,
+      "summary": "Health check executed during the SEO Center squad round."
     }
   ],
-  "updated_at": "2026-08-31T06:38:18.071Z"
+  "updated_at": "2026-08-31T07:16:44.264Z"
 }

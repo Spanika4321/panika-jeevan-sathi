@@ -4,7 +4,7 @@
 
 ## STATUS: Healthy ✅
 
-- Checks passed: **95**
+- Checks passed: **137**
 - Checks failed: **0**
 
 Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags are in place, private pages are hidden from search engines, security headers are on, the API is responding, and the approved public design is unchanged.
@@ -20,4 +20,9 @@ Everything is working: all pages load, error handling is correct, robots.txt & s
 - 7. Private pages are noindex
 - 8. Security headers
 - 9. API health
+- 15. Agent job queue has a consumer
 - 10. UI baseline (design lock)
+- 11. Delivery layer (gzip, validators, CSP)
+- 12. Content-Security-Policy and transport security
+- 13. Search-engine presentation
+- 14. Member data safety (backup round trip)

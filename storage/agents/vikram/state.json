@@ -1,9 +1,15 @@
 {
   "agent": "vikram",
   "status": "OK",
-  "last_run_at": "2026-08-31T06:38:33.447Z",
+  "last_run_at": "2026-08-31T07:17:15.128Z",
   "last_status": "OK",
-  "runs": 3,
+  "runs": 11,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T06:38:33.447Z"
+  "updated_at": "2026-08-31T07:17:15.142Z",
+  "last_job": {
+    "id": "job_95ab1cfd82709dfb",
+    "type": "seo-center.assignment",
+    "at": "2026-08-31T07:17:15.142Z",
+    "status": "OK"
+  }
 }

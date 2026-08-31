@@ -20,6 +20,26 @@
       "priority": "high",
       "at": "2026-08-31T06:38:17.775Z",
       "read": false
+    },
+    {
+      "id": "msg_a0f158cb3f8ed88a",
+      "from": "manager",
+      "to": "meera",
+      "subject": "SEO Center: owner email composer",
+      "body": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "at": "2026-08-31T07:11:31.140Z",
+      "read": false
+    },
+    {
+      "id": "msg_6777c29547ec2fe5",
+      "from": "manager",
+      "to": "meera",
+      "subject": "SEO Center: owner email composer",
+      "body": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "at": "2026-08-31T07:16:43.870Z",
+      "read": false
     }
   ]
 }

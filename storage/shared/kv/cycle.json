@@ -3,7 +3,7 @@
   "values": {
     "last": {
       "value": {
-        "at": "2026-08-31T00:29:34.030Z",
+        "at": "2026-08-31T07:14:06.027Z",
         "agents": 12,
         "ok": 8,
         "fail": 0,
@@ -13,15 +13,15 @@
             "name": "Guardian (Sardar)",
             "role": "Safety & Health Authority",
             "status": "OK",
-            "duration_ms": 312,
-            "summary": "95 passed, 0 failed"
+            "duration_ms": 401,
+            "summary": "132 passed, 0 failed"
           },
           {
             "id": "pooja",
             "name": "Pooja",
             "role": "SEO / Organic Growth Worker",
             "status": "BLOCKED",
-            "duration_ms": 36,
+            "duration_ms": 34,
             "summary": "BLOCKED"
           },
           {
@@ -29,7 +29,7 @@
             "name": "Priya",
             "role": "Campaign / Community Growth Worker",
             "status": "BLOCKED",
-            "duration_ms": 36,
+            "duration_ms": 41,
             "summary": "BLOCKED"
           },
           {
@@ -37,7 +37,7 @@
             "name": "Arjun",
             "role": "Backlink & Directory Research Worker",
             "status": "OK",
-            "duration_ms": 46,
+            "duration_ms": 53,
             "summary": "OK — 5 target categories curated, 5 rejection rules active. No outreach sent."
           },
           {
@@ -45,7 +45,7 @@
             "name": "Kavita",
             "role": "Content & Blog Drafting Worker",
             "status": "OK",
-            "duration_ms": 48,
+            "duration_ms": 40,
             "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
           },
           {
@@ -53,7 +53,7 @@
             "name": "Rahul",
             "role": "Uptime & Performance Worker",
             "status": "BLOCKED",
-            "duration_ms": 15042,
+            "duration_ms": 15036,
             "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
           },
           {
@@ -61,7 +61,7 @@
             "name": "Sneha",
             "role": "Security & Compliance Worker",
             "status": "OK",
-            "duration_ms": 51,
+            "duration_ms": 40,
             "summary": "OK — 13 private pages noindex-verified, security headers present, no committed secrets found."
           },
           {
@@ -69,7 +69,7 @@
             "name": "Amit",
             "role": "Profile Quality & Match Data Worker",
             "status": "OK",
-            "duration_ms": 47,
+            "duration_ms": 40,
             "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
           },
           {
@@ -77,7 +77,7 @@
             "name": "Nisha",
             "role": "Support & FAQ Knowledge Worker",
             "status": "OK",
-            "duration_ms": 41,
+            "duration_ms": 32,
             "summary": "OK — FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only)."
           },
           {
@@ -85,15 +85,15 @@
             "name": "Vikram",
             "role": "Analytics & Reporting Worker",
             "status": "OK",
-            "duration_ms": 48,
-            "summary": "OK — Scorecard built: 9 total runs, 0 failing, 3 never run."
+            "duration_ms": 41,
+            "summary": "OK — Scorecard built: 66 total runs, 0 failing, 0 never run."
           },
           {
             "id": "meera",
             "name": "Meera",
             "role": "Email & Notification Composer",
             "status": "BLOCKED",
-            "duration_ms": 48,
+            "duration_ms": 37,
             "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
           },
           {
@@ -101,13 +101,13 @@
             "name": "Manager",
             "role": "Coordinator",
             "status": "OK",
-            "duration_ms": 396,
+            "duration_ms": 498,
             "summary": "manager cycle — pooja=PASS priya=PASS guardian=PASS"
           }
         ]
       },
-      "at": "2026-08-31T00:29:34.030Z"
+      "at": "2026-08-31T07:14:06.027Z"
     }
   },
-  "updated_at": "2026-08-31T00:29:34.030Z"
+  "updated_at": "2026-08-31T07:14:06.027Z"
 }

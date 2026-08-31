@@ -160,6 +160,166 @@
       "priority": "high",
       "at": "2026-08-31T06:38:17.775Z",
       "read": false
+    },
+    {
+      "id": "msg_d259ce671bbb0285",
+      "from": "manager",
+      "to": "arjun",
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "body": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "at": "2026-08-31T07:11:31.119Z",
+      "read": false
+    },
+    {
+      "id": "msg_d8da43e7b2ea4082",
+      "from": "manager",
+      "to": "kavita",
+      "subject": "SEO Center: content briefs — public pages",
+      "body": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.125Z",
+      "read": false
+    },
+    {
+      "id": "msg_eeb26d6c86b67ea3",
+      "from": "manager",
+      "to": "rahul",
+      "subject": "SEO Center: reachability samples",
+      "body": "Record reachability samples for /seo-center.html and /robots.txt; track response-time trend from stored history.",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.128Z",
+      "read": false
+    },
+    {
+      "id": "msg_060b1b956b75b673",
+      "from": "manager",
+      "to": "sneha",
+      "subject": "SEO Center: noindex + secrets audit",
+      "body": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "at": "2026-08-31T07:11:31.131Z",
+      "read": false
+    },
+    {
+      "id": "msg_cb154c8b61db9017",
+      "from": "manager",
+      "to": "amit",
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "body": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.133Z",
+      "read": false
+    },
+    {
+      "id": "msg_bb8c665c8f2a9b6e",
+      "from": "manager",
+      "to": "nisha",
+      "subject": "SEO Center: FAQ knowledge base",
+      "body": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.135Z",
+      "read": false
+    },
+    {
+      "id": "msg_d4ad715a35e79cb5",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.138Z",
+      "read": false
+    },
+    {
+      "id": "msg_a0f158cb3f8ed88a",
+      "from": "manager",
+      "to": "meera",
+      "subject": "SEO Center: owner email composer",
+      "body": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "at": "2026-08-31T07:11:31.140Z",
+      "read": false
+    },
+    {
+      "id": "msg_8bd60d646b2cca0a",
+      "from": "manager",
+      "to": "arjun",
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "body": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "at": "2026-08-31T07:16:43.846Z",
+      "read": false
+    },
+    {
+      "id": "msg_842e76760d048b4e",
+      "from": "manager",
+      "to": "kavita",
+      "subject": "SEO Center: content briefs — public pages",
+      "body": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.851Z",
+      "read": false
+    },
+    {
+      "id": "msg_4f8f4bde70447e57",
+      "from": "manager",
+      "to": "rahul",
+      "subject": "SEO Center: reachability samples",
+      "body": "Record reachability samples for /seo-center.html and /robots.txt; track response-time trend from stored history.",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.854Z",
+      "read": false
+    },
+    {
+      "id": "msg_da221962fa73feb1",
+      "from": "manager",
+      "to": "sneha",
+      "subject": "SEO Center: noindex + secrets audit",
+      "body": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "at": "2026-08-31T07:16:43.859Z",
+      "read": false
+    },
+    {
+      "id": "msg_2e956e309407b15e",
+      "from": "manager",
+      "to": "amit",
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "body": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.861Z",
+      "read": false
+    },
+    {
+      "id": "msg_6ad5278f93134530",
+      "from": "manager",
+      "to": "nisha",
+      "subject": "SEO Center: FAQ knowledge base",
+      "body": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.865Z",
+      "read": false
+    },
+    {
+      "id": "msg_a292476d23b1bfa3",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.867Z",
+      "read": false
+    },
+    {
+      "id": "msg_6777c29547ec2fe5",
+      "from": "manager",
+      "to": "meera",
+      "subject": "SEO Center: owner email composer",
+      "body": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "at": "2026-08-31T07:16:43.870Z",
+      "read": false
     }
   ]
 }

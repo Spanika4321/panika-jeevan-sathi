@@ -1,9 +1,15 @@
 {
   "agent": "kavita",
   "status": "OK",
-  "last_run_at": "2026-08-31T06:38:18.166Z",
+  "last_run_at": "2026-08-31T07:16:59.853Z",
   "last_status": "OK",
-  "runs": 3,
+  "runs": 10,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T06:38:18.166Z"
+  "updated_at": "2026-08-31T07:16:59.867Z",
+  "last_job": {
+    "id": "job_b6da7c48861a5234",
+    "type": "seo-center.assignment",
+    "at": "2026-08-31T07:16:59.867Z",
+    "status": "OK"
+  }
 }

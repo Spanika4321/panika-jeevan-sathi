@@ -1,3 +1,69 @@
 {"ts":"2026-08-31T00:29:33.472Z","event":"run","status":"OK","duration_ms":47,"summary":"OK — 22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"command":"agents/worker.mjs amit","workflow":"agent-storage.yml"}}
 {"ts":"2026-08-31T06:37:57.891Z","event":"run","status":"OK","duration_ms":14,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
 {"ts":"2026-08-31T06:38:33.336Z","event":"run","status":"OK","duration_ms":14,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:11:46.804Z","event":"run","status":"OK","duration_ms":12,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:14:05.388Z","event":"run","status":"OK","duration_ms":40,"summary":"OK — 22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"command":"agents/worker.mjs amit","workflow":"agent-storage.yml"}}
+{"ts":"2026-08-31T07:15:59.607Z","event":"run","status":"OK","duration_ms":13,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:15:59.617Z","level":"info","event":"queue.job.done","job_id":"job_4ab3c0231048a908","job_type":"seo-center.assignment","status":"OK"}
+{"ts":"2026-08-31T07:16:14.900Z","event":"run","status":"OK","duration_ms":12,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:16:14.909Z","level":"info","event":"queue.job.done","job_id":"job_033b321cebb9f615","job_type":"seo-center.assignment","status":"OK"}
+{"ts":"2026-08-31T07:16:30.177Z","event":"run","status":"OK","duration_ms":12,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:16:30.186Z","level":"info","event":"queue.job.done","job_id":"job_9cb83f176b3b13fc","job_type":"seo-center.assignment","status":"OK"}
+{"ts":"2026-08-31T07:16:59.491Z","event":"run","status":"OK","duration_ms":12,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:17:15.031Z","event":"run","status":"OK","duration_ms":19,"summary":"22/27 profile fields detected in the data model (score 81/100). No private data read.","details":{"fields_present":22,"fields_total":27,"present":["name","age","gender","height","religion","community","gotra","education","occupation","income","city","state","country","diet","smoking","drinking","about","photo","email","phone","familyType","manglik"],"missing":["weight","maritalStatus","motherTongue","dob","horoscope"],"searchable_profile_model":true,"completeness_score":81,"note":"Aggregate/schema scan only — koi bhi individual profile data padha nahi gaya."}}
+{"ts":"2026-08-31T07:17:15.041Z","level":"info","event":"queue.job.done","job_id":"job_da00d2d8b42f42ce","job_type":"seo-center.assignment","status":"OK"}
+{"ts":"2026-08-31T07:19:21.536Z","level":"info","event":"task.reviewed","task":"Compute aggregate profile-completeness score"}
+{"ts":"2026-08-31T07:19:21.538Z","level":"info","event":"task.deferred","task":"Suggest match-quality improvements"}
+{"ts":"2026-08-31T07:19:21.541Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:21.543Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:21.544Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:21.547Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:21.549Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:21.551Z","level":"info","event":"task.deferred","task":"Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data)."}
+{"ts":"2026-08-31T07:19:21.553Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:21.555Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:21.557Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:21.559Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:21.561Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:21.563Z","level":"info","event":"task.deferred","task":"Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data)."}
+{"ts":"2026-08-31T07:19:21.566Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:21.568Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:21.569Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:21.571Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:21.573Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:21.575Z","level":"info","event":"task.deferred","task":"Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data)."}
+{"ts":"2026-08-31T07:19:21.577Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:21.579Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:21.581Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:21.583Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:21.584Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:21.586Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:21.588Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:21.590Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:21.592Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:21.594Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:31.469Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:31.472Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:31.474Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:31.476Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:31.478Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:31.480Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:31.482Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:31.484Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:31.486Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:31.488Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:31.490Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:31.492Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:31.494Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:31.496Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:31.498Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:31.501Z","level":"info","event":"task.deferred","task":"Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data)."}
+{"ts":"2026-08-31T07:19:31.504Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:31.506Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:31.509Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:31.512Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}
+{"ts":"2026-08-31T07:19:31.514Z","level":"info","event":"task.deferred","task":"Consider adding profile field: horoscope"}
+{"ts":"2026-08-31T07:19:31.516Z","level":"info","event":"task.deferred","task":"Consider adding profile field: weight"}
+{"ts":"2026-08-31T07:19:31.519Z","level":"info","event":"task.deferred","task":"Consider adding profile field: maritalStatus"}
+{"ts":"2026-08-31T07:19:31.521Z","level":"info","event":"task.deferred","task":"Consider adding profile field: motherTongue"}
+{"ts":"2026-08-31T07:19:31.522Z","level":"info","event":"task.deferred","task":"Consider adding profile field: dob"}

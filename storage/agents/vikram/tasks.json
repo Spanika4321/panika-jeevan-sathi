@@ -1,47 +1,111 @@
 {
   "agent": "vikram",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_6e485d2525db907c",
       "title": "Build daily agent scorecard",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.745Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.606Z",
+      "finished_at": "2026-08-31T07:19:21.607Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_5111e1f29009f014",
       "title": "Compute queue throughput",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.746Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.608Z",
+      "finished_at": "2026-08-31T07:19:21.608Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_3600c33f9a7c27ff",
       "title": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
       "priority": "normal",
       "created_at": "2026-08-31T06:37:42.259Z",
-      "status": "pending",
+      "status": "done",
       "meta": {
         "source": "seo-center",
         "squad": "seo-agent-squad"
-      }
+      },
+      "started_at": "2026-08-31T07:19:21.610Z",
+      "finished_at": "2026-08-31T07:19:21.610Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_09e85c7d65b0b0b6",
       "title": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
       "priority": "normal",
       "created_at": "2026-08-31T06:38:17.774Z",
-      "status": "pending",
+      "status": "done",
       "meta": {
         "source": "seo-center",
         "squad": "seo-agent-squad"
-      }
+      },
+      "started_at": "2026-08-31T07:19:21.611Z",
+      "finished_at": "2026-08-31T07:19:21.612Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
+    },
+    {
+      "id": "task_c8fd1ea63e066dab",
+      "title": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.139Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.613Z",
+      "finished_at": "2026-08-31T07:19:21.614Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
+    },
+    {
+      "id": "task_3434633d987630af",
+      "title": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.869Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.615Z",
+      "finished_at": "2026-08-31T07:19:21.615Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T06:38:17.774Z"
+  "updated_at": "2026-08-31T07:19:21.615Z"
 }

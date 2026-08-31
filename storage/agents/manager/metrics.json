@@ -1,8 +1,8 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 8,
-    "status_ok": 3,
+    "runs": 11,
+    "status_ok": 6,
     "status_fail": 2,
     "status_blocked": 3
   },
@@ -54,7 +54,25 @@
       "status": "OK",
       "duration_ms": 15775,
       "summary": "SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0."
+    },
+    {
+      "at": "2026-08-31T07:11:46.946Z",
+      "status": "OK",
+      "duration_ms": 15825,
+      "summary": "SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0."
+    },
+    {
+      "at": "2026-08-31T07:14:06.022Z",
+      "status": "OK",
+      "duration_ms": 498,
+      "summary": "manager cycle — pooja=PASS priya=PASS guardian=PASS"
+    },
+    {
+      "at": "2026-08-31T07:16:59.642Z",
+      "status": "OK",
+      "duration_ms": 15795,
+      "summary": "SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0."
     }
   ],
-  "updated_at": "2026-08-31T06:38:33.526Z"
+  "updated_at": "2026-08-31T07:16:59.642Z"
 }

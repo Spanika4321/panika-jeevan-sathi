@@ -20,6 +20,26 @@
       "priority": "normal",
       "at": "2026-08-31T06:38:17.759Z",
       "read": false
+    },
+    {
+      "id": "msg_eeb26d6c86b67ea3",
+      "from": "manager",
+      "to": "rahul",
+      "subject": "SEO Center: reachability samples",
+      "body": "Record reachability samples for /seo-center.html and /robots.txt; track response-time trend from stored history.",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.128Z",
+      "read": false
+    },
+    {
+      "id": "msg_4f8f4bde70447e57",
+      "from": "manager",
+      "to": "rahul",
+      "subject": "SEO Center: reachability samples",
+      "body": "Record reachability samples for /seo-center.html and /robots.txt; track response-time trend from stored history.",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.854Z",
+      "read": false
     }
   ]
 }

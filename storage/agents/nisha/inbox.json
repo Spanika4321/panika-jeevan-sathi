@@ -20,6 +20,26 @@
       "priority": "normal",
       "at": "2026-08-31T06:38:17.769Z",
       "read": false
+    },
+    {
+      "id": "msg_bb8c665c8f2a9b6e",
+      "from": "manager",
+      "to": "nisha",
+      "subject": "SEO Center: FAQ knowledge base",
+      "body": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.135Z",
+      "read": false
+    },
+    {
+      "id": "msg_6ad5278f93134530",
+      "from": "manager",
+      "to": "nisha",
+      "subject": "SEO Center: FAQ knowledge base",
+      "body": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.865Z",
+      "read": false
     }
   ]
 }

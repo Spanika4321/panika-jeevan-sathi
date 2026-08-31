@@ -1,9 +1,9 @@
 {
   "agent": "priya",
   "status": "BLOCKED",
-  "last_run_at": "2026-08-31T02:26:05.936Z",
+  "last_run_at": "2026-08-31T07:13:50.150Z",
   "last_status": "BLOCKED",
-  "runs": 6,
+  "runs": 7,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T02:26:05.936Z"
+  "updated_at": "2026-08-31T07:13:50.150Z"
 }

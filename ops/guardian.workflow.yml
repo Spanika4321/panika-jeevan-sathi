@@ -61,6 +61,23 @@ jobs:
       - name: 4) Guardian health check + design lock
         run: node scripts/health-check.mjs
 
+      - name: 5) Backup round trip + tamper detection
+        run: node scripts/backup.mjs --selftest
+
+      - name: 6) SEO pipeline anti-fake self-test
+        run: node scripts/seo-selftest.mjs
+
+      - name: 7) Agent queue + task consumers
+        run: |
+          node scripts/queue-drain.mjs --dry-run
+          node scripts/tasks-work.mjs --dry-run
+
+      - name: 8) Render contract + real browser (Playwright)
+        run: |
+          npm install --no-audit --no-fund >/dev/null 2>&1 || npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node scripts/browser-e2e.mjs
+
       - name: 5) AWS SigV4 signature tests (R2 photo uploads)
         run: node scripts/test-sigv4.mjs
 

@@ -1,4 +1,25 @@
 {
   "agent": "amit",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_5c22438fee70fa30",
+      "from": "amit",
+      "to": "manager",
+      "subject": "29 task(s) need an owner decision (amit)",
+      "body": "Moved out of amit's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Suggest match-quality improvements\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n• Consider adding profile field: dob\n• Consider adding profile field: horoscope\n• Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n… and 19 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:21.595Z",
+      "read": false
+    },
+    {
+      "id": "msg_00d1387ea5113177",
+      "from": "amit",
+      "to": "manager",
+      "subject": "25 task(s) need an owner decision (amit)",
+      "body": "Moved out of amit's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n• Consider adding profile field: dob\n• Consider adding profile field: horoscope\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n• Consider adding profile field: dob\n• Consider adding profile field: horoscope\n… and 15 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:31.523Z",
+      "read": false
+    }
+  ]
 }

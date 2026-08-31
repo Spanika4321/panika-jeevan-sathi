@@ -1,4 +1,65 @@
 {
   "agent": "manager",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_387de322137593d1",
+      "from": "pooja",
+      "to": "manager",
+      "subject": "1 task(s) need an owner decision (pooja)",
+      "body": "Moved out of pooja's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Draft 10 genuine backlink targets (no paid/spam)",
+      "priority": "low",
+      "at": "2026-08-31T07:19:06.291Z",
+      "read": false
+    },
+    {
+      "id": "msg_0a57108047e0f2a4",
+      "from": "priya",
+      "to": "manager",
+      "subject": "2 task(s) need an owner decision (priya)",
+      "body": "Moved out of priya's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Draft this week community campaign (Facebook-safe)\n• List referral ideas for the Panika community",
+      "priority": "low",
+      "at": "2026-08-31T07:19:06.299Z",
+      "read": false
+    },
+    {
+      "id": "msg_1dd129525e51d5c4",
+      "from": "kavita",
+      "to": "manager",
+      "subject": "16 task(s) need an owner decision (kavita)",
+      "body": "Moved out of kavita's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Draft \"Panika community matrimony guide\" article\n• Suggest internal links between public pages\n• Draft article: Panika community matrimony: a complete guide\n• Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.\n• Draft article: Panika community matrimony: a complete guide\n• Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.\n• Draft article: Panika community matrimony: a complete guide\n• Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.\n• Draft article: Panika community matrimony: a complete guide\n• Draft article: Panika community matrimony: a complete guide\n… and 6 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:06.408Z",
+      "read": false
+    },
+    {
+      "id": "msg_5c22438fee70fa30",
+      "from": "amit",
+      "to": "manager",
+      "subject": "29 task(s) need an owner decision (amit)",
+      "body": "Moved out of amit's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Suggest match-quality improvements\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n• Consider adding profile field: dob\n• Consider adding profile field: horoscope\n• Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n… and 19 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:21.595Z",
+      "read": false
+    },
+    {
+      "id": "msg_5eac7a098e4649b6",
+      "from": "meera",
+      "to": "manager",
+      "subject": "15 task(s) need an owner decision (meera)",
+      "body": "Moved out of meera's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Compose owner email from verified step outcomes\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n• Owner email composed from verified outcomes (send only via RESEND_API_KEY)\n… and 5 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:21.641Z",
+      "read": false
+    },
+    {
+      "id": "msg_00d1387ea5113177",
+      "from": "amit",
+      "to": "manager",
+      "subject": "25 task(s) need an owner decision (amit)",
+      "body": "Moved out of amit's backlog without acting on them, because acting would break a safety rule (no automatic public-UI change, no outreach, nothing sent on the owner's behalf).\n\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n• Consider adding profile field: dob\n• Consider adding profile field: horoscope\n• Consider adding profile field: weight\n• Consider adding profile field: maritalStatus\n• Consider adding profile field: motherTongue\n• Consider adding profile field: dob\n• Consider adding profile field: horoscope\n… and 15 more in the same category.",
+      "priority": "low",
+      "at": "2026-08-31T07:19:31.523Z",
+      "read": false
+    }
+  ]
 }

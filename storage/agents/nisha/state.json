@@ -1,9 +1,15 @@
 {
   "agent": "nisha",
   "status": "OK",
-  "last_run_at": "2026-08-31T06:38:33.380Z",
+  "last_run_at": "2026-08-31T07:17:15.075Z",
   "last_status": "OK",
-  "runs": 3,
+  "runs": 10,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T06:38:33.381Z"
+  "updated_at": "2026-08-31T07:17:15.090Z",
+  "last_job": {
+    "id": "job_1c43c1777ea5ed54",
+    "type": "seo-center.assignment",
+    "at": "2026-08-31T07:17:15.090Z",
+    "status": "OK"
+  }
 }

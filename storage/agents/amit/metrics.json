@@ -1,9 +1,9 @@
 {
   "agent": "amit",
   "counters": {
-    "field_scans": 3,
-    "runs": 3,
-    "status_ok": 3
+    "field_scans": 10,
+    "runs": 10,
+    "status_ok": 10
   },
   "history": [
     {
@@ -23,7 +23,49 @@
       "status": "OK",
       "duration_ms": 14,
       "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:11:46.803Z",
+      "status": "OK",
+      "duration_ms": 12,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:14:05.387Z",
+      "status": "OK",
+      "duration_ms": 40,
+      "summary": "OK — 22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:15:59.606Z",
+      "status": "OK",
+      "duration_ms": 13,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:16:14.899Z",
+      "status": "OK",
+      "duration_ms": 12,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:16:30.177Z",
+      "status": "OK",
+      "duration_ms": 12,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:16:59.490Z",
+      "status": "OK",
+      "duration_ms": 12,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
+    },
+    {
+      "at": "2026-08-31T07:17:15.030Z",
+      "status": "OK",
+      "duration_ms": 19,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read."
     }
   ],
-  "updated_at": "2026-08-31T06:38:33.335Z"
+  "updated_at": "2026-08-31T07:17:15.030Z"
 }

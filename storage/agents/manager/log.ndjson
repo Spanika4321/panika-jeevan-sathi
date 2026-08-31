@@ -11,3 +11,6 @@
 {"ts":"2026-08-31T02:26:05.948Z","event":"seo-center.cycle","cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","status":"BLOCKED"}
 {"ts":"2026-08-31T06:37:58.097Z","event":"run","status":"OK","duration_ms":15881,"summary":"SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0.","details":{"squad":true,"workers":8,"fails":0}}
 {"ts":"2026-08-31T06:38:33.528Z","event":"run","status":"OK","duration_ms":15775,"summary":"SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0.","details":{"squad":true,"workers":8,"fails":0}}
+{"ts":"2026-08-31T07:11:46.947Z","event":"run","status":"OK","duration_ms":15825,"summary":"SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0.","details":{"squad":true,"workers":8,"fails":0}}
+{"ts":"2026-08-31T07:14:06.025Z","event":"run","status":"OK","duration_ms":498,"summary":"manager cycle — pooja=PASS priya=PASS guardian=PASS","details":{"command":"agents/manager.mjs","workflow":"manager.yml"}}
+{"ts":"2026-08-31T07:16:59.643Z","event":"run","status":"OK","duration_ms":15795,"summary":"SEO squad dispatched: 8 workers assigned, guardian=PASS, failures=0.","details":{"squad":true,"workers":8,"fails":0}}

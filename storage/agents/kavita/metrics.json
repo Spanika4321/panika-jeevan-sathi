@@ -1,8 +1,8 @@
 {
   "agent": "kavita",
   "counters": {
-    "runs": 3,
-    "status_ok": 3
+    "runs": 10,
+    "status_ok": 10
   },
   "history": [
     {
@@ -22,7 +22,49 @@
       "status": "OK",
       "duration_ms": 6,
       "summary": "5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:11:31.662Z",
+      "status": "OK",
+      "duration_ms": 4,
+      "summary": "5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:13:50.258Z",
+      "status": "OK",
+      "duration_ms": 40,
+      "summary": "OK — 5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:15:44.453Z",
+      "status": "OK",
+      "duration_ms": 6,
+      "summary": "5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:15:59.759Z",
+      "status": "OK",
+      "duration_ms": 4,
+      "summary": "5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:16:15.030Z",
+      "status": "OK",
+      "duration_ms": 5,
+      "summary": "5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:16:44.351Z",
+      "status": "OK",
+      "duration_ms": 6,
+      "summary": "5 topics in backlog, 6 internal-link targets identified."
+    },
+    {
+      "at": "2026-08-31T07:16:59.855Z",
+      "status": "OK",
+      "duration_ms": 5,
+      "summary": "5 topics in backlog, 6 internal-link targets identified."
     }
   ],
-  "updated_at": "2026-08-31T06:38:18.170Z"
+  "updated_at": "2026-08-31T07:16:59.855Z"
 }

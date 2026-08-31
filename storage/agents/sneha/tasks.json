@@ -1,55 +1,140 @@
 {
   "agent": "sneha",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_bd438dc2d80bcfd8",
       "title": "Verify noindex on every private page",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.740Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.472Z",
+      "finished_at": "2026-08-31T07:19:21.521Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
     },
     {
       "id": "task_15824f1bc0a52663",
       "title": "Verify security headers on every response",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.741Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.523Z",
+      "finished_at": "2026-08-31T07:19:21.524Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
     },
     {
       "id": "task_3b188cd13d4cc16e",
       "title": "Scan repo for accidentally committed secrets",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.742Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.525Z",
+      "finished_at": "2026-08-31T07:19:21.526Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
     },
     {
       "id": "task_5d705c2b1fde05a2",
       "title": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
       "priority": "critical",
       "created_at": "2026-08-31T06:37:42.244Z",
-      "status": "pending",
+      "status": "done",
       "meta": {
         "source": "seo-center",
         "squad": "seo-agent-squad"
-      }
+      },
+      "started_at": "2026-08-31T07:19:21.527Z",
+      "finished_at": "2026-08-31T07:19:21.528Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
     },
     {
       "id": "task_7720c31c7a7d8a81",
       "title": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
       "priority": "critical",
       "created_at": "2026-08-31T06:38:17.764Z",
-      "status": "pending",
+      "status": "done",
       "meta": {
         "source": "seo-center",
         "squad": "seo-agent-squad"
-      }
+      },
+      "started_at": "2026-08-31T07:19:21.529Z",
+      "finished_at": "2026-08-31T07:19:21.529Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_30df617225495d48",
+      "title": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "created_at": "2026-08-31T07:11:31.132Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.530Z",
+      "finished_at": "2026-08-31T07:19:21.531Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_3c3e38fc0cfad395",
+      "title": "Verify seo-center.html carries noindex + is robots-blocked; verify no API keys/secret tokens are committed anywhere in the repo.",
+      "priority": "critical",
+      "created_at": "2026-08-31T07:16:43.860Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.533Z",
+      "finished_at": "2026-08-31T07:19:21.533Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T06:38:17.764Z"
+  "updated_at": "2026-08-31T07:19:21.533Z"
 }

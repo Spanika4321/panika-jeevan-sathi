@@ -3,13 +3,13 @@
   "short_term": {
     "last_sample": {
       "value": {
-        "at": "2026-08-31T06:38:18.274Z",
+        "at": "2026-08-31T07:19:06.493Z",
         "http": null,
         "ms": null,
         "ok": false,
         "error": "fetch failed"
       },
-      "at": "2026-08-31T06:38:18.274Z"
+      "at": "2026-08-31T07:19:06.493Z"
     }
   },
   "long_term": {
@@ -27,5 +27,5 @@
     }
   },
   "facts": [],
-  "updated_at": "2026-08-31T06:38:18.274Z"
+  "updated_at": "2026-08-31T07:19:06.493Z"
 }

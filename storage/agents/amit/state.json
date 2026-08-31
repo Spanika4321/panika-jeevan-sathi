@@ -1,9 +1,15 @@
 {
   "agent": "amit",
   "status": "OK",
-  "last_run_at": "2026-08-31T06:38:33.333Z",
+  "last_run_at": "2026-08-31T07:17:15.027Z",
   "last_status": "OK",
-  "runs": 3,
+  "runs": 10,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T06:38:33.333Z"
+  "updated_at": "2026-08-31T07:17:15.042Z",
+  "last_job": {
+    "id": "job_da00d2d8b42f42ce",
+    "type": "seo-center.assignment",
+    "at": "2026-08-31T07:17:15.042Z",
+    "status": "OK"
+  }
 }
