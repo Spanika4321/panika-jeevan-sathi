@@ -1,25 +1,261 @@
 {
   "agent": "meera",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_4119e7781402367a",
       "title": "Compose owner email from verified step outcomes",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.748Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.616Z",
+      "finished_at": "2026-08-31T07:19:21.617Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
     },
     {
       "id": "task_c87abe6a2e92efb5",
       "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:33.616Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.618Z",
+      "finished_at": "2026-08-31T07:19:21.618Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_9743003590744ce1",
+      "title": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.263Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.620Z",
+      "finished_at": "2026-08-31T07:19:21.620Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_f1cbe69f602fe7db",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:58.072Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.621Z",
+      "finished_at": "2026-08-31T07:19:21.622Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_da2093eb161d6800",
+      "title": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "created_at": "2026-08-31T06:38:17.777Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.623Z",
+      "finished_at": "2026-08-31T07:19:21.623Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_c2d61902dbddbd89",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:33.505Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.624Z",
+      "finished_at": "2026-08-31T07:19:21.625Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_22c9d5becae91de9",
+      "title": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "created_at": "2026-08-31T07:11:31.141Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.626Z",
+      "finished_at": "2026-08-31T07:19:21.626Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_5fa39b4e8dc7ed80",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:46.934Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.627Z",
+      "finished_at": "2026-08-31T07:19:21.628Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_cde0247303bf11ab",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:14:05.512Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.629Z",
+      "finished_at": "2026-08-31T07:19:21.629Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_0d74917e52ac687a",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:15:30.986Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.630Z",
+      "finished_at": "2026-08-31T07:19:21.631Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_0d23449391f4d055",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:15:44.303Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.632Z",
+      "finished_at": "2026-08-31T07:19:21.633Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_51376e1b33431886",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:15:44.404Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.634Z",
+      "finished_at": "2026-08-31T07:19:21.634Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_1c6b91ac9a3865c9",
+      "title": "Compose the owner email from verified SEO cycle outcomes (sends only when RESEND_API_KEY is configured — otherwise BLOCKED, never fake \"sent\").",
+      "priority": "high",
+      "created_at": "2026-08-31T07:16:43.871Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.636Z",
+      "finished_at": "2026-08-31T07:19:21.636Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_24c30c69a4cda3b2",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:59.629Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.637Z",
+      "finished_at": "2026-08-31T07:19:21.638Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
+    },
+    {
+      "id": "task_c33c7150c5ec6794",
+      "title": "Owner email composed from verified outcomes (send only via RESEND_API_KEY)",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:59.801Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.639Z",
+      "finished_at": "2026-08-31T07:19:21.640Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "RESEND_API_KEY"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:33.616Z"
+  "updated_at": "2026-08-31T07:19:21.640Z"
 }

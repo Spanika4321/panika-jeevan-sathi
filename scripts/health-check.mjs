@@ -22,7 +22,7 @@
  *   node scripts/health-check.mjs
  */
 
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -101,6 +101,45 @@ async function get(pathname) {
   const res = await fetch(BASE + pathname, { redirect: 'manual' });
   const text = await res.text();
   return { status: res.status, headers: res.headers, text };
+}
+
+
+/* ------------------------------------------------------- low-level helpers */
+
+/** Raw request so the delivery headers can be inspected, not just the text. */
+async function raw(pathname, headers = {}) {
+  return fetch(BASE + pathname, { headers, redirect: 'manual' });
+}
+
+function ldBlocksValid(html) {
+  const blocks = [...html.matchAll(/type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  if (!blocks.length) return false;
+  try {
+    return blocks.every((b) => {
+      const parsed = JSON.parse(b);
+      return Boolean(parsed && parsed['@context'] && parsed['@type']);
+    });
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Section 16 runs other suites, and one of them (agent-team-check → Manager)
+ * runs the Guardian again. That flag is what stops the recursion, and it is
+ * inherited by every child so no nested run can re-enter the rollup.
+ */
+const NO_ROLLUP = process.env.PJS_HEALTH_NO_ROLLUP === '1';
+
+function runNode(script, args = [], { timeout = 300000, env = {} } = {}) {
+  const res = spawnSync(process.execPath, [path.join(ROOT, script), ...args], {
+    encoding: 'utf8',
+    cwd: ROOT,
+    timeout,
+    env: Object.assign({}, process.env, { PJS_HEALTH_NO_ROLLUP: '1' }, env)
+  });
+  const out = `${res.stdout || ''}${res.stderr || ''}`;
+  return { status: res.status, tail: out.split('\n').filter((l) => l.includes('✗') || l.includes('FAIL')).join(' | ').slice(0, 160) };
 }
 
 /* ------------------------------------------------------------ the checks */
@@ -238,6 +277,191 @@ try {
       console.log('  ↺ baseline updated on request');
     }
   }
+
+  section('11. Delivery layer (gzip, validators, CSP)');
+  {
+    const gz = await raw('/', { 'accept-encoding': 'gzip' });
+    check('/ is gzip-compressed', gz.headers.get('content-encoding') === 'gzip', `got ${gz.headers.get('content-encoding')}`);
+    check('/ advertises Vary: Accept-Encoding', /accept-encoding/i.test(gz.headers.get('vary') || ''));
+    const etag = gz.headers.get('etag');
+    check('/ publishes an ETag validator', Boolean(etag));
+    const reval = await fetch(BASE + '/', { headers: { 'If-None-Match': etag || '' } });
+    check('repeat visitors get 304 Not Modified', reval.status === 304, `got ${reval.status}`);
+    const css = await raw('/assets/css/app.css', { 'accept-encoding': 'gzip' });
+    check('/assets/css/app.css is compressed and cacheable', css.headers.get('content-encoding') === 'gzip' && /max-age=/.test(css.headers.get('cache-control') || ''));
+    const api = await raw('/api/site', { 'accept-encoding': 'gzip' });
+    check('large API responses are compressed', api.headers.get('content-encoding') === 'gzip');
+    const small = await raw('/api/health', { 'accept-encoding': 'gzip' });
+    check('a small API answer is not wastefully compressed', small.headers.get('content-encoding') !== 'gzip');
+  }
+
+  section('12. Content-Security-Policy and transport security');
+  {
+    const html = await raw('/', { 'accept-encoding': 'identity' });
+    const csp = html.headers.get('content-security-policy') || '';
+    check('CSP is present on every page', Boolean(csp));
+    check("CSP forbids object-src and external framing", /object-src 'none'/.test(csp) && /frame-ancestors 'self'/.test(csp));
+    check('CSP uses a per-response nonce for scripts', /script-src 'self' 'nonce-[A-Za-z0-9+/=]+'/.test(csp));
+    const body = await html.text();
+    const nonce = (csp.match(/'nonce-([^']+)'/) || [])[1];
+    check('the page scripts carry that nonce', Boolean(nonce) && body.includes(`<script nonce="${nonce}">`));
+    const leaked = (body.match(/<script(?![^>]*nonce=)(?![^>]*src=)/g) || []).length;
+    check('no inline script is left uncovered by the CSP', leaked === 0, `${leaked} bare inline <script> tag(s)`);
+    const plain = await raw('/about.html');
+    check('HSTS is not sent over plain HTTP (dev machines stay usable)', !plain.headers.get('strict-transport-security'));
+    const https = await raw('/', { 'x-forwarded-proto': 'https' });
+    check('HSTS is sent when the request arrived over HTTPS', /max-age=31536000/.test(https.headers.get('strict-transport-security') || ''), https.headers.get('strict-transport-security'));
+    const private1 = await raw('/admin.html');
+    const private2 = await raw('/seo-center.html');
+    check('admin.html is noindex by header too', /noindex/.test(private1.headers.get('x-robots-tag') || ''));
+    check('seo-center.html is noindex by header too', /noindex/.test(private2.headers.get('x-robots-tag') || ''));
+    const sec = await raw('/.well-known/security.txt');
+    check('/.well-known/security.txt is published', sec.status === 200 && /Contact: mailto:/.test(await sec.text()));
+  }
+
+  section('13. Search-engine presentation');
+  {
+    for (const page of ['/', '/about.html', '/contact.html', '/privacy.html', '/terms.html']) {
+      const r = await raw(page, { 'accept-encoding': 'identity' });
+      const text = await r.text();
+      const expect = page === '/' ? BASE + '/' : BASE + page;
+      check(`${page} has a canonical link`, text.includes('rel="canonical"'), 'missing');
+      check(`${page} has Open Graph title + url`, text.includes('property="og:title"') && text.includes('property="og:url"'));
+      check(`${page} has a Twitter card`, text.includes('name="twitter:card"'));
+      if (page === '/') check('/ publishes JSON-LD the crawlers can parse', ldBlocksValid(text));
+    }
+    const sitemap = await raw('/sitemap.xml', { 'accept-encoding': 'identity' });
+    const sitemapText = await sitemap.text();
+    check('sitemap.xml carries lastmod dates', sitemapText.includes('<lastmod>'));
+    check('sitemap.xml does not list member pages', !/dashboard\.html|admin\.html|seo-center\.html/.test(sitemapText));
+  }
+
+  section('14. Member data safety (backup round trip)');
+  {
+    const backup = runNode('scripts/backup.mjs', ['--selftest']);
+    check('a snapshot can be backed up, verified and restored', backup.status === 0, backup.tail);
+    const tamper = runNode('scripts/backup.mjs', ['--list']);
+    check('backup listing works', tamper.status === 0, tamper.tail);
+  }
+
+  section('15. Agent job queue has a consumer');
+  {
+    // A queue nobody drains is a polite way of forgetting a task, so the
+    // Guardian checks that every pending job type has a real handler.
+    const queueFile = path.join(ROOT, 'storage', 'shared', 'queue', 'jobs.json');
+    const drainFile = path.join(ROOT, 'scripts', 'queue-drain.mjs');
+    let pending = [];
+    let running = 0;
+    let handlers = [];
+    try {
+      const q = JSON.parse(fs.readFileSync(queueFile, 'utf8'));
+      pending = q.pending || [];
+      running = (q.running || []).length;
+    } catch (err) {
+      check('queue file is readable', false, err.message);
+    }
+    try {
+      const src = fs.readFileSync(drainFile, 'utf8');
+      handlers = [...src.matchAll(/^\s{2}'([a-z0-9._-]+)':/gm)].map((m) => m[1]);
+    } catch (err) {
+      check('queue runner exists', false, err.message);
+    }
+    const types = [...new Set(pending.map((j) => j.type))];
+    const unhandled = types.filter((t) => !handlers.includes(t));
+    check(`queue runner exists (${handlers.length} handler(s))`, handlers.length > 0);
+    check(
+      `every pending job type has a handler (${pending.length} pending)`,
+      unhandled.length === 0,
+      unhandled.length ? `no handler for: ${unhandled.join(', ')}` : ''
+    );
+    check('no job is stuck in running', running === 0, `${running} job(s) claimed and never settled`);
+    // Per-agent to-do lists must not grow forever either.
+    const tasksRoot = path.join(ROOT, 'storage', 'agents');
+    let worst = { id: '-', pending: 0 };
+    let stuckTasks = 0;
+    try {
+      for (const id of fs.readdirSync(tasksRoot)) {
+        const file = path.join(tasksRoot, id, 'tasks.json');
+        if (!fs.existsSync(file)) continue;
+        const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
+        if ((doc.pending || []).length > worst.pending) worst = { id, pending: (doc.pending || []).length };
+        stuckTasks += (doc.running || []).length;
+      }
+    } catch (_) {
+      /* storage tree is created by npm run storage:init */
+    }
+    check(
+      `no agent task list is growing unbounded (largest: ${worst.id} ${worst.pending})`,
+      worst.pending <= 40,
+      `${worst.id} has ${worst.pending} pending tasks — run: npm run tasks:work`
+    );
+    check('no agent task is stuck in running', stuckTasks === 0, `${stuckTasks} stuck task(s)`);
+  }
+
+  section('16b. Scheduler honesty');
+  {
+    // A reboot must never look like a completed SEO cycle. scheduleNextRun()
+    // arms the timer; only appendCycle() (a real run) may stamp last_run_at.
+    const src = fs.readFileSync(path.join(ROOT, 'lib', 'seo-center.js'), 'utf8');
+    // Slice the function body exactly: the next `  function ` line ends it, so
+    // this cannot be fooled (or make a false accusation) by its neighbours.
+    const bodyOf = (name) => {
+      const at = src.indexOf(`function ${name}(`);
+      if (at === -1) return '';
+      const next = src.indexOf('\n  function ', at + 1);
+      const body = src.slice(at, next === -1 ? src.length : next);
+      // Drop comment lines: this guard is about what the code writes, and a
+      // comment may legitimately *explain* the rule it must not break.
+      return body
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('//'))
+        .join('\n');
+    };
+    const fn = bodyOf('scheduleNextRun');
+    check(
+      'arming the scheduler does not stamp a fake "last run"',
+      fn.length > 0 && !/last_run_at/.test(fn),
+      fn.includes('last_run_at') ? 'scheduleNextRun writes last_run_at' : 'scheduleNextRun not found'
+    );
+    const append = bodyOf('appendCycle');
+    check('a real cycle records last_run_at with its status', append.includes('last_run_at') && append.includes('last_status'));
+  }
+
+  if (!NO_ROLLUP) {
+    /*
+     * The installed GitHub workflow is allowed to run exactly four commands,
+     * and `.github/workflows/` cannot be changed from here — so the other test
+     * suites are folded into the one entry point CI does run. A green Guardian
+     * board therefore really means: SEO anti-fake, browser render contract,
+     * SigV4 signing, the mocked cloud round trip and the agent-team wiring all
+     * passed too, not just the HTTP checks.
+     */
+    section('16. Cross-suite rollup (everything CI cannot be told to run)');
+    const suites = [
+      ['SEO anti-fake self-test', 'scripts/seo-selftest.mjs', []],
+      ['render contract + browser pass', 'scripts/browser-e2e.mjs', []],
+      ['AWS SigV4 signing vectors', 'scripts/test-sigv4.mjs', []],
+      ['D1 + R2 round trip (mocked cloud)', 'scripts/e2e-cloud-test.mjs', []],
+      ['agent team wiring', 'scripts/agent-team-check.mjs', []],
+      ['zero-survival manager round', 'scripts/zero-survival-manager.mjs', []],
+      // The live-route matrix, run against the very server this check booted:
+      // it verifies the whole site through the outside HTTP path (headers,
+      // noindex, canonical, the admin gate) instead of trusting internal state.
+      ['live route matrix (this boot)', 'scripts/render-real-check.mjs', ['--attempts', '2']]
+    ];
+    for (const [label, script, args] of suites) {
+      if (!fs.existsSync(path.join(ROOT, script))) {
+        check(`${label}`, false, `${script} is missing`);
+        continue;
+      }
+      const r = runNode(script, args, {
+        timeout: 420000,
+        env: script.endsWith('render-real-check.mjs') ? { SITE_URL: BASE } : {}
+      });
+      check(label, r.status === 0, r.status === 0 ? '' : r.tail || `exit ${r.status}`);
+    }
+  }
+
 } finally {
   child.kill('SIGTERM');
   try { fs.rmSync(DATA_DIR, { recursive: true, force: true }); } catch (_) { /* ignore */ }

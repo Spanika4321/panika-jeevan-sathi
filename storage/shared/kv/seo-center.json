@@ -1,0 +1,37 @@
+{
+  "namespace": "seo-center",
+  "values": {
+    "latest": {
+      "value": {
+        "cycle_id": "seo-20260831110352-eb3f",
+        "report_id": "seo-report-20260831110352",
+        "at": "2026-08-31T11:03:53.027Z",
+        "status": "BLOCKED"
+      },
+      "at": "2026-08-31T11:03:53.027Z"
+    },
+    "verify-round": {
+      "value": {
+        "at": "2026-08-31T02:16:29.929Z"
+      },
+      "at": "2026-08-31T02:16:29.929Z"
+    },
+    "squad-last": {
+      "value": {
+        "at": "2026-08-31T07:16:59.647Z",
+        "workers": {
+          "arjun": "OK",
+          "kavita": "OK",
+          "rahul": "BLOCKED",
+          "sneha": "OK",
+          "amit": "OK",
+          "nisha": "OK",
+          "vikram": "OK",
+          "meera": "BLOCKED"
+        }
+      },
+      "at": "2026-08-31T07:16:59.648Z"
+    }
+  },
+  "updated_at": "2026-08-31T11:03:53.027Z"
+}

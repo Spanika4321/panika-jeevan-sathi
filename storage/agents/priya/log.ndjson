@@ -1,1 +1,19 @@
 {"ts":"2026-08-31T00:29:18.212Z","event":"run","status":"BLOCKED","duration_ms":36,"summary":"BLOCKED","details":{"command":"agents/priya.mjs","workflow":"priya.yml"}}
+{"ts":"2026-08-31T02:14:02.931Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831021402-4c78","report_id":"seo-report-20260831021402","engine":null}}
+{"ts":"2026-08-31T02:14:02.934Z","event":"seo-center.cycle","cycle_id":"seo-20260831021402-4c78","report_id":"seo-report-20260831021402","status":"BLOCKED"}
+{"ts":"2026-08-31T02:15:56.852Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831021556-6c58","report_id":"seo-report-20260831021556","engine":null}}
+{"ts":"2026-08-31T02:15:56.854Z","event":"seo-center.cycle","cycle_id":"seo-20260831021556-6c58","report_id":"seo-report-20260831021556","status":"BLOCKED"}
+{"ts":"2026-08-31T02:18:48.579Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831021848-a5ac","report_id":"seo-report-20260831021848","engine":null}}
+{"ts":"2026-08-31T02:18:48.581Z","event":"seo-center.cycle","cycle_id":"seo-20260831021848-a5ac","report_id":"seo-report-20260831021848","status":"BLOCKED"}
+{"ts":"2026-08-31T02:21:03.051Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831022103-81fe","report_id":"seo-report-20260831022103","engine":null}}
+{"ts":"2026-08-31T02:21:03.052Z","event":"seo-center.cycle","cycle_id":"seo-20260831022103-81fe","report_id":"seo-report-20260831022103","status":"BLOCKED"}
+{"ts":"2026-08-31T02:26:05.939Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","engine":null}}
+{"ts":"2026-08-31T02:26:05.941Z","event":"seo-center.cycle","cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","status":"BLOCKED"}
+{"ts":"2026-08-31T07:13:50.153Z","event":"run","status":"BLOCKED","duration_ms":41,"summary":"BLOCKED","details":{"command":"agents/priya.mjs","workflow":"priya.yml"}}
+{"ts":"2026-08-31T07:19:06.294Z","level":"info","event":"task.deferred","task":"Draft this week community campaign (Facebook-safe)"}
+{"ts":"2026-08-31T07:19:06.296Z","level":"info","event":"task.reviewed","task":"Prepare 5 content-calendar posts"}
+{"ts":"2026-08-31T07:19:06.298Z","level":"info","event":"task.deferred","task":"List referral ideas for the Panika community"}
+{"ts":"2026-08-31T11:03:36.334Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","engine":null}}
+{"ts":"2026-08-31T11:03:36.338Z","event":"seo-center.cycle","cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","status":"BLOCKED"}
+{"ts":"2026-08-31T11:03:53.014Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Nothing to verify — Pooja was blocked.","details":{"cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","engine":null}}
+{"ts":"2026-08-31T11:03:53.017Z","event":"seo-center.cycle","cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","status":"BLOCKED"}

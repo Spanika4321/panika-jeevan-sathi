@@ -32,6 +32,8 @@ Push karte waqt aapko ye error dikhta hai to yahin se copy karein:
 | 3 | `.github/workflows/priya.yml` | [`ops/priya.workflow.yml`](priya.workflow.yml) *(replace)* |
 | 4 | `.github/workflows/manager.yml` | [`ops/manager.workflow.yml`](manager.workflow.yml) *(replace)* |
 | 5 | `.github/workflows/employee-report.yml` | [`ops/employee-report.workflow.yml`](employee-report.workflow.yml) *(replace)* |
+| 6 | `.github/workflows/seo-cycle.yml` | [`ops/seo-cycle.workflow.yml`](seo-cycle.workflow.yml) *(naya — daily SEO pipeline: GSC → AI → Pooja → Priya → Manager → permanent report)* |
+| 7 | `.github/workflows/guardian.yml` | [`ops/guardian.workflow.yml`](guardian.workflow.yml) *(replace — ab backup round trip, SEO anti-fake self-test, queue/task consumers aur real Chromium bhi check karta hai)* |
 
 **Replace ka matlab:** purani file kholkar (pencil icon) poora content delete
 kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.

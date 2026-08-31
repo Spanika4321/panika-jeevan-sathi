@@ -1,33 +1,306 @@
 {
   "agent": "arjun",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_37c21e14517f76dc",
       "title": "Curate matrimonial/community directory targets",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.735Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.300Z",
+      "finished_at": "2026-08-31T07:19:06.301Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_074bec6ee4f3084d",
       "title": "Reject paid link networks from the target list",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.736Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.302Z",
+      "finished_at": "2026-08-31T07:19:06.303Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_43584c1556dd2147",
       "title": "Manually verify 10 target sites before any outreach",
       "priority": "high",
       "created_at": "2026-08-31T00:29:18.249Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.305Z",
+      "finished_at": "2026-08-31T07:19:06.354Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_4bf33367885bda39",
+      "title": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.229Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.356Z",
+      "finished_at": "2026-08-31T07:19:06.356Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_dee530e2fdb9067b",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T06:37:42.666Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.357Z",
+      "finished_at": "2026-08-31T07:19:06.358Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_7ee0a1ebaeb53d85",
+      "title": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "created_at": "2026-08-31T06:38:17.753Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.359Z",
+      "finished_at": "2026-08-31T07:19:06.360Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_b52830fa0aa24754",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T06:38:18.111Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.361Z",
+      "finished_at": "2026-08-31T07:19:06.361Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_a8f565d002397df6",
+      "title": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "created_at": "2026-08-31T07:11:31.123Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.362Z",
+      "finished_at": "2026-08-31T07:19:06.363Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_1fa60fa724a279c5",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:11:31.605Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.364Z",
+      "finished_at": "2026-08-31T07:19:06.365Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_2aa96503011272a6",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:13:50.199Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.366Z",
+      "finished_at": "2026-08-31T07:19:06.367Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_b750b588a3212022",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:15:30.935Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.368Z",
+      "finished_at": "2026-08-31T07:19:06.369Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_aa8e3a3213c7c61e",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:15:36.361Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.370Z",
+      "finished_at": "2026-08-31T07:19:06.370Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_d513dc328ed85c01",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:15:44.349Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.371Z",
+      "finished_at": "2026-08-31T07:19:06.372Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_02d7378e4a8d6139",
+      "title": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "created_at": "2026-08-31T07:16:43.849Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.373Z",
+      "finished_at": "2026-08-31T07:19:06.373Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_596cd781f83e97c6",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:16:44.302Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.374Z",
+      "finished_at": "2026-08-31T07:19:06.375Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_765f9ad4ca09f646",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:16:59.731Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.377Z",
+      "finished_at": "2026-08-31T07:19:06.377Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
+    },
+    {
+      "id": "task_6b21429a48ef0f4a",
+      "title": "Manually verify 10 target sites before any outreach",
+      "priority": "high",
+      "created_at": "2026-08-31T07:19:06.340Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.378Z",
+      "finished_at": "2026-08-31T07:19:06.379Z",
+      "result": {
+        "disposition": "verified",
+        "agent_status": "OK",
+        "evidence": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+        "run_by": "scripts/tasks-work.mjs"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:18.249Z"
+  "updated_at": "2026-08-31T07:19:06.379Z"
 }

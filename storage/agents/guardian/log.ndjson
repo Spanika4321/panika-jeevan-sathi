@@ -1,1 +1,6 @@
 {"ts":"2026-08-31T00:29:18.129Z","event":"run","status":"OK","duration_ms":312,"summary":"95 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T06:37:42.624Z","event":"run","status":"OK","duration_ms":354,"summary":"Health check executed during the SEO Center squad round.","details":{"squad":true,"ok":true}}
+{"ts":"2026-08-31T06:38:18.073Z","event":"run","status":"OK","duration_ms":288,"summary":"Health check executed during the SEO Center squad round.","details":{"squad":true,"ok":true}}
+{"ts":"2026-08-31T07:11:31.569Z","event":"run","status":"OK","duration_ms":423,"summary":"Health check executed during the SEO Center squad round.","details":{"squad":true,"ok":true}}
+{"ts":"2026-08-31T07:13:50.067Z","event":"run","status":"OK","duration_ms":401,"summary":"132 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-08-31T07:16:44.266Z","event":"run","status":"OK","duration_ms":389,"summary":"Health check executed during the SEO Center squad round.","details":{"squad":true,"ok":true}}

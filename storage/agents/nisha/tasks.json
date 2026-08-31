@@ -1,25 +1,111 @@
 {
   "agent": "nisha",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_2e6d6140d9c4a28d",
       "title": "Add 5 FAQ entries to the shared knowledge base",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.744Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.596Z",
+      "finished_at": "2026-08-31T07:19:21.597Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_19004fa1d5ef0880",
       "title": "Summarise recurring support themes",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.745Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:21.599Z",
+      "finished_at": "2026-08-31T07:19:21.599Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
+    },
+    {
+      "id": "task_1c8941710c8f4e00",
+      "title": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.254Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.600Z",
+      "finished_at": "2026-08-31T07:19:21.601Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
+    },
+    {
+      "id": "task_44c22506dec95ee0",
+      "title": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.771Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.602Z",
+      "finished_at": "2026-08-31T07:19:21.602Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
+    },
+    {
+      "id": "task_c81984b144ee4850",
+      "title": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.137Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.603Z",
+      "finished_at": "2026-08-31T07:19:21.604Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
+    },
+    {
+      "id": "task_3b1f34b391548e2c",
+      "title": "Add SEO Center FAQ entries to the shared knowledge base: how cycles work, what BLOCKED means, how to connect Search Console.",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.866Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:21.605Z",
+      "finished_at": "2026-08-31T07:19:21.605Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.745Z"
+  "updated_at": "2026-08-31T07:19:21.605Z"
 }

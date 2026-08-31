@@ -1,4 +1,45 @@
 {
   "agent": "arjun",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_d811ed3e70531317",
+      "from": "manager",
+      "to": "arjun",
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "body": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "at": "2026-08-31T06:37:42.213Z",
+      "read": false
+    },
+    {
+      "id": "msg_a34c976d761fe55f",
+      "from": "manager",
+      "to": "arjun",
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "body": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "at": "2026-08-31T06:38:17.749Z",
+      "read": false
+    },
+    {
+      "id": "msg_d259ce671bbb0285",
+      "from": "manager",
+      "to": "arjun",
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "body": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "at": "2026-08-31T07:11:31.119Z",
+      "read": false
+    },
+    {
+      "id": "msg_8bd60d646b2cca0a",
+      "from": "manager",
+      "to": "arjun",
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "body": "Verify 10 community-directory backlink targets for SEO Center keyword clusters (from knowledge/seo-baseline). Reject paid/spam/link-farm targets.",
+      "priority": "high",
+      "at": "2026-08-31T07:16:43.846Z",
+      "read": false
+    }
+  ]
 }

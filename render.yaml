@@ -65,3 +65,65 @@ services:
         sync: false
       - key: R2_SECRET_ACCESS_KEY
         sync: false
+
+      # ---- SEO Center: Google Search Console (set these in the dashboard) --
+      # Google Cloud Console → OAuth client (Web application) →
+      #   Authorized redirect URI:
+      #   https://panikajeevansathi.onrender.com/api/seo/oauth/callback
+      # Values are intentionally not stored in Git; the site reports the stage
+      # as NOT CONNECTED until they exist, never as a fake PASS.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_SEARCH_CONSOLE_SITE
+        value: sc-domain:panikajeevansathi.com   # Search Console domain property
+
+      # ---- SEO Center: AI providers (Gemini first, Router as fallback) -----
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_ROUTER_API_KEY
+        sync: false
+      - key: GEMINI_ROUTER_URL
+        sync: false
+      - key: GEMINI_ROUTER_MODEL
+        sync: false
+
+      # ---- SEO Center: daily cycle inside the running service --------------
+      # The dashboard shows the next run time. If you install
+      # ops/seo-cycle.workflow.yml as .github/workflows/seo-cycle.yml, set
+      # this to 0 instead so the cycle is not run twice a day.
+      - key: SEO_SCHEDULER
+        value: "1"
+      - key: SEO_CYCLE_INTERVAL_MINUTES
+        value: "1440"
+      - key: SEO_CYCLE_ON_BOOT
+        value: "0"
+
+      # ---- Owner email report (optional; drafts land in data/outbox/) ------
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
+
+      # ---- Filecoin mirror of the SEO reports (optional permanence) ---------
+      - key: FIL_ONE_ENDPOINT
+        sync: false
+      - key: FIL_ONE_ACCESS_KEY
+        sync: false
+      - key: FIL_ONE_SECRET_KEY
+        sync: false
+      - key: FIL_ONE_BUCKET
+        sync: false
+
+      # ---- Search-engine presentation --------------------------------------
+      # Search Console → verify property → HTML tag → paste ONLY the token.
+      # It is injected into every public page at render time (no file edits,
+      # so the approved design stays byte-identical).
+      - key: GOOGLE_SITE_VERIFICATION
+        sync: false
+      # Where /security.txt tells researchers to report a problem.
+      - key: SECURITY_EMAIL
+        sync: false

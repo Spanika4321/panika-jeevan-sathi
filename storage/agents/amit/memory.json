@@ -3,7 +3,7 @@
   "short_term": {
     "last_completeness_score": {
       "value": 81,
-      "at": "2026-08-31T00:29:33.458Z"
+      "at": "2026-08-31T07:17:15.015Z"
     }
   },
   "long_term": {
@@ -44,7 +44,7 @@
         "familyType",
         "manglik"
       ],
-      "at": "2026-08-31T00:29:33.455Z"
+      "at": "2026-08-31T07:17:15.012Z"
     },
     "profile_fields_missing": {
       "value": [
@@ -54,9 +54,9 @@
         "dob",
         "horoscope"
       ],
-      "at": "2026-08-31T00:29:33.456Z"
+      "at": "2026-08-31T07:17:15.013Z"
     }
   },
   "facts": [],
-  "updated_at": "2026-08-31T00:29:33.458Z"
+  "updated_at": "2026-08-31T07:17:15.015Z"
 }

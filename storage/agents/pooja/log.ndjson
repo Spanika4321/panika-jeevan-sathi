@@ -1,1 +1,21 @@
 {"ts":"2026-08-31T00:29:18.171Z","event":"run","status":"BLOCKED","duration_ms":36,"summary":"BLOCKED","details":{"command":"agents/pooja.mjs","workflow":"pooja.yml"}}
+{"ts":"2026-08-31T02:14:02.925Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831021402-4c78","report_id":"seo-report-20260831021402","engine":null}}
+{"ts":"2026-08-31T02:14:02.927Z","event":"seo-center.cycle","cycle_id":"seo-20260831021402-4c78","report_id":"seo-report-20260831021402","status":"BLOCKED"}
+{"ts":"2026-08-31T02:15:56.845Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831021556-6c58","report_id":"seo-report-20260831021556","engine":null}}
+{"ts":"2026-08-31T02:15:56.848Z","event":"seo-center.cycle","cycle_id":"seo-20260831021556-6c58","report_id":"seo-report-20260831021556","status":"BLOCKED"}
+{"ts":"2026-08-31T02:18:48.572Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831021848-a5ac","report_id":"seo-report-20260831021848","engine":null}}
+{"ts":"2026-08-31T02:18:48.575Z","event":"seo-center.cycle","cycle_id":"seo-20260831021848-a5ac","report_id":"seo-report-20260831021848","status":"BLOCKED"}
+{"ts":"2026-08-31T02:21:03.045Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831022103-81fe","report_id":"seo-report-20260831022103","engine":null}}
+{"ts":"2026-08-31T02:21:03.047Z","event":"seo-center.cycle","cycle_id":"seo-20260831022103-81fe","report_id":"seo-report-20260831022103","status":"BLOCKED"}
+{"ts":"2026-08-31T02:26:05.932Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","engine":null}}
+{"ts":"2026-08-31T02:26:05.935Z","event":"seo-center.cycle","cycle_id":"seo-20260831022605-a9aa","report_id":"seo-report-20260831022605","status":"BLOCKED"}
+{"ts":"2026-08-31T07:13:50.106Z","event":"run","status":"BLOCKED","duration_ms":34,"summary":"BLOCKED","details":{"command":"agents/pooja.mjs","workflow":"pooja.yml"}}
+{"ts":"2026-08-31T07:19:06.241Z","level":"info","event":"task.reviewed","task":"Review robots.txt for blocked public pages"}
+{"ts":"2026-08-31T07:19:06.274Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"External Google/Gemini credentials are not configured. Local analysis remains available.","details":{"external":{"google":{"GOOGLE_SEARCH_CONSOLE_TOKEN":false},"gemini":{"GEMINI_API_KEY":false}},"tasks":7}}
+{"ts":"2026-08-31T07:19:06.283Z","level":"info","event":"task.verified","task":"Validate sitemap.xml entry list","status":"BLOCKED"}
+{"ts":"2026-08-31T07:19:06.287Z","level":"info","event":"task.deferred","task":"Draft 10 genuine backlink targets (no paid/spam)"}
+{"ts":"2026-08-31T07:19:06.290Z","level":"info","event":"task.verified","task":"Check canonical + meta description on index.html","status":"BLOCKED"}
+{"ts":"2026-08-31T11:03:36.324Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","engine":null}}
+{"ts":"2026-08-31T11:03:36.329Z","event":"seo-center.cycle","cycle_id":"seo-20260831110336-f68b","report_id":"seo-report-20260831110336","status":"BLOCKED"}
+{"ts":"2026-08-31T11:03:53.004Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"No real Search Console data available — research blocked.","details":{"cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","engine":null}}
+{"ts":"2026-08-31T11:03:53.009Z","event":"seo-center.cycle","cycle_id":"seo-20260831110352-eb3f","report_id":"seo-report-20260831110352","status":"BLOCKED"}

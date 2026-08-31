@@ -1,4 +1,45 @@
 {
   "agent": "amit",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_045d3f1b5350cc89",
+      "from": "manager",
+      "to": "amit",
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "body": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "at": "2026-08-31T06:37:42.246Z",
+      "read": false
+    },
+    {
+      "id": "msg_0b99d6d9fbba0e11",
+      "from": "manager",
+      "to": "amit",
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "body": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "at": "2026-08-31T06:38:17.766Z",
+      "read": false
+    },
+    {
+      "id": "msg_cb154c8b61db9017",
+      "from": "manager",
+      "to": "amit",
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "body": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.133Z",
+      "read": false
+    },
+    {
+      "id": "msg_2e956e309407b15e",
+      "from": "manager",
+      "to": "amit",
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "body": "Map aggregate profile-completeness signals to SEO landing-page ideas (aggregate only — no private data).",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.861Z",
+      "read": false
+    }
+  ]
 }

@@ -21,7 +21,23 @@
     "storage:status": "node scripts/agent-storage.mjs status",
     "storage:doctor": "node scripts/agent-storage.mjs doctor",
     "storage:report": "node scripts/agent-storage.mjs report",
-    "storage:cycle": "node scripts/agent-storage-cycle.mjs"
+    "storage:cycle": "node scripts/agent-storage-cycle.mjs",
+    "seo:cycle": "node scripts/seo-cycle.mjs",
+    "seo:verify": "node scripts/seo-cycle.mjs --verify",
+    "seo:selftest": "node scripts/seo-selftest.mjs",
+    "seo:squad": "node scripts/seo-agent-squad.mjs",
+    "backup": "node scripts/backup.mjs",
+    "backup:verify": "node scripts/backup.mjs --verify",
+    "backup:selftest": "node scripts/backup.mjs --selftest",
+    "restore": "node scripts/restore.mjs",
+    "test:browser": "node scripts/browser-e2e.mjs",
+    "squad:run": "node scripts/seo-agent-squad.mjs",
+    "seo:status": "node scripts/seo-status.mjs",
+    "test:all": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs && node scripts/health-check.mjs && node scripts/browser-e2e.mjs && node scripts/seo-selftest.mjs",
+    "queue:drain": "node scripts/queue-drain.mjs",
+    "queue:status": "node scripts/queue-drain.mjs --status",
+    "tasks:work": "node scripts/tasks-work.mjs",
+    "check:live": "node scripts/render-real-check.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

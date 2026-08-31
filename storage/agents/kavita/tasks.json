@@ -1,33 +1,277 @@
 {
   "agent": "kavita",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_223d513c8d25a427",
       "title": "Draft \"Panika community matrimony guide\" article",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.737Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.380Z",
+      "finished_at": "2026-08-31T07:19:06.381Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_098619c436dd3e81",
       "title": "Suggest internal links between public pages",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.738Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.382Z",
+      "finished_at": "2026-08-31T07:19:06.383Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_e2a755b617157d85",
       "title": "Draft article: Panika community matrimony: a complete guide",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:18.302Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.384Z",
+      "finished_at": "2026-08-31T07:19:06.384Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_9fd73010a7eb1d8f",
+      "title": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.234Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.385Z",
+      "finished_at": "2026-08-31T07:19:06.386Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_92ca7b1fb6145e0d",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:37:42.722Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.387Z",
+      "finished_at": "2026-08-31T07:19:06.388Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_9a0c12780eacfdd2",
+      "title": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:17.757Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.389Z",
+      "finished_at": "2026-08-31T07:19:06.389Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_9eb2973c27ce961d",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T06:38:18.165Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.391Z",
+      "finished_at": "2026-08-31T07:19:06.391Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_94818f2a8d5fb3c0",
+      "title": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.126Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.392Z",
+      "finished_at": "2026-08-31T07:19:06.393Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_4bcddad47d32bc0a",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:11:31.657Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.394Z",
+      "finished_at": "2026-08-31T07:19:06.395Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_370dd78f5b8d9bcd",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:13:50.245Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.396Z",
+      "finished_at": "2026-08-31T07:19:06.397Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_bc99657d3d86270f",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:15:44.449Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.398Z",
+      "finished_at": "2026-08-31T07:19:06.398Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_54e23bf9ab226ce2",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:15:59.754Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.400Z",
+      "finished_at": "2026-08-31T07:19:06.400Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_65ae315297561923",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:15.027Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.401Z",
+      "finished_at": "2026-08-31T07:19:06.402Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_31633c140766dd44",
+      "title": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:43.853Z",
+      "status": "done",
+      "meta": {
+        "source": "seo-center",
+        "squad": "seo-agent-squad"
+      },
+      "started_at": "2026-08-31T07:19:06.403Z",
+      "finished_at": "2026-08-31T07:19:06.403Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_6d945f9009e42197",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:44.346Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.404Z",
+      "finished_at": "2026-08-31T07:19:06.405Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
+    },
+    {
+      "id": "task_133249d0aef4f7a2",
+      "title": "Draft article: Panika community matrimony: a complete guide",
+      "priority": "normal",
+      "created_at": "2026-08-31T07:16:59.851Z",
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.406Z",
+      "finished_at": "2026-08-31T07:19:06.407Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:18.302Z"
+  "updated_at": "2026-08-31T07:19:06.407Z"
 }

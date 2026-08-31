@@ -1,0 +1,116 @@
+{
+  "type": "seo-agent-squad",
+  "started_at": "2026-08-31T07:16:43.845Z",
+  "finished_at": "2026-08-31T07:16:59.648Z",
+  "duration_ms": 15803,
+  "assignments": {
+    "arjun": {
+      "subject": "SEO Center: backlink research — keyword clusters",
+      "task_id": "task_02d7378e4a8d6139"
+    },
+    "kavita": {
+      "subject": "SEO Center: content briefs — public pages",
+      "task_id": "task_31633c140766dd44"
+    },
+    "rahul": {
+      "subject": "SEO Center: reachability samples",
+      "task_id": "task_cc40c7b588f8b80c"
+    },
+    "sneha": {
+      "subject": "SEO Center: noindex + secrets audit",
+      "task_id": "task_3c3e38fc0cfad395"
+    },
+    "amit": {
+      "subject": "SEO Center: profile-quality → landing-page ideas",
+      "task_id": "task_7bbcb2879d1b7709"
+    },
+    "nisha": {
+      "subject": "SEO Center: FAQ knowledge base",
+      "task_id": "task_3b1f34b391548e2c"
+    },
+    "vikram": {
+      "subject": "SEO Center: scorecard rollup",
+      "task_id": "task_3434633d987630af"
+    },
+    "meera": {
+      "subject": "SEO Center: owner email composer",
+      "task_id": "task_1c6b91ac9a3865c9"
+    }
+  },
+  "workers": {
+    "arjun": {
+      "script_ok": true,
+      "ms": 47,
+      "status": "OK",
+      "runs": 9,
+      "summary": "5 target categories curated, 5 rejection rules active. No outreach sent.",
+      "assignment_received": true
+    },
+    "kavita": {
+      "script_ok": true,
+      "ms": 44,
+      "status": "OK",
+      "runs": 9,
+      "summary": "5 topics in backlog, 6 internal-link targets identified.",
+      "assignment_received": true
+    },
+    "rahul": {
+      "script_ok": true,
+      "ms": 15037,
+      "status": "BLOCKED",
+      "runs": 9,
+      "summary": "Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya.",
+      "assignment_received": true
+    },
+    "sneha": {
+      "script_ok": true,
+      "ms": 52,
+      "status": "OK",
+      "runs": 9,
+      "summary": "13 private pages noindex-verified, security headers present, no committed secrets found.",
+      "assignment_received": true
+    },
+    "amit": {
+      "script_ok": true,
+      "ms": 49,
+      "status": "OK",
+      "runs": 9,
+      "summary": "22/27 profile fields detected in the data model (score 81/100). No private data read.",
+      "assignment_received": true
+    },
+    "nisha": {
+      "script_ok": true,
+      "ms": 44,
+      "status": "OK",
+      "runs": 9,
+      "summary": "FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only).",
+      "assignment_received": true
+    },
+    "vikram": {
+      "script_ok": true,
+      "ms": 51,
+      "status": "OK",
+      "runs": 10,
+      "summary": "Scorecard built: 101 total runs, 0 failing, 0 never run.",
+      "assignment_received": true
+    },
+    "meera": {
+      "script_ok": true,
+      "ms": 47,
+      "status": "BLOCKED",
+      "runs": 9,
+      "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya.",
+      "assignment_received": true
+    }
+  },
+  "guardian": {
+    "status": "PASS",
+    "ms": 389,
+    "tail": "132 passed, 0 failed — report: reports/health-report-2026-08-31.md"
+  },
+  "manager": {
+    "status": "OK",
+    "summary": "8 workers assigned via mailbox + task list + queue; guardian=PASS; failures=0."
+  },
+  "verdict": "PASS"
+}

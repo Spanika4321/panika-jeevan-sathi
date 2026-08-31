@@ -1,4 +1,45 @@
 {
   "agent": "kavita",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_a6f0517e653305ed",
+      "from": "manager",
+      "to": "kavita",
+      "subject": "SEO Center: content briefs — public pages",
+      "body": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "at": "2026-08-31T06:37:42.232Z",
+      "read": false
+    },
+    {
+      "id": "msg_c68330c3a2b791f4",
+      "from": "manager",
+      "to": "kavita",
+      "subject": "SEO Center: content briefs — public pages",
+      "body": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "at": "2026-08-31T06:38:17.755Z",
+      "read": false
+    },
+    {
+      "id": "msg_d8da43e7b2ea4082",
+      "from": "manager",
+      "to": "kavita",
+      "subject": "SEO Center: content briefs — public pages",
+      "body": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.125Z",
+      "read": false
+    },
+    {
+      "id": "msg_842e76760d048b4e",
+      "from": "manager",
+      "to": "kavita",
+      "subject": "SEO Center: content briefs — public pages",
+      "body": "Draft SEO content briefs (title/meta/H1) for public pages: /, /about.html, /contact.html, /login.html — aligned with Search Console query themes. Drafts only, UI untouched.",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.851Z",
+      "read": false
+    }
+  ]
 }

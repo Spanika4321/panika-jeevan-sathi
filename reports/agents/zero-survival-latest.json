@@ -1,10 +1,10 @@
 {
-  "time": "2026-08-30T19:27:02.383Z",
-  "render_status": "200",
-  "cpanel_status": "503",
+  "time": "2026-08-31T11:05:40.660Z",
+  "render_status": "000",
+  "cpanel_status": "000",
   "local_tests": true,
   "agents": true,
-  "decision": "RENDER_WORKING_BUT_PERSISTENCE_MUST_BE_VERIFIED",
+  "decision": "HOSTING_INVESTIGATION_REQUIRED",
   "paid_service_activated": false,
   "production_ui_changed": false
 }

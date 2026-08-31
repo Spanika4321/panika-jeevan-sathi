@@ -1,4 +1,45 @@
 {
   "agent": "vikram",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_b6813303714907a6",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T06:37:42.256Z",
+      "read": false
+    },
+    {
+      "id": "msg_1b12eaae650a39d9",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T06:38:17.773Z",
+      "read": false
+    },
+    {
+      "id": "msg_d4ad715a35e79cb5",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T07:11:31.138Z",
+      "read": false
+    },
+    {
+      "id": "msg_a292476d23b1bfa3",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T07:16:43.867Z",
+      "read": false
+    }
+  ]
 }

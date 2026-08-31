@@ -10,3 +10,8 @@ data/
 # purane snapshots/archives git mein hamesha ke liye jamne nahi diye jaate)
 storage/snapshots/
 storage/agents/*/archive/
+
+# Backups (member data snapshots) and restore safety copies
+.backups/
+data-replaced-*/
+backups/

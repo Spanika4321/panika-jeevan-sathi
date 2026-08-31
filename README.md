@@ -53,6 +53,11 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
 
+Every variable in this table also appears, documented, in
+[`.env.example`](.env.example) — copy it, fill only what you have. A missing
+key never produces fake data: the matching check answers `BLOCKED` /
+`NOT CONNECTED`.
+
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
 
@@ -159,6 +164,74 @@ GET/POST/PATCH/DELETE /api/admin/…   (administrators only)
 
 ---
 
+## One command runs everything (and CI really runs it)
+
+`.github/workflows/` cannot be edited by automated tools unless the GitHub App carries the
+`workflows` permission, and this repo's app does not — so the Guardian board is the **single
+entry point** CI is allowed to run, and `scripts/health-check.mjs` section 16 rolls up every
+other suite inside it:
+
+```
+1  public pages        6 SEO tags          11 gzip / ETag / 304
+2  member pages        7 noindex            12 CSP nonce + HSTS + security.txt
+3  404 + traversal      8 headers           13 canonical / OG / JSON-LD / sitemap
+4  robots.txt           9 /api/health       14 backup → verify → restore → tamper
+5  sitemap.xml                            15 job queue + task lists have consumers
+                                            16 seo-selftest · browser-e2e · sigv4
+                                                cloud round trip · agent-team · zero-survival
+                                                live route matrix (against its own boot)
+```
+
+A green Guardian board therefore means all of that passed — not just the HTTP status codes.
+Optional CI extras (daily SEO cron, agent-storage persistence) live in `ops/*.workflow.yml`
+and are pasted by a human per [`ops/INSTALL-WORKFLOWS.md`](ops/INSTALL-WORKFLOWS.md); the
+in-app `SEO_SCHEDULER=1` covers the daily cycle without any workflow file.
+
+## Delivery hardening (no visual change)
+
+`lib/http-hardening.js` is the layer between the app and the internet. It changes how the
+site is *served*, never how it looks — the served `<body>` stays byte-identical, so the
+Guardian design lock still catches an accidental UI edit:
+
+| Behaviour | Why it matters |
+| --- | --- |
+| gzip for HTML/CSS/JS/JSON, with an in-memory cache | the whole site ships in a few KiB |
+| weak `ETag` + `If-None-Match` → `304` | a returning visitor re-buys nothing |
+| `Content-Security-Policy` with a **per-response nonce** | inline page scripts stay legal, injected ones do not |
+| `Strict-Transport-Security` only when the request really arrived over HTTPS | localhost stays usable, production gets the pin |
+| `X-Robots-Tag: noindex` on every member page (plus the `<meta>`) | a header cannot be forgotten by the next contributor |
+| canonical / Open Graph / Twitter card / JSON-LD injected at render time | correct snippet in Google and a correct card when a link is shared |
+| `/.well-known/security.txt` | researchers have somewhere honest to report a problem |
+| `sitemap.xml` with real `<lastmod>` | crawlers re-crawl what actually changed |
+
+## Backups and restore
+
+```bash
+npm run backup                 # verifiable snapshot of data/ + storage/ (sha256 manifest)
+npm run backup -- --list       # every snapshot and how many members it held
+npm run restore -- .backups/<snapshot>          # dry run — shows the diff, writes nothing
+npm run restore -- .backups/<snapshot> --force  # apply, after copying live data aside
+```
+
+A restore refuses a snapshot whose manifest does not verify, and `npm run backup:selftest`
+(backup → verify → restore → tamper detection) runs inside the health check, so the backup
+path cannot rot unnoticed. See [DEPLOY.md](DEPLOY.md) § Backups.
+
+## SEO Center
+
+`/seo-center.html` (admin only) runs the growth pipeline on **real** Search Console data:
+Check → Search Data → AI (Gemini → Router → local rules) → Pooja (research) → Priya
+(deterministic verification against the snapshot) → Manager (plan released only on PASS) →
+permanent report (`data/seo/reports`, mirrored to Filecoin when `FIL_ONE_*` is set).
+
+```bash
+npm run seo:status     # which stage is connected, which key is missing, where to get it
+npm run seo:cycle      # one real cycle
+npm run seo:verify     # the stored reports really read back
+npm run seo:selftest   # proves the pipeline cannot fake a PASS or a number
+npm run seo:squad      # all 12 agents do their share of the SEO round
+```
+
 ## Tests
 
 `npm test` boots a real server on a temporary database and runs the full assertion suite covering:
@@ -172,6 +245,21 @@ all pages and assets returning 200, security headers, 404 handling, path-travers
 finally that **all data survives a full server restart**.
 
 The same suite passes on the JSON fallback store: `npm run test:json-store`.
+
+```bash
+npm run test:all      # syntax + e2e + 135 Guardian checks + render contract + SEO self-test
+npm run health        # Guardian board only (design lock, SEO, security, backup round trip)
+npm run test:browser  # render contract, plus a real Chromium pass when a browser is installed
+```
+
+`npm run test:browser` is the browser-level suite. Without a Chromium download it does not
+pretend: it runs 49 **render-contract** checks that need no browser — every inline `<script>`
+parses, every element id the client looks up exists in the markup, every `PJS.get/post/patch`
+call maps to a route that actually answers, and the delivery headers (gzip, ETag, CSP nonce,
+canonical, noindex, HSTS) are verified on the live server — then prints
+`Chromium unavailable … SKIPPED`. In CI, where the browser is installed, the same script also
+clicks through register → login → SEO Center and fails on any console error or horizontal
+overflow at 360/768/1280 px.
 
 ---
 
@@ -214,6 +302,25 @@ memory** in `storage/`:
 | --- | --- |
 | `storage/agents/<id>/` | state, memory, tasks, metrics, log, inbox, outbox — one folder per agent |
 | `storage/shared/` | shared KV namespaces, durable job queue, hash-chained ledger, incidents, knowledge base |
+
+Per-round logs live beside the code: [`reports/ALL-DONE-2026-08-31.md`](reports/ALL-DONE-2026-08-31.md)
+records what each of the 12 agents did, with the verification numbers that were green at that moment.
+
+The Manager and the SEO squad *enqueue* work (`seo-center.assignment`,
+`daily-rollup`, `worker-recovery`); `scripts/queue-drain.mjs` is the consumer
+that executes it, so a task is never quietly parked:
+
+```bash
+npm run queue:drain            # run everything pending, record each worker's real status
+npm run queue:drain -- --max 5 # bounded run (CI)
+npm run queue:drain -- --dry-run
+npm run queue:status           # pending / running / done / failed counts
+```
+
+A job is marked done only when the worker command exited 0, and a job type
+without a handler is **failed loudly** instead of being pretended-complete.
+Check 15 of the Guardian board proves every pending type has a handler and
+that nothing is stuck in `running`.
 
 ```bash
 npm run storage:init      # create the storage tree + register all 12 agents

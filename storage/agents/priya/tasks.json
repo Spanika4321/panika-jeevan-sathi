@@ -1,33 +1,56 @@
 {
   "agent": "priya",
-  "pending": [
+  "pending": [],
+  "running": [],
+  "done": [
     {
       "id": "task_1d29610e317c22d1",
       "title": "Draft this week community campaign (Facebook-safe)",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.731Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.292Z",
+      "finished_at": "2026-08-31T07:19:06.293Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     },
     {
       "id": "task_2acb10f40d51b08f",
       "title": "Prepare 5 content-calendar posts",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.733Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.294Z",
+      "finished_at": "2026-08-31T07:19:06.295Z",
+      "result": {
+        "disposition": "reviewed_no_action",
+        "reason": "checked: nothing actionable while the site is unchanged"
+      },
+      "error": null
     },
     {
       "id": "task_037157d07426b08d",
       "title": "List referral ideas for the Panika community",
       "priority": "normal",
       "created_at": "2026-08-31T00:29:17.734Z",
-      "status": "pending",
-      "meta": {}
+      "status": "done",
+      "meta": {},
+      "started_at": "2026-08-31T07:19:06.296Z",
+      "finished_at": "2026-08-31T07:19:06.297Z",
+      "result": {
+        "disposition": "deferred_to_owner",
+        "reason": "needs an owner decision — agents must not change public UI or send anything on their own",
+        "awaiting": "owner review"
+      },
+      "error": null
     }
   ],
-  "running": [],
-  "done": [],
   "failed": [],
-  "updated_at": "2026-08-31T00:29:17.734Z"
+  "updated_at": "2026-08-31T07:19:06.297Z"
 }

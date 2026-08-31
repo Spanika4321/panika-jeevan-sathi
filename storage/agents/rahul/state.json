@@ -1,9 +1,15 @@
 {
   "agent": "rahul",
   "status": "BLOCKED",
-  "last_run_at": "2026-08-31T00:29:33.359Z",
+  "last_run_at": "2026-08-31T07:19:06.495Z",
   "last_status": "BLOCKED",
-  "runs": 1,
+  "runs": 11,
   "consecutive_failures": 0,
-  "updated_at": "2026-08-31T00:29:33.359Z"
+  "updated_at": "2026-08-31T07:19:06.495Z",
+  "last_job": {
+    "id": "job_2c89375ca572aa4a",
+    "type": "seo-center.assignment",
+    "at": "2026-08-31T07:17:14.908Z",
+    "status": "BLOCKED"
+  }
 }
