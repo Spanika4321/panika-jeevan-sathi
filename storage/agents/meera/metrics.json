@@ -1,8 +1,8 @@
 {
   "agent": "meera",
   "counters": {
-    "runs": 1,
-    "status_blocked": 1
+    "runs": 3,
+    "status_blocked": 3
   },
   "history": [
     {
@@ -10,7 +10,19 @@
       "status": "BLOCKED",
       "duration_ms": 48,
       "summary": "BLOCKED — Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T06:37:58.077Z",
+      "status": "BLOCKED",
+      "duration_ms": 16,
+      "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
+    },
+    {
+      "at": "2026-08-31T06:38:33.512Z",
+      "status": "BLOCKED",
+      "duration_ms": 13,
+      "summary": "Email draft ready, par RESEND_API_KEY configured nahi — koi email bheja nahi gaya."
     }
   ],
-  "updated_at": "2026-08-31T00:29:33.625Z"
+  "updated_at": "2026-08-31T06:38:33.512Z"
 }

@@ -1,4 +1,25 @@
 {
   "agent": "vikram",
-  "messages": []
+  "messages": [
+    {
+      "id": "msg_b6813303714907a6",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T06:37:42.256Z",
+      "read": false
+    },
+    {
+      "id": "msg_1b12eaae650a39d9",
+      "from": "manager",
+      "to": "vikram",
+      "subject": "SEO Center: scorecard rollup",
+      "body": "Roll up SEO Center cycles + this squad round into the weekly scorecard (streaks, failure rates, throughput).",
+      "priority": "normal",
+      "at": "2026-08-31T06:38:17.773Z",
+      "read": false
+    }
+  ]
 }

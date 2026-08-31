@@ -1,1 +1,3 @@
 {"ts":"2026-08-31T00:29:33.519Z","event":"run","status":"OK","duration_ms":41,"summary":"OK — FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only).","details":{"command":"agents/worker.mjs nisha","workflow":"agent-storage.yml"}}
+{"ts":"2026-08-31T06:37:57.941Z","event":"run","status":"OK","duration_ms":4,"summary":"FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only).","details":{"faq_entries":5,"themes":["pricing","verification","photos","privacy","account"]}}
+{"ts":"2026-08-31T06:38:33.386Z","event":"run","status":"OK","duration_ms":4,"summary":"FAQ knowledge base has 5 entries; 5 support themes tracked (aggregate only).","details":{"faq_entries":5,"themes":["pricing","verification","photos","privacy","account"]}}

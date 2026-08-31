@@ -21,7 +21,19 @@
       "text": "Daily rollup: 9 total runs, 0 agent(s) with failures.",
       "tags": [],
       "at": "2026-08-31T00:29:33.563Z"
+    },
+    {
+      "id": "fact_58ef8420bfe3f5a2",
+      "text": "Daily rollup: 34 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T06:37:58.007Z"
+    },
+    {
+      "id": "fact_9ca8f7da5a2a7306",
+      "text": "Daily rollup: 44 total runs, 0 agent(s) with failures.",
+      "tags": [],
+      "at": "2026-08-31T06:38:33.445Z"
     }
   ],
-  "updated_at": "2026-08-31T00:29:33.563Z"
+  "updated_at": "2026-08-31T06:38:33.445Z"
 }
