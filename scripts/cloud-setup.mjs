@@ -2,10 +2,9 @@
 /**
  * PANIKA JEEVAN SATHI — one-time Cloudflare setup helper.
  *
- * Creates the D1 database the site will use and prints the exact environment
- * variables to paste into Render. R2 buckets and R2 access keys are created in
- * the Cloudflare dashboard (Cloudflare has no API for R2 token minting), so the
- * script prints direct links for those two steps.
+ * Creates/reuses the D1 database and prints the three environment variables to
+ * paste into Render. The temporary bridge keeps compressed profile photos in
+ * the same database, so no R2 bucket or R2 access key is required.
  *
  *   node scripts/cloud-setup.mjs --token <Cloudflare API token>
  *   node scripts/cloud-setup.mjs --token <token> --account-id <id> --name panika-jeevan-sathi
@@ -108,14 +107,8 @@ console.log('  Paste these into Render → your service → Environment:\n');
 console.log(`  CF_ACCOUNT_ID        = ${accountId}`);
 console.log(`  CF_D1_DATABASE_ID    = ${databaseId}`);
 console.log('  CF_D1_API_TOKEN      = <the API token you created>');
-console.log('  R2_ACCOUNT_ID        = <same Cloudflare account id>');
-console.log('  R2_BUCKET            = <bucket name you create below>');
-console.log('  R2_ACCESS_KEY_ID     = <R2 token access key id>');
-console.log('  R2_SECRET_ACCESS_KEY = <R2 token secret access key>');
-console.log('\n  Still needed in the Cloudflare dashboard (about 2 minutes):');
-console.log(`   1. R2 bucket   → https://dash.cloudflare.com/${accountId}/r2/buckets/new`);
-console.log(`   2. R2 API token → https://dash.cloudflare.com/${accountId}/r2/api-tokens`);
-console.log('      (Object Read & Write, scoped to that bucket)');
+console.log('\n  R2 is not required. Compressed profile photos use this same D1');
+console.log('  database until an optional object-storage bucket is added later.');
 console.log('\n  Then check everything with:');
 console.log('    node scripts/verify-cloud.mjs --url https://<your-service>.onrender.com');
 console.log('  ────────────────────────────────────────────────────────────────\n');

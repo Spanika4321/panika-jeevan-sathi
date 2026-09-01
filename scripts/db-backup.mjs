@@ -2,14 +2,12 @@
 /**
  * PANIKA JEEVAN SATHI — database + photo backup.
  *
- * Reads every table out of Cloudflare D1, writes a single JSON snapshot, and
- * (optionally) encrypts it and pushes it to R2 so there are always at least
- * three copies of the member data:
+ * Reads every table (including D1-backed profile photos), encrypts one JSON
+ * snapshot, and leaves it ready for a GitHub Actions artifact. R2 is optional:
  *
- *   1. Cloudflare D1        — the live database
- *   2. Cloudflare R2        — backups/  (encrypted when BACKUP_KEY is set)
- *   3. GitHub Actions       — the same file uploaded as a workflow artifact
- *                             (a second, vendor-independent copy)
+ *   1. Cloudflare D1        — live members + temporary compressed photo store
+ *   2. GitHub Actions       — encrypted rolling snapshots (90 days)
+ *   3. Cloudflare R2        — optional extra copy whenever a bucket is added
  *
  * Usage:
  *   node scripts/db-backup.mjs                     # dump → backups/ + R2
@@ -20,7 +18,8 @@
  *   CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_D1_API_TOKEN   (required)
  *   R2_ACCOUNT_ID, R2_BUCKET, R2_ACCESS_KEY_ID,
  *   R2_SECRET_ACCESS_KEY                                (optional, for copy 2)
- *   BACKUP_KEY   any passphrase → AES-256-GCM encryption of the snapshot
+ *   BACKUP_KEY   passphrase → AES-256-GCM encryption (required unless the
+ *                explicit --allow-plaintext escape hatch is passed)
  *   BACKUP_KEEP  how many snapshots to keep in R2 (default 30)
  *
  * Exits non-zero if the dump could not be produced, so the workflow turns red
@@ -76,10 +75,31 @@ const snapshot = {
   tables: {}
 };
 
+async function readTable(table) {
+  if (table !== 'photo_blobs') return d1.selectAll(table);
+
+  // A photo table near the bridge safety line is too large for one D1 HTTP
+  // response. Keyset pagination also avoids OFFSET repeatedly scanning blobs.
+  const rows = [];
+  const pageSize = Math.max(1, Math.min(20, Number(process.env.BACKUP_PHOTO_PAGE || 5)));
+  let after = '';
+  for (;;) {
+    const page = await d1.query(
+      'SELECT * FROM "photo_blobs" WHERE "name" > ? ORDER BY "name" LIMIT ?',
+      [after, pageSize]
+    );
+    const found = page.results || [];
+    rows.push(...found);
+    if (found.length < pageSize) break;
+    after = String(found[found.length - 1].name);
+  }
+  return rows;
+}
+
 let totalRows = 0;
 for (const table of tables) {
   try {
-    const rows = await d1.selectAll(table);
+    const rows = await readTable(table);
     snapshot.tables[table] = rows;
     totalRows += rows.length;
     log(`   ✓ ${table.padEnd(18)} ${rows.length} row(s)`);
@@ -95,6 +115,12 @@ const stamp = snapshot.createdAt.replace(/[:.]/g, '-');
 let payload = Buffer.from(JSON.stringify(snapshot, null, 0), 'utf8');
 let ext = 'json';
 const key = String(process.env.BACKUP_KEY || '').trim();
+if (!key && !args.includes('--allow-plaintext')) {
+  fail(
+    'BACKUP_KEY is required so member data never lands in a readable GitHub artifact.\n' +
+      '  Set BACKUP_KEY, or use --allow-plaintext only for a deliberate local export.'
+  );
+}
 
 if (key) {
   const salt = crypto.randomBytes(16);

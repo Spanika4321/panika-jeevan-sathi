@@ -2,8 +2,8 @@
 #
 # Every 6 hours it asks the live website "is your data actually safe?" and
 # opens (or updates) a GitHub issue the moment the answer is no — i.e. when the
-# site has fallen back to the throw-away disk on Render, when the D1 write
-# queue is stuck, or when the member count DROPS (the fingerprint of a wipe).
+# site has fallen back to the throw-away disk on Render, when its D1 member /
+# temporary photo store is stuck, or when member count DROPS (wipe fingerprint).
 #
 # No secrets required. Set the repository variable SITE_URL if the address ever
 # changes (Settings → Secrets and variables → Actions → Variables).
@@ -79,8 +79,8 @@ jobs:
               '',
               `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
               '',
-              '**Most likely fix:** the Cloudflare `CF_*` / `R2_*` environment variables are missing on Render.',
-              'See `docs/GO-LIVE.md` in this repository for the exact 10-minute procedure.'
+              '**Most likely fix:** the three Cloudflare D1 `CF_*` environment variables are missing or invalid on Render.',
+              'R2 is optional. See `docs/GO-LIVE.md` for the temporary D1-only procedure.'
             ].join('\n');
 
             const existing = await github.rest.issues.listForRepo({

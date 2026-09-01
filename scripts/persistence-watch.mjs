@@ -13,7 +13,7 @@
  * Checks:
  *   1. the site answers at all
  *   2. /api/health reports storage = d1        (not sqlite / json)
- *   3. /api/health reports photos = r2 (remote)
+ *   3. /api/health reports photos are durable in D1 or R2 (not local)
  *   4. the D1 write queue is not stuck (pending writes / lastError)
  *   5. the member count did not go DOWN since the last run (state file), which
  *      is the fingerprint of a wipe
@@ -87,11 +87,29 @@ check(
 );
 
 const photos = String(body.photos || 'unknown');
+const photoStats = (body.remote && body.remote.photos) || {};
+const photoBackend = String(photoStats.backend || (photos.includes('+') ? photos.split('+')[0] : photos));
+const durablePhotos =
+  Boolean(photoStats.remote) && (photoBackend === 'd1' || photoBackend === 'r2');
 check(
-  'profile photos are mirrored to Cloudflare R2',
-  photos === 'r2' || Boolean(body.remote && body.remote.photos && body.remote.photos.remote),
-  photos === 'r2' ? 'r2' : `photos="${photos}" — uploaded photos are lost on restart. Set the R2_* variables on Render.`
+  'profile photos survive restarts (D1 bridge or R2)',
+  durablePhotos,
+  durablePhotos
+    ? `${photoBackend} (${photoBackend === 'd1' ? 'temporary bridge' : 'object storage'})`
+    : `photos="${photos}" — uploaded photos are local and can disappear. Use D1 storage; R2 is optional.`
 );
+
+if (photoBackend === 'd1') {
+  const photoBytes = Number((photoStats.usage || {}).bytes || 0);
+  // Three encrypted snapshots are retained. Alerting at 120 MB keeps their
+  // combined worst-case size below GitHub Free's artifact storage allowance.
+  const warningAt = 120 * 1024 * 1024;
+  check(
+    'D1 bridge photo usage stays below the 120 MB safety line',
+    photoBytes < warningAt,
+    `${(photoBytes / (1024 * 1024)).toFixed(1)} MB, ${Number((photoStats.usage || {}).objects || 0)} photo(s)`
+  );
+}
 
 console.log('\n3. Is the write queue healthy?');
 const dbStats = (body.remote && body.remote.database) || {};

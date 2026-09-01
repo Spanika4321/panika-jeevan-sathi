@@ -2,15 +2,14 @@
 /**
  * PANIKA JEEVAN SATHI — cloud-storage end-to-end test.
  *
- * Runs the whole site against local stand-ins for Cloudflare D1 (database) and
- * R2 (photos), i.e. exactly the configuration Render's Free plan will use:
+ * Runs the whole site against local stand-ins for Cloudflare D1 and R2:
  *
- *   1. the full 134-assertion member journey (scripts/e2e-test.mjs),
- *   2. a "cold start" simulation: the instance's disk is wiped between runs
- *      (what Render does every time a free service sleeps) and every member,
- *      profile, message and photo must come back from D1 / R2,
+ *   1. the full member journey (scripts/e2e-test.mjs),
+ *   2. a cold start with D1 + R2 after the instance disk is wiped,
  *   3. photo upload → R2 object exists → cache wiped → photo still served,
- *   4. D1 outage: the write is retried and still saved.
+ *   4. D1 outage: the write is retried and still saved,
+ *   5. the temporary D1-only mode: no R2 at all, but compressed photos still
+ *      survive a totally fresh Render instance and are included in D1.
  *
  *   node scripts/e2e-cloud-test.mjs
  */
@@ -311,6 +310,142 @@ try {
       ? true
       : true
   );
+
+  /* --------------------------------------- 5. D1-only bridge (R2 unavailable) */
+
+  section('5. D1-only bridge (no R2 bucket)');
+
+  const bridgeD1 = createD1Mock({ token: 'bridge-token' });
+  const bridgeUrl = await bridgeD1.listen();
+  const bridgeDirA = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-d1-photo-a-'));
+  const bridgeDirB = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-d1-photo-b-'));
+  const bridgeDirC = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-d1-photo-c-'));
+  const bridgeEmail = `bridge${Date.now()}@example.com`;
+  const bridgeEnv = {
+    PJS_STORAGE: 'd1',
+    CF_ACCOUNT_ID: 'test-account',
+    CF_D1_DATABASE_ID: 'bridge-database',
+    CF_D1_API_TOKEN: 'bridge-token',
+    CF_D1_API_URL: bridgeUrl,
+    // Explicitly blank these so the test remains D1-only even if a developer
+    // has R2 credentials in their shell.
+    R2_ACCOUNT_ID: '',
+    R2_BUCKET: '',
+    R2_ACCESS_KEY_ID: '',
+    R2_SECRET_ACCESS_KEY: '',
+    R2_ENDPOINT: '',
+    R2_PREFIX: ''
+  };
+
+  let bridgeServerA = null;
+  let bridgeServerB = null;
+  let bridgeServerC = null;
+  try {
+    bridgeServerA = await startServer({ ...bridgeEnv, PJS_DATA_DIR: bridgeDirA });
+    let bridgeApi = client(bridgeServerA.base);
+
+    res = await bridgeApi.call('POST', '/api/auth/register', {
+      name: 'D1 Photo Member',
+      email: bridgeEmail,
+      password,
+      gender: 'female',
+      looking_for: 'male'
+    });
+    check('D1-only member registration works', res.status === 200 && res.body.ok === true, `status ${res.status}`);
+
+    const bridgeUpload = await bridgeApi.call('POST', '/api/profile/photo', { data_url: png });
+    const bridgePhotoUrl = bridgeUpload.body && bridgeUpload.body.photo;
+    check(
+      'D1-only photo upload works',
+      bridgeUpload.status === 200 && Boolean(bridgePhotoUrl),
+      `status ${bridgeUpload.status}`
+    );
+
+    const bridgeHealth = await bridgeApi.call('GET', '/api/health');
+    check(
+      'health reports the D1 photo bridge',
+      bridgeHealth.body &&
+        bridgeHealth.body.photos === 'd1+cache' &&
+        bridgeHealth.body.remote.photos.backend === 'd1' &&
+        bridgeHealth.body.remote.photos.remote === true,
+      JSON.stringify(bridgeHealth.body)
+    );
+    for (let i = 0; i < 20; i += 1) {
+      if (Number(bridgeD1.db.prepare('SELECT COUNT(*) AS c FROM photo_blobs').get().c) === 1) break;
+      await sleep(25);
+    }
+    check(
+      'photo bytes were written into D1',
+      Number(bridgeD1.db.prepare('SELECT COUNT(*) AS c FROM photo_blobs').get().c) === 1
+    );
+
+    // Server-side guard: even a client that skips browser resizing cannot put
+    // a huge row into D1. The magic bytes make this look like a PNG.
+    const tooLarge = Buffer.alloc(513 * 1024, 1);
+    tooLarge[0] = 0x89;
+    tooLarge[1] = 0x50;
+    tooLarge[2] = 0x4e;
+    tooLarge[3] = 0x47;
+    const rejected = await bridgeApi.call('POST', '/api/profile/photo', {
+      data_url: `data:image/png;base64,${tooLarge.toString('base64')}`
+    });
+    check('D1 bridge rejects photos above 512 KB', rejected.status === 413, `status ${rejected.status}`);
+
+    await stopServer(bridgeServerA);
+    bridgeServerA = null;
+
+    // Brand-new cache folder, same D1: this simulates a Render redeploy.
+    bridgeServerB = await startServer({ ...bridgeEnv, PJS_DATA_DIR: bridgeDirB });
+    bridgeApi = client(bridgeServerB.base);
+    res = await bridgeApi.call('POST', '/api/auth/login', { email: bridgeEmail, password });
+    check('D1-only member survives a fresh instance', res.status === 200 && res.body.ok === true, `status ${res.status}`);
+
+    const restoredPhoto = await fetch(bridgeServerB.base + bridgePhotoUrl);
+    const restoredBytes = Buffer.from(await restoredPhoto.arrayBuffer());
+    check(
+      'photo is restored from D1 after local disk wipe',
+      restoredPhoto.status === 200 && restoredBytes.equals(Buffer.from(png.split(',')[1], 'base64')),
+      `status ${restoredPhoto.status}, bytes ${restoredBytes.length}`
+    );
+
+    // Later adding R2 must not strand photos uploaded during bridge mode. A
+    // fresh R2-enabled instance reads the old D1 object and lazily migrates it.
+    await stopServer(bridgeServerB);
+    bridgeServerB = null;
+    const upgradeEnv = {
+      ...bridgeEnv,
+      R2_ACCOUNT_ID: 'test-account',
+      R2_BUCKET: 'pjs-test',
+      R2_ACCESS_KEY_ID: 'AKIDEXAMPLE',
+      R2_SECRET_ACCESS_KEY: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
+      R2_ENDPOINT: r2Url,
+      R2_PREFIX: 'uploads'
+    };
+    bridgeServerC = await startServer({ ...upgradeEnv, PJS_DATA_DIR: bridgeDirC });
+    bridgeApi = client(bridgeServerC.base);
+    res = await bridgeApi.call('POST', '/api/auth/login', { email: bridgeEmail, password });
+    check('member can log in after R2 is added later', res.status === 200 && res.body.ok === true);
+
+    const migrated = await fetch(bridgeServerC.base + bridgePhotoUrl);
+    check('old D1 photo is still served after enabling R2', migrated.status === 200);
+    check('old D1 photo is lazily copied into R2', r2.has(path.basename(bridgePhotoUrl)));
+    check(
+      'migration releases the old D1 photo row',
+      Number(bridgeD1.db.prepare('SELECT COUNT(*) AS c FROM photo_blobs').get().c) === 0
+    );
+
+    const removed = await bridgeApi.call('DELETE', '/api/profile/photo');
+    check('photo deletion works after the R2 upgrade', removed.status === 200 && removed.body.ok === true);
+    check('photo deletion removes the R2 object too', !r2.has(path.basename(bridgePhotoUrl)));
+  } finally {
+    await stopServer(bridgeServerA);
+    await stopServer(bridgeServerB);
+    await stopServer(bridgeServerC);
+    bridgeD1.close();
+    fs.rmSync(bridgeDirA, { recursive: true, force: true });
+    fs.rmSync(bridgeDirB, { recursive: true, force: true });
+    fs.rmSync(bridgeDirC, { recursive: true, force: true });
+  }
 } finally {
   d1.close();
   r2.close();

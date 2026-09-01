@@ -7,14 +7,13 @@
 #
 # IMPORTANT — why there is no disk here:
 # Render's Free plan has an *ephemeral* filesystem and cannot attach a
-# persistent disk, so a normal SQLite file would be erased every time the
-# service sleeps (15 min idle) or redeploys. This Blueprint therefore keeps
-#   • the member database in Cloudflare D1  (free: 500 MB, no expiry), and
-#   • uploaded photos in Cloudflare R2      (free: 10 GB, no egress fees).
-# Both are reached over HTTPS by lib/d1.js and lib/r2.js — no paid add-ons.
+# persistent disk, so a normal SQLite file can be erased on restart/redeploy.
+# This Blueprint therefore keeps members AND compressed profile photos in the
+# existing Cloudflare D1 database. That size-capped bridge is the supported
+# no-R2 plan for the next 3–4 months; R2 can be added later without code changes.
 #
-# Fill in the seven blank values (marked "set in dashboard") when prompted:
-# see DEPLOY.md § "Render — Free plan" for the 5-minute Cloudflare setup.
+# Fill only the three D1 values marked "set in dashboard". See
+# docs/GO-LIVE.md for the short Hindi setup and tested recovery procedure.
 #
 # Without those values the site still boots, but it uses the local SQLite file
 # and will lose its data on the next restart (fine for a demo, not production).
@@ -56,12 +55,5 @@ services:
       - key: CF_D1_API_TOKEN
         sync: false
 
-      # ---- Cloudflare R2 (photos) — set these in the Render dashboard ------
-      - key: R2_ACCOUNT_ID
-        sync: false
-      - key: R2_BUCKET
-        sync: false
-      - key: R2_ACCESS_KEY_ID
-        sync: false
-      - key: R2_SECRET_ACCESS_KEY
-        sync: false
+      # R2 is deliberately optional for now. If a bucket becomes available,
+      # add the four R2_* values in Render and new photos switch to R2.

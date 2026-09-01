@@ -98,6 +98,12 @@ for (let i = 1; i <= 3; i += 1) {
 d1.db
   .prepare('INSERT INTO messages (id, sender_id, receiver_id, body, created_at) VALUES (?, ?, ?, ?, ?)')
   .run(1, 1, 2, 'Namaste', now);
+const photoBytes = Buffer.from('a-test-profile-photo');
+for (let i = 1; i <= 7; i += 1) {
+  d1.db
+    .prepare('INSERT INTO photo_blobs (name, content_type, data_base64, size_bytes, updated_at) VALUES (?, ?, ?, ?, ?)')
+    .run(`u${i}-test.jpg`, 'image/jpeg', photoBytes.toString('base64'), photoBytes.length, now);
+}
 
 /* ------------------------------------------------------------- 1. backup */
 
@@ -111,6 +117,37 @@ const snapshotName = files.find((f) => f.startsWith('pjs-backup-'));
 check('a snapshot file was written', Boolean(snapshotName), files.join(', '));
 check('the snapshot is encrypted (.json.enc)', Boolean(snapshotName && snapshotName.endsWith('.json.enc')), snapshotName);
 check('latest.json points at the snapshot', files.includes('latest.json'));
+
+// This is the exact path used while R2 cannot be created: the snapshot stays
+// local for actions/upload-artifact and must not require any R2 credentials.
+const artifactOnlyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-artifact-only-'));
+const artifactOnly = await run('scripts/db-backup.mjs', ['--out', artifactOnlyDir], {
+  ...env,
+  R2_ACCOUNT_ID: '',
+  R2_BUCKET: '',
+  R2_ACCESS_KEY_ID: '',
+  R2_SECRET_ACCESS_KEY: '',
+  R2_ENDPOINT: ''
+});
+check('backup succeeds without any R2 bucket', artifactOnly.code === 0, artifactOnly.out.slice(-400));
+check('no-R2 backup clearly skips only the optional copy', /R2 is not configured/.test(artifactOnly.out));
+check(
+  'no-R2 backup still produces an encrypted artifact file',
+  fs.readdirSync(artifactOnlyDir).some((f) => f.endsWith('.json.enc'))
+);
+const plaintextAttempt = await run('scripts/db-backup.mjs', ['--out', artifactOnlyDir], {
+  ...env,
+  BACKUP_KEY: '',
+  R2_ACCOUNT_ID: '',
+  R2_BUCKET: '',
+  R2_ACCESS_KEY_ID: '',
+  R2_SECRET_ACCESS_KEY: ''
+});
+check(
+  'backup refuses to expose plaintext member data',
+  plaintextAttempt.code !== 0 && /BACKUP_KEY is required/.test(plaintextAttempt.out),
+  plaintextAttempt.out.slice(-400)
+);
 
 const snapshotPath = snapshotName ? path.join(workDir, snapshotName) : null;
 const rawSnapshot = snapshotPath ? fs.readFileSync(snapshotPath) : Buffer.alloc(0);
@@ -133,6 +170,7 @@ section('3. Total data loss, then restore from R2');
 d1.db.exec('DELETE FROM users');
 d1.db.exec('DELETE FROM profiles');
 d1.db.exec('DELETE FROM messages');
+d1.db.exec('DELETE FROM photo_blobs');
 const emptied = d1.db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
 check('D1 is empty before the restore', Number(emptied) === 0);
 
@@ -148,6 +186,13 @@ check('all 3 members came back', users.length === 3, `${users.length}`);
 check('their e-mail addresses are intact', users[0] && users[0].email === 'member1@example.com');
 check('profiles came back', Number(d1.db.prepare('SELECT COUNT(*) AS c FROM profiles').get().c) === 3);
 check('messages came back', Number(d1.db.prepare('SELECT COUNT(*) AS c FROM messages').get().c) === 1);
+const restoredPhoto = d1.db.prepare('SELECT * FROM photo_blobs WHERE name = ?').get('u1-test.jpg');
+check(
+  'paginated D1 profile photos are all inside the backup too',
+  Number(d1.db.prepare('SELECT COUNT(*) AS c FROM photo_blobs').get().c) === 7 &&
+    restoredPhoto &&
+    Buffer.from(restoredPhoto.data_base64, 'base64').equals(photoBytes)
+);
 
 /* ------------------------------------------------------------ 4. idempotency */
 
@@ -170,6 +215,7 @@ check('restoring with the wrong BACKUP_KEY fails loudly', wrong.code !== 0, wron
 d1.close();
 r2.close();
 fs.rmSync(workDir, { recursive: true, force: true });
+fs.rmSync(artifactOnlyDir, { recursive: true, force: true });
 
 console.log(`\n${'─'.repeat(58)}`);
 console.log(`Backup & restore: ${passed} passed, ${failed} failed`);

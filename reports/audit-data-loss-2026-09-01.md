@@ -2,6 +2,12 @@
 
 **Status: code side is DONE. Only owner actions remain (see [docs/GO-LIVE.md](../docs/GO-LIVE.md)).**
 
+> **No-R2 update:** the seven-variable D1+R2 plan recorded below is historical.
+> R2 was unavailable, so the completed follow-up now needs only the three D1
+> values and keeps compressed photos in D1. See
+> [no-r2-storage-2026-09-01.md](no-r2-storage-2026-09-01.md) for the current plan,
+> tests and recovery workflow.
+
 ---
 
 ## 1. What was wrong

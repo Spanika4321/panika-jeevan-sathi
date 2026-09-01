@@ -33,8 +33,8 @@ npm start          # run the site
 npm run dev        # run with auto-reload while editing
 npm test           # syntax check + full end-to-end test suite
 npm run check      # syntax check only
-npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
-npm run verify:cloud   # check real D1/R2 credentials and a deployed site
+npm run test:cloud # D1+R2 and no-R2 D1-photo mode (local mocks)
+npm run verify:cloud   # check real cloud credentials and a deployed site
 ```
 
 ### Environment variables (all optional)
@@ -50,25 +50,28 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `OWNER_EMAILS` | — | Extra emails always promoted to admin |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
 | `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
-| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
-| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
-| `BACKUP_KEY` | — | Passphrase that encrypts the nightly database snapshots (AES-256-GCM) |
+| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds members and, when R2 is absent, compressed photos |
+| `PJS_D1_PHOTO_MAX_BYTES` | `524288` | Temporary no-R2 per-photo cap; do not raise beyond the documented D1 limits |
+| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Optional later upgrade: R2 takes over new profile-photo storage |
+| `BACKUP_KEY` | D1 token in workflow | Passphrase that encrypts nightly snapshots (a separate offline key is recommended) |
 
-> ⚠️ **Before going public:** without the `CF_*` variables the site stores members in a local
-> file that a free host erases on every sleep or redeploy. Follow **[docs/GO-LIVE.md](docs/GO-LIVE.md)**
-> (10 minutes, no code changes) — it is the difference between keeping and losing every registration.
+> ⚠️ **Before going public:** the three D1 `CF_*` variables are required. R2 is not: while no
+> bucket is available, compressed photos use the same D1 database and survive redeploys. Follow
+> **[docs/GO-LIVE.md](docs/GO-LIVE.md)** for the temporary 3–4 month no-R2 plan.
 
 ### Backups
 
 ```bash
-npm run backup      # encrypted snapshot of D1 → backups/ and R2
-npm run restore -- --from-r2 latest          # dry run: shows what would return
-npm run restore -- --from-r2 latest --yes    # actually restore
-npm run test:backup # 20 checks: backup, encryption, wipe, restore, idempotency
+npm run backup      # encrypted D1 snapshot → backups/ (R2 copy is optional)
+npm run restore -- --file backups/pjs-backup-....json.enc       # dry run
+npm run restore -- --file backups/pjs-backup-....json.enc --yes # restore
+npm run test:backup # encryption, no-R2 artifact, wipe, photo restore, idempotency
 ```
 
-Three independent copies exist at all times: **D1** (live, 7-day Time Travel),
-**R2** (30 encrypted snapshots), **GitHub artifacts** (90 days, different vendor).
+Without R2 there are still independent copies: **D1** (live + 7-day Time Travel)
+and the newest **3 nightly encrypted GitHub artifacts** (each can live up to 90
+days). Keeping three avoids filling the free artifact quota with photo snapshots.
+The manual **Database restore** workflow recovers a healthy copy from a phone.
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
@@ -198,8 +201,8 @@ Full instructions (Render, cPanel, Railway, Docker, VPS + systemd, backups, envi
 are in **[DEPLOY.md](DEPLOY.md)**. The production target is:
 
 - **Render (free) — one-click Blueprint → `https://panikajeevansathi.onrender.com`**
-  (`render.yaml` creates the service named `panikajeevansathi`; pair it with free
-  Cloudflare D1 + R2 so members & photos survive Render's free sleep/redeploys).
+  (`render.yaml` creates the service named `panikajeevansathi`; the three D1
+  values keep members and compressed photos durable. R2 can be added later).
 - The previous production URL `https://panikajeevansathi.coolstore.in` can be restored on the same
   cPanel account by running *this* app (see DEPLOY.md § 1c) — its storage is already persistent.
 - **Railway is not used:** its free sandbox no longer exists, which produced the

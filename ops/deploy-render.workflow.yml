@@ -28,26 +28,14 @@ on:
         required: false
         default: main
       cf_account_id:
-        description: 'Cloudflare account ID (D1 + R2)'
-        required: false
+        description: 'Cloudflare account ID (members + temporary photos)'
+        required: true
       cf_d1_database_id:
         description: 'Cloudflare D1 database ID'
-        required: false
+        required: true
       cf_d1_api_token:
         description: 'Cloudflare API token with D1:Edit'
-        required: false
-      r2_account_id:
-        description: 'Cloudflare account ID for R2'
-        required: false
-      r2_bucket:
-        description: 'R2 bucket name'
-        required: false
-      r2_access_key_id:
-        description: 'R2 access key ID'
-        required: false
-      r2_secret_access_key:
-        description: 'R2 secret access key'
-        required: false
+        required: true
       admin_email:
         description: 'Site-owner administrator email'
         required: false
@@ -64,7 +52,7 @@ jobs:
     steps:
       - name: Mask secrets in the log
         run: |
-          for value in "${{ inputs.render_api_key }}" "${{ inputs.cf_d1_api_token }}" "${{ inputs.r2_access_key_id }}" "${{ inputs.r2_secret_access_key }}" "${{ inputs.admin_password }}"; do
+          for value in "${{ inputs.render_api_key }}" "${{ inputs.cf_d1_api_token }}" "${{ inputs.admin_password }}"; do
             if [ -n "$value" ]; then echo "::add-mask::$value"; fi
           done
 
@@ -85,10 +73,6 @@ jobs:
           CF_ACCOUNT_ID: ${{ inputs.cf_account_id }}
           CF_D1_DATABASE_ID: ${{ inputs.cf_d1_database_id }}
           CF_D1_API_TOKEN: ${{ inputs.cf_d1_api_token }}
-          R2_ACCOUNT_ID: ${{ inputs.r2_account_id }}
-          R2_BUCKET: ${{ inputs.r2_bucket }}
-          R2_ACCESS_KEY_ID: ${{ inputs.r2_access_key_id }}
-          R2_SECRET_ACCESS_KEY: ${{ inputs.r2_secret_access_key }}
         run: node scripts/verify-cloud.mjs
 
       - name: Deploy to Render
@@ -101,10 +85,6 @@ jobs:
             --cf-account-id "${{ inputs.cf_account_id }}" \
             --cf-d1-database-id "${{ inputs.cf_d1_database_id }}" \
             --cf-d1-api-token "${{ inputs.cf_d1_api_token }}" \
-            --r2-account-id "${{ inputs.r2_account_id }}" \
-            --r2-bucket "${{ inputs.r2_bucket }}" \
-            --r2-access-key-id "${{ inputs.r2_access_key_id }}" \
-            --r2-secret-access-key "${{ inputs.r2_secret_access_key }}" \
             --admin-password "${{ inputs.admin_password }}" \
           | tee deploy.log
 
