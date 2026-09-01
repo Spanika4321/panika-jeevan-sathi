@@ -310,7 +310,9 @@
         const img = new Image();
         img.onerror = () => reject(new Error('That file is not a valid image.'));
         img.onload = () => {
-          const max = 900;
+          // 640 px / 0.78 keeps normal profile photos comfortably below the
+          // temporary D1 photo-store limit (512 KB) while R2 is unavailable.
+          const max = 640;
           let { width, height } = img;
           if (width > max || height > max) {
             const ratio = Math.min(max / width, max / height);
@@ -321,7 +323,7 @@
           canvas.width = width;
           canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.86));
+          resolve(canvas.toDataURL('image/jpeg', 0.78));
         };
         img.src = reader.result;
       };

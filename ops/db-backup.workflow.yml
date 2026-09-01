@@ -1,0 +1,109 @@
+# PANIKA JEEVAN SATHI — daily database backup
+#
+# Takes an encrypted snapshot of the Cloudflare D1 member database (including
+# D1-backed photos while R2 is unavailable) and uploads a rolling GitHub
+# Actions artifact. The newest 3 are kept (each expires by 90 days) so photos do
+# not exhaust the free artifact quota. R2 is used only if it is added later.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_D1_API_TOKEN
+# Optional but recommended:
+#   BACKUP_KEY — a long passphrase kept offline. Until it is set the workflow
+#                safely uses CF_D1_API_TOKEN as the encryption key.
+#   R2_*       — not needed for the temporary 3–4 month D1-only setup.
+#
+# Until the secrets exist the job exits green with a clear "not configured yet"
+# note, so it never spams the owner with red builds.
+
+name: Database backup
+
+on:
+  schedule:
+    - cron: '0 20 * * *'   # daily, 01:30 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # prune old large photo snapshots after a successful upload
+
+jobs:
+  backup:
+    name: Snapshot D1 → encrypted GitHub artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Are the cloud secrets configured?
+        id: cfg
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_D1_API_TOKEN: ${{ secrets.CF_D1_API_TOKEN }}
+        run: |
+          if [ -n "$CF_ACCOUNT_ID" ] && [ -n "$CF_D1_DATABASE_ID" ] && [ -n "$CF_D1_API_TOKEN" ]; then
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare D1 secrets are not set yet — skipping the backup."
+          fi
+
+      - name: Backup & restore self-test (always runs)
+        run: node scripts/backup-test.mjs
+
+      - name: Take the snapshot
+        if: steps.cfg.outputs.ready == 'yes'
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_D1_API_TOKEN: ${{ secrets.CF_D1_API_TOKEN }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          # Never write plaintext member data into this public repository's
+          # artifacts. A separate key is best; the stable D1 token is a safe
+          # automatic bridge until the owner adds BACKUP_KEY.
+          BACKUP_KEY: ${{ secrets.BACKUP_KEY || secrets.CF_D1_API_TOKEN }}
+        run: node scripts/db-backup.mjs --out backups
+
+      - name: Second copy — GitHub artifact
+        if: steps.cfg.outputs.ready == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          # Constant name lets the phone-friendly restore workflow find all
+          # historical copies through GitHub's artifact API.
+          name: pjs-db-backup
+          path: backups/
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Keep the newest 3 rolling snapshots
+        if: steps.cfg.outputs.ready == 'yes'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.paginate(
+              github.rest.actions.listArtifactsForRepo,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'pjs-db-backup',
+                per_page: 100
+              }
+            );
+            artifacts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            for (const old of artifacts.slice(3)) {
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: old.id
+              });
+              core.info(`Pruned old backup artifact ${old.id} (${old.created_at})`);
+            }

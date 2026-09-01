@@ -1,0 +1,114 @@
+# PANIKA JEEVAN SATHI — manual disaster recovery without R2
+#
+# From a phone: Actions → Database restore → Run workflow → type RESTORE.
+# It chooses the largest non-expired encrypted `pjs-db-backup` artifact (normally
+# the newest healthy snapshot), prints a dry-run plan, then restores it to D1.
+
+name: Database restore
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type RESTORE to restore the latest healthy GitHub backup into D1'
+        required: true
+        type: string
+      artifact_id:
+        description: 'Optional exact GitHub artifact ID; blank = largest retained backup'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: database-restore
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    name: Restore encrypted GitHub artifact → D1
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Require explicit confirmation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [ "$CONFIRMATION" != "RESTORE" ]; then
+            echo "::error::Nothing changed. Type RESTORE exactly to confirm."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Download the retained encrypted backup
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_ID: ${{ inputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p recovery
+
+          if [ -n "$REQUESTED_ID" ]; then
+            artifact_id="$REQUESTED_ID"
+          else
+            # Backup artifacts use a constant name. Choosing the largest copy
+            # avoids selecting a tiny post-wipe snapshot if disaster was only
+            # noticed after the next scheduled backup.
+            artifact_id="$(
+              gh api --paginate \
+                "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=pjs-db-backup&per_page=100" \
+                --jq '.artifacts[] | select(.expired == false) | [.id, .size_in_bytes, .created_at] | @tsv' \
+                | sort -t $'\t' -k2,2nr -k3,3r \
+                | head -n 1 \
+                | cut -f1
+            )"
+          fi
+
+          if [ -z "$artifact_id" ]; then
+            echo "::error::No non-expired pjs-db-backup artifact exists. Run Database backup first."
+            exit 1
+          fi
+
+          echo "Using artifact ID: $artifact_id"
+          gh api -H 'Accept: application/vnd.github+json' \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > recovery/backup.zip
+          unzip -q recovery/backup.zip -d recovery/files
+
+          snapshot="$(find recovery/files -type f \( -name 'pjs-backup-*.json.enc' -o -name 'pjs-backup-*.json' \) | sort | tail -n 1)"
+          if [ -z "$snapshot" ]; then
+            echo "::error::Artifact $artifact_id has no database snapshot."
+            exit 1
+          fi
+          echo "snapshot=$snapshot" >> "$GITHUB_OUTPUT"
+          echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
+
+      - name: Show restore plan (no changes)
+        env:
+          BACKUP_KEY: ${{ secrets.BACKUP_KEY || secrets.CF_D1_API_TOKEN }}
+        run: node scripts/db-restore.mjs --file "${{ steps.artifact.outputs.snapshot }}" --dry-run
+
+      - name: Restore into Cloudflare D1
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_D1_API_TOKEN: ${{ secrets.CF_D1_API_TOKEN }}
+          BACKUP_KEY: ${{ secrets.BACKUP_KEY || secrets.CF_D1_API_TOKEN }}
+        run: node scripts/db-restore.mjs --file "${{ steps.artifact.outputs.snapshot }}" --yes
+
+      - name: Recovery summary
+        if: always()
+        run: |
+          echo "## Database recovery" >> "$GITHUB_STEP_SUMMARY"
+          echo "Artifact: ${{ steps.artifact.outputs.artifact_id }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Restore step: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Mode: INSERT OR REPLACE (no destructive wipe)" >> "$GITHUB_STEP_SUMMARY"

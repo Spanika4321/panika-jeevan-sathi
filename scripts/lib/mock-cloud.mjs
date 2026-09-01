@@ -213,12 +213,23 @@ export function createR2Mock(options = {}) {
       }
       if (req.method === 'GET') {
         if (url.searchParams.get('list-type') === '2') {
-          const keys = fs.existsSync(path.join(root, prefix))
-            ? fs
-                .readdirSync(path.join(root, prefix))
-                .map((k) => `<Contents><Key>${prefix}/${k}</Key><Size>${fs.statSync(path.join(root, prefix, k)).size}</Size></Contents>`)
-                .join('')
-            : '';
+          // Real S3/R2 listings are recursive and honour ?prefix=, so the mock
+          // must be too — backups live under <prefix>/backups/.
+          const walk = (dir, rel) => {
+            if (!fs.existsSync(dir)) return [];
+            return fs.readdirSync(dir).flatMap((name) => {
+              const full = path.join(dir, name);
+              const child = rel ? `${rel}/${name}` : name;
+              return fs.statSync(full).isDirectory()
+                ? walk(full, child)
+                : [{ key: `${prefix}/${child}`, size: fs.statSync(full).size }];
+            });
+          };
+          const wanted = url.searchParams.get('prefix') || '';
+          const keys = walk(root, '')
+            .filter((entry) => !wanted || entry.key.startsWith(wanted))
+            .map((entry) => `<Contents><Key>${entry.key}</Key><Size>${entry.size}</Size></Contents>`)
+            .join('');
           res.writeHead(200, { 'Content-Type': 'application/xml' });
           res.end(`<?xml version="1.0" encoding="UTF-8"?><ListBucketResult><Name>${bucket}</Name><IsTruncated>false</IsTruncated>${keys}</ListBucketResult>`);
           return;

@@ -34,10 +34,14 @@ const driverError = opened.driverError;
 const remote = opened.remote;
 const secret = authLib.loadSecret(DATA_DIR);
 
-/* Photos: local folder, mirrored to Cloudflare R2 when R2 is configured. */
+/*
+ * Photos: R2 when available; otherwise the same D1 database as the members.
+ * The latter is a deliberately size-capped bridge for the next 3–4 months.
+ */
 const photoSetup = photosLib.createFromEnv({
   dataDir: DATA_DIR,
   dirName: apiLib.UPLOAD_DIR_NAME,
+  db: driver,
   log: (message) => console.log(message)
 });
 const photos = photoSetup.store;
@@ -51,7 +55,25 @@ if (photoSetup.config && driver.kind !== 'd1') {
   console.warn('[storage] R2 is configured but the database is local — check PJS_STORAGE / CF_* variables.');
 }
 if (!photoSetup.config && driver.kind === 'd1') {
-  console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
+  console.log('[storage] R2 is not configured — profile photos will use the size-capped D1 bridge.');
+}
+
+/*
+ * Loud, unmissable warning when a PUBLIC deployment is running on a disk that
+ * the host erases. On Render's Free plan that means every member, profile,
+ * message and photo disappears whenever the instance sleeps or redeploys —
+ * the one failure that must never go unnoticed once the site is public.
+ */
+if (process.env.NODE_ENV === 'production' && driver.kind !== 'd1') {
+  const bar = '!'.repeat(72);
+  console.warn(`\n${bar}`);
+  console.warn('  DATA LOSS RISK: the member database is NOT on Cloudflare D1.');
+  console.warn(`  Current storage: ${driver.kind} in ${DATA_DIR}`);
+  console.warn('  On a free host this folder is wiped on every sleep/redeploy.');
+  console.warn('  Fix: set CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN,');
+  console.warn('       then redeploy. R2 is optional; D1 also keeps compressed photos.');
+  console.warn('  Step-by-step guide: docs/GO-LIVE.md');
+  console.warn(`${bar}\n`);
 }
 
 const api = apiLib.createApi({
@@ -67,14 +89,25 @@ const api = apiLib.createApi({
   }
 });
 
-/** Write queued changes (database + photos) to the remote services. */
+/** Write queued changes (database + photos) to durable storage. */
 async function persist() {
   try {
-    if (driver.flush) await driver.flush();
-    await photos.flush();
+    if (photos.backend === 'd1') {
+      // Bridge operations first become database mutations; one D1 flush then
+      // persists both the blob and its users.photo pointer.
+      await photos.flush();
+      if (driver.flush) await driver.flush();
+    } else {
+      // Keep ordinary member writes moving even when an optional R2 request is
+      // slow. Failed photo operations remain queued for the timer retry.
+      if (driver.flush) await driver.flush();
+      await photos.flush();
+    }
+    return true;
   } catch (err) {
     // The queue is kept, so the next request, the timer or shutdown retries.
     console.error(`[storage] could not save yet: ${err.message} — will retry.`);
+    return false;
   }
 }
 
@@ -185,8 +218,9 @@ async function loadRemoteDatabase() {
 async function main() {
   if (opened.ready) {
     const info = await loadRemoteDatabase();
-    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} tables`);
+    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} relational tables`);
   }
+  await photos.ready();
 
   ensureAdmin();
   ensureDefaultSettings();
@@ -205,7 +239,7 @@ async function main() {
     console.log('  PANIKA JEEVAN SATHI is running');
     console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
     console.log(`  Storage : ${driver.kind} (${DATA_DIR})`);
-    console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored to R2)' : ''}`);
+    console.log(`  Photos  : ${photos.kind}${photos.remote ? ` (durable in ${photos.backend})` : ''}`);
     console.log('  Free forever — no payments, no locked profiles.');
     console.log('');
   });
@@ -313,6 +347,57 @@ function publicOrigin(req) {
 
 /* ------------------------------------------------------------------- server */
 
+/**
+ * API handlers are intentionally unaware of network persistence and call
+ * res.end() as soon as their in-memory mutation is complete. Buffer that small
+ * JSON response until the persistence attempt finishes. The normal response is
+ * therefore ordered after the durable write; a rare queued retry is disclosed
+ * through X-PJS-Persistence instead of being silently hidden.
+ */
+function deferredJsonResponse(real) {
+  let status = 200;
+  const headers = new Map();
+  const chunks = [];
+  let ended = false;
+
+  const response = {
+    headersSent: false,
+    setHeader(name, value) {
+      headers.set(String(name).toLowerCase(), { name, value });
+      return this;
+    },
+    getHeader(name) {
+      const entry = headers.get(String(name).toLowerCase());
+      return entry && entry.value;
+    },
+    writeHead(code, values = {}) {
+      status = Number(code) || 200;
+      for (const [name, value] of Object.entries(values || {})) this.setHeader(name, value);
+      this.headersSent = true;
+      return this;
+    },
+    write(chunk) {
+      if (chunk !== undefined && chunk !== null) chunks.push(Buffer.from(chunk));
+      this.headersSent = true;
+      return true;
+    },
+    end(chunk) {
+      if (chunk !== undefined && chunk !== null) chunks.push(Buffer.from(chunk));
+      this.headersSent = true;
+      ended = true;
+      return this;
+    },
+    flush() {
+      if (!ended) this.end();
+      const values = {};
+      for (const { name, value } of headers.values()) values[name] = value;
+      real.writeHead(status, values);
+      real.end(Buffer.concat(chunks));
+    }
+  };
+  return response;
+}
+
 const server = http.createServer(async (req, res) => {
   let url;
   try {
@@ -330,8 +415,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname.startsWith('/api/')) {
-    await api.handle(req, res, url);
-    await persist();
+    const deferred = deferredJsonResponse(res);
+    await api.handle(req, deferred, url);
+    const saved = await persist();
+    deferred.setHeader('X-PJS-Persistence', saved ? 'durable' : 'pending-retry');
+    deferred.flush();
     return;
   }
 

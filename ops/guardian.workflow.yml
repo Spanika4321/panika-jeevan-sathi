@@ -7,7 +7,7 @@
 #   2. Name it exactly:  .github/workflows/guardian.yml
 #   3. Paste the FULL contents of this file and commit.
 #      (If you copied it before, copy it again — it now also runs the
-#      AWS SigV4 signature tests and the D1/R2 cloud storage tests.)
+#      AWS SigV4 and D1-only / optional-R2 storage tests.)
 # After that, the guardian runs automatically every day — no further steps.
 #
 # Runs automatically:
@@ -64,8 +64,14 @@ jobs:
       - name: 5) AWS SigV4 signature tests (R2 photo uploads)
         run: node scripts/test-sigv4.mjs
 
-      - name: 6) Cloud storage tests (D1 + R2, local mocks)
+      - name: 6) Cloud storage tests (D1-only + optional R2, local mocks)
         run: node scripts/e2e-cloud-test.mjs
+
+      - name: 7) Backup & restore tests (including no-R2 path)
+        run: node scripts/backup-test.mjs
+
+      - name: 8) Persistence alarm modes
+        run: node scripts/persistence-watch-test.mjs
 
       - name: Upload health report
         if: always()

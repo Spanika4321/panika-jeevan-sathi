@@ -15,7 +15,7 @@ Requirements: **Node.js 22.5+** (uses the built-in `node:sqlite`). No `npm insta
 
 | Environment | URL | Status / notes |
 | --- | --- | --- |
-| **Recommended production (Render, free)** | `https://panikajeevansathi.onrender.com` | Created by the Blueprint below. Pair with Cloudflare D1 + R2 for durable data. |
+| **Recommended production (Render, free)** | `https://panikajeevansathi.onrender.com` | Blueprint below. D1 keeps members + compressed photos; R2 is optional. |
 | Previous production (cPanel hosting) | `https://panikajeevansathi.coolstore.in` | The old Next.js site. The superseded app can be replaced by this one on the same hosting (see § 1c) so the same domain stays live. |
 | **Do not use** | `precious-abundance-production.up.railway.app` | Old Railway sandbox. Railway's free sandbox was removed, which is exactly what the **“Sandbox Not Found”** error means: the deployment container no longer exists. |
 
@@ -30,19 +30,22 @@ now, so it is not used for this site.
 
 Render's Free plan runs the Node server for free, but **its filesystem is wiped
 every time the service sleeps (15 minutes idle) or redeploys, and free services
-cannot attach a persistent disk**. So this deployment keeps everything that must
-survive in free Cloudflare services:
+cannot attach a persistent disk**. So this deployment temporarily keeps all
+member data in one free Cloudflare D1 database; no R2 bucket is required:
 
 | What | Where | Free tier |
 | --- | --- | --- |
 | Members, profiles, interests, messages, settings | **Cloudflare D1** (SQLite over HTTPS) | 500 MB / database, no expiry |
-| Profile photos | **Cloudflare R2** (S3-compatible) | 10 GB, no egress fees |
+| Compressed profile photos (max 512 KB each) | **The same D1**, `photo_blobs` | Included in that 500 MB |
+| Encrypted rolling backup | **GitHub Actions artifact** | newest 3 (each max 90 days) |
 | The web service itself | **Render Free** | 750 instance-hours / month, sleeps when idle |
 
-Data is mirrored in memory on the server and written through to D1 before each
-HTTP response finishes, so nothing depends on the local disk.
+Data is mirrored in memory and written through to D1 before each HTTP response
+finishes. Render's local folder is only a photo cache and may be deleted safely.
+This bridge is intended for the next 3–4 months; a 120 MB photo-usage alarm gives
+advance notice before R2 or another object store is needed.
 
-### A. Create the two Cloudflare resources (once, ~5 minutes)
+### A. Create the D1 resource (once, ~5 minutes)
 
 1. Sign up at [dash.cloudflare.com](https://dash.cloudflare.com) (free).
 2. Copy your **Account ID** from any page in the dashboard (right-hand column).
@@ -51,10 +54,8 @@ HTTP response finishes, so nothing depends on the local disk.
    *Or let the helper do it:* `node scripts/cloud-setup.mjs --token <CF token>`
 4. **API token for D1** → [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)
    → *Create Custom Token* → Permissions: **Account · D1 · Edit** → copy the token.
-5. **R2 bucket** → *R2 → Create bucket* → name it `panika-uploads`.
-6. **R2 access keys** → *R2 → Manage R2 API tokens → Create API token*
-   → permissions **Object Read & Write**, scoped to that bucket → copy the
-   **Access Key ID** and **Secret Access Key**.
+5. Stop here. **R2 is optional**; the app automatically stores resized photos
+   in D1 while the bucket is unavailable.
 
 ### B. Deploy on Render (one click)
 
@@ -65,7 +66,7 @@ The Blueprint `render.yaml` creates the service **`panikajeevansathi`**, so the 
 2. Open: `https://dashboard.render.com/blueprint/new?repo=https://github.com/Spanika4321/panika-jeevan-sathi`
 3. Render reads `render.yaml`, creates the **Free** web service (Singapore region,
    `node server.js`, health check `/api/health`) and asks you to fill in the
-   **seven blank values** — paste the Cloudflare values from step A. `SESSION_SECRET`
+   **three D1 values** — paste the Cloudflare values from step A. `SESSION_SECRET`
    and `ADMIN_PASSWORD` are generated for you; `SITE_URL` is pre-set to
    `https://panikajeevansathi.onrender.com`.
 4. Click **Apply**. Deployment takes ~2 minutes.
@@ -79,9 +80,7 @@ and never stored in git. Or run locally from a machine that can reach
 
 ```bash
 RENDER_API_KEY=rnd_xxx node scripts/deploy-render.mjs \
-  --cf-account-id ... --cf-d1-database-id ... --cf-d1-api-token ... \
-  --r2-account-id ... --r2-bucket ... \
-  --r2-access-key-id ... --r2-secret-access-key ...
+  --cf-account-id ... --cf-d1-database-id ... --cf-d1-api-token ...
 ```
 
 ### C. Check it
@@ -90,8 +89,8 @@ RENDER_API_KEY=rnd_xxx node scripts/deploy-render.mjs \
 node scripts/verify-cloud.mjs --url https://panikajeevansathi.onrender.com
 ```
 
-That checks D1, R2 **and** the live site (pages, health endpoint, storage driver,
-unsaved-change count). Then log in at `/admin.html` — the administrator password
+That checks the configured cloud services and live site (pages, health endpoint,
+storage driver, unsaved-change count). Then log in at `/admin.html` — the administrator password
 was generated at first boot; it is printed once in the deploy log
 (Render → your service → **Logs**). Change it under **Admin → Account**.
 
@@ -233,8 +232,9 @@ You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | first administrator only |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | real email; needs `npm i nodemailer` |
 | `PJS_STORAGE` | `auto` | `auto` = D1 when `CF_*` is set, else SQLite; `sqlite` / `json` / `d1` force one driver |
-| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 (the member database) |
-| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 (profile photos) |
+| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | D1: member database + temporary compressed photos |
+| `PJS_D1_PHOTO_MAX_BYTES` | `524288` | no-R2 per-photo limit; default recommended |
+| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | optional later R2 photo store |
 | `R2_PREFIX` | `uploads` | folder inside the bucket |
 | `R2_ENDPOINT` | derived from the account id | override for other S3-compatible hosts |
 
@@ -245,8 +245,9 @@ Without SMTP the verification / reset links are shown on screen to the member an
 
 Everything lives in `PJS_DATA_DIR`: the SQLite database, uploaded photos (`uploads/`) and the mail
 outbox. Back up by copying that folder; restore by copying it back and restarting.
-With Cloudflare D1/R2 the data is already off-box; R2 is the photo store, D1 can be exported from
-the Cloudflare dashboard.
+With D1 mode the database and compressed photos are already off-box. The nightly
+`Database backup` workflow encrypts all D1 tables into a 90-day rolling GitHub
+artifact; `Database restore` recovers one without R2. See `docs/GO-LIVE.md`.
 
 ## Checks after deploying
 
