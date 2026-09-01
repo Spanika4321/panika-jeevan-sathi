@@ -1,0 +1,79 @@
+# PANIKA JEEVAN SATHI — one-time Google authorisation for the Apps Script
+# deploy workflow.
+#
+# Run this from the Actions tab ("Run workflow"), watch the log, open
+# https://google.com/device on your phone, type the code, tap Allow. The job
+# then prints the refresh token to paste into the repository secret
+# PJS_AS_REFRESH_TOKEN.
+#
+# ⚠ This repository is public: anyone can read Actions logs. The token is
+#   printed for a short window and this job deletes its own logs afterwards.
+#   If you can run `node scripts/apps-script-auth.mjs` somewhere private
+#   (Termux on Android, or any computer) do that instead — nothing leaves your
+#   device.
+#
+# Before running this, create the OAuth client once:
+#   console.cloud.google.com → APIs & Services
+#     · Library → enable "Apps Script API"
+#     · OAuth consent screen → External → add your own account as a test user
+#     · Credentials → Create credentials → OAuth client ID →
+#       Application type "TVs and Limited Input devices"
+
+name: Authorize Apps Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      client_id:
+        description: 'OAuth client id (type: TVs and Limited Input devices)'
+        required: true
+      client_secret:
+        description: 'OAuth client secret (optional)'
+        required: false
+        default: ''
+      wait_minutes:
+        description: 'How long to wait for your approval'
+        required: false
+        default: '10'
+
+permissions:
+  contents: read
+  actions: write # needed to delete this run's logs after the token is shown
+
+jobs:
+  authorize:
+    name: Get a refresh token (device flow)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      - name: Ask Google for a device code and wait for approval
+        env:
+          PJS_CLIENT_ID: ${{ inputs.client_id }}
+          PJS_CLIENT_SECRET: ${{ inputs.client_secret }}
+          PJS_WAIT: ${{ inputs.wait_minutes }}
+        run: |
+          node scripts/apps-script-auth.mjs \
+            --client-id "$PJS_CLIENT_ID" \
+            --client-secret "$PJS_CLIENT_SECRET" \
+            --timeout-minutes "$PJS_WAIT"
+
+      - name: Delete this run's logs
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Waiting two minutes so you can copy the refresh token…"
+          sleep 120
+          echo "Deleting the logs of run ${{ github.run_id }}."
+          gh api -X DELETE "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/logs" || {
+            echo "Could not delete the logs automatically — delete them by hand:"
+            echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }

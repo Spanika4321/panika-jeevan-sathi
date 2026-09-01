@@ -35,6 +35,7 @@
       <button type="button" data-tab="activity">Activity log</button>
       <button type="button" data-tab="account">Admin account</button>
       <button type="button" data-tab="emails">Emails</button>
+      <button type="button" data-tab="sheets">Google Sheets</button>
     </div>
 
     <!-- overview -->
@@ -53,6 +54,59 @@
           <h3>Recent logins</h3>
           <div id="recentLogins"></div>
         </div>
+      </div>
+    </section>
+
+    <!-- google sheets -->
+    <section data-pane="sheets" class="hide">
+      <div class="card">
+        <h3>Google Sheets database</h3>
+        <p class="muted small mt-0">
+          Connect the site to the Google Sheet behind your Apps Script web app.
+          The web app URL looks like
+          <code>https://script.google.com/macros/s/AKfycb…/exec</code>.
+        </p>
+        <div id="sheetsStatus" class="mb-2"><p class="muted small mb-0">Loading…</p></div>
+        <form id="sheetsForm" class="form-grid">
+          <label class="field">
+            <span>Web app URL (/exec)</span>
+            <input id="sheetsUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Shared secret (token)</span>
+            <input id="sheetsToken" type="text" placeholder="the token you set with ?action=setup" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Mode after restart</span>
+            <select id="sheetsMode">
+              <option value="mirror">Mirror — keep this database, copy changes into the Sheet</option>
+              <option value="sheets">Sheet is the database — read and write everything in the Sheet</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button class="btn sm" type="button" id="sheetsTest">Test connection</button>
+            <button class="btn green sm" type="submit">Save connection</button>
+            <button class="btn ghost sm danger" type="button" id="sheetsClear">Disconnect</button>
+            <button class="btn ghost sm" type="button" id="sheetsReload">Reload from Sheet</button>
+          </div>
+        </form>
+        <div id="sheetsResult" class="mt-2"></div>
+      </div>
+      <div class="card mt-3">
+        <h3>How the two modes differ</h3>
+        <div class="list-row"><span></span>
+          <div><b>Mirror</b><div class="small muted">The site keeps its own database and writes every
+            change into the Sheet too. The site still works if Google Sheets is unreachable.</div></div>
+          <span class="chip green">safest</span></div>
+        <div class="list-row"><span></span>
+          <div><b>Sheet is the database</b><div class="small muted">Google Sheets becomes the single source of
+            truth. Edits you make in the Sheet appear on the site after a restart or after
+            “Reload from Sheet”.</div></div>
+          <span class="chip">PJS_STORAGE=sheets</span></div>
+        <p class="small muted mt-2 mb-0">
+          After saving, set <code>PJS_STORAGE</code> to <code>mirror</code> or <code>sheets</code> on your
+          host and restart the service. Render: Dashboard → Environment → Add variable.
+        </p>
       </div>
     </section>
 
@@ -599,6 +653,73 @@
       : '<p class="muted">No emails generated yet.</p>';
   }
 
+  /* ------------------------------------------------------- google sheets */
+  async function loadSheets() {
+    const box = $('sheetsStatus');
+    if (!box) return;
+    box.innerHTML = '<p class="muted small mb-0">Checking the web app…</p>';
+    const res = await PJS.get('/api/admin/apps-script');
+    if (!res.ok) { box.innerHTML = `<div class="alert error">${esc(res.error || 'Could not load')}</div>`; return; }
+    const c = res.config || {};
+    const live = res.live || null;
+    const rows = [
+      ['Storage engine', esc(res.storage || '')],
+      ['Web app', c.configured ? esc(c.url) : '<span class="muted">not connected</span>'],
+      ['Token', c.configured ? (c.tokenSet ? 'set' : 'not set (bridge open)') : '—'],
+      ['Mode', c.configured ? esc(c.mode || 'mirror') : '—']
+    ];
+    let liveHtml = '<span class="muted">not checked</span>';
+    if (live && live.ok) {
+      const tabs = (live.tabs || []).map((t) => `${esc(t.table)}: ${t.rows}`).join(' · ');
+      liveHtml = `<span class="chip green">reachable</span>` +
+        (live.spreadsheetUrl ? ` <a class="small" href="${esc(live.spreadsheetUrl)}" target="_blank" rel="noopener">open the Sheet</a>` : '') +
+        (live.bridge ? ` <span class="tiny muted">bridge ${esc(live.bridge)}</span>` : '') +
+        (tabs ? `<div class="tiny muted mt-1">${tabs}</div>` : '');
+    } else if (live) {
+      liveHtml = `<span class="chip red">unreachable</span> <span class="small muted">${esc(live.error || '')}</span>`;
+    }
+    rows.push(['Live check', liveHtml]);
+    box.innerHTML = '<div class="list-rows">' + rows.map((r) => `
+      <div class="list-row"><span></span><div class="small"><b>${r[0]}</b><div class="tiny muted">${r[1]}</div></div><span></span></div>`).join('') + '</div>';
+  }
+
+  async function sheetsAction(kind) {
+    const out = $('sheetsResult');
+    const url = $('sheetsUrl').value.trim();
+    const token = $('sheetsToken').value.trim();
+    const mode = $('sheetsMode').value;
+
+    if (kind === 'clear') {
+      const r = await PJS.del('/api/admin/apps-script');
+      toast(r, 'Disconnected');
+      if (r.ok) { out.innerHTML = '<p class="small muted mb-0">Connection removed. Restart the service to stop using the Sheet.</p>'; loadSheets(); }
+      return;
+    }
+    if (kind === 'reload') {
+      out.innerHTML = '<p class="small muted mb-0">Reading the Sheet…</p>';
+      const r = await PJS.post('/api/admin/apps-script/reload', {});
+      if (!r.ok) { out.innerHTML = `<div class="alert error">${esc(r.error)}</div>`; return; }
+      out.innerHTML = `<div class="alert success">Reloaded ${r.rows} rows from ${r.tables} tables.</div>`;
+      loadSheets();
+      return;
+    }
+    if (!url) { PJS.toast('Paste the Apps Script web app URL first.', 'error'); return; }
+
+    out.innerHTML = '<p class="small muted mb-0">Contacting the web app…</p>';
+    const r = await PJS.post('/api/admin/apps-script', { url, token, mode, test: kind === 'test' });
+    if (!r.ok) { out.innerHTML = `<div class="alert error">${esc(r.error || 'Failed')}</div>`; return; }
+    const p = r.ping || {};
+    const tabs = (p.tabs || []).map((t) => `${esc(t.table)}: ${t.rows}`).join(' · ');
+    out.innerHTML = `<div class="alert ${r.saved ? 'success' : 'info'}">
+      <b>${r.saved ? 'Saved — restart the service to use it' : 'Connection works'}</b>
+      <div class="small">${esc(r.note || '')}</div>
+      ${p.spreadsheetUrl ? `<div class="small mt-1"><a href="${esc(p.spreadsheetUrl)}" target="_blank" rel="noopener">Open the Google Sheet</a></div>` : ''}
+      ${p.tokenConfigured === false ? '<div class="small mt-1">The bridge has no token yet — open <code>?action=setup&amp;token=YOUR_SECRET</code> on the web app once.</div>' : ''}
+      ${tabs ? `<div class="tiny muted mt-1">${tabs}</div>` : ''}
+    </div>`;
+    loadSheets();
+  }
+
   /* --------------------------------------------------------------- tabs */
   const LOADERS = {
     overview: loadOverview,
@@ -609,7 +730,8 @@
     content: loadContent,
     activity: loadAudit,
     account: loadAccount,
-    emails: loadEmails
+    emails: loadEmails,
+    sheets: loadSheets
   };
 
   function setTab(name) {
@@ -639,6 +761,13 @@
     $('memberSearch').addEventListener('input', () => { clearTimeout(window.__t); window.__t = setTimeout(loadMembers, 300); });
     $('memberStatus').addEventListener('change', loadMembers);
     $('reportFilter').addEventListener('change', loadReports);
+
+    if ($('sheetsForm')) {
+      $('sheetsForm').addEventListener('submit', async function (e) { e.preventDefault(); await sheetsAction('save'); });
+      $('sheetsTest').onclick = () => sheetsAction('test');
+      $('sheetsClear').onclick = () => sheetsAction('clear');
+      $('sheetsReload').onclick = () => sheetsAction('reload');
+    }
 
     $('storyForm').addEventListener('submit', async function (e) {
       e.preventDefault();

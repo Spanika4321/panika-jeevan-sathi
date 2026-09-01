@@ -49,12 +49,33 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
 | `OWNER_EMAILS` | — | Extra emails always promoted to admin |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
-| `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
+| `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1`/`sheets`/`mirror` force one |
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
+| `PJS_SHEETS_URL` | — | `/exec` URL of the Google Apps Script web app that exposes the member database as a Google Sheet |
+| `PJS_SHEETS_TOKEN` | — | shared secret protecting that web app (set once with `?action=setup&token=…`) |
+| `PJS_SHEETS_MODE` | — | `mirror` (default) keeps the current database and copies changes into the Sheet; `sheets` makes the Sheet the database |
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
+
+### Google Sheets as the database (optional)
+
+The member database can live in a Google Sheet through a small Apps Script Web App. The
+Apps Script code ships in this repository under `apps-script/` and is pushed into your
+existing Apps Script project by a GitHub Actions workflow — see **[APPS-SCRIPT.md](APPS-SCRIPT.md)**.
+
+```bash
+PJS_STORAGE=mirror PJS_SHEETS_URL=https://script.google.com/macros/s/…/exec PJS_SHEETS_TOKEN=… node server.js
+```
+
+* `mirror` — the site keeps its own database and writes every change into the Sheet too
+  (the site still works if Google Sheets is unreachable).
+* `sheets` — the Sheet is the database; **Admin panel → Google Sheets** has *Reload from
+  Sheet* so edits made by hand appear on the site immediately.
+
+`npm run test:sheets` runs the real `apps-script/Code.gs` inside Node together with the real
+website — 26 checks, no Google account needed.
 
 ---
 
@@ -126,6 +147,11 @@ scripts/test-sigv4.mjs  AWS SigV4 conformance (the official AWS test vectors)
 scripts/verify-cloud.mjs     check real Cloudflare credentials + a live site
 scripts/deploy-render.mjs    create/update the Render service and deploy it
 scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
+apps-script/Code.gs      the Google Sheets bridge that runs as an Apps Script Web App
+apps-script/appsscript.json  its manifest (deployed as: anyone, run as owner)
+scripts/apps-script-push.mjs  pull / diff / push / deploy the Apps Script project
+scripts/apps-script-auth.mjs  one-time Google authorisation (device flow)
+scripts/apps-script-bridge-test.mjs  runs Code.gs in Node + the real website (26 checks)
 scripts/check-syntax.mjs    syntax check for every shipped script
 scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
 scripts/agent-storage-cycle.mjs  runs all 12 agents and records every run

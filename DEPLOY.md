@@ -232,11 +232,19 @@ You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 | `SESSION_SECRET` | generated in `data/` | set a fixed value so sessions survive restarts/multi-instance |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | first administrator only |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | real email; needs `npm i nodemailer` |
-| `PJS_STORAGE` | `auto` | `auto` = D1 when `CF_*` is set, else SQLite; `sqlite` / `json` / `d1` force one driver |
+| `PJS_STORAGE` | `auto` | `auto` = D1 when `CF_*` is set, else SQLite; `sqlite` / `json` / `d1` / `sheets` / `mirror` force one driver |
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 (the member database) |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 (profile photos) |
 | `R2_PREFIX` | `uploads` | folder inside the bucket |
 | `R2_ENDPOINT` | derived from the account id | override for other S3-compatible hosts |
+| `PJS_SHEETS_URL` | — | `/exec` URL of the Google Apps Script web app (Google Sheets database) |
+| `PJS_SHEETS_TOKEN` | — | shared secret of that web app, set once with `/exec?action=setup&token=…` |
+| `PJS_SHEETS_MODE` | — | `mirror` = keep this database and copy changes into the Sheet; `sheets` = the Sheet is the database |
+
+Google Sheets: use `PJS_STORAGE=mirror` (site keeps its own database, the Sheet receives a
+live copy) or `PJS_STORAGE=sheets` (the Sheet is the single source of truth). The Apps Script
+code lives in `apps-script/` and is deployed by the **Deploy Apps Script** workflow — see
+**[APPS-SCRIPT.md](APPS-SCRIPT.md)**.
 
 Without SMTP the verification / reset links are shown on screen to the member and copied to
 `data/outbox/` (visible in the admin panel → **Emails**), so nothing is ever lost.

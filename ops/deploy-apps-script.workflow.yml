@@ -1,0 +1,139 @@
+# PANIKA JEEVAN SATHI — keep the standalone Apps Script project in sync with
+# apps-script/ in this repository.
+#
+# The Apps Script project is not stored here; only its source is. Every time
+# apps-script/ changes on a branch, this workflow
+#
+#   1. downloads the code that is live today (apps-script/_remote/) and uploads
+#      it as a build artifact, so nothing can be lost
+#   2. prints the difference between the live project and the repository
+#   3. uploads the repository version into the Apps Script project
+#
+# One-time setup is described in APPS-SCRIPT.md. Required repository secrets:
+#   PJS_APPS_SCRIPT_ID      — Project Settings → Script ID
+#   PJS_AS_CLIENT_ID        — OAuth client id (type: TVs and Limited Input devices)
+#   PJS_AS_CLIENT_SECRET    — its secret (optional, but recommended)
+#   PJS_AS_REFRESH_TOKEN    — from scripts/apps-script-auth.mjs (or this file's
+#                             companion workflow "Authorize Apps Script")
+# Optional:
+#   PJS_AS_DEPLOYMENT_ID    — the AKfycb… id in the /exec URL (only needed when
+#                             the web app is pinned to a version instead of Head)
+#   PJS_APPS_SCRIPT_URL     — /exec URL, used by the manual "ping" job
+#   PJS_SHEETS_TOKEN        — the bridge token, also only for "ping"
+#
+# To review before writing, set the repository variable PJS_AS_AUTO_APPLY to
+# "false" — then pushes only print the diff and "Run workflow → apply" writes.
+
+name: Deploy Apps Script
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'apps-script/**'
+      - 'scripts/apps-script-push.mjs'
+      - '.github/workflows/deploy-apps-script.yml'
+    paths-ignore:
+      - 'apps-script/_imported/**'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What to do'
+        type: choice
+        options:
+          - push
+          - diff
+          - pull
+          - deploy
+          - ping
+        default: push
+      apply:
+        description: 'Really write to the Apps Script project'
+        type: boolean
+        default: true
+      import_live_code:
+        description: 'Commit a copy of the live code into apps-script/_imported/ (review before the first push)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-apps-script
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync apps-script/ → Apps Script project
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      - name: Is the project configured?
+        id: config
+        run: |
+          if [ -z "$PJS_APPS_SCRIPT_ID" ]; then
+            echo "skip=yes" >> "$GITHUB_OUTPUT"
+            echo "::notice::Apps Script sync skipped — add the repository secrets PJS_APPS_SCRIPT_ID, PJS_AS_CLIENT_ID and PJS_AS_REFRESH_TOKEN (see APPS-SCRIPT.md)."
+          else
+            echo "skip=no" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          PJS_APPS_SCRIPT_ID: ${{ secrets.PJS_APPS_SCRIPT_ID }}
+
+      - name: Sync
+        if: steps.config.outputs.skip != 'yes'
+        env:
+          PJS_APPS_SCRIPT_ID: ${{ secrets.PJS_APPS_SCRIPT_ID }}
+          PJS_AS_CLIENT_ID: ${{ secrets.PJS_AS_CLIENT_ID }}
+          PJS_AS_CLIENT_SECRET: ${{ secrets.PJS_AS_CLIENT_SECRET }}
+          PJS_AS_REFRESH_TOKEN: ${{ secrets.PJS_AS_REFRESH_TOKEN }}
+          PJS_AS_DEPLOYMENT_ID: ${{ secrets.PJS_AS_DEPLOYMENT_ID }}
+          PJS_APPS_SCRIPT_URL: ${{ secrets.PJS_APPS_SCRIPT_URL }}
+          PJS_SHEETS_TOKEN: ${{ secrets.PJS_SHEETS_TOKEN }}
+          PJS_AS_APPLY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply || (vars.PJS_AS_AUTO_APPLY == 'false' && '0' || '1') }}
+        run: |
+          ACTION="${{ github.event.inputs.action }}"
+          ACTION="${ACTION:-push}"
+          FLAGS=""
+          if [ "$PJS_AS_APPLY" = "1" ] || [ "$PJS_AS_APPLY" = "true" ]; then FLAGS="--apply"; fi
+          echo "Running: apps-script-push.mjs $ACTION $FLAGS"
+          node scripts/apps-script-push.mjs "$ACTION" $FLAGS
+
+      - name: Upload the code that was live before this run
+        if: steps.config.outputs.skip != 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: apps-script-live-backup
+          path: apps-script/_remote/
+          if-no-files-found: ignore
+          retention-days: 90
+
+      # Review-only: keeps a copy of whatever is in the Apps Script project
+      # today inside the repository, so it can be read on GitHub before it is
+      # replaced. Files under _imported/ are never pushed back to Apps Script.
+      - name: Commit a copy of the live code for review
+        if: steps.config.outputs.skip != 'yes' && github.event_name == 'workflow_dispatch' && inputs.import_live_code
+        run: |
+          mkdir -p apps-script/_imported
+          cp -f apps-script/_remote/*.gs apps-script/_imported/ 2>/dev/null || true
+          cp -f apps-script/_remote/*.html apps-script/_imported/ 2>/dev/null || true
+          cp -f apps-script/_remote/appsscript.json apps-script/_imported/ 2>/dev/null || true
+          git config user.name "apps-script-sync"
+          git config user.email "actions@github.com"
+          git add apps-script/_imported
+          if git diff --cached --quiet; then
+            echo "The live code is unchanged since the last import."
+          else
+            git commit -m "Apps Script: snapshot of the live project code (review only)"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
+            echo "::notice::Imported into apps-script/_imported/ — read it, merge anything you want to keep into apps-script/Code.gs, then run this workflow with action=push."
+          fi
