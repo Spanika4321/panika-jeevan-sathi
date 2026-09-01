@@ -1,0 +1,156 @@
+# PANIKA JEEVAN SATHI — agent-storage workflow
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, ~1 minute):
+# GitHub automated tools (apps/bots/agents) ko .github/workflows/ banane ya
+# update karne ki permission nahi hoti — isliye ye file yahan (ops/) rakhi hai.
+# Owner ko ek baar copy karna hai:
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly ye rakhein:  .github/workflows/agent-storage.yml
+#   3. Is file ka POORA content paste karke commit kar dein.
+#      (NAYA — create karo)
+# Uske baad ye automatically chalta rahega — koi aur step nahi.
+#
+# Runs     : har 6 ghante   (aur Actions tab se "Run workflow" bhi)
+# What     : 12 AI agents + permanent storage + snapshot + report
+# Storage  : actions/cache se run-to-run memory preserve hoti hai
+# Guide    : ops/INSTALL-WORKFLOWS.md
+
+# PANIKA JEEVAN SATHI — AI Agent Storage (24×7, GitHub servers par)
+#
+# Ye workflow 12 AI agents ki PERMANENT memory chalata hai:
+#   Guardian · Manager · Pooja · Priya · Arjun · Kavita · Rahul ·
+#   Sneha · Amit · Nisha · Vikram · Meera
+#
+# GitHub Actions ka runner har baar naya hota hai, isliye storage/ ko
+# actions/cache se run ke beech preserve kiya jaata hai — agents har cycle
+# mein apni pichhli memory, tasks, metrics aur ledger ke saath aage badhte
+# hain. Cache miss hone par `init` committed baseline se storage wapas bana
+# leta hai, to kuch bhi permanently lost nahi hota.
+#
+# Ye workflow khud KABHI nahi karta:
+#   • production deploy      • git push
+#   • social posting         • email bhejna
+#   • public UI / design badalna
+#   • password ya private message padhna
+
+name: AI Agent Storage
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'     # har 6 ghante
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: 'Sirf storage-agents chalao (Pooja/Priya/Guardian/Manager chhod kar)'
+        required: false
+        default: 'false'
+        type: boolean
+      snapshot:
+        description: 'Extra snapshot banao'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-storage
+  cancel-in-progress: false
+
+jobs:
+  storage-cycle:
+    name: Run all 12 agents with persistent storage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # Pichhle run ka storage wapas lao (memory, tasks, metrics, ledger).
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      - name: Initialise / verify storage
+        run: node scripts/agent-storage.mjs init
+
+      - name: Doctor (before)
+        continue-on-error: true
+        run: node scripts/agent-storage.mjs doctor
+
+      - name: Run full agent cycle
+        id: cycle
+        continue-on-error: true
+        env:
+          SITE_URL: https://panikajeevansathi.onrender.com
+        run: |
+          if [ "${{ inputs.quick }}" = "true" ]; then
+            node scripts/agent-storage-cycle.mjs --quick
+          else
+            node scripts/agent-storage-cycle.mjs
+          fi
+
+      - name: Extra snapshot
+        if: ${{ inputs.snapshot == 'true' }}
+        continue-on-error: true
+        run: node scripts/agent-storage.mjs snapshot manual
+
+      - name: Doctor (after)
+        continue-on-error: true
+        run: node scripts/agent-storage.mjs doctor
+
+      - name: Write storage report
+        if: always()
+        continue-on-error: true
+        run: node scripts/agent-storage.mjs report
+
+      # Agle run ke liye storage save karo. Cache key per-run hai,
+      # restore-keys se hamesha sabse recent wapas milta hai.
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Upload storage artifact (90 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-storage
+          path: storage
+          retention-days: 90
+          if-no-files-found: ignore
+
+      - name: Upload storage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-storage-report
+          path: reports/agents/agent-storage-*
+          retention-days: 90
+          if-no-files-found: ignore
+
+      - name: Cycle summary
+        if: always()
+        run: |
+          echo "=============================================="
+          echo "AI AGENT STORAGE CYCLE"
+          echo "cycle step   : ${{ steps.cycle.outcome }}"
+          echo "git push     : NOT PERFORMED"
+          echo "deploy       : NOT PERFORMED"
+          echo "social post  : NOT PERFORMED"
+          echo "email        : NOT SENT"
+          echo "=============================================="
+          node scripts/agent-storage.mjs status || true
