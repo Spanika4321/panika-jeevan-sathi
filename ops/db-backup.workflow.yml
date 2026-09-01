@@ -1,0 +1,78 @@
+# PANIKA JEEVAN SATHI — daily database backup
+#
+# Takes an encrypted snapshot of the Cloudflare D1 member database and stores
+# it in TWO independent places:
+#   • Cloudflare R2  → backups/pjs-backup-<timestamp>.json.enc  (30 kept)
+#   • GitHub Actions artifact                                    (90 days)
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_D1_API_TOKEN
+#   R2_ACCOUNT_ID, R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+#   BACKUP_KEY   — any long passphrase; WITHOUT IT THE BACKUPS CANNOT BE READ.
+#                  Keep a copy somewhere safe and offline.
+#
+# Until the secrets exist the job exits green with a clear "not configured yet"
+# note, so it never spams the owner with red builds.
+
+name: Database backup
+
+on:
+  schedule:
+    - cron: '0 20 * * *'   # daily, 01:30 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Snapshot D1 → R2 + artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Are the cloud secrets configured?
+        id: cfg
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_D1_API_TOKEN: ${{ secrets.CF_D1_API_TOKEN }}
+        run: |
+          if [ -n "$CF_ACCOUNT_ID" ] && [ -n "$CF_D1_DATABASE_ID" ] && [ -n "$CF_D1_API_TOKEN" ]; then
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare D1 secrets are not set yet — skipping the backup."
+          fi
+
+      - name: Backup & restore self-test (always runs)
+        run: node scripts/backup-test.mjs
+
+      - name: Take the snapshot
+        if: steps.cfg.outputs.ready == 'yes'
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_D1_API_TOKEN: ${{ secrets.CF_D1_API_TOKEN }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          BACKUP_KEY: ${{ secrets.BACKUP_KEY }}
+        run: node scripts/db-backup.mjs --out backups
+
+      - name: Second copy — GitHub artifact
+        if: steps.cfg.outputs.ready == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pjs-db-backup-${{ github.run_number }}
+          path: backups/
+          retention-days: 90
+          if-no-files-found: error

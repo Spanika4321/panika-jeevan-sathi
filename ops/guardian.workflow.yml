@@ -67,6 +67,9 @@ jobs:
       - name: 6) Cloud storage tests (D1 + R2, local mocks)
         run: node scripts/e2e-cloud-test.mjs
 
+      - name: 7) Backup & restore tests (20 checks)
+        run: node scripts/backup-test.mjs
+
       - name: Upload health report
         if: always()
         uses: actions/upload-artifact@v4

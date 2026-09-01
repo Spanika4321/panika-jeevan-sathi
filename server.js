@@ -54,6 +54,24 @@ if (!photoSetup.config && driver.kind === 'd1') {
   console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
 }
 
+/*
+ * Loud, unmissable warning when a PUBLIC deployment is running on a disk that
+ * the host erases. On Render's Free plan that means every member, profile,
+ * message and photo disappears whenever the instance sleeps or redeploys —
+ * the one failure that must never go unnoticed once the site is public.
+ */
+if (process.env.NODE_ENV === 'production' && driver.kind !== 'd1') {
+  const bar = '!'.repeat(72);
+  console.warn(`\n${bar}`);
+  console.warn('  DATA LOSS RISK: the member database is NOT on Cloudflare D1.');
+  console.warn(`  Current storage: ${driver.kind} in ${DATA_DIR}`);
+  console.warn('  On a free host this folder is wiped on every sleep/redeploy.');
+  console.warn('  Fix: set CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN');
+  console.warn('       (and the R2_* variables for photos), then redeploy.');
+  console.warn('  Step-by-step guide: docs/GO-LIVE.md');
+  console.warn(`${bar}\n`);
+}
+
 const api = apiLib.createApi({
   db: driver,
   secret,

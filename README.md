@@ -52,6 +52,23 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
+| `BACKUP_KEY` | — | Passphrase that encrypts the nightly database snapshots (AES-256-GCM) |
+
+> ⚠️ **Before going public:** without the `CF_*` variables the site stores members in a local
+> file that a free host erases on every sleep or redeploy. Follow **[docs/GO-LIVE.md](docs/GO-LIVE.md)**
+> (10 minutes, no code changes) — it is the difference between keeping and losing every registration.
+
+### Backups
+
+```bash
+npm run backup      # encrypted snapshot of D1 → backups/ and R2
+npm run restore -- --from-r2 latest          # dry run: shows what would return
+npm run restore -- --from-r2 latest --yes    # actually restore
+npm run test:backup # 20 checks: backup, encryption, wipe, restore, idempotency
+```
+
+Three independent copies exist at all times: **D1** (live, 7-day Time Travel),
+**R2** (30 encrypted snapshots), **GitHub artifacts** (90 days, different vendor).
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
