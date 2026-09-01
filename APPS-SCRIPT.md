@@ -17,6 +17,9 @@ Three things, kept separate on purpose:
 
 ## TL;DR — the safest automated way to update `Code.gs`
 
+0. Once (2 minutes, GitHub web UI): add the two workflow files — see “Install the
+   workflows” below. GitHub does not allow an app or agent to create files in
+   `.github/workflows/`, so they are stored in `ops/` for you to add by hand.
 1. Once: authorise Google **one time** with a device code (you type a short code on your
    phone at `google.com/device` — no computer, no copy-paste of code).
 2. Store four values as **GitHub repository secrets**.
@@ -33,6 +36,21 @@ fetches its own code from GitHub).
 ---
 
 ## Option A — GitHub Actions (recommended)
+
+### A0. Install the workflows (one time, from GitHub in a browser)
+
+GitHub refuses to let any app or agent create files inside `.github/workflows/`, so the two
+workflow files are kept in `ops/` and you add them once:
+
+1. <https://github.com/Spanika4321/panika-jeevan-sathi> → **Add file → Create new file**
+2. Name it exactly `.github/workflows/deploy-apps-script.yml`
+3. Paste the whole content of [`ops/deploy-apps-script.workflow.yml`](ops/deploy-apps-script.workflow.yml)
+4. **Commit changes**, then repeat with `.github/workflows/apps-script-authorize.yml` from
+   [`ops/apps-script-authorize.workflow.yml`](ops/apps-script-authorize.workflow.yml)
+
+(The same pattern is already used for the agent workflows — see
+[`ops/INSTALL-WORKFLOWS.md`](ops/INSTALL-WORKFLOWS.md).) After that, everything below runs
+by itself.
 
 ### A1. Two values you need first
 
