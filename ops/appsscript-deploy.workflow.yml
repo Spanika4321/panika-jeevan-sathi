@@ -1,0 +1,50 @@
+# PANIKA JEEVAN SATHI — Apps Script auto-deploy
+#
+# ⚠️ ACTIVATION (ek baar, 2 minute — phone se bhi ho jayega):
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly: .github/workflows/appsscript-deploy.yml
+#   3. Is file ka poora content paste karke commit karein.
+#
+# Uske baad: jab bhi `apps-script/Code.gs` main branch par badlega,
+# GitHub khud us code ko AAPKE MAUJUDA Apps Script project mein push karega
+# aur maujuda web-app deployment ko naye version par le jayega.
+# Script ID aur /exec URL kabhi nahi badalte. Phone par kuch edit nahi karna.
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   GAS_SCRIPT_ID, GAS_CLIENT_ID, GAS_CLIENT_SECRET, GAS_REFRESH_TOKEN
+#   GAS_DEPLOYMENT_ID (optional, recommended)
+
+name: Apps Script Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps-script/**'
+      - 'scripts/appsscript-deploy.mjs'
+      - '.github/workflows/appsscript-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Push Code.gs to the existing Apps Script project
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate Apps Script sources
+        run: node scripts/appsscript-check.mjs
+
+      - name: Deploy to the existing project (same /exec URL)
+        env:
+          GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+          GAS_CLIENT_ID: ${{ secrets.GAS_CLIENT_ID }}
+          GAS_CLIENT_SECRET: ${{ secrets.GAS_CLIENT_SECRET }}
+          GAS_REFRESH_TOKEN: ${{ secrets.GAS_REFRESH_TOKEN }}
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
+        run: node scripts/appsscript-deploy.mjs

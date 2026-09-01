@@ -52,6 +52,7 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
+| `APPS_SCRIPT_URL`, `APPS_SCRIPT_TOKEN` | — | Mirror registrations & contact messages to the existing Google Apps Script web app / Sheet ([apps-script/README.md](apps-script/README.md)) |
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
@@ -239,3 +240,21 @@ Full documentation: [`storage/README.md`](storage/README.md).
 
 - No third-party CDNs, fonts or trackers — the site is fast and works offline.
 - `panika-jeevan-sathi-website-prompt.zip` is the original project brief archive; it is not used by the site.
+
+---
+
+## Google Apps Script bridge
+
+The Apps Script web app (`script.google.com/macros/s/.../exec`) is a separate
+Google project — it is **not** re-created here. Its `Code.gs` now lives in
+[`apps-script/`](apps-script/) as the source of truth, and a GitHub Action pushes
+that code into the **existing** project (same script ID, same `/exec` URL) on every
+push to `main`. No manual editing on a phone.
+
+```bash
+npm run appsscript:check    # syntax + manifest validation
+npm run appsscript:dry      # show what would be pushed
+npm run appsscript:deploy   # push to the existing project + bump its deployment
+```
+
+Setup steps and the required GitHub secrets: **[apps-script/README.md](apps-script/README.md)**.

@@ -27,6 +27,7 @@ Push karte waqt aapko ye error dikhta hai to yahin se copy karein:
 
 | # | Banayein ye file (GitHub par) | Content yahan se copy karein |
 | --- | --- | --- |
+| 0 | `.github/workflows/appsscript-deploy.yml` | [`ops/appsscript-deploy.workflow.yml`](appsscript-deploy.workflow.yml) *(naya — Apps Script auto-update)* |
 | 1 | `.github/workflows/agent-storage.yml` | [`ops/agent-storage.workflow.yml`](agent-storage.workflow.yml) *(naya)* |
 | 2 | `.github/workflows/pooja.yml` | [`ops/pooja.workflow.yml`](pooja.workflow.yml) *(replace)* |
 | 3 | `.github/workflows/priya.yml` | [`ops/priya.workflow.yml`](priya.workflow.yml) *(replace)* |
