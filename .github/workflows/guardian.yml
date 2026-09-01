@@ -36,6 +36,15 @@ jobs:
       - name: 4) Guardian health check + design lock
         run: node scripts/health-check.mjs
 
+      - name: 5) AWS SigV4 signature tests (R2 photo uploads)
+        run: node scripts/test-sigv4.mjs
+
+      - name: 6) Cloud storage tests (D1 + R2, local mocks)
+        run: node scripts/e2e-cloud-test.mjs
+
+      - name: 7) Backup & restore tests (20 checks)
+        run: node scripts/backup-test.mjs
+
       - name: Upload health report
         if: always()
         uses: actions/upload-artifact@v4

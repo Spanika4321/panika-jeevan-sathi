@@ -10,3 +10,7 @@ data/
 # purane snapshots/archives git mein hamesha ke liye jamne nahi diye jaate)
 storage/snapshots/
 storage/agents/*/archive/
+
+# Database snapshots — never commit member data to git
+backups/
+reports/persistence-state.json

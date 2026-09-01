@@ -1,0 +1,138 @@
+# PANIKA JEEVAN SATHI — persistence alarm
+#
+# Every 6 hours it asks the live website "is your data actually safe?" and
+# opens (or updates) a GitHub issue the moment the answer is no — i.e. when the
+# site has fallen back to the throw-away disk on Render, when the D1 write
+# queue is stuck, or when the member count DROPS (the fingerprint of a wipe).
+#
+# No secrets required. Set the repository variable SITE_URL if the address ever
+# changes (Settings → Secrets and variables → Actions → Variables).
+
+name: Persistence watch
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: persistence-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: Is the live data safe?
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      # The member count from the previous run is cached so a DROP is visible.
+      - name: Restore previous reading
+        uses: actions/cache/restore@v4
+        with:
+          path: reports/persistence-state.json
+          key: persistence-state-${{ github.run_id }}
+          restore-keys: persistence-state-
+
+      - name: Check the live site
+        id: watch
+        continue-on-error: true
+        run: |
+          node scripts/persistence-watch.mjs \
+            --url "${SITE_URL:-https://panikajeevansathi.onrender.com}" \
+            --state reports/persistence-state.json | tee watch.log
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+
+      - name: Save this reading
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: reports/persistence-state.json
+          key: persistence-state-${{ github.run_id }}
+
+      - name: Open / update an alert issue
+        if: steps.watch.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.existsSync('watch.log') ? fs.readFileSync('watch.log', 'utf8') : '(no output)';
+            const title = '🔴 Persistence alert — member data is not safe';
+            const body = [
+              'The automated persistence watch found a problem with the live website.',
+              '',
+              '```',
+              log.slice(-5000),
+              '```',
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              '**Most likely fix:** the Cloudflare `CF_*` / `R2_*` environment variables are missing on Render.',
+              'See `docs/GO-LIVE.md` in this repository for the exact 10-minute procedure.'
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'persistence-alert'
+            });
+
+            if (existing.data.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['persistence-alert']
+              });
+            }
+
+      - name: Close the alert once everything is healthy again
+        if: steps.watch.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'persistence-alert'
+            });
+            for (const issue of open.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '✅ Persistence watch is green again — closing.'
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }
+
+      - name: Fail the run so the red mark is visible
+        if: steps.watch.outcome == 'failure'
+        run: exit 1
