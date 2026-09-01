@@ -10,3 +10,6 @@ data/
 # purane snapshots/archives git mein hamesha ke liye jamne nahi diye jaate)
 storage/snapshots/
 storage/agents/*/archive/
+
+# Apps Script backups downloaded from the live project before each push
+apps-script/_remote/

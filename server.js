@@ -19,6 +19,7 @@ const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
+const appsScriptLib = require('./lib/appsscript');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -28,7 +29,14 @@ const PORT = Number(process.env.PORT || 3000);
 
 /* ------------------------------------------------------------------ storage */
 
-const opened = dbLib.open(DATA_DIR, { log: (message) => console.log(message) });
+/* Google Sheets: set when PJS_SHEETS_URL is present or when a web app URL was
+   saved from the admin panel (data/apps-script.json). */
+const sheetsConfig = appsScriptLib.resolveConfig(DATA_DIR);
+
+const opened = dbLib.open(DATA_DIR, {
+  log: (message) => console.log(message),
+  sheets: sheetsConfig
+});
 const driver = opened.driver;
 const driverError = opened.driverError;
 const remote = opened.remote;
@@ -61,11 +69,44 @@ const api = apiLib.createApi({
   photos,
   remoteStatus() {
     return {
-      database: remote ? { kind: 'd1', ...driver.stats() } : { kind: driver.kind },
+      database: remote ? { kind: remote.kind || 'd1', ...driver.stats() } : { kind: driver.kind },
+      sheets: sheetsStatus(),
       photos: photos.stats()
     };
+  },
+  sheets: {
+    config: sheetsConfig,
+    /** Live ping of the Apps Script web app, used by the admin panel. */
+    test(config) {
+      const client = appsScriptLib.createClient(config, { log: (m) => console.log(m) });
+      return client.ping();
+    },
+    save(values) {
+      return appsScriptLib.saveConfig(DATA_DIR, values);
+    },
+    clear() {
+      return appsScriptLib.clearConfig(DATA_DIR);
+    },
+    /** Re-read the Sheet into memory (primary Sheets mode only). */
+    reload() {
+      if (typeof driver.reload !== 'function') return null;
+      return driver.reload();
+    }
   }
 });
+
+/** Small, non-fatal summary of the Google Sheets link for /api/health. */
+function sheetsStatus() {
+  if (!sheetsConfig) return { connected: false };
+  const info = appsScriptLib.describe(sheetsConfig);
+  return {
+    connected: true,
+    mode: info.mode,
+    url: info.url,
+    tokenSet: info.tokenSet,
+    stats: driver.stats && driver.stats().sheets ? driver.stats().sheets : null
+  };
+}
 
 /** Write queued changes (database + photos) to the remote services. */
 async function persist() {
@@ -169,14 +210,22 @@ async function loadRemoteDatabase() {
       return await opened.ready();
     } catch (err) {
       lastError = err;
-      console.error(`[storage] D1 unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
+      const what = remote && remote.kind === 'sheets' ? 'Google Sheets (Apps Script)' : 'D1';
+      console.error(`[storage] ${what} unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
       await sleep(1500 * attempt);
     }
   }
+  const what = remote && remote.kind === 'sheets' ? 'Google Sheets (Apps Script)' : 'D1';
   console.error('');
-  console.error('  ⚠  THE DATABASE COULD NOT BE REACHED — THE SITE WILL NOT START');
+  console.error(`  ⚠  THE REMOTE DATABASE (${what}) COULD NOT BE REACHED — THE SITE WILL NOT START`);
   console.error(`     ${lastError && lastError.message}`);
-  console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN on this service,');
+  if (what === 'Google Sheets (Apps Script)') {
+    console.error('     Check that the web app URL is the /exec deployment URL and that the');
+    console.error('     Google Sheet is reachable. Use PJS_STORAGE=mirror if you would rather');
+    console.error('     keep the local database and only mirror changes into the Sheet.');
+  } else {
+    console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN on this service,');
+  }
   console.error('     then redeploy. Starting anyway would wipe the site back to zero members.');
   console.error('');
   process.exit(1);
@@ -185,7 +234,8 @@ async function loadRemoteDatabase() {
 async function main() {
   if (opened.ready) {
     const info = await loadRemoteDatabase();
-    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} tables`);
+    const label = remote && remote.kind === 'sheets' ? 'Google Sheets' : 'Cloudflare D1';
+    console.log(`  Database : ${label} — ${info.rows} rows loaded from ${info.tables} tables`);
   }
 
   ensureAdmin();
