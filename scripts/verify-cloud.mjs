@@ -45,8 +45,8 @@ section('1. Cloudflare D1 (member database)');
 const d1Config = d1Lib.configFromEnv();
 if (!d1Config) {
   console.log('  – CF_ACCOUNT_ID / CF_D1_DATABASE_ID / CF_D1_API_TOKEN are not set — skipping D1 checks.');
-  console.log('    Without them the site falls back to a local SQLite file, which a');
-  console.log('    Render Free instance loses every time it sleeps or redeploys.');
+  console.log('    Without D1 or SUPABASE_* the site falls back to a local SQLite file,');
+  console.log('    which a Render Free instance loses every time it sleeps or redeploys.');
 } else {
   check(
     'D1 environment variables are set',
@@ -126,16 +126,19 @@ if (urlArg) {
     const body = await res.json();
     check('/api/health returns 200', res.status === 200, `HTTP ${res.status}`);
     check('site reports ok', Boolean(body && body.ok));
-    check('site is using the D1 database', body && body.storage === 'd1', `storage=${body && body.storage}`);
     check(
-      'site has no unsaved changes',
-      body && body.remote && body.remote.database.pending === 0,
-      body && body.remote ? `pending=${body.remote.database.pending}` : ''
+      'site storage is durable (Supabase or D1 — not local sqlite/json)',
+      body && body.durable === true,
+      `storage=${body && body.storage} photos=${body && body.photos}`
     );
-    check(
-      'photos are mirrored to R2',
-      body && body.remote && body.remote.photos.remote === true
-    );
+    if (body && body.storage === 'd1') {
+      check(
+        'site has no unsaved changes',
+        body.remote && body.remote.database.pending === 0,
+        body.remote ? `pending=${body.remote.database.pending}` : ''
+      );
+      check('photos are mirrored to R2', body.remote && body.remote.photos.remote === true);
+    }
 
     for (const page of ['/', '/login.html', '/about.html', '/contact.html', '/search.html']) {
       const pageRes = await fetch(base + page, { signal: AbortSignal.timeout(60000) });
