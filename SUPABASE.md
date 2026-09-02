@@ -20,15 +20,31 @@ Photos  : supabase+cache (remote write-through)
 aur `GET /api/health` deta hai `"storage":"supabase"`, `"durable":true`,
 `"data_loss_risk":false`.
 
-## 1. Ek baar ka Supabase setup
+## 1. Ek baar ka Supabase setup (GitHub connection)
+
+GitHub se connect karne ke baad schema **apne aap** lagta hai — SQL editor
+me paste karne ki zaroorat nahi, jab tak **Deploy to production** on ho.
 
 1. https://supabase.com/dashboard par project banaiye (free tier chalega).
-2. **SQL Editor** kholiye aur `supabase/schema.sql` ka poora content paste
-   karke run kar dijiye. Isse 11 tables ban jayenge.
-3. **Storage → New bucket** → naam `uploads`. Public rakhne ki zaroorat nahi;
-   app service-role key se padhta-likhta hai.
+2. **Project Settings → Integrations → GitHub** → ye repo connect kariye
+   (`Spanika4321/panika-jeevan-sathi`).
+   - **Working directory:** `.`
+   - **Production branch:** `main`
+   - **Deploy to production:** ON
+3. `main` par merge ke baad GitHub `supabase/migrations/` apply karta hai
+   aur `config.toml` se private `uploads` photo bucket banaata hai.
+   Table Editor me `users`, `profiles`, `messages` dikhne chahiye.
 4. **Project Settings → API** se `Project URL` aur `service_role` key copy
-   kariye.
+   kariye — ye Render par paste karni hai (neeche §2). GitHub connection
+   schema lagata hai; website ko baat karne ke liye URL + key abhi bhi
+   Render par chahiye.
+
+**Fallback** (Deploy to production off ho): SQL Editor me `supabase/schema.sql`
+paste karke Run, ya:
+
+```bash
+node scripts/supabase-setup.mjs --access-token sbp_xxx --apply
+```
 
 ## 2. Render (production) par lagana
 
@@ -78,6 +94,6 @@ npm run test:supabase-wipe   # app disk wipe + restart ke baad bhi data zinda
 | Lakshan | Wajah | Fix |
 |---|---|---|
 | health me `"storage":"sqlite"` | env vars nahi mile | teeno variables set karke redeploy |
-| `relation "users" does not exist` | schema nahi chala | `supabase/schema.sql` SQL Editor me run |
+| `relation "users" does not exist` | schema nahi chala | GitHub **Deploy to production** ON + `main` merge, ya `schema.sql` SQL Editor me Run |
 | photo upload fail, DB theek | bucket missing | Storage me `uploads` bucket banaiye |
 | `401 Invalid API key` | anon key laga di | `service_role` key use kariye (server-only) |
