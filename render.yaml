@@ -7,20 +7,21 @@
 #
 # IMPORTANT — why there is no disk here:
 # Render's Free plan has an *ephemeral* filesystem and cannot attach a
-# persistent disk, so a normal SQLite file would be erased every time the
+# persistent disk, so a SQLite file under ./data is erased every time the
 # service sleeps (15 min idle) or redeploys. This Blueprint therefore keeps
-#   • the member database in Cloudflare D1  (free: 500 MB, no expiry), and
-#   • uploaded photos in Cloudflare R2      (free: 10 GB, no egress fees).
-# Both are reached over HTTPS by lib/d1.js and lib/r2.js — no paid add-ons.
+#   • the member database in Supabase Postgres  (PostgREST)
+#   • uploaded photos in Supabase Storage
+# Both are reached over HTTPS by lib/supabase.js — write-through, no local queue.
+# Cloudflare D1/R2 remain supported as a fallback when SUPABASE_* is unset
+# but CF_*/R2_* is set.
 #
-# Fill in the seven blank values (marked "set in dashboard") when prompted:
-# see DEPLOY.md § "Render — Free plan" for the 5-minute Cloudflare setup.
+# Fill in SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the Render dashboard
+# (Settings → Environment). Run supabase/schema.sql once in the Supabase SQL
+# editor before the first boot.
 #
-# Without those values the site still boots, but it uses the local SQLite file
-# and will lose its data on the next restart (fine for a demo, not production).
-# To keep the database durable WITHOUT Cloudflare, switch the service to
-# Render Starter and attach a persistent disk mounted at /app/data, then set
-# PJS_STORAGE=sqlite.
+# PJS_REQUIRE_REMOTE=1 (and SITE_URL on onrender.com) refuse to boot with
+# local sqlite. That fail-closed path is the only way Render sleep cannot
+# silently recreate an empty site.
 
 services:
   - type: web
@@ -38,7 +39,9 @@ services:
       - key: HOST
         value: 0.0.0.0
       - key: PJS_STORAGE
-        value: auto # auto → D1 when CF_* is set, else local SQLite
+        value: auto # auto → Supabase when SUPABASE_* is set, else D1, else (local only) SQLite
+      - key: PJS_REQUIRE_REMOTE
+        value: '1'
       - key: SITE_URL
         value: https://panikajeevansathi.onrender.com # canonical origin for robots/sitemap
       - key: SESSION_SECRET
@@ -48,7 +51,15 @@ services:
       - key: ADMIN_PASSWORD
         generateValue: true # printed once in the deploy log; change it after login
 
-      # ---- Cloudflare D1 (database) — set these in the Render dashboard ----
+      # ---- Supabase (database + photos) — set these in the Render dashboard ----
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: uploads
+
+      # ---- Cloudflare D1 (optional fallback) ----------------------------------
       - key: CF_ACCOUNT_ID
         sync: false
       - key: CF_D1_DATABASE_ID
@@ -56,7 +67,7 @@ services:
       - key: CF_D1_API_TOKEN
         sync: false
 
-      # ---- Cloudflare R2 (photos) — set these in the Render dashboard ------
+      # ---- Cloudflare R2 (optional fallback photos) ---------------------------
       - key: R2_ACCOUNT_ID
         sync: false
       - key: R2_BUCKET

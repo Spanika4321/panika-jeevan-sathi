@@ -34,6 +34,7 @@ npm run dev        # run with auto-reload while editing
 npm test           # syntax check + full end-to-end test suite
 npm run check      # syntax check only
 npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
+npm run test:supabase-wipe # write → external store → wipe app disk → read (PostgREST mock)
 npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 ```
 
@@ -49,9 +50,12 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
 | `OWNER_EMAILS` | — | Extra emails always promoted to admin |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
-| `PJS_STORAGE` | `auto` | `auto` = Cloudflare D1 when `CF_*` is set, else local SQLite; `sqlite`/`json`/`d1` force one |
-| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 holds the member database (free tier, no expiry) |
-| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 holds profile photos (free tier, 10 GB) |
+| `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else local SQLite; `supabase`/`d1`/`sqlite`/`json` force one |
+| `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (required on Render Free) |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production Postgres + Storage (see `supabase/schema.sql`) |
+| `SUPABASE_STORAGE_BUCKET` | `uploads` | Photo bucket |
+| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 fallback |
+| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 fallback photos |
 
 If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
 is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
@@ -181,8 +185,8 @@ Full instructions (Render, cPanel, Railway, Docker, VPS + systemd, backups, envi
 are in **[DEPLOY.md](DEPLOY.md)**. The production target is:
 
 - **Render (free) — one-click Blueprint → `https://panikajeevansathi.onrender.com`**
-  (`render.yaml` creates the service named `panikajeevansathi`; pair it with free
-  Cloudflare D1 + R2 so members & photos survive Render's free sleep/redeploys).
+  (`render.yaml` creates the service named `panikajeevansathi`; pair it with
+  Supabase so members & photos survive Render's free sleep/redeploys).
 - The previous production URL `https://panikajeevansathi.coolstore.in` can be restored on the same
   cPanel account by running *this* app (see DEPLOY.md § 1c) — its storage is already persistent.
 - **Railway is not used:** its free sandbox no longer exists, which produced the
