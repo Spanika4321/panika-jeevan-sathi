@@ -68,19 +68,27 @@ The Blueprint `render.yaml` creates the service **`panikajeevansathi`**, so the 
    service **will not start** (`PJS_REQUIRE_REMOTE=1`).
 4. Click **Apply**. Deployment takes ~2 minutes.
 
-**Option 2 — fully automated (Render API key):** copy
-`ops/deploy-render.workflow.yml` to `.github/workflows/deploy-render.yml`
-(one-time, GitHub UI), then go to *Actions → “Deploy to Render” → Run workflow*,
-fill in the Render API key and the Cloudflare values; they are masked in the log
-and never stored in git. Or run locally from a machine that can reach
+**Option 2 — fully automated (Render API key):** the workflow is already
+installed at `.github/workflows/deploy-render.yml` (template:
+`ops/deploy-render.workflow.yml`). Go to *Actions → “Deploy to Render” →
+Run workflow* and fill in the Render API key — plus the Supabase Project URL
+and `service_role` key from step A to switch the service to durable storage
+in the same run (run `supabase/schema.sql` once in the SQL editor first —
+that creates the `users` table and friends). Every value is masked in the
+log and never stored in git. Or run locally from a machine that can reach
 `api.render.com`:
 
 ```bash
 RENDER_API_KEY=rnd_xxx node scripts/deploy-render.mjs \
+  --supabase-url https://<ref>.supabase.co --supabase-key *** \
+  --supabase-bucket uploads \
   --cf-account-id ... --cf-d1-database-id ... --cf-d1-api-token ... \
   --r2-account-id ... --r2-bucket ... \
   --r2-access-key-id ... --r2-secret-access-key ...
 ```
+
+Re-deploys never wipe `SUPABASE_*` / `PJS_STORAGE` values set earlier, so a
+run without Supabase inputs cannot silently downgrade production to sqlite.
 
 ### C. Check it
 
@@ -88,8 +96,9 @@ RENDER_API_KEY=rnd_xxx node scripts/deploy-render.mjs \
 node scripts/verify-cloud.mjs --url https://panikajeevansathi.onrender.com
 ```
 
-That checks D1, R2 **and** the live site (pages, health endpoint, storage driver,
-unsaved-change count). Then log in at `/admin.html` — the administrator password
+That checks D1/R2 (when configured) **and** the live site (pages, health endpoint,
+durable-storage verdict — Supabase **or** D1). Then log in at `/admin.html` —
+the administrator password
 was generated at first boot; it is printed once in the deploy log
 (Render → your service → **Logs**). Change it under **Admin → Account**.
 
