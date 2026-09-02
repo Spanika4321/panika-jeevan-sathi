@@ -35,6 +35,7 @@ npm test           # syntax check + full end-to-end test suite
 npm run check      # syntax check only
 npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
 npm run test:supabase-wipe # write → external store → wipe app disk → read (PostgREST mock)
+npm run supabase:setup    # list Supabase projects / apply schema + bucket + print Render env
 npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 ```
 
