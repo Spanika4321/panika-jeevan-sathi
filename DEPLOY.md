@@ -51,6 +51,12 @@ recreate an empty site.
 4. **SQL Editor** → paste and run [`supabase/schema.sql`](supabase/schema.sql).
 5. Optional: **Storage** → the app creates the `uploads` bucket on first photo save.
 
+**One command instead of steps 4–5** (and to see which project is the real one):
+run `node scripts/supabase-setup.mjs --access-token <Supabase access token>` — it lists every
+project on the account with a `SCHEMA` (YES/NO) and `USERS` count, then with
+`--project-ref <id> --apply` it applies the schema, creates the `uploads` bucket and prints the
+`SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` values to paste into Render. The token is never saved.
+
 Cloudflare D1 + R2 remain a supported fallback if `SUPABASE_*` is unset and `CF_*` / `R2_*` are set.
 
 ### B. Deploy on Render (one click)
