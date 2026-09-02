@@ -169,7 +169,7 @@ function listAppDisk() {
 }
 
 async function main() {
-  const mock = createSupabaseMock({
+  let mock = createSupabaseMock({
     file: path.join(STORE_DIR, 'supabase.sqlite'),
     objectsDir: path.join(STORE_DIR, 'objects'),
     token: 'proof-service-role'
@@ -218,6 +218,13 @@ async function main() {
       'MOCK',
       JSON.stringify({ photos: health1 && health1.photos, remote: health1 && health1.remote }),
       'lib/photos.js createFromEnv'
+    );
+    record(
+      'boot health durable=true (db+photos remote)',
+      health1 && health1.durable === true && health1.data_loss_risk === false,
+      'MOCK',
+      JSON.stringify({ durable: health1 && health1.durable, data_loss_risk: health1 && health1.data_loss_risk }),
+      'lib/api.js GET /api/health'
     );
 
     const ravi = client();
@@ -328,11 +335,13 @@ async function main() {
     app = null;
     wipeAppDisk();
     appFilesAfterWipe = listAppDisk();
-    storeFilesAfterWipe = listAppDisk && fs.existsSync(STORE_DIR)
-      ? fs.readdirSync(STORE_DIR)
-      : [];
+    storeFilesAfterWipe = fs.existsSync(STORE_DIR) ? fs.readdirSync(STORE_DIR) : [];
     externalUserAfterWipe = mock.hasUser(EMAIL);
     externalPhotoAfterWipe = photoKey && mock.hasObject(photoKey);
+    const photoFileOnDisk =
+      photoKey && mock.objectsDir
+        ? fs.existsSync(path.join(mock.objectsDir, encodeURIComponent(photoKey)))
+        : false;
 
     const appHasDb = appFilesAfterWipe.some((f) => /panika-jeevan-sathi\.db$/.test(f.path));
     record(
@@ -351,11 +360,29 @@ async function main() {
     );
     record(
       'external object store still has the photo after app-disk wipe',
-      Boolean(externalPhotoAfterWipe),
+      Boolean(externalPhotoAfterWipe) && photoFileOnDisk,
       'MOCK',
-      `hasObject=${externalPhotoAfterWipe} objects=${fs.existsSync(mock.objectsDir) ? fs.readdirSync(mock.objectsDir).join(',') : 'missing'}`,
+      `hasObject=${externalPhotoAfterWipe} photoFileOnDisk=${photoFileOnDisk} objects=${fs.existsSync(mock.objectsDir) ? fs.readdirSync(mock.objectsDir).join(',') : 'missing'}`,
       mock.objectsDir
     );
+
+    // Analog of "Supabase stays up, the Node process is a new machine":
+    // close the mock HTTP process and reopen from the same sqlite + object files.
+    mock.close();
+    const mock2 = createSupabaseMock({
+      file: path.join(STORE_DIR, 'supabase.sqlite'),
+      objectsDir: path.join(STORE_DIR, 'objects'),
+      token: 'proof-service-role'
+    });
+    const supabaseUrl2 = await mock2.listen();
+    record(
+      'external store survived mock-process restart (disk, not RAM)',
+      mock2.hasUser(EMAIL) && (!photoKey || mock2.hasObject(photoKey)),
+      'MOCK',
+      `hasUser=${mock2.hasUser(EMAIL)} hasObject=${photoKey && mock2.hasObject(photoKey)} url2=${supabaseUrl2}`,
+      mock2.dbFile
+    );
+    sbEnv.SUPABASE_URL = supabaseUrl2;
 
     app = spawnApp(sbEnv);
     health2 = await waitForServer(app.logRef);
@@ -436,7 +463,8 @@ async function main() {
     checks.find((c) => c.check.startsWith('profile survived'))?.result === 'PASS' &&
     checks.find((c) => c.check.startsWith('messages survived'))?.result === 'PASS' &&
     checks.find((c) => c.check.startsWith('photo bytes survived'))?.result === 'PASS' &&
-    checks.find((c) => c.check.startsWith('external sqlite still has'))?.result === 'PASS';
+    checks.find((c) => c.check.startsWith('external sqlite still has'))?.result === 'PASS' &&
+    checks.find((c) => c.check.startsWith('external store survived mock-process'))?.result === 'PASS';
 
   const md = [];
   md.push('# PROOF — Supabase write-through (app-disk wipe)');

@@ -39,7 +39,7 @@ services:
       - key: HOST
         value: 0.0.0.0
       - key: PJS_STORAGE
-        value: auto # auto → Supabase when SUPABASE_* is set, else D1, else (local only) SQLite
+        value: supabase # refuse sqlite/D1 on this host — SUPABASE_* must be set
       - key: PJS_REQUIRE_REMOTE
         value: '1'
       - key: SITE_URL

@@ -76,14 +76,18 @@ const api = apiLib.createApi({
   }
 });
 
-/** Write queued changes (database + photos) to the remote services. */
+/**
+ * D1 keeps a write queue; Supabase is write-through so flush is a no-op.
+ * A failed D1 flush is logged. The HTTP handler already awaited the
+ * in-process write; supabase writes have already been ACK'd by PostgREST.
+ */
 async function persist() {
   try {
     if (driver.flush) await driver.flush();
-    await photos.flush();
+    if (photos.flush) await photos.flush();
   } catch (err) {
-    // The queue is kept, so the next request, the timer or shutdown retries.
-    console.error(`[storage] could not save yet: ${err.message} — will retry.`);
+    console.error(`[storage] flush failed: ${err.message}`);
+    if (driver.kind === 'supabase') throw err;
   }
 }
 
@@ -166,9 +170,9 @@ async function sleep(ms) {
 }
 
 /**
- * Load the remote database (Cloudflare D1) before the site accepts traffic.
- * Serving an empty site because D1 could not be reached would look exactly
- * like total data loss, so we retry and then exit loudly instead.
+ * Reach the remote database (Supabase / D1) before the site accepts traffic.
+ * Serving an empty local store because the remote could not be reached would
+ * look exactly like total data loss, so we retry and then exit loudly instead.
  */
 async function loadRemoteDatabase() {
   const attempts = Number(process.env.PJS_BOOT_RETRIES || 6);
@@ -178,15 +182,15 @@ async function loadRemoteDatabase() {
       return await opened.ready();
     } catch (err) {
       lastError = err;
-      console.error(`[storage] D1 unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
+      console.error(`[storage] remote unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
       await sleep(1500 * attempt);
     }
   }
   console.error('');
   console.error('  ⚠  THE DATABASE COULD NOT BE REACHED — THE SITE WILL NOT START');
   console.error(`     ${lastError && lastError.message}`);
-  console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN on this service,');
-  console.error('     then redeploy. Starting anyway would wipe the site back to zero members.');
+  console.error('     Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on this service,');
+  console.error('     then redeploy. Starting with local sqlite would wipe members on the next sleep.');
   console.error('');
   process.exit(1);
 }
@@ -194,11 +198,12 @@ async function loadRemoteDatabase() {
 async function main() {
   if (opened.ready) {
     const info = await loadRemoteDatabase();
-    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} tables`);
+    const label = remote && remote.kind ? remote.kind : driver.kind;
+    console.log(`  Database : ${label} — ${info.rows} rows across ${info.tables} tables`);
   }
 
-  ensureAdmin();
-  ensureDefaultSettings();
+  await ensureAdmin();
+  await ensureDefaultSettings();
   await persist();
 
   // Safety net: anything the request path could not save is retried here.

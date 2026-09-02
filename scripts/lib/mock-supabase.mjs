@@ -346,6 +346,11 @@ export function createSupabaseMock(options = {}) {
       return `http://127.0.0.1:${server.address().port}`;
     },
     close() {
+      try {
+        db.exec('PRAGMA wal_checkpoint(FULL);');
+      } catch (_) {
+        /* ignore */
+      }
       server.close();
       try {
         db.close();
