@@ -137,6 +137,37 @@ jobs:
           SITE_URL: ${{ steps.url.outputs.site }}
         run: node scripts/verify-cloud.mjs --url "$SITE_URL"
 
+      - name: If it failed — likely causes (plain English)
+        if: failure()
+        run: |
+          echo "The deploy did not finish. Look at the FIRST red line above, then match it here:"
+          echo ""
+          echo "  HTTP 401  → The Render API key was rejected."
+          echo "              dashboard.render.com → Account Settings → API Keys → create a"
+          echo "              new key, paste it whole (the script already trims stray spaces)."
+          echo ""
+          echo "  HTTP 403  → Key is valid but lacks access. Use a key from the workspace"
+          echo "              that owns 'panikajeevansathi', with full access."
+          echo ""
+          echo "  Could not write the environment variables / Blueprint"
+          echo "            → The service is Blueprint-managed, so the API cannot edit env"
+          echo "              vars. Set them by hand: dashboard.render.com →"
+          echo "              panikajeevansathi → Environment → SUPABASE_URL,"
+          echo "              SUPABASE_SERVICE_ROLE_KEY, SUPABASE_STORAGE_BUCKET=uploads,"
+          echo "              PJS_STORAGE=supabase, PJS_REQUIRE_REMOTE=1 → Save →"
+          echo "              Manual Deploy → Deploy latest commit."
+          echo ""
+          echo "  deploy_failed / pre_deploy_failed"
+          echo "            → Build was fine, the app refused to boot. Almost always the"
+          echo "              missing Supabase schema: supabase.com → SQL Editor → paste"
+          echo "              supabase/schema.sql → Run, then re-run this workflow."
+          echo ""
+          echo "  storage: sqlite in the verify step"
+          echo "            → Supabase URL/key were left blank in the form. Re-run the"
+          echo "              workflow and fill both fields."
+          echo ""
+          echo "Full guide: DEPLOY.md"
+
       - name: Durability reminder
         if: always()
         run: |
