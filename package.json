@@ -9,12 +9,14 @@
     "dev": "node --watch server.js",
     "check": "node scripts/check-syntax.mjs",
     "health": "node scripts/health-check.mjs",
-    "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs",
+    "test": "node scripts/check-syntax.mjs && node scripts/e2e-test.mjs && node scripts/supabase-setup-test.mjs",
     "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs",
     "test:cloud": "node scripts/e2e-cloud-test.mjs",
     "test:supabase-wipe": "node scripts/prove-supabase-wipe.mjs",
+    "test:supabase-setup": "node scripts/supabase-setup-test.mjs",
     "test:sigv4": "node scripts/test-sigv4.mjs",
     "verify:cloud": "node scripts/verify-cloud.mjs",
+    "supabase:setup": "node scripts/supabase-setup.mjs",
     "deploy:render": "node scripts/deploy-render.mjs",
     "cloud:setup": "node scripts/cloud-setup.mjs",
     "storage": "node scripts/agent-storage.mjs",
@@ -22,7 +24,9 @@
     "storage:status": "node scripts/agent-storage.mjs status",
     "storage:doctor": "node scripts/agent-storage.mjs doctor",
     "storage:report": "node scripts/agent-storage.mjs report",
-    "storage:cycle": "node scripts/agent-storage-cycle.mjs"
+    "storage:cycle": "node scripts/agent-storage-cycle.mjs",
+    "dev:supabase": "node scripts/supabase-dev.mjs",
+    "start:supabase": "node scripts/supabase-dev.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

@@ -1,0 +1,57 @@
+# PANIKA JEEVAN SATHI — Supabase project config
+#
+# Required by the Supabase GitHub integration
+# (Dashboard → Project Settings → Integrations → GitHub).
+#
+# In that screen:
+#   Working directory  = .
+#   Production branch  = main
+#   Deploy to production = ON   ← this is what applies migrations/ on merge
+#
+# What GitHub deploys from this folder (on merge to main):
+#   • supabase/migrations/*.sql     → Postgres tables, indexes, RLS
+#   • [storage.buckets.uploads]     → private photo bucket
+# Auth / API / seed settings below are for local `supabase start` only;
+# the GitHub integration ignores them on production by default.
+#
+# This file has no secrets. Safe to commit.
+
+project_id = "panika-jeevan-sathi"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.seed]
+enabled = false
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[inbucket]
+enabled = false
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+# Deployed by the GitHub integration when "Deploy to production" is on.
+# Must stay private: the Node server reads/writes with the service_role key.
+[storage.buckets.uploads]
+public = false
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]

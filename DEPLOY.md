@@ -43,13 +43,34 @@ survive in **Supabase** (write-through HTTPS, no local queue):
 local sqlite. That fail-closed path is the only way Render sleep cannot silently
 recreate an empty site.
 
-### A. Create the Supabase project (once, ~5 minutes)
+### A. Create the Supabase project and connect GitHub (once, ~5 minutes)
 
-1. Sign up at [supabase.com](https://supabase.com) (free).
-2. New project → copy **Project URL** (`https://<ref>.supabase.co`).
-3. **Project Settings → API** → copy the **service_role** key (server only — never put it in the browser).
-4. **SQL Editor** → paste and run [`supabase/schema.sql`](supabase/schema.sql).
-5. Optional: **Storage** → the app creates the `uploads` bucket on first photo save.
+The GitHub connection deploys the **schema and photo bucket**. Render still needs the
+URL + `service_role` key so the website can talk to that project.
+
+1. Sign up at [supabase.com](https://supabase.com) (free) → **New project**.
+2. **Project Settings → [Integrations](https://supabase.com/dashboard/project/_/settings/integrations) → GitHub**
+   → connect `Spanika4321/panika-jeevan-sathi`.
+   - **Working directory:** `.`  (`supabase/` is at the repo root)
+   - **Production branch:** `main`
+   - **Deploy to production:** ON — this is the switch that applies
+     [`supabase/migrations/`](supabase/migrations) and creates the `uploads`
+     bucket declared in [`supabase/config.toml`](supabase/config.toml) on every merge to `main`.
+3. After this lands on `main`, open the GitHub Checks tab / Supabase Table Editor
+   and confirm `users`, `profiles`, `messages`, … exist.
+4. **Project Settings → API** → copy **Project URL** (`https://<ref>.supabase.co`)
+   and the **service_role** key (server only — never put it in the browser) into Render (step B).
+
+**Fallback if GitHub deploy is off:** SQL Editor → paste [`supabase/schema.sql`](supabase/schema.sql)
+and Run. Or one command (lists every project with SCHEMA YES/NO + USERS, then applies):
+
+```bash
+node scripts/supabase-setup.mjs --access-token sbp_xxx            # report
+node scripts/supabase-setup.mjs --access-token sbp_xxx --apply    # schema + bucket + print Render env
+```
+
+The token is created at Account → Access Tokens and is never saved. In GitHub Actions
+the same command is **Actions → "Supabase GitHub connection" → Run workflow**.
 
 Cloudflare D1 + R2 remain a supported fallback if `SUPABASE_*` is unset and `CF_*` / `R2_*` are set.
 

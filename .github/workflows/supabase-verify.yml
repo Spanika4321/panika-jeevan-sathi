@@ -1,0 +1,89 @@
+name: Supabase verify (production health)
+
+# Chhota, tez check: kya live site sach me Supabase par hai?
+# GitHub runners onrender.com tak pahunch sakte hain (agent sandbox nahi),
+# isliye production ka sach yahin se pata chalta hai.
+
+on:
+  push:
+    branches:
+      - 'arena/**'
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Base URL to check'
+        required: true
+        default: 'https://panikajeevansathi.onrender.com'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Fetch /api/health
+        id: health
+        run: |
+          URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
+          echo "Checking $URL/api/health"
+          # Render free tier so jata hai — 5 min tak wake hone ka mauka do.
+          if ! curl -fsS --retry 15 --retry-delay 20 --retry-all-errors \
+                 -m 300 "$URL/api/health" -o /tmp/health.json; then
+            echo "::error::HEALTH_UNREACHABLE"
+            echo "::error::Live site reachable nahi hai ($URL). Render service down ya suspended lag rahi hai."
+            exit 1
+          fi
+          cat /tmp/health.json
+          echo
+          {
+            echo '### /api/health'
+            echo '```json'
+            cat /tmp/health.json
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::HEALTH_JSON $(tr -d '\n' < /tmp/health.json | head -c 900)"
+
+      - name: Verdict
+        run: |
+          node -e '
+            const fs = require("fs");
+            const out = [];
+            const console_log = console.log;
+            console.log = (...a) => { out.push(a.join(" ")); console_log(...a); };
+            process.on("exit", () => fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n### Verdict\n```\n" + out.join("\n") + "\n```\n"));
+            const h = require("/tmp/health.json");
+            const ok = h.storage === "supabase";
+            const photos = String(h.photos || "").startsWith("supabase");
+            console.log("storage        :", h.storage);
+            console.log("photos         :", h.photos);
+            console.log("durable        :", h.durable);
+            console.log("data_loss_risk :", h.data_loss_risk);
+            if (h.remote && h.remote.database) {
+              console.log("db url         :", h.remote.database.url || "(hidden)");
+              console.log("db lastError   :", h.remote.database.lastError);
+            }
+            if (!ok) {
+              console.log("");
+              console.log("RESULT: FAIL — site abhi bhi " + h.storage + " par hai.");
+              console.log("Render → Environment me SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,");
+              console.log("SUPABASE_STORAGE_BUCKET=uploads set karke redeploy kariye.");
+              process.exit(1);
+            }
+            if (!photos || h.durable !== true || h.data_loss_risk === true) {
+              console.log("");
+              console.log("RESULT: PARTIAL — database Supabase par hai lekin photos/durability adhoori hai.");
+              console.log("Supabase Storage me `uploads` bucket check kariye.");
+              process.exit(1);
+            }
+            console.log("");
+            console.log("RESULT: PASS — production Supabase par hai, data durable hai.");
+          '
