@@ -12,11 +12,18 @@ name: Live proof (production durability)
 #      happens between the write phase and the read phase.
 #   4. 🟢 only when every check in the log shows "✓ PASS".
 #
+# It also runs AUTOMATICALLY every Sunday 09:55 IST (04:25 UTC) so the
+# durability proof is re-established weekly without anyone clicking. Scheduled
+# runs carry empty `inputs`, so every reference below falls back to the
+# production defaults (url + 17-minute wait).
+#
 # The script refuses to claim success while the site is still on sqlite:
 # it stops after /api/health with a red verdict instead of writing data
 # that could vanish.
 
 on:
+  schedule:
+    - cron: '25 4 * * 0'   # Sunday 04:25 UTC = 09:55 IST
   workflow_dispatch:
     inputs:
       url:
@@ -50,7 +57,7 @@ jobs:
         run: |
           set -e
           curl -fsS --retry 8 --retry-delay 10 --retry-all-errors \
-            -m 120 "${{ inputs.url }}/api/health" | tee /tmp/health.json
+            -m 120 "${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}/api/health" | tee /tmp/health.json
           echo
           storage=$(node -e "console.log(require('/tmp/health.json').storage||'')")
           photos=$(node -e "console.log(require('/tmp/health.json').photos||'')")
@@ -63,15 +70,15 @@ jobs:
       - name: Write → (idle) → read proof
         run: |
           node scripts/verify-supabase-live.mjs \
-            --url "${{ inputs.url }}" \
-            --wait-min "${{ inputs.wait_minutes }}" 2>&1 | tee live-proof.log
+            --url "${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}" \
+            --wait-min "${{ inputs.wait_minutes || '17' }}" 2>&1 | tee live-proof.log
 
       - name: Verdict summary
         if: always()
         run: |
           echo "### Live proof verdict" >> "$GITHUB_STEP_SUMMARY"
           if grep -q "VERDICT: 🟢" live-proof.log 2>/dev/null; then
-            echo "🟢 **DURABLE** — write → restart → read passed against ${{ inputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+            echo "🟢 **DURABLE** — write → restart → read passed against ${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "🔴 **NOT PROVEN** — see the job log for the failing checks." >> "$GITHUB_STEP_SUMMARY"
           fi

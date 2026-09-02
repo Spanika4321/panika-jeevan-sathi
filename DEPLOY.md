@@ -123,6 +123,30 @@ sleep, so it refuses to pretend. First check `/api/health`: it must show
 > Everything else is identical to a paid plan. Upgrading to **Starter** later
 > removes the sleep and lets you add a disk — no code change needed.
 
+### C3. Keep-alive — so free-tier Supabase never pauses again
+
+Supabase free projects are **paused automatically after ~7 days without a
+database query** — and a paused project means the site cannot boot (and new
+deploys fail) until you resume it in the dashboard. Two scheduled GitHub
+workflows close that hole and keep watching production for you:
+
+| Workflow | Schedule (IST) | What it does |
+| --- | --- | --- |
+| **Keep-alive (Supabase + storage watchdog)** | Mon + Thu 07:40 | `GET /api/site` — a real DB read through the live site, so Supabase always counts activity (max gap ≈ 3.5 days, limit is ~7). Then reads `/api/health`: if the site is unreachable **or back on `sqlite`** (data-loss risk), it sends a real alert email and the run turns red in the Actions tab. |
+| **Live proof (production durability)** | Sun 09:55 | The full §C2 write → sleep-wake → read proof, automatically. 🟢/🔴 verdict in the run summary + `live-proof-log` artifact. |
+
+Notes:
+
+- Both also have a **Run workflow** button (Actions tab) for manual runs —
+  scheduled runs use the production defaults, manual runs may override.
+- The alert email goes to the address in `.report-recipient` through the
+  `RESEND_API_KEY` GitHub secret (same one the employee reports use). If the
+  secret is missing, the run is still red in the Actions tab — just without
+  the email.
+- To stop either: Actions → workflow → **⋯ → Disable workflow**. If you later
+  upgrade Supabase or Render to a paid plan, the keep-alive becomes harmless
+  redundancy and can be disabled.
+
 ### D. Durable data without Cloudflare (optional)
 
 Upgrade to **Render Starter** and attach a persistent disk mounted at `/app/data`,
