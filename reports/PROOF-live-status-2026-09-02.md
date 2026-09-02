@@ -69,3 +69,29 @@ counted `members: 1` (the auto-created admin) before the merge.
 - `.github/workflows/live-proof.yml` — manual durability proof job (log
   artifact `live-proof-log`).
 - DEPLOY.md §C2 documents all of this.
+
+---
+
+## Update — session `arena/01a061c4` (2026-09-02, ~11:05 UTC): automation locked in
+
+PR **#25** ("Keep-alive: Supabase never pauses again + weekly auto durability
+proof") adds the automation that keeps the fix alive after the manual steps:
+
+1. **`.github/workflows/keep-alive.yml`** — Mon + Thu **07:40 IST**
+   (`10 2 * * 1,4`): `GET /api/site` (REAL database read → Supabase activity,
+   max gap ≈ 3.5 days vs the ~7-day free-tier pause limit) + watchdog on
+   `/api/health`: unreachable or `storage != "supabase"` → REAL alert email
+   (`scripts/keepalive-alert.mjs`, Resend, `.report-recipient`) and a red
+   Actions run.
+2. **`live-proof.yml` now weekly** — Sunday **09:55 IST** (`25 4 * * 0`), full
+   §C2 write → sleep-wake → read proof; scheduled runs use production-default
+   input fallbacks. Manual dispatch button unchanged.
+3. **DEPLOY.md §C3** documents both schedules and how to disable them.
+
+Validation: YAML lint ✓, `node --check` ✓, `npm test` **134/134** ✓.
+
+Note for the next agent: this sandbox could NOT reach `onrender.com` at all
+(TLS handshake reset — `SSL_ERROR_SYSCALL`), so live health must be read via
+GitHub Actions runners (live-proof pre-check / keep-alive watchdog), not from
+the sandbox. The previous session's claimed commit `9a98803` never existed in
+git — the keep-alive work was recreated from scratch here (commit `a5e9918`).
