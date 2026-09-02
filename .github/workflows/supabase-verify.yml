@@ -42,10 +42,22 @@ jobs:
           fi
           cat /tmp/health.json
           echo
+          {
+            echo '### /api/health'
+            echo '```json'
+            cat /tmp/health.json
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verdict
         run: |
           node -e '
+            const fs = require("fs");
+            const out = [];
+            const console_log = console.log;
+            console.log = (...a) => { out.push(a.join(" ")); console_log(...a); };
+            process.on("exit", () => fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n### Verdict\n```\n" + out.join("\n") + "\n```\n"));
             const h = require("/tmp/health.json");
             const ok = h.storage === "supabase";
             const photos = String(h.photos || "").startsWith("supabase");
