@@ -1,0 +1,96 @@
+name: Keep-alive (Supabase + storage watchdog)
+
+# WHY THIS EXISTS
+#   Supabase free projects are PAUSED automatically after ~7 days without a
+#   database query. A paused project means the site cannot boot (and the next
+#   deploy fails) until someone resumes it in the dashboard.
+#
+# WHAT THIS DOES (Mon + Thu 07:40 IST = 02:10 UTC, max gap ≈ 3.5 days)
+#   1. GET /api/site — a REAL database read through the live site, so the
+#      Supabase project always counts activity and never pauses again.
+#   2. GET /api/health — watchdog. If the site is unreachable, or has fallen
+#      back to ephemeral sqlite storage (data-loss risk!), a REAL alert email
+#      is sent via Resend (same RESEND_API_KEY secret + .report-recipient as
+#      the employee reports) and the run is marked red in the Actions tab.
+#
+#   Manual run: Actions → "Keep-alive (Supabase + storage watchdog)" → Run workflow.
+
+on:
+  schedule:
+    - cron: '10 2 * * 1,4'   # Mon + Thu 02:10 UTC = 07:40 IST
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Base URL to keep alive'
+        required: true
+        default: 'https://panikajeevansathi.onrender.com'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  keep-alive:
+    name: Touch DB + verify storage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout (alert script + recipient file)
+        uses: actions/checkout@v4
+
+      - name: 1) Touch /api/site (real DB query → Supabase activity)
+        run: |
+          set -e
+          URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
+          echo "GET $URL/api/site — a Render Free cold start can take ~1 min…"
+          curl -fsS --retry 8 --retry-delay 10 --retry-all-errors -m 180 \
+            "$URL/api/site" -o /tmp/site.json
+          echo "✓ HTTP 200 — database touched, Supabase activity recorded."
+          echo "--- body (first 300 chars) ---"
+          head -c 300 /tmp/site.json; echo
+
+      - name: 2) Watchdog — production must stay on Supabase
+        id: watchdog
+        run: |
+          URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
+          set +e
+          curl -fsS --retry 3 --retry-delay 10 --retry-all-errors -m 120 \
+            "$URL/api/health" -o /tmp/health.json
+          CURL_RC=$?
+          set -e
+          if [ "$CURL_RC" -ne 0 ]; then
+            echo "STATUS=down"    >> "$GITHUB_OUTPUT"
+            echo "DETAIL=/api/health unreachable (curl rc=$CURL_RC)" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          STORAGE=$(node -e "console.log(require('/tmp/health.json').storage||'')")
+          DURABLE=$(node -e "console.log(require('/tmp/health.json').durable)")
+          echo "storage=$STORAGE durable=$DURABLE"
+          echo "storage: $STORAGE, durable: $DURABLE" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$STORAGE" != "supabase" ]; then
+            echo "STATUS=sqlite"  >> "$GITHUB_OUTPUT"
+            echo "DETAIL=storage=$STORAGE durable=$DURABLE — env vars missing on Render?" >> "$GITHUB_OUTPUT"
+          else
+            echo "STATUS=ok"      >> "$GITHUB_OUTPUT"
+            echo "DETAIL=storage=supabase durable=$DURABLE" >> "$GITHUB_OUTPUT"
+            echo "✓ Site is healthy and on durable Supabase storage."
+          fi
+
+      - name: 3) REAL alert email if something is wrong
+        if: steps.watchdog.outputs.STATUS != 'ok' && steps.watchdog.outputs.STATUS != ''
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          node scripts/keepalive-alert.mjs \
+            --url "${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}" \
+            --status "${{ steps.watchdog.outputs.STATUS }}" \
+            --detail "${{ steps.watchdog.outputs.DETAIL }}"
+
+      - name: 4) Fail loudly so the Actions tab shows red
+        if: steps.watchdog.outputs.STATUS != 'ok' && steps.watchdog.outputs.STATUS != ''
+        run: |
+          echo "::error::Keep-alive watchdog: ${{ steps.watchdog.outputs.STATUS }} — ${{ steps.watchdog.outputs.DETAIL }}. Fix steps are in the alert email / DEPLOY.md."
+          exit 1
