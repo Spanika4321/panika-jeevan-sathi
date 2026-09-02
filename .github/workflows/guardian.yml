@@ -36,6 +36,9 @@ jobs:
       - name: 4) Guardian health check + design lock
         run: node scripts/health-check.mjs
 
+      - name: 5) GitHub↔Supabase folder + setup script
+        run: node scripts/supabase-setup-test.mjs
+
       - name: Upload health report
         if: always()
         uses: actions/upload-artifact@v4

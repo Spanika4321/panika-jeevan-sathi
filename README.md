@@ -36,6 +36,7 @@ npm run check      # syntax check only
 npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
 npm run test:supabase-wipe # write → external store → wipe app disk → read (PostgREST mock)
 npm run supabase:setup    # list Supabase projects / apply schema + bucket + print Render env
+npm run test:supabase-setup # GitHub-integration folder + setup script (local Management API mock)
 npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 ```
 
@@ -53,7 +54,7 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
 | `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else local SQLite; `supabase`/`d1`/`sqlite`/`json` force one |
 | `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (required on Render Free) |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production Postgres + Storage (see `supabase/schema.sql`) |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production Postgres + Storage (GitHub integration applies `supabase/migrations/`; see `supabase/README.md`) |
 | `SUPABASE_STORAGE_BUCKET` | `uploads` | Photo bucket |
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 fallback |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 fallback photos |
@@ -134,6 +135,8 @@ scripts/cloud-setup.mjs      create the D1 database and print the Render env var
 scripts/check-syntax.mjs    syntax check for every shipped script
 scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
 scripts/agent-storage-cycle.mjs  runs all 12 agents and records every run
+scripts/supabase-setup.mjs  list/apply schema via Management API (GitHub-integration backup)
+supabase/               GitHub integration: config.toml + migrations + schema.sql fallback
 agents/                 AI agent team (Guardian, Manager, Pooja, Priya + 8 workers)
 agents/storage.mjs      agent storage engine (state, memory, tasks, ledger, queue)
 agents/roster.mjs       the 12-agent roster, hierarchy and safety rules
@@ -177,6 +180,10 @@ all pages and assets returning 200, security headers, 404 handling, path-travers
 finally that **all data survives a full server restart**.
 
 The same suite passes on the JSON fallback store: `npm run test:json-store`.
+
+`npm run test:supabase-setup` proves the GitHub integration folder (`config.toml` +
+`migrations/` + `schema.sql` in sync with `lib/db.js`) and that `supabase-setup.mjs`
+can apply that SQL against a local Management API mock.
 
 ---
 

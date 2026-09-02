@@ -1,0 +1,98 @@
+# PANIKA JEEVAN SATHI — GitHub ↔ Supabase connection
+#
+# The Supabase dashboard GitHub integration deploys:
+#   supabase/migrations/*.sql   → Postgres schema
+#   [storage.buckets.uploads]   → private photo bucket (config.toml)
+# when "Deploy to production" is ON and this lands on main.
+#
+# This workflow:
+#   1. Always: prove the folder is in the shape that integration actually reads
+#      (config.toml + timestamped migrations + schema.sql in sync).
+#   2. workflow_dispatch: optional backup apply via the Management API if you
+#      paste an access token (or set the SUPABASE_ACCESS_TOKEN secret).
+#
+# Working directory in the Supabase dashboard must be `.`
+
+name: Supabase GitHub connection
+
+on:
+  push:
+    paths:
+      - 'supabase/**'
+      - 'scripts/supabase-setup.mjs'
+      - 'scripts/supabase-setup-test.mjs'
+      - 'scripts/lib/mock-management.mjs'
+      - '.github/workflows/supabase-github.yml'
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'scripts/supabase-setup.mjs'
+      - 'scripts/supabase-setup-test.mjs'
+      - 'scripts/lib/mock-management.mjs'
+      - '.github/workflows/supabase-github.yml'
+  workflow_dispatch:
+    inputs:
+      access_token:
+        description: 'Supabase access token (Account → Access Tokens). Masked. Leave blank to use the SUPABASE_ACCESS_TOKEN secret.'
+        required: false
+      project_ref:
+        description: 'Project ref (leave blank if the account has exactly one project)'
+        required: false
+      apply:
+        description: 'Apply migrations + uploads bucket now? (yes/no)'
+        required: true
+        default: 'yes'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Folder is GitHub-integration ready
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Prove config.toml + migrations + setup script
+        run: node scripts/supabase-setup-test.mjs
+
+  apply:
+    name: Apply schema (token provided)
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && (inputs.apply == 'yes' || inputs.apply == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Mask secrets in the log
+        run: |
+          for value in "${{ inputs.access_token }}" "${{ secrets.SUPABASE_ACCESS_TOKEN }}"; do
+            if [ -n "$value" ]; then echo "::add-mask::$value"; fi
+          done
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Apply migrations + uploads bucket
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          TOKEN="${{ inputs.access_token }}"
+          if [ -z "$TOKEN" ]; then TOKEN="$SUPABASE_ACCESS_TOKEN"; fi
+          if [ -z "$TOKEN" ]; then
+            echo "::error::No access token. Paste one in the form, or add the SUPABASE_ACCESS_TOKEN repo secret. If GitHub is already connected in the Supabase dashboard, you do not need this job — enable Deploy to production and merge to main."
+            exit 1
+          fi
+          echo "::add-mask::$TOKEN"
+          extra=()
+          if [ -n "${{ inputs.project_ref }}" ]; then
+            extra+=(--project-ref "${{ inputs.project_ref }}")
+          fi
+          node scripts/supabase-setup.mjs --access-token "$TOKEN" --apply --mask-keys "${extra[@]}"
