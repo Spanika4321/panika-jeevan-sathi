@@ -93,6 +93,31 @@ unsaved-change count). Then log in at `/admin.html` — the administrator passwo
 was generated at first boot; it is printed once in the deploy log
 (Render → your service → **Logs**). Change it under **Admin → Account**.
 
+### C2. Prove durability against production (the real write → restart → read)
+
+`ok:true` in `/api/health` only means the process is up. Durability is proven by
+writing a member + photo + message, letting Render Free **spin down** (fresh,
+wiped filesystem on wake), and reading the same data back:
+
+**Easiest (GitHub Actions):** repo → **Actions → “Live proof (production
+durability)” → Run workflow** (leave `wait_minutes` at 17). GitHub's runners can
+reach onrender.com; the job registers two throwaway members, idles past the
+sleep window, wakes the service, proves the process actually restarted via the
+health `boot_at` timestamp changing, logs in again and reads the profile, the
+message and the photo bytes back, then deletes the test members. Every step is
+a REAL HTTPS call — no mocks. The run summary shows 🟢 only if all checks pass.
+
+**From your own machine:**
+
+```bash
+node scripts/verify-supabase-live.mjs --url https://panikajeevansathi.onrender.com --wait-min 17
+```
+
+The script **stops with a red verdict** while `/api/health` still reports
+`storage: "sqlite"` — in that state anything written can vanish on the next
+sleep, so it refuses to pretend. First check `/api/health`: it must show
+`"storage": "supabase"`, `"photos": "supabase+cache"`, `"durable": true`.
+
 > **Note on the free plan:** the first request after 15 minutes of inactivity
 > wakes the service and takes up to a minute (Render shows a loading page).
 > Everything else is identical to a paid plan. Upgrading to **Starter** later
