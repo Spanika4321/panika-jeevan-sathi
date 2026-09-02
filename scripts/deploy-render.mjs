@@ -40,7 +40,10 @@ function arg(name, fallback = undefined) {
 }
 const flags = new Set(args.filter((a) => a.startsWith('--')));
 
-const KEY = arg('key', process.env.RENDER_API_KEY || '');
+// Trim: an API key pasted into the workflow form very often carries a leading
+// space or a trailing newline. Render then answers HTTP 401 and the run dies
+// with a message that looks like "the key is wrong" when it is actually fine.
+const KEY = String(arg('key', process.env.RENDER_API_KEY || '') || '').trim();
 const API = 'https://api.render.com/v1';
 const REPO = arg('repo', 'https://github.com/Spanika4321/panika-jeevan-sathi');
 const NAME = arg('name', 'panikajeevansathi'); // → https://panikajeevansathi.onrender.com
@@ -126,7 +129,24 @@ async function api(pathname, { method = 'GET', body, expect = [200, 201] } = {})
       (json && json.message) ||
       (Array.isArray(json) ? JSON.stringify(json) : '') ||
       text.slice(0, 400);
-    throw new Error(`${method} ${pathname} → HTTP ${res.status}: ${message}`);
+    // Plain-English hints for the two failures that actually happen in
+    // practice, so the Actions log says what to DO, not just what broke.
+    let hint = '';
+    if (res.status === 401) {
+      hint =
+        '\n  → The Render API key was rejected. Create a fresh key at' +
+        '\n    dashboard.render.com → Account Settings → API Keys and paste it' +
+        '\n    again (copy it whole, no surrounding spaces).';
+    } else if (res.status === 403) {
+      hint =
+        '\n  → The key is valid but not allowed to do this. Use a key from the' +
+        '\n    workspace that owns the service, with full access.';
+    } else if (res.status === 429) {
+      hint = '\n  → Render rate limit hit. Wait a minute and re-run the workflow.';
+    }
+    const err = new Error(`${method} ${pathname} → HTTP ${res.status}: ${message}${hint}`);
+    err.status = res.status;
+    throw err;
   }
   return json;
 }
@@ -203,21 +223,48 @@ if (existing) {
   if (!merged.has('SESSION_SECRET')) merged.set('SESSION_SECRET', { key: 'SESSION_SECRET', generateValue: true });
   if (!merged.has('ADMIN_PASSWORD')) merged.set('ADMIN_PASSWORD', { key: 'ADMIN_PASSWORD', generateValue: true });
 
-  await api(`/services/${serviceId}`, {
-    method: 'PATCH',
-    body: {
-      branch: BRANCH,
-      autoDeploy: 'yes',
-      serviceDetails: {
-        plan: PLAN,
-        region: REGION,
-        runtime: 'node',
-        healthCheckPath: '/api/health',
-        envSpecificDetails: { buildCommand: 'node -v', startCommand: 'node server.js' }
+  // PATCH only what is safe to change on a service that already exists.
+  // Re-sending plan/region/runtime is rejected by Render on an existing
+  // service ("cannot be changed") and used to abort the whole deploy, so the
+  // settings that Render treats as immutable are deliberately left alone.
+  try {
+    await api(`/services/${serviceId}`, {
+      method: 'PATCH',
+      body: {
+        branch: BRANCH,
+        autoDeploy: 'yes',
+        serviceDetails: {
+          envSpecificDetails: { buildCommand: 'node -v', startCommand: 'node server.js' }
+        }
       }
-    }
-  });
-  await api(`/services/${serviceId}/env-vars`, { method: 'PUT', body: [...merged.values()] });
+    });
+  } catch (err) {
+    // Not fatal: the service already exists with working settings, and the
+    // deploy below still picks up the environment variables.
+    console.log(`  (settings unchanged — Render refused the update: ${err.message.split('\n')[0]})`);
+  }
+
+  try {
+    await api(`/services/${serviceId}/env-vars`, { method: 'PUT', body: [...merged.values()] });
+  } catch (err) {
+    // Fail CLOSED. Continuing here would deploy without SUPABASE_* and
+    // silently downgrade the live site to ephemeral sqlite — members and
+    // photos would then disappear at the next Render sleep.
+    console.error(`\n  Could not write the environment variables: ${err.message}`);
+    console.error(
+      '\n  This usually means the service is managed by a Render Blueprint' +
+        '\n  (render.yaml), which blocks environment edits through the API.' +
+        '\n' +
+        '\n  Set them by hand instead — 2 minutes, no API key needed:' +
+        '\n    1. Run supabase/schema.sql once in the Supabase SQL editor.' +
+        '\n    2. dashboard.render.com → panikajeevansathi → Environment, add:' +
+        '\n         SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,' +
+        '\n         SUPABASE_STORAGE_BUCKET=uploads,' +
+        '\n         PJS_STORAGE=supabase, PJS_REQUIRE_REMOTE=1' +
+        '\n    3. Save → Manual Deploy → Deploy latest commit.\n'
+    );
+    process.exit(1);
+  }
   service = (await api(`/services/${serviceId}`)).service || (await api(`/services/${serviceId}`));
 } else {
   const envVars = Object.entries(provided)
@@ -266,13 +313,27 @@ const deploy = await api(`/services/${serviceId}/deploys`, {
 const deployId = deploy.id || deploy.deployId;
 step(`deploy started: ${deployId}`);
 
+// Every terminal status Render can report. The old list only knew 5 of them,
+// so a crash-looping release (deploy_failed / pre_deploy_failed) kept polling
+// for the full 15 minutes before giving up.
+const TERMINAL_OK = ['live'];
+const TERMINAL_FAIL = [
+  'build_failed',
+  'update_failed',
+  'deploy_failed',
+  'pre_deploy_failed',
+  'upload_failed',
+  'canceled',
+  'deactivated'
+];
+
 let status = 'created';
 let deployInfo = null;
 for (let i = 0; i < 90; i += 1) {
   deployInfo = await api(`/services/${serviceId}/deploys/${deployId}`);
   status = deployInfo.status;
   process.stdout.write(`\r  status: ${status} (${i * 10}s)          `);
-  if (['live', 'build_failed', 'upload_failed', 'canceled', 'deactivated'].includes(status)) break;
+  if (TERMINAL_OK.includes(status) || TERMINAL_FAIL.includes(status)) break;
   await sleep(10000);
 }
 console.log('');
@@ -285,6 +346,20 @@ if (status !== 'live') {
     console.log(lines.slice(-60).map((l) => `  ${l}`).join('\n'));
   } catch (_) {
     /* no logs */
+  }
+  // The app boots fail-closed: with PJS_REQUIRE_REMOTE=1 it refuses to start
+  // when the Supabase schema is missing, and Render reports deploy_failed.
+  // That is by far the most common cause, so say it out loud.
+  if (status === 'deploy_failed' || status === 'pre_deploy_failed' || status === 'update_failed') {
+    console.error(
+      '\n  The build succeeded but the app did not stay up.' +
+        '\n  Most likely: the Supabase schema was never created, so the boot check' +
+        '\n  on the "users" table fails (this is intentional — it prevents a silent' +
+        '\n  downgrade to ephemeral sqlite).' +
+        '\n' +
+        '\n  Fix: supabase.com → your project → SQL Editor → paste supabase/schema.sql' +
+        '\n       → Run, then re-run this workflow.\n'
+    );
   }
   throw new Error(`Deploy ended with status "${status}". See ${dashboardUrl}`);
 }
