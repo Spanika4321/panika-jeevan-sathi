@@ -4,9 +4,9 @@
  *
  *   node server.js          →  http://localhost:3000
  *
- * Zero npm dependencies: Node.js >= 22.5 (uses the built-in node:sqlite driver).
- * All data lives in ./data (SQLite database + uploaded photos), so the site can
- * be moved to another server by copying that folder.
+ * Zero npm dependencies: Node.js >= 22.5.
+ * Production member data lives in Supabase (Postgres + Storage), not on the
+ * host disk. Local sqlite under ./data is for development only.
  */
 
 const http = require('node:http');
@@ -34,7 +34,7 @@ const driverError = opened.driverError;
 const remote = opened.remote;
 const secret = authLib.loadSecret(DATA_DIR);
 
-/* Photos: local folder, mirrored to Cloudflare R2 when R2 is configured. */
+/* Photos: Supabase Storage (or R2), with a local cache that is not the source of truth. */
 const photoSetup = photosLib.createFromEnv({
   dataDir: DATA_DIR,
   dirName: apiLib.UPLOAD_DIR_NAME,
@@ -42,16 +42,22 @@ const photoSetup = photosLib.createFromEnv({
 });
 const photos = photoSetup.store;
 
+if (dbLib.mustUseRemote() && !photos.remote) {
+  throw new Error(
+    'This host has an ephemeral disk. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY so photos are stored in Supabase Storage. Local uploads/ would be deleted on the next sleep/redeploy.'
+  );
+}
+
 if (driverError) {
   console.warn(
     `[storage] node:sqlite unavailable (${driverError.message}). Falling back to the JSON store in ${DATA_DIR}.`
   );
 }
-if (photoSetup.config && driver.kind !== 'd1') {
-  console.warn('[storage] R2 is configured but the database is local — check PJS_STORAGE / CF_* variables.');
+if (photos.remote && !remote) {
+  console.warn('[storage] Photo remote storage is configured but the database is local — check SUPABASE_* / PJS_STORAGE.');
 }
-if (!photoSetup.config && driver.kind === 'd1') {
-  console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
+if (!photos.remote && remote) {
+  console.warn('[storage] The database is remote but photo storage is local: uploaded photos will be lost when the host restarts.');
 }
 
 const api = apiLib.createApi({
@@ -60,37 +66,44 @@ const api = apiLib.createApi({
   dataDir: DATA_DIR,
   photos,
   remoteStatus() {
+    const stats = typeof driver.stats === 'function' ? driver.stats() : {};
     return {
-      database: remote ? { kind: 'd1', ...driver.stats() } : { kind: driver.kind },
+      database: remote
+        ? { kind: remote.kind || driver.kind, url: remote.url || undefined, ...stats }
+        : { kind: driver.kind },
       photos: photos.stats()
     };
   }
 });
 
-/** Write queued changes (database + photos) to the remote services. */
+/**
+ * D1 keeps a write queue; Supabase is write-through so flush is a no-op.
+ * A failed D1 flush is logged. The HTTP handler already awaited the
+ * in-process write; supabase writes have already been ACK'd by PostgREST.
+ */
 async function persist() {
   try {
     if (driver.flush) await driver.flush();
-    await photos.flush();
+    if (photos.flush) await photos.flush();
   } catch (err) {
-    // The queue is kept, so the next request, the timer or shutdown retries.
-    console.error(`[storage] could not save yet: ${err.message} — will retry.`);
+    console.error(`[storage] flush failed: ${err.message}`);
+    if (driver.kind === 'supabase') throw err;
   }
 }
 
 /* ------------------------------------------------------- first-run bootstrap */
 
-function ensureAdmin() {
+async function ensureAdmin() {
   const primary = (process.env.ADMIN_EMAIL || ownerLib.DEFAULT_OWNER_EMAIL).trim().toLowerCase();
   const provided = process.env.ADMIN_PASSWORD;
   const password = provided && String(provided).length >= 8 ? String(provided) : authLib.randomToken(8) + 'Aa1';
   const now = Date.now();
 
   for (const email of ownerLib.ownerEmails()) {
-    const existing = driver.one('users', { email });
+    const existing = await driver.one('users', { email });
     if (!existing) continue;
     if (existing.role === 'admin' && existing.status === 'active' && Number(existing.email_verified) === 1) continue;
-    driver.update(
+    await driver.update(
       'users',
       { id: existing.id },
       { role: 'admin', status: 'active', email_verified: 1, verification_token: null }
@@ -101,9 +114,9 @@ function ensureAdmin() {
     console.log('');
   }
 
-  if (driver.one('users', { email: primary })) return;
+  if (await driver.one('users', { email: primary })) return;
 
-  const user = driver.insert('users', {
+  const user = await driver.insert('users', {
     email: primary,
     password_hash: authLib.hashPassword(password),
     name: ownerLib.defaultOwnerName(),
@@ -118,7 +131,7 @@ function ensureAdmin() {
     last_login: 0,
     created_at: now
   });
-  driver.insert('profiles', {
+  await driver.insert('profiles', {
     user_id: user.id,
     updated_at: now,
     visibility: 'hidden',
@@ -146,10 +159,10 @@ function ensureAdmin() {
   }
 }
 
-function ensureDefaultSettings() {
-  const rows = driver.all('settings');
+async function ensureDefaultSettings() {
+  const rows = await driver.all('settings');
   if (rows.length) return;
-  settingsLib.setMany(driver, settingsLib.DEFAULTS);
+  await settingsLib.setMany(driver, settingsLib.DEFAULTS);
 }
 
 async function sleep(ms) {
@@ -157,9 +170,9 @@ async function sleep(ms) {
 }
 
 /**
- * Load the remote database (Cloudflare D1) before the site accepts traffic.
- * Serving an empty site because D1 could not be reached would look exactly
- * like total data loss, so we retry and then exit loudly instead.
+ * Reach the remote database (Supabase / D1) before the site accepts traffic.
+ * Serving an empty local store because the remote could not be reached would
+ * look exactly like total data loss, so we retry and then exit loudly instead.
  */
 async function loadRemoteDatabase() {
   const attempts = Number(process.env.PJS_BOOT_RETRIES || 6);
@@ -169,15 +182,15 @@ async function loadRemoteDatabase() {
       return await opened.ready();
     } catch (err) {
       lastError = err;
-      console.error(`[storage] D1 unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
+      console.error(`[storage] remote unavailable (attempt ${attempt}/${attempts}): ${err.message}`);
       await sleep(1500 * attempt);
     }
   }
   console.error('');
   console.error('  ⚠  THE DATABASE COULD NOT BE REACHED — THE SITE WILL NOT START');
   console.error(`     ${lastError && lastError.message}`);
-  console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN on this service,');
-  console.error('     then redeploy. Starting anyway would wipe the site back to zero members.');
+  console.error('     Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on this service,');
+  console.error('     then redeploy. Starting with local sqlite would wipe members on the next sleep.');
   console.error('');
   process.exit(1);
 }
@@ -185,11 +198,12 @@ async function loadRemoteDatabase() {
 async function main() {
   if (opened.ready) {
     const info = await loadRemoteDatabase();
-    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} tables`);
+    const label = remote && remote.kind ? remote.kind : driver.kind;
+    console.log(`  Database : ${label} — ${info.rows} rows across ${info.tables} tables`);
   }
 
-  ensureAdmin();
-  ensureDefaultSettings();
+  await ensureAdmin();
+  await ensureDefaultSettings();
   await persist();
 
   // Safety net: anything the request path could not save is retried here.
@@ -204,8 +218,8 @@ async function main() {
     console.log('');
     console.log('  PANIKA JEEVAN SATHI is running');
     console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
-    console.log(`  Storage : ${driver.kind} (${DATA_DIR})`);
-    console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored to R2)' : ''}`);
+    console.log(`  Storage : ${driver.kind}${remote ? ' (remote write-through)' : ` (${DATA_DIR})`}`);
+    console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (remote write-through)' : ' (local disk only)'}`);
     console.log('  Free forever — no payments, no locked profiles.');
     console.log('');
   });
