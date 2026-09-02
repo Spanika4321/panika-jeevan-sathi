@@ -22,7 +22,9 @@
     "storage:status": "node scripts/agent-storage.mjs status",
     "storage:doctor": "node scripts/agent-storage.mjs doctor",
     "storage:report": "node scripts/agent-storage.mjs report",
-    "storage:cycle": "node scripts/agent-storage-cycle.mjs"
+    "storage:cycle": "node scripts/agent-storage-cycle.mjs",
+    "dev:supabase": "node scripts/supabase-dev.mjs",
+    "start:supabase": "node scripts/supabase-dev.mjs"
   },
   "engines": {
     "node": ">=22.5.0"
