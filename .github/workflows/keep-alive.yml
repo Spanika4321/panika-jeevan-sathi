@@ -5,19 +5,27 @@ name: Keep-alive (Supabase + storage watchdog)
 #   database query. A paused project means the site cannot boot (and the next
 #   deploy fails) until someone resumes it in the dashboard.
 #
-# WHAT THIS DOES (Mon + Thu 07:40 IST = 02:10 UTC, max gap ≈ 3.5 days)
-#   1. GET /api/site — a REAL database read through the live site, so the
+# WHEN IT RUNS
+#   1. Mon + Thu 07:40 IST (02:10 UTC, max gap ≈ 3.5 days):
+#      GET /api/site — a REAL database read through the live site, so the
 #      Supabase project always counts activity and never pauses again.
-#   2. GET /api/health — watchdog. If the site is unreachable, or has fallen
-#      back to ephemeral sqlite storage (data-loss risk!), a REAL alert email
-#      is sent via Resend (same RESEND_API_KEY secret + .report-recipient as
-#      the employee reports) and the run is marked red in the Actions tab.
+#   2. After every push/merge to main: waits ~5 minutes for the Render
+#      auto-deploy, then verifies the NEW deployment (post-deploy check).
+#   3. Manually: Actions → "Keep-alive (Supabase + storage watchdog)" → Run
+#      workflow. (Note: some bot/integration tokens cannot dispatch — the
+#      scheduled + push triggers do not need that permission.)
 #
-#   Manual run: Actions → "Keep-alive (Supabase + storage watchdog)" → Run workflow.
+# WHAT THE WATCHDOG DOES
+#   GET /api/health — if the site is unreachable, or has fallen back to
+#   ephemeral sqlite storage (data-loss risk!), a REAL alert email is sent
+#   via Resend (same RESEND_API_KEY secret + .report-recipient as the
+#   employee reports) and the run is marked red in the Actions tab.
 
 on:
   schedule:
     - cron: '10 2 * * 1,4'   # Mon + Thu 02:10 UTC = 07:40 IST
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       url:
@@ -41,7 +49,15 @@ jobs:
       - name: Checkout (alert script + recipient file)
         uses: actions/checkout@v4
 
+      - name: Wait for the Render auto-deploy (push/merge runs only)
+        if: github.event_name == 'push'
+        run: |
+          echo "Merge to main detected at ${{ github.event.head_commit.timestamp }} — giving Render ~5 minutes to deploy before probing…"
+          sleep 300
+
       - name: 1) Touch /api/site (real DB query → Supabase activity)
+        id: touch
+        continue-on-error: true
         run: |
           set -e
           URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
@@ -56,6 +72,12 @@ jobs:
         id: watchdog
         run: |
           URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
+          if [ "${{ steps.touch.outcome }}" = "failure" ]; then
+            echo "STATUS=down"    >> "$GITHUB_OUTPUT"
+            echo "DETAIL=/api/site unreachable (see step 1 log)" >> "$GITHUB_OUTPUT"
+            echo "storage: UNREACHABLE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           set +e
           curl -fsS --retry 3 --retry-delay 10 --retry-all-errors -m 120 \
             "$URL/api/health" -o /tmp/health.json
@@ -64,6 +86,7 @@ jobs:
           if [ "$CURL_RC" -ne 0 ]; then
             echo "STATUS=down"    >> "$GITHUB_OUTPUT"
             echo "DETAIL=/api/health unreachable (curl rc=$CURL_RC)" >> "$GITHUB_OUTPUT"
+            echo "storage: UNREACHABLE" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           STORAGE=$(node -e "console.log(require('/tmp/health.json').storage||'')")

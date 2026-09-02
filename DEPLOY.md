@@ -132,7 +132,7 @@ workflows close that hole and keep watching production for you:
 
 | Workflow | Schedule (IST) | What it does |
 | --- | --- | --- |
-| **Keep-alive (Supabase + storage watchdog)** | Mon + Thu 07:40 | `GET /api/site` — a real DB read through the live site, so Supabase always counts activity (max gap ≈ 3.5 days, limit is ~7). Then reads `/api/health`: if the site is unreachable **or back on `sqlite`** (data-loss risk), it sends a real alert email and the run turns red in the Actions tab. |
+| **Keep-alive (Supabase + storage watchdog)** | Mon + Thu 07:40 **and after every merge to main** | `GET /api/site` — a real DB read through the live site, so Supabase always counts activity (max gap ≈ 3.5 days, limit is ~7). Merge-triggered runs wait ~5 min for the Render auto-deploy first, so they double as a **post-deploy verification**. Then reads `/api/health`: if the site is unreachable **or back on `sqlite`** (data-loss risk), it sends a real alert email and the run turns red in the Actions tab. |
 | **Live proof (production durability)** | Sun 09:55 | The full §C2 write → sleep-wake → read proof, automatically. 🟢/🔴 verdict in the run summary + `live-proof-log` artifact. |
 
 Notes:
