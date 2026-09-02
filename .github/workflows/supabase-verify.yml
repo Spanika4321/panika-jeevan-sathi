@@ -37,6 +37,7 @@ jobs:
           # Render free tier so jata hai — 5 min tak wake hone ka mauka do.
           if ! curl -fsS --retry 15 --retry-delay 20 --retry-all-errors \
                  -m 300 "$URL/api/health" -o /tmp/health.json; then
+            echo "::error::HEALTH_UNREACHABLE"
             echo "::error::Live site reachable nahi hai ($URL). Render service down ya suspended lag rahi hai."
             exit 1
           fi
@@ -49,6 +50,7 @@ jobs:
             echo
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::HEALTH_JSON $(tr -d '\n' < /tmp/health.json | head -c 900)"
 
       - name: Verdict
         run: |
