@@ -1,69 +1,71 @@
-# LIVE STATUS — 2026-09-02 (session: arena/01a0614b)
+# LIVE STATUS — 2026-09-02 (post-merge update, session: arena/01a0614b)
 
 **Question:** is the data-loss problem fixed on production?
 
 ## Verdict
 
-# 🔴 NOT FIXED ON PRODUCTION YET — fix exists, is not deployed
+# 🔴 CODE IS ON main — PRODUCTION STILL ON OLD SQLITE BUILD
 
-Live `GET https://panikajeevansathi.onrender.com/api/health` (REAL, 2026-09-02 ~08:45 UTC):
+## What happened this session (timeline, UTC)
 
-```json
-{"ok":true,"service":"panika-jeevan-sathi","time":1788338754477,"storage":"sqlite","photos":"local",
- "remote":{"database":{"kind":"sqlite"},"photos":{"kind":"local","remote":false}}}
-```
-
-- `storage: "sqlite"` + `photos: "local"` → members/photos still go to Render's
-  ephemeral disk. A sleep/restart/redeploy still wipes them.
-- Live `GET /api/site` (REAL): `counts.members = 1` → only the auto-created
-  admin. **No real member data exists yet, so switching stores loses nothing.**
-
-## Why the live site is still on sqlite
-
-The Supabase fix lives in PR #22 (branch `arena/01a0611d-…`, head `3780030`)
-and is **not merged**. Render auto-deploys `main`, and `main` has no Supabase
-support — it silently uses sqlite even if `SUPABASE_*` env vars are set.
-The sandbox cannot reach onrender.com over TLS (curl and Node fetch both
-blocked), so the live switch/proof must run from GitHub Actions or the
-user's machine.
-
-## What this session added (branch `arena/01a0614b-…`, PR #24)
-
-1. **`boot_at` in `/api/health`** — process start timestamp, so an external
-   prover can *prove* a restart happened (boot_at changed) instead of guessing.
-2. **`scripts/verify-supabase-live.mjs`** — REAL write→(idle)→read proof over
-   HTTPS: health gate (stops red while sqlite), register ×2, profile, photo,
-   interest→accept, message, idle wait, wake, restart detection via boot_at,
-   re-login, read-back of profile/message/photo bytes, cleanup (deletes test
-   members). Warns (not fails) if the platform didn't sleep in the window.
-   Validated locally against the disk-backed mock: **20/21 PASS + 1 expected
-   warn, exit 0**.
-3. **`.github/workflows/live-proof.yml`** — manual "Live proof (production
-   durability)" workflow (GitHub runners can reach onrender.com). Writes,
-   idles 17 min past Render Free's sleep window, proves the restart, reads
-   everything back, uploads the log. Red verdict if any check fails.
-4. **DEPLOY.md § C2** — "Prove durability against production" instructions.
-
-Re-verified on this branch after merge of the PR #22 work:
-
-| Check | Result | REAL/MOCK |
+| Time | Event | Evidence |
 | --- | --- | --- |
-| `npm test` | 134/134 PASS | MOCK |
-| `scripts/prove-supabase-wipe.mjs` | 20/20 PASS | MOCK |
-| `scripts/verify-supabase-live.mjs` vs local mock server | 20/21 PASS + 1 expected warn | MOCK |
-| Boot without `SUPABASE_*` under `PJS_REQUIRE_REMOTE=1` | refuses (exit) | REAL (sandbox) |
-| Live `/api/health` | `storage=sqlite` — **still ephemeral** | **REAL** |
+| 08:45 | Live health checked: `storage=sqlite` (old build) | REAL `GET /api/health` `time=1788338754477`, old response shape (no `boot_at`) |
+| ~08:50 | PR #22 work merged into session branch, all proofs re-run: 134/134 e2e, 20/20 wipe-proof (mock), live-script 20/21 vs disk-backed mock | logs in this session |
+| 09:01 | **PR #23 merged into `main`** (commit `f654d03`). PR #22 auto-marked MERGED (its commits landed via #23) | `gh pr view 23` mergedAt 2026-09-02T09:01:22Z |
+| ~09:06 | Site showed Render "Application loading" (deploy/cold-start in progress) | fetch_page |
+| 09:07 | Live health again: **old build still serving** — response has no `boot_at` → pre-merge code | REAL `GET /api/health` `time=1788340036227`, `storage=sqlite`, old shape |
+| 09:12 | Workflow dispatch attempt from sandbox → **HTTP 403** (integration token cannot dispatch) | `gh workflow run` error |
 
-## Exact remaining steps (user actions)
+## Reading of the evidence
 
-1. Supabase project → SQL editor → run `supabase/schema.sql` once (if not done).
-2. Render → `panikajeevansathi` → Environment: set `SUPABASE_URL`,
-   `SUPABASE_SERVICE_ROLE_KEY` (service_role), `SUPABASE_STORAGE_BUCKET=uploads`.
-   **Do this before merging** — after the merge the service refuses to boot
-   without them (by design: no silent sqlite).
-3. Merge the PR (Render auto-deploys `main`; blueprint sets `PJS_STORAGE=supabase`).
-4. Actions tab → **Live proof (production durability)** → Run workflow
-   (17-minute wait). 🟢 only when every check passes there.
+The merged code, on Render, **refuses to boot without `SUPABASE_*`**
+(fail-closed, `PJS_REQUIRE_REMOTE=1` + `PJS_STORAGE=supabase` in the synced
+blueprint). The instance that keeps answering has the OLD response shape, so
+one of these is true:
 
-Order matters: env vars **first**, merge **second** — otherwise the site is
-down (fail-closed) until the vars are saved.
+1. The new deploy ran and **failed its health check because
+   `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are not set** → Render keeps
+   the previous version serving (their documented rollback behavior), or
+2. autoDeploy did not fire yet.
+
+Both mean the same thing for the user: **set the three env vars on Render and
+trigger a deploy.** Until then members/photos still land on the ephemeral disk
+(no worse than before — but the fix is not live).
+
+No real member data is at risk of being lost in the switch: live `/api/site`
+counted `members: 1` (the auto-created admin) before the merge.
+
+## Exact remaining steps (user — ~5 minutes)
+
+1. **Supabase** (if not already done): project → SQL Editor → run
+   `supabase/schema.sql` once. Settings → API → copy **Project URL** and the
+   **service_role** key.
+2. **Render** → service `panikajeevansathi` → **Environment** → add:
+   - `SUPABASE_URL` = `https://<ref>.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY` = service_role key (never the anon key, never paste it in chat)
+   - `SUPABASE_STORAGE_BUCKET` = `uploads`
+   Save changes (this queues a deploy). If not: **Manual Deploy → Deploy latest
+   commit** (`main` @ `f654d03`).
+3. **Verify**: `https://panikajeevansathi.onrender.com/api/health` must show
+   `"storage":"supabase"`, `"photos":"supabase+cache"`, `"durable":true` and a
+   `boot_at` field. If the service fails to boot: the env vars are wrong —
+   check spelling and that the key is service_role.
+4. **Prove durability** (the 🟢 gate): GitHub → **Actions → "Live proof
+   (production durability)" → Run workflow** with the default 17-minute wait.
+   (The sandbox token cannot dispatch workflows — HTTP 403 — so this click is
+   yours.) Or from your own machine:
+   `node scripts/verify-supabase-live.mjs --wait-min 17`
+5. Say **continue** — the next session will re-read live health and the
+   workflow log and mark the verdict.
+
+## What is on `main` now (for the next agent)
+
+- Supabase Postgres + Storage write-through, fail-closed on Render (PR #23 /
+  former #22).
+- `/api/health` exposes `boot_at` (restart proof), `durable`, `data_loss_risk`.
+- `scripts/verify-supabase-live.mjs` — REAL write→idle→wake→read proof, red
+  verdict while sqlite, self-cleaning test members.
+- `.github/workflows/live-proof.yml` — manual durability proof job (log
+  artifact `live-proof-log`).
+- DEPLOY.md §C2 documents all of this.
