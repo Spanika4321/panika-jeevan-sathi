@@ -314,6 +314,26 @@ const PRIVATE_PAGES = [
   'verify-email.html'
 ];
 
+// Crawl hints per public page (used by sitemap.xml).
+const PAGE_SEO = {
+  '/': { freq: 'daily', priority: '1.0' },
+  '/about.html': { freq: 'monthly', priority: '0.7' },
+  '/contact.html': { freq: 'monthly', priority: '0.7' },
+  '/login.html': { freq: 'monthly', priority: '0.8' },
+  '/privacy.html': { freq: 'yearly', priority: '0.3' },
+  '/terms.html': { freq: 'yearly', priority: '0.3' }
+};
+
+// Real file mtime => honest <lastmod>, so Google re-crawls only on real changes.
+function siteLastMod(pagePath) {
+  const rel = pagePath === '/' ? 'index.html' : pagePath.replace(/^\//, '');
+  try {
+    return fs.statSync(path.join(PUBLIC_DIR, rel)).mtime.toISOString().slice(0, 10);
+  } catch (_) {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
 function publicOrigin(req) {
   // SITE_URL pins the canonical production origin (robots.txt + sitemap.xml),
   // so search engines always see the public URL even behind a proxy or when
@@ -371,16 +391,31 @@ const server = http.createServer(async (req, res) => {
         PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
         '\nDisallow: /api/\n' +
         'Disallow: /uploads/\n' +
-        `\nSitemap: ${origin}/sitemap.xml\n`
+        '\n# Googlebot gets the same rules explicitly (some crawlers ignore wildcards).\n' +
+        'User-agent: Googlebot\n' +
+        'Allow: /\n' +
+        PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
+        '\nDisallow: /api/\n' +
+        'Disallow: /uploads/\n' +
+        '\nUser-agent: Googlebot-Image\n' +
+        'Disallow: /uploads/\n' +
+        `\nHost: ${origin.replace(/^https?:\/\//, '')}\n` +
+        `Sitemap: ${origin}/sitemap.xml\n`
     );
     return;
   }
 
   if (url.pathname === '/sitemap.xml') {
     const origin = publicOrigin(req);
-    const urls = PUBLIC_PAGES.map(
-      (p) => `  <url><loc>${origin}${p}</loc><changefreq>weekly</changefreq></url>`
-    ).join('\n');
+    const urls = PUBLIC_PAGES.map((p) => {
+      const meta = PAGE_SEO[p] || { freq: 'monthly', priority: '0.5' };
+      return (
+        `  <url><loc>${origin}${p}</loc>` +
+        `<lastmod>${siteLastMod(p)}</lastmod>` +
+        `<changefreq>${meta.freq}</changefreq>` +
+        `<priority>${meta.priority}</priority></url>`
+      );
+    }).join('\n');
     res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
     res.end(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
