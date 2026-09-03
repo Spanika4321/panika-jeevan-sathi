@@ -29,22 +29,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// TEMP LIVE CHECK (removed after use): confirm deployed HTML carries the
-// Google Search Console verification tag.
-try {
-  const res = await fetch('https://panikajeevansathi.onrender.com/', {
-    signal: AbortSignal.timeout(90000),
-  });
-  const html = await res.text();
-  const present = /KUEY7A/.test(html);
-  const m = html.match(/<meta name="google-site-verification"[^>]*>/i);
-  console.log(
-    `::error::LIVE-TAG-CHECK status=${res.status} bytes=${html.length} tag_present=${present} ${m ? m[0] : ''}`
-  );
-} catch (e) {
-  console.log(`::error::LIVE-TAG-CHECK ERROR ${e.message}`);
-}
-
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const REPORT_DIR = path.join(ROOT, 'reports');
