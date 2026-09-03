@@ -5,6 +5,7 @@ Hierarchy:
 - Manager = coordinator
 - Pooja = SEO and organic growth worker
 - Priya = campaign and community worker
+- Aman = daily site & member report worker (owner ko daily report bhejta hai)
 - Arjun, Kavita, Rahul, Sneha, Amit, Nisha, Vikram, Meera = specialist workers
 
 Rules:
@@ -22,10 +23,10 @@ Har agent ki permanent memory `storage/` mein hai (committed baseline +
 roster: `agents/roster.mjs`, CLI: `scripts/agent-storage.mjs`.
 
 ```bash
-npm run storage:init      # 12 agents ki storage banao
+npm run storage:init      # 13 agents ki storage banao
 npm run storage:status    # sabki status table
 npm run storage:doctor    # integrity check
-npm run storage:cycle     # sab 12 agents ek saath chalao
+npm run storage:cycle     # sab 13 agents ek saath chalao
 ```
 
 Detail: [`../storage/README.md`](../storage/README.md)
@@ -36,6 +37,7 @@ Detail: [`../storage/README.md`](../storage/README.md)
 | Manager | `agents/manager.mjs` |
 | Pooja | `agents/pooja.mjs` |
 | Priya | `agents/priya.mjs` |
+| Aman | `agents/aman.mjs` |
 | Arjun / Kavita / Rahul / Sneha / Amit / Nisha / Vikram / Meera | `agents/worker.mjs <id>` |
 
 Har agent ka result `storage/agents/<id>/` mein record hota hai:

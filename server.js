@@ -12,6 +12,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 
 const dbLib = require('./lib/db');
 const authLib = require('./lib/auth');
@@ -292,6 +293,129 @@ function resolveStatic(pathname) {
   return target;
 }
 
+/* --------------------------------------------------- visitor analytics (Aman) */
+
+// Aman (daily site & member report agent) ke liye anonymous aggregate visitor
+// tracking. Rules:
+//   - Sirf HTML page GETs count hote hain (assets/API nahi).
+//   - Crawlers/bots skip hote hain (rough UA filter, koi whitelist nahi).
+//   - Visitor "unique" = din-scoped HMAC of the IP — raw IP kabhi store nahi
+//     hota, aur koi cookie/log-in data track nahi hota.
+//   - Har page load par DB write response ke liye BLOCK nahi karta
+//     (fire-and-forget). Counters approximate hote hain (race = ±1), theek hai.
+const ANALYTICS_BOT_UA =
+  /(bot|crawl|spider|slurp|bingpreview|headlesschrome|facebookexternalhit|whatsapp|telegrambot|curl|wget|python-requests|node-fetch|postman|uptimerobot|pingdom|monitoring|preview)/i;
+
+let analyticsWarned = false;
+
+function analyticsWarn(message) {
+  if (analyticsWarned) return;
+  analyticsWarned = true;
+  console.error(`[analytics] ${message}`);
+}
+
+function clientAddress(req) {
+  const fwd = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return fwd || (req.socket && req.socket.remoteAddress) || '0.0.0.0';
+}
+
+/** Same IP + same day = same visitor id; alag din par alag id (privacy). */
+function visitorHid(day, ip) {
+  return crypto
+    .createHmac('sha256', String(secret || 'panika-jeevan-sathi'))
+    .update(`${day}|${ip}`)
+    .digest('hex')
+    .slice(0, 24);
+}
+
+function isTrackablePageView(req, target) {
+  if (req.method !== 'GET') return false;
+  const ua = String(req.headers['user-agent'] || '');
+  if (ua && ANALYTICS_BOT_UA.test(ua)) return false;
+  let stat = null;
+  try {
+    stat = fs.statSync(target);
+  } catch (_) {
+    return false; // 404 milegi — count nahi karte
+  }
+  if (!stat.isFile()) return false;
+  const ext = path.extname(target).toLowerCase();
+  if (ext !== '.html') return false;
+  if (path.basename(target) === '404.html') return false;
+  return true;
+}
+
+/**
+ * Ek page view record karta hai (site_stats + site_visitors). Fail hone par
+ * sirf ek baar warn hota hai — production Supabase par nayi tables tab tak
+ * active nahi hongi jab tak supabase/schema.sql ek baar nahi chalta, aur ye
+ * site ko kabhi break nahi karta.
+ */
+async function recordPageView(req) {
+  const day = new Date().toISOString().slice(0, 10);
+  const now = Date.now();
+
+  // visits counter (stats row upsert)
+  let row;
+  try {
+    row = await driver.one('site_stats', { day });
+  } catch (err) {
+    analyticsWarn(`site_stats unavailable: ${err.message}`);
+    return;
+  }
+  try {
+    if (row) {
+      await driver.update('site_stats', { day }, { visits: Number(row.visits || 0) + 1, updated_at: now });
+    } else {
+      try {
+        await driver.insert('site_stats', { day, visits: 1, visitors: 0, updated_at: now });
+      } catch (_) {
+        // Doosri request ne abhi abhi row bana di (race) — update kar do.
+        const late = await driver.one('site_stats', { day });
+        if (late) await driver.update('site_stats', { day }, { visits: Number(late.visits || 0) + 1, updated_at: now });
+      }
+    }
+  } catch (err) {
+    analyticsWarn(`visit counter failed: ${err.message}`);
+    return;
+  }
+
+  // visitor counter (naya unique din + hid hi count hota hai)
+  try {
+    const hid = visitorHid(day, clientAddress(req));
+    const seen = await driver.one('site_visitors', { day, hid });
+    if (!seen) {
+      let fresh = false;
+      try {
+        await driver.insert('site_visitors', { day, hid, created_at: now });
+        fresh = true;
+      } catch (_) {
+        fresh = false; // duplicate race — visitor pehle se counted hai
+      }
+      if (fresh) {
+        const stats = await driver.one('site_stats', { day });
+        if (stats) {
+          await driver.update('site_stats', { day }, { visitors: Number(stats.visitors || 0) + 1, updated_at: Date.now() });
+        }
+      }
+    }
+  } catch (err) {
+    analyticsWarn(`visitor counter failed: ${err.message}`);
+  }
+
+  // Purana data prune: visitors 45 din, stats 400 din — chhota rakha hai.
+  try {
+    if (Math.random() < 0.01) {
+      const v = new Date(Date.now() - 45 * 86400000).toISOString().slice(0, 10);
+      const s = new Date(Date.now() - 400 * 86400000).toISOString().slice(0, 10);
+      await driver.remove('site_visitors', { day: { lt: v } });
+      await driver.remove('site_stats', { day: { lt: s } });
+    }
+  } catch (_) {
+    /* pruning best-effort hai */
+  }
+}
+
 /* ----------------------------------------------------------- robots/sitemap */
 
 // Pages meant for search engines (public marketing/legal pages only).
@@ -456,6 +580,13 @@ const server = http.createServer(async (req, res) => {
     res.end('Forbidden');
     return;
   }
+
+  // Anonymous visitor analytics — Aman ke daily report ke liye. Page response
+  // kabhi is DB write ka wait nahi karta (fire-and-forget).
+  if (isTrackablePageView(req, target)) {
+    recordPageView(req).catch((err) => analyticsWarn(err.message));
+  }
+
   sendFile(res, target, { cache: url.pathname.startsWith('/assets/') });
 });
 

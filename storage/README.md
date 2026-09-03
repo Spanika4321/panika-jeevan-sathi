@@ -1,6 +1,6 @@
 # PANIKA JEEVAN SATHI — AI Agent Storage
 
-Ye folder **12 AI agents ki permanent memory** hai. GitHub Actions ka runner
+Ye folder **13 AI agents ki permanent memory** hai. GitHub Actions ka runner
 har baar naya (ephemeral) hota hai, isliye bina storage ke agents har run par
 sab kuch bhool jaate hain. Is system se unki memory, tasks, metrics, log aur
 audit trail run ke beech preserve rehti hai.
@@ -15,8 +15,8 @@ ke liye hai.
 ```
 storage/
 ├── agents/
-│   ├── index.json              ← registry: 12 agents, roles, capabilities
-│   └── <agent-id>/             ← har agent ki apni storage (12 folders)
+│   ├── index.json              ← registry: 13 agents, roles, capabilities
+│   └── <agent-id>/             ← har agent ki apni storage (13 folders)
 │       ├── profile.json        ← naam, role, capabilities, requirements
 │       ├── state.json          ← status, run count, last run, failure streak
 │       ├── memory.json         ← short-term + long-term memory, facts
@@ -36,7 +36,7 @@ storage/
 storage/snapshots/              ← last 7 full snapshots (git-ignored)
 ```
 
-## 2. Agents (12)
+## 2. Agents (13)
 
 | ID | Naam | Role | Kab chalta hai | Workflow |
 | --- | --- | --- | --- | --- |
@@ -44,6 +44,7 @@ storage/snapshots/              ← last 7 full snapshots (git-ignored)
 | `manager` | Manager | Coordinator | daily 04:00 UTC | `manager.yml` |
 | `pooja` | Pooja | SEO / Organic Growth | daily 04:30 UTC | `pooja.yml` |
 | `priya` | Priya | Campaign / Community Growth | daily 05:00 UTC | `priya.yml` |
+| `aman` | Aman | Daily Site & Member Report | daily 13:05 UTC (18:35 IST) | `aman.yml` |
 | `arjun` | Arjun | Backlink & Directory Research | daily 05:30 UTC | `agent-storage.yml` |
 | `kavita` | Kavita | Content & Blog Drafting | daily 06:00 UTC | `agent-storage.yml` |
 | `rahul` | Rahul | Uptime & Performance | har 6 ghante | `agent-storage.yml` |
@@ -55,14 +56,18 @@ storage/snapshots/              ← last 7 full snapshots (git-ignored)
 
 Hierarchy (kabhi nahi badalti): **Guardian (Sardar) → Manager → Workers**
 
+Aman owner ko directly report karta hai (reports_to: owner) — daily 13:05 UTC. Wo
+anonymous aggregate analytics (site_stats/site_visitors) se report banata hai;
+koi raw IP ya private member data store nahi hota.
+
 ## 3. CLI
 
 ```bash
-npm run storage:init       # storage tree + 12 agents create karo
+npm run storage:init       # storage tree + 13 agents create karo
 npm run storage:status     # sab agents ki status table
 npm run storage:doctor     # integrity check (JSON corrupt? ledger intact?)
 npm run storage:report     # markdown report: reports/agents/agent-storage-report.md
-npm run storage:cycle      # poora cycle: 12 agents + snapshot + report
+npm run storage:cycle      # poora cycle: 13 agents + snapshot + report
 npm run storage -- list    # agent roster
 npm run storage -- seed    # demo tasks + knowledge base
 ```

@@ -122,6 +122,24 @@ export const AGENTS = [
     priority: 'high'
   },
   {
+    id: 'aman',
+    name: 'Aman',
+    role: 'Daily Site & Member Report Agent',
+    reports_to: 'owner',
+    cadence: 'daily 13:05 UTC (18:35 IST)',
+    workflow: 'aman.yml',
+    capabilities: [
+      'Fetches live aggregate visitor + member analytics from the site',
+      'Writes the owner ka daily Hindi/Hinglish report (visitors, visits, naye + total members)',
+      'Emails the daily report to the owner (RESEND_API_KEY)',
+      'Tracks 7/14-din trends from stored history',
+      'Snapshots site health (/api/health) alongside the numbers',
+      'Koi raw IP / private member data kabhi nahi padhta ya bhejta'
+    ],
+    requires: ['RESEND_API_KEY'],
+    priority: 'high'
+  },
+  {
     id: 'arjun',
     name: 'Arjun',
     role: 'Backlink & Directory Research Worker',

@@ -44,6 +44,11 @@ function commandFor(agent) {
       return ['agents/pooja.mjs'];
     case 'priya':
       return ['agents/priya.mjs'];
+    case 'aman':
+      // Aman apne script se chalta hai (live aggregate stats fetch karta hai).
+      // Cycle-runner ke andar (PJS_CYCLE_MANAGED) wo email NAHI bhejta —
+      // email sirf daily report workflow mein jaati hai.
+      return ['agents/aman.mjs'];
     default:
       return ['agents/worker.mjs', agent.id];
   }
