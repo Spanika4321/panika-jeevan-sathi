@@ -41,9 +41,24 @@ for (const file of fs.readdirSync(path.join(PUBLIC, 'assets', 'js'))) {
 for (const file of fs.readdirSync(PUBLIC)) {
   if (!file.endsWith('.html')) continue;
   const html = fs.readFileSync(path.join(PUBLIC, file), 'utf8');
-  const blocks = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
+  const blocks = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)];
   blocks.forEach((m, i) => {
-    if (m[1].trim()) check(`${file} <script #${i + 1}>`, m[1]);
+    const attrs = m[1] || '';
+    const code = m[2] || '';
+    if (!code.trim()) return;
+    if (/type=["']application\/ld\+json["']/i.test(attrs)) {
+      // JSON-LD structured data is JSON, not JavaScript — validate it as such.
+      try {
+        JSON.parse(code);
+        checked++;
+      } catch (err) {
+        broken++;
+        console.log(`  ✗ ${file} <script #${i + 1}> (invalid JSON-LD)`);
+        console.log(err.message);
+      }
+      return;
+    }
+    check(`${file} <script #${i + 1}>`, code);
   });
   checked++;
 }
