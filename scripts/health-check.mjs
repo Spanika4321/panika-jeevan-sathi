@@ -37,11 +37,12 @@ try {
   });
   const html = await res.text();
   const present = /KUEY7A/.test(html);
-  console.log(`[LIVE-TAG-CHECK] status=${res.status} bytes=${html.length} tag_present=${present}`);
   const m = html.match(/<meta name="google-site-verification"[^>]*>/i);
-  if (m) console.log(`[LIVE-TAG-CHECK] ${m[0]}`);
+  console.log(
+    `::error::LIVE-TAG-CHECK status=${res.status} bytes=${html.length} tag_present=${present} ${m ? m[0] : ''}`
+  );
 } catch (e) {
-  console.log(`[LIVE-TAG-CHECK] ERROR ${e.message}`);
+  console.log(`::error::LIVE-TAG-CHECK ERROR ${e.message}`);
 }
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
