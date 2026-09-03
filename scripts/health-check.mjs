@@ -134,9 +134,16 @@ try {
     const r = await get('/robots.txt');
     check('robots.txt → 200', r.status === 200, `got ${r.status}`);
     check('robots.txt allows public crawl', r.text.includes('Allow: /'));
+    // Google rule: a page that is Disallow-ed can never be read, so its
+    // noindex is invisible and the URL may still be indexed. Member pages must
+    // therefore stay crawlable and rely on their noindex meta tag.
     for (const p of ['/admin.html', '/dashboard.html', '/messages.html', '/profile.html']) {
-      check(`robots.txt blocks ${p}`, r.text.includes(`Disallow: ${p}`));
+      check(
+        `robots.txt does NOT disallow ${p} (so Google can read its noindex)`,
+        !r.text.includes(`Disallow: ${p}`)
+      );
     }
+    check('robots.txt uses only Google-supported directives', !/^\s*(host|crawl-delay)\s*:/im.test(r.text));
     check('robots.txt blocks /api/', r.text.includes('Disallow: /api/'));
     check('robots.txt blocks /uploads/ (member photos)', r.text.includes('Disallow: /uploads/'));
     check('robots.txt advertises sitemap', r.text.includes('Sitemap:'));
@@ -151,6 +158,50 @@ try {
       check(`sitemap lists ${p}`, r.text.includes(`${p}</loc>`));
     }
     check('sitemap does NOT list private pages', !r.text.includes('dashboard.html') && !r.text.includes('admin.html'));
+    check('sitemap uses absolute URLs', /<loc>https?:\/\//.test(r.text));
+    check('sitemap has valid <lastmod> dates', /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(r.text));
+    check('sitemap omits changefreq/priority (Google ignores them)',
+      !r.text.includes('<changefreq>') && !r.text.includes('<priority>'));
+    check('sitemap is served as XML',
+      (r.headers.get('content-type') || '').includes('xml'),
+      r.headers.get('content-type') || 'no content-type');
+  }
+
+  section('5b. Canonical URLs & duplicate consolidation');
+  {
+    const home = await get('/');
+    check('/ declares a canonical URL', /<link rel="canonical" href="https?:\/\/[^"]+"/.test(home.text));
+    for (const p of PUBLIC_PAGES) {
+      const r = await get(p);
+      const name = p === '/' ? '/index.html' : p;
+      check(`${name} canonical is absolute`, /<link rel="canonical" href="https?:\/\//.test(r.text));
+      check(`${name} has Open Graph title+url`,
+        r.text.includes('property="og:title"') && r.text.includes('property="og:url"'));
+    }
+    const dupe = await get('/index.html', { redirect: 'manual' });
+    check('/index.html 301-redirects to / (no duplicate home URL)',
+      dupe.status === 301, `got ${dupe.status}`);
+  }
+
+  section('5c. Structured data');
+  {
+    const home = await get('/');
+    const m = home.text.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    check('/ has JSON-LD structured data', Boolean(m));
+    if (m) {
+      let parsed = null;
+      try { parsed = JSON.parse(m[1]); } catch (_) { /* invalid */ }
+      check('JSON-LD is valid JSON', Boolean(parsed));
+      check('JSON-LD declares schema.org context',
+        Boolean(parsed) && String(parsed['@context']).includes('schema.org'));
+    }
+  }
+
+  section('5d. Member photos are not indexable');
+  {
+    const r = await get('/uploads/does-not-exist.jpg');
+    const tag = (r.headers.get('x-robots-tag') || '').toLowerCase();
+    check('/uploads/ sends X-Robots-Tag: noindex', tag.includes('noindex'), tag || 'header missing');
   }
 
   section('6. SEO tags on public pages');

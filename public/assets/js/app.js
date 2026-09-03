@@ -249,7 +249,7 @@
   ];
 
   function brandHtml() {
-    return `<a class="brand" href="${PJS.me ? '/dashboard.html' : '/index.html'}">
+    return `<a class="brand" href="${PJS.me ? '/dashboard.html' : '/'}">
       <span class="brand-mark">${I.rings}</span>
       <span>
         <span class="brand-name">${PJS.esc((PJS.site && PJS.site.site_name) || 'PANIKA JEEVAN SATHI')}</span>
@@ -411,7 +411,7 @@
 
   PJS.logout = async function () {
     await PJS.post('/api/auth/logout');
-    window.location.href = '/index.html?loggedout=1';
+    window.location.href = '/?loggedout=1';
   };
 
   async function refreshCounts() {

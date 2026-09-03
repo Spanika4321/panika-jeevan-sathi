@@ -314,17 +314,18 @@ const PRIVATE_PAGES = [
   'verify-email.html'
 ];
 
-// Crawl hints per public page (used by sitemap.xml).
-const PAGE_SEO = {
-  '/': { freq: 'daily', priority: '1.0' },
-  '/about.html': { freq: 'monthly', priority: '0.7' },
-  '/contact.html': { freq: 'monthly', priority: '0.7' },
-  '/login.html': { freq: 'monthly', priority: '0.8' },
-  '/privacy.html': { freq: 'yearly', priority: '0.3' },
-  '/terms.html': { freq: 'yearly', priority: '0.3' }
-};
+// sitemaps.org requires every tag value to be entity-escaped.
+function xmlEscape(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
-// Real file mtime => honest <lastmod>, so Google re-crawls only on real changes.
+// Real file mtime => honest <lastmod>. Google only trusts <lastmod> when it can
+// verify it against the actual page, so a fabricated "today" would be ignored.
 function siteLastMod(pagePath) {
   const rel = pagePath === '/' ? 'index.html' : pagePath.replace(/^\//, '');
   try {
@@ -370,6 +371,9 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname.startsWith('/uploads/')) {
+    // Member photos are non-HTML, so they cannot carry a robots meta tag.
+    // Google's documented alternative for files is the X-Robots-Tag header.
+    res.setHeader('X-Robots-Tag', 'noindex, noimageindex, nofollow');
     const name = path.basename(url.pathname);
     // On hosts without a disk the photo is fetched from R2 and cached.
     const file = await photos.ensure(name);
@@ -385,21 +389,31 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/robots.txt') {
     const origin = publicOrigin(req);
     res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, SECURITY_HEADERS));
+    // Google rules applied here (developers.google.com/search):
+    //  * Only user-agent / allow / disallow / sitemap are supported directives.
+    //    "Host:" and "Crawl-delay:" are ignored by Google, so they are not emitted.
+    //  * Member pages are NOT disallowed. Google must be allowed to CRAWL them so
+    //    it can READ their `noindex` rule — a robots.txt Disallow hides the
+    //    noindex and the URL can still get indexed without a snippet.
+    //    Keeping them crawlable + noindex is Google's documented way to keep a
+    //    page out of Search completely.
+    //  * /api/ and /uploads/ are non-HTML, cannot carry a meta tag, and are
+    //    protected by an `X-Robots-Tag: noindex` response header instead, so
+    //    disallowing them here is safe and saves crawl budget.
     res.end(
-      'User-agent: *\n' +
+      '# robots.txt — PANIKA JEEVAN SATHI\n' +
+        '# Member pages stay crawlable on purpose: each one carries\n' +
+        '# <meta name="robots" content="noindex,nofollow">, which Google can only\n' +
+        '# obey if it is allowed to fetch the page.\n' +
+        '\n' +
+        'User-agent: *\n' +
         'Allow: /\n' +
-        PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
-        '\nDisallow: /api/\n' +
+        'Disallow: /api/\n' +
         'Disallow: /uploads/\n' +
-        '\n# Googlebot gets the same rules explicitly (some crawlers ignore wildcards).\n' +
-        'User-agent: Googlebot\n' +
-        'Allow: /\n' +
-        PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
-        '\nDisallow: /api/\n' +
+        '\n' +
+        'User-agent: Googlebot-Image\n' +
         'Disallow: /uploads/\n' +
-        '\nUser-agent: Googlebot-Image\n' +
-        'Disallow: /uploads/\n' +
-        `\nHost: ${origin.replace(/^https?:\/\//, '')}\n` +
+        '\n' +
         `Sitemap: ${origin}/sitemap.xml\n`
     );
     return;
@@ -407,15 +421,16 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === '/sitemap.xml') {
     const origin = publicOrigin(req);
-    const urls = PUBLIC_PAGES.map((p) => {
-      const meta = PAGE_SEO[p] || { freq: 'monthly', priority: '0.5' };
-      return (
-        `  <url><loc>${origin}${p}</loc>` +
-        `<lastmod>${siteLastMod(p)}</lastmod>` +
-        `<changefreq>${meta.freq}</changefreq>` +
-        `<priority>${meta.priority}</priority></url>`
-      );
-    }).join('\n');
+    // Google explicitly ignores <changefreq> and <priority>, and only trusts
+    // <lastmod> when it is verifiably accurate — so we emit just <loc> and a
+    // <lastmod> taken from the real file mtime. URLs are absolute and XML-escaped.
+    const urls = PUBLIC_PAGES.map(
+      (p) =>
+        `  <url>\n` +
+        `    <loc>${xmlEscape(origin + p)}</loc>\n` +
+        `    <lastmod>${siteLastMod(p)}</lastmod>\n` +
+        `  </url>`
+    ).join('\n');
     res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
     res.end(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -423,6 +438,15 @@ const server = http.createServer(async (req, res) => {
         urls +
         '\n</urlset>\n'
     );
+    return;
+  }
+
+  // Duplicate-URL consolidation (Google: "consolidate duplicate URLs").
+  // /index.html and / serve identical content, so the non-canonical form is
+  // permanently redirected instead of competing with the canonical URL.
+  if (url.pathname === '/index.html') {
+    res.writeHead(301, Object.assign({ Location: '/' + url.search }, SECURITY_HEADERS));
+    res.end();
     return;
   }
 

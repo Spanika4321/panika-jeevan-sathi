@@ -4,7 +4,7 @@
 
 ## STATUS: Healthy ✅
 
-- Checks passed: **95**
+- Checks passed: **118**
 - Checks failed: **0**
 
 Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags are in place, private pages are hidden from search engines, security headers are on, the API is responding, and the approved public design is unchanged.
@@ -16,6 +16,9 @@ Everything is working: all pages load, error handling is correct, robots.txt & s
 - 3. Error handling
 - 4. robots.txt
 - 5. sitemap.xml
+- 5b. Canonical URLs & duplicate consolidation
+- 5c. Structured data
+- 5d. Member photos are not indexable
 - 6. SEO tags on public pages
 - 7. Private pages are noindex
 - 8. Security headers

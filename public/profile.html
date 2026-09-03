@@ -261,7 +261,7 @@
         <h3>Profile unavailable</h3><p>${PJS.esc(res.error || 'This profile is private or has been removed.')}</p>
         <div class="btn-row" style="justify-content:center">
           <a class="btn ghost sm" href="${PJS.me ? '/search.html' : '/login.html'}">${PJS.me ? 'Search profiles' : 'Log in'}</a>
-          <a class="btn ghost sm" href="/index.html">Home</a></div></div>`;
+          <a class="btn ghost sm" href="/">Home</a></div></div>`;
       return;
     }
     data = res;

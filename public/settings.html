@@ -175,7 +175,7 @@
       const r = await PJS.del('/api/me');
       if (r.ok) {
         PJS.toast('Your account has been deleted.', 'success');
-        setTimeout(() => { window.location.href = '/index.html'; }, 800);
+        setTimeout(() => { window.location.href = '/'; }, 800);
       } else {
         alertBox('error', r.error || 'Could not delete account.');
       }
