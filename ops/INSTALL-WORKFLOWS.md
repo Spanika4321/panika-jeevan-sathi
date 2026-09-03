@@ -32,6 +32,7 @@ Push karte waqt aapko ye error dikhta hai to yahin se copy karein:
 | 3 | `.github/workflows/priya.yml` | [`ops/priya.workflow.yml`](priya.workflow.yml) *(replace)* |
 | 4 | `.github/workflows/manager.yml` | [`ops/manager.workflow.yml`](manager.workflow.yml) *(replace)* |
 | 5 | `.github/workflows/employee-report.yml` | [`ops/employee-report.workflow.yml`](employee-report.workflow.yml) *(replace)* |
+| 6 | `.github/workflows/aman.yml` | [`ops/aman.workflow.yml`](aman.workflow.yml) *(naya — Aman daily site & member report)* |
 
 **Replace ka matlab:** purani file kholkar (pencil icon) poora content delete
 kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.
@@ -42,7 +43,7 @@ kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.
 
 | Priority | File | Kyun |
 | --- | --- | --- |
-| **1st** | `agent-storage.yml` | Naya hai — 12 agents ki permanent memory isi se chalti hai |
+| **1st** | `agent-storage.yml` | Naya hai — 13 agents ki permanent memory isi se chalti hai |
 | **2nd** | `employee-report.yml` | Har 10 min cycle — isme storage save/restore lagana sabse zyada faydemand |
 | 3rd | `pooja.yml` / `priya.yml` | Daily SEO + campaign agents ki memory |
 | 4th | `manager.yml` | Daily coordinator |
@@ -58,13 +59,14 @@ kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.
 1. Repo → **Actions** tab
 2. Left list mein ye names dikhne chahiye:
    - `AI Agent Storage` ← naya
+   - `Aman — Daily Site & Member Report` ← naya (roz 18:35 IST email)
    - `Employee Reports — Every 10 Minutes`
    - `Pooja — SEO Growth Worker`
    - `Priya — Community Growth Worker`
    - `Agent Manager`
    - `Website Guardian`
 3. `AI Agent Storage` → **Run workflow** (dropdown se) → green run hona chahiye
-4. Run ke andar **"Cycle summary"** step mein 12 agents ki table dikhegi
+4. Run ke andar **"Cycle summary"** step mein 13 agents ki table dikhegi
 
 Turant test karne ke liye har workflow mein `workflow_dispatch` hai —
 schedule ka wait karne ki zaroorat nahi.
@@ -75,8 +77,9 @@ schedule ka wait karne ki zaroorat nahi.
 
 | Workflow | Kitni baar | Kya karta hai |
 | --- | --- | --- |
-| `AI Agent Storage` | har 6 ghante | 12 agents + snapshot + storage report |
+| `AI Agent Storage` | har 6 ghante | 13 agents + snapshot + storage report |
 | `Employee Reports` | har 10 minute | Pooja + Priya + Guardian + Manager + email |
+| `Aman` | daily 13:05 UTC | live aggregate analytics → owner ko site & member report email |
 | `Pooja` | daily 04:30 UTC | SEO analysis |
 | `Priya` | daily 05:00 UTC | campaign ideas |
 | `Manager` | daily 04:00 UTC | coordinator sweep |

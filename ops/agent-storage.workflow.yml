@@ -11,14 +11,14 @@
 # Uske baad ye automatically chalta rahega — koi aur step nahi.
 #
 # Runs     : har 6 ghante   (aur Actions tab se "Run workflow" bhi)
-# What     : 12 AI agents + permanent storage + snapshot + report
+# What     : 13 AI agents + permanent storage + snapshot + report
 # Storage  : actions/cache se run-to-run memory preserve hoti hai
 # Guide    : ops/INSTALL-WORKFLOWS.md
 
 # PANIKA JEEVAN SATHI — AI Agent Storage (24×7, GitHub servers par)
 #
-# Ye workflow 12 AI agents ki PERMANENT memory chalata hai:
-#   Guardian · Manager · Pooja · Priya · Arjun · Kavita · Rahul ·
+# Ye workflow 13 AI agents ki PERMANENT memory chalata hai:
+#   Guardian · Manager · Pooja · Priya · Aman · Arjun · Kavita · Rahul ·
 #   Sneha · Amit · Nisha · Vikram · Meera
 #
 # GitHub Actions ka runner har baar naya hota hai, isliye storage/ ko
@@ -60,7 +60,7 @@ concurrency:
 
 jobs:
   storage-cycle:
-    name: Run all 12 agents with persistent storage
+    name: Run all 13 agents with persistent storage
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

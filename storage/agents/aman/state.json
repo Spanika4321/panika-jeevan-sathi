@@ -1,0 +1,9 @@
+{
+  "agent": "aman",
+  "status": "INIT",
+  "last_run_at": null,
+  "last_status": null,
+  "runs": 0,
+  "consecutive_failures": 0,
+  "updated_at": "2026-09-03T20:08:03.951Z"
+}

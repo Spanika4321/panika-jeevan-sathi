@@ -1,0 +1,87 @@
+# PANIKA JEEVAN SATHI — Aman : Daily Site & Member Report
+#
+# Runs     : har din 13:05 UTC (18:35 IST) + Actions tab se "Run workflow"
+# What     : Aman live site se aggregate analytics + health fetch karta hai,
+#            Hindi/Hinglish report banata hai aur owner ko EMAIL bhejta hai
+#            (RESEND_API_KEY secret). Koi deploy/push/UI change nahi.
+# Storage  : actions/cache se run-to-run memory preserve hoti hai
+#            (shared key "agent-storage-*" — agent-storage.yml ke saath)
+
+name: Aman — Daily Site & Member Report
+
+on:
+  schedule:
+    - cron: '5 13 * * *'          # har din 13:05 UTC = 18:35 IST
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Report kis site se? (default: production panikajeevansathi.onrender.com)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aman-report
+  cancel-in-progress: false
+
+jobs:
+  aman-report:
+    name: Daily site & member report (email to owner)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # Aman ki apni memory (state/log/metrics) pichhle run se wapas lao.
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      - name: Run Aman
+        id: aman
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          PJS_SITE_URL: ${{ inputs.site_url || '' }}
+        run: node agents/aman.mjs
+
+      # Agle run ke liye storage save karo (same key family as agent-storage).
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Upload Aman report (90 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aman-report
+          path: |
+            reports/agents/aman-*
+          retention-days: 90
+          if-no-files-found: ignore
+
+      - name: Final status
+        if: always()
+        run: |
+          echo "=============================================="
+          echo "AMAN DAILY REPORT FINISHED"
+          echo "step       : ${{ steps.aman.outcome }}"
+          echo "git push   : NOT PERFORMED"
+          echo "deploy     : NOT PERFORMED"
+          echo "UI change  : NOT PERFORMED"
+          echo "=============================================="
