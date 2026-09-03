@@ -1,0 +1,56 @@
+name: Supabase verify (production health)
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live /api/health
+        run: |
+          URL="https://panikajeevansathi.onrender.com/api/health"
+          echo "GET $URL"
+          BODY=""
+          for i in 1 2 3 4 5 6; do
+            BODY=$(curl -sS --max-time 60 "$URL" || true)
+            [ -n "$BODY" ] && break
+            echo "attempt $i: empty (free instance may be waking up), retrying..."
+            sleep 15
+          done
+
+          {
+            echo "## Production health — panikajeevansathi.onrender.com"
+            echo ''
+            echo '```json'
+            echo "$BODY"
+            echo '```'
+            echo ''
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -z "$BODY" ]; then
+            echo '**FAIL** — site did not respond.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          DB=$(printf '%s' "$BODY" | grep -o '"storage":"[^"]*"' | head -1 | cut -d'"' -f4)
+          PH=$(printf '%s' "$BODY" | grep -o '"photos":"[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "storage=$DB photos=$PH"
+
+          if [ "$DB" = "supabase" ]; then
+            echo "**PASS** — database: \`$DB\`, photos: \`$PH\`. Data is durable in Supabase." >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "**FAIL** — database is \`$DB\` (expected \`supabase\`)."
+              echo ''
+              echo 'Fix: Render dashboard -> service `panikajeevansathi` -> Environment ->'
+              echo 'set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET=uploads`'
+              echo '-> Save Changes -> Manual Deploy -> Deploy latest commit.'
+              echo 'See SUPABASE.md.'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
