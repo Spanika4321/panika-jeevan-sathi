@@ -1,0 +1,40 @@
+name: Verify live Google tag (temporary)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch live (Render) page source and check meta tag
+        run: |
+          URL=https://panikajeevansathi.onrender.com/
+          echo "== GET $URL =="
+          curl -fsSL --retry 8 --retry-delay 10 --retry-all-errors -m 180 "$URL" -o /tmp/live.html
+          echo "bytes: $(wc -c < /tmp/live.html)"
+          echo "--- tag check ---"
+          if grep -q 'google-site-verification' /tmp/live.html && grep -q 'KUEY7A' /tmp/live.html; then
+            echo "TAG_PRESENT=yes"
+            grep -o '<meta name="google-site-verification"[^>]*>' /tmp/live.html || true
+          else
+            echo "TAG_PRESENT=no"
+          fi
+          echo "--- first 20 lines of <head> ---"
+          sed -n '1,20p' /tmp/live.html
+
+      - name: Fetch GitHub Pages source and check meta tag
+        run: |
+          URL=https://spanika4321.github.io/panika-jeevan-sathi/
+          echo "== GET $URL =="
+          curl -fsSL --retry 8 --retry-delay 10 --retry-all-errors -m 180 "$URL" -o /tmp/ghpages.html
+          echo "bytes: $(wc -c < /tmp/ghpages.html)"
+          echo "--- tag check ---"
+          if grep -q 'google-site-verification' /tmp/ghpages.html && grep -q 'KUEY7A' /tmp/ghpages.html; then
+            echo "TAG_PRESENT=yes"
+            grep -o '<meta name="google-site-verification"[^>]*>' /tmp/ghpages.html || true
+          else
+            echo "TAG_PRESENT=no"
+          fi
+          echo "--- first 20 lines ---"
+          sed -n '1,20p' /tmp/ghpages.html
