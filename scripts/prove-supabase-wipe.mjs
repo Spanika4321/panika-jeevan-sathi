@@ -24,6 +24,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { testEnvironment } from './lib/test-app.mjs';
 import { createSupabaseMock } from './lib/mock-supabase.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -85,6 +86,7 @@ function client() {
     return { status: res.status, body: json };
   }
   return {
+    raw: (p) => fetch(BASE + p, { headers: { Cookie: [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ') } }),
     get: (p) => call('GET', p),
     post: (p, b) => call('POST', p, b || {}),
     put: (p, b) => call('PUT', p, b || {})
@@ -114,7 +116,7 @@ function spawnApp(envExtra) {
   const child = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
     env: {
-      ...process.env,
+      ...testEnvironment(),
       PORT: String(PORT),
       HOST: '127.0.0.1',
       PJS_DATA_DIR: APP_DIR,
@@ -274,7 +276,7 @@ async function main() {
       'lib/photos.js save → supabase put'
     );
     if (photoPath) {
-      const photoRes = await fetch(BASE + photoPath);
+      const photoRes = await ravi.raw(photoPath);
       photoBytes = Buffer.from(await photoRes.arrayBuffer());
       record(
         'photo served after upload',
@@ -427,7 +429,7 @@ async function main() {
     );
 
     if (photoPath) {
-      const photoAgain = await fetch(BASE + photoPath);
+      const photoAgain = await again.raw(photoPath);
       const buf = Buffer.from(await photoAgain.arrayBuffer());
       afterPhotoStatus = photoAgain.status;
       afterPhotoLen = buf.length;

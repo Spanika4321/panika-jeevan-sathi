@@ -3,53 +3,58 @@
 [![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Coming%20soon-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products?q=PANIKA%20JEEVAN%20SATHI)
 [![GitHub](https://img.shields.io/badge/GitHub-Spanika4321%2Fpanika-jeevan-sathi-181717?logo=github)](https://github.com/Spanika4321/panika-jeevan-sathi)
 
-A complete, production-ready **matrimonial website** for the Panika, Manikpuri, Kabirpanthi and Adivasi
+A community **matrimonial website** for the Panika, Manikpuri, Kabirpanthi and Adivasi
 communities — **100% free for members**: no payment gateway, no subscription plans, no premium tiers,
 no locked profiles, no paid messaging.
 
 **Product Hunt:** this GitHub repo is the product source. Connect it under [Ship → GitHub](https://www.producthunt.com/ship) and use the copy in **[PRODUCTHUNT.md](PRODUCTHUNT.md)**.
 
-Built as a single self-contained Node.js application with **zero npm dependencies**.
+Built as a single Node.js application. The core uses built-in modules; the locked Nodemailer dependency handles SMTP. Playwright is used only for browser tests.
 
 ---
 
 ## Run it
 
 ```bash
+npm ci --ignore-scripts
 node server.js          # http://localhost:3000
 PORT=8080 node server.js
 ```
 
-Requirements: **Node.js 22.5 or newer** (uses the built-in `node:sqlite` driver). No `npm install` needed.
+Requirements: **Node.js 22.5 or newer** (uses the built-in `node:sqlite` driver). Production builds run `npm ci --omit=dev --ignore-scripts` so SMTP support is installed.
 
 On first start the **site-owner administrator** is created (default email
 `sukulpanika939@gmail.com`, or `ADMIN_EMAIL`). The password is taken from `ADMIN_PASSWORD` or
-generated and printed once in the console / `data/admin-credentials.txt` (git-ignored). Log in at
-`/admin.html` and change it. Existing member accounts whose email is in `ADMIN_EMAIL` /
-`OWNER_EMAILS` are promoted to administrator on boot.
+generated for local development. The private `data/admin-credentials.txt` is git-ignored; configured passwords are never printed. Set `ADMIN_PASSWORD` for first production boot. Log in at
+`/admin.html` and change it. Only active, verified member accounts whose email is in `ADMIN_EMAIL` /
+`OWNER_EMAILS` are promoted to administrator on boot. New sign-ups claiming an owner
+email must verify that mailbox before getting any session or administrator access.
 
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload while editing
-npm test           # syntax check + full end-to-end test suite
-npm run check      # syntax check only
+npm test           # all-source syntax + security regressions + end-to-end suite
+npm run check      # server, libraries, agents, scripts and inline browser syntax
+npm run test:regression # security, error handling and privacy regressions
+npm run test:browser    # real Chromium forms, mobile layout and chat tests
 npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
 npm run test:supabase-wipe # write → external store → wipe app disk → read (PostgREST mock)
 npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 ```
 
-### Environment variables (all optional)
+### Environment variables (production requirements below)
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `PORT` | `3000` | HTTP port |
 | `HOST` | `0.0.0.0` | Bind address |
 | `PJS_DATA_DIR` | `./data` | Database + uploaded photos |
-| `SITE_URL` | request origin | Canonical production URL used in `robots.txt` / `sitemap.xml` (pin it in production) |
+| `SITE_URL` | request origin | Canonical production URL for email links, `robots.txt` and `sitemap.xml` (pin it in production) |
 | `SESSION_SECRET` | auto-generated in `data/` | Session signing key |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
-| `OWNER_EMAILS` | — | Extra emails always promoted to admin |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | Real email delivery (needs `npm i nodemailer`) |
+| `OWNER_EMAILS` | — | Additional owners; only active, independently verified accounts are promoted |
+| `TRUST_PROXY_HOPS` | `1` on Render, `0` otherwise | Exact trusted proxy count; never trust arbitrary forwarded IPs |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | SMTP support is installed by `npm ci`; delivery credentials still required |
 | `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else local SQLite; `supabase`/`d1`/`sqlite`/`json` force one |
 | `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (required on Render Free) |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production Postgres + Storage (see `supabase/schema.sql`) |
@@ -57,8 +62,21 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 fallback |
 | `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 fallback photos |
 
-If SMTP is not configured, verification / reset emails are written to `data/outbox/` and the secure link
-is also shown on screen to the member, so the flow always works. Add SMTP later without code changes.
+Verification and password-reset tokens are **never returned by public APIs or displayed on screen**.
+Configure SMTP (Nodemailer is included in the locked install) for automatic delivery. If SMTP is absent
+or fails, emails are saved with private permissions in `data/outbox/` for local testing or trusted
+administrator-assisted recovery; this is **not** proof of email delivery. Configure delivery before
+enabling mandatory email verification. Production requires an HTTPS `SITE_URL` and a persistent
+`SESSION_SECRET` of at least 32 characters. Supabase photo buckets must be **private**; startup
+refuses a public bucket or missing core tables. See [SECURITY.md](SECURITY.md) for checks and limits.
+
+```bash
+npm run test:security       # auth, CSRF, privacy, storage failure and deployment regressions
+npm run verify:production  # GET-only live check; never creates members or sends emails
+```
+
+The production watchdog checks every six hours **after its workflow reaches the default branch**.
+A green local suite is not proof of live deployment, inbox delivery, a backup restore, or 24-hour uptime.
 
 ---
 
@@ -76,7 +94,8 @@ is also shown on screen to the member, so the flow always works. Add SMTP later 
   income, diet, habits, about me, full family details
 - Partner preferences: age range, gender, location, education, occupation, marital status, community
 - Privacy: profile visibility (everyone / members / hidden), hide photo, hide contact number,
-  switch off search visibility
+  switch off search visibility. Photo privacy is also enforced on direct `/uploads/` requests,
+  including previously known URLs; private photos are not publicly cached.
 - Profile-strength score; everything is saved to the database and reloaded on every visit
 
 **Matchmaking**
@@ -175,7 +194,23 @@ admin actions, logout, wrong password, re-login, persistence, forgot/reset passw
 all pages and assets returning 200, security headers, 404 handling, path-traversal blocking — and
 finally that **all data survives a full server restart**.
 
-The same suite passes on the JSON fallback store: `npm run test:json-store`.
+The same suite and security regressions run on the JSON fallback store: `npm run test:json-store`.
+The tests use disposable databases and explicit local cloud mocks, never inherited production
+storage or SMTP credentials.
+
+For desktop/mobile browser checks (registration, profile edits, email verification, chat read
+receipts, per-recipient drafts, stale responses, dialogs and layout):
+
+```bash
+npm ci
+npx playwright install --with-deps chromium
+npm run test:browser
+npm run test:all       # all local suites, storage mocks, health and browser checks
+```
+
+An already installed Chromium binary may be selected with `PJS_CHROMIUM_EXECUTABLE`.
+The Guardian workflow runs these checks on pushes and pull requests. Mock cloud tests are not
+live-production durability verification; use the separate deployment verification instructions.
 
 ---
 

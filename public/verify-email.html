@@ -73,9 +73,7 @@
     const res = await PJS.post('/api/auth/resend-verification', { email: email });
     btn.disabled = false; btn.textContent = 'Resend verification link';
     out.innerHTML = res.ok
-      ? `<div class="alert success">${res.email_delivered
-          ? 'Verification link sent — check your inbox.'
-          : 'Open this link to verify: <br><a href="' + PJS.esc(res.verification_link) + '">' + PJS.esc(res.verification_link) + '</a>'}</div>`
+      ? `<div class="alert success">${PJS.esc(res.message || 'Check your inbox and spam folder. Contact support if no email arrives.')}</div>`
       : `<div class="alert error">${PJS.esc(res.error || 'Could not send.')}</div>`;
   });
 

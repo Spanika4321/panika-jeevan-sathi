@@ -59,7 +59,10 @@
   const $ = (id) => document.getElementById(id);
   let activeId = null;
   let pollTimer = null;
-  let lastMessageTs = 0;
+  let requestId = 0;
+  let displayedId = null;
+  const drafts = new Map();
+  const sending = new Set();
 
   async function loadConversations() {
     const res = await PJS.get('/api/conversations');
@@ -101,10 +104,11 @@
   let renderedSig = null;
 
   function renderThread(withUser, messages, connected) {
-    const previousDraft = document.getElementById('draft');
-    const draftText = previousDraft ? previousDraft.value : '';
+    const previousDraft = displayedId === withUser.id ? document.getElementById('draft') : null;
+    const draftText = previousDraft ? previousDraft.value : drafts.get(withUser.id) || '';
     const hadFocus = Boolean(previousDraft && document.activeElement === previousDraft);
-    const scrollNow = !document.querySelector('#thread .thread-body');
+    const scrollNow = displayedId !== withUser.id || !document.querySelector('#thread .thread-body');
+    displayedId = withUser.id;
     $('thread').innerHTML = `
       <div class="thread-head">
         <button class="btn ghost sm" id="backBtn" style="display:none">←</button>
@@ -130,7 +134,13 @@
       const back = $('backBtn');
       back.style.display = 'inline-flex';
       back.onclick = () => {
+        drafts.set(activeId, $('draft')?.value || '');
         activeId = null;
+        requestId++;
+        if (pollTimer) clearInterval(pollTimer);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('with');
+        window.history.replaceState({}, '', url.pathname + url.search);
         $('shell').classList.remove('has-thread');
         loadConversations();
       };
@@ -138,11 +148,12 @@
     $('shell').classList.add('has-thread');
 
     const body = $('threadBody');
-    body.scrollTop = body.scrollHeight;
 
     const form = $('sendForm');
     const draft = $('draft');
     draft.value = draftText;
+    draft.addEventListener('input', () => drafts.set(withUser.id, draft.value));
+    form.querySelector('button').disabled = !connected || sending.has(withUser.id);
     if (hadFocus) draft.focus();
     draft.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -152,20 +163,29 @@
     });
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
+      const recipientId = withUser.id;
       const text = draft.value.trim();
-      if (!text) return;
+      if (!text || sending.has(recipientId)) return;
+      sending.add(recipientId);
+      drafts.set(recipientId, '');
       draft.value = '';
       const sendBtn = form.querySelector('button');
       sendBtn.disabled = true;
-      const res = await PJS.post('/api/messages', { to: activeId, body: text });
+      const res = await PJS.post('/api/messages', { to: recipientId, body: text });
+      sending.delete(recipientId);
       sendBtn.disabled = false;
       if (!res.ok) {
-        draft.value = text;
+        const newerDraft = drafts.get(recipientId) || '';
+        const restored = text + (newerDraft ? '\n' + newerDraft : '');
+        drafts.set(recipientId, restored);
+        if (displayedId === recipientId && $('draft')) {
+          $('draft').value = restored;
+          $('sendForm').querySelector('button').disabled = false;
+        }
         PJS.toast(res.error || 'Could not send message', 'error');
         return;
       }
-      lastMessageTs = res.sent_at;
-      refreshThread(true);
+      if (activeId === recipientId) refreshThread(true);
       loadConversations();
     });
 
@@ -174,35 +194,48 @@
 
   async function refreshThread(silent) {
     if (!activeId) return;
-    const res = await PJS.get('/api/conversations/' + activeId);
-    if (!res.ok) return;
+    const recipientId = activeId;
+    const currentRequest = ++requestId;
+    const res = await PJS.get('/api/conversations/' + recipientId);
+    // A slow response for an old selection must never overwrite the current chat.
+    if (activeId !== recipientId || currentRequest !== requestId) return;
+    if (!res.ok || !res.with) {
+      $('thread').innerHTML = `<div class="alert error">${PJS.esc(res.error || 'This conversation is not available.')}</div>`;
+      return;
+    }
     const body = $('threadBody');
+    const previousScroll = body ? body.scrollTop : 0;
     const nearBottom = body ? body.scrollHeight - body.scrollTop - body.clientHeight < 140 : true;
-    const sig = res.messages.length + ':' +
-      (res.messages.length ? res.messages[res.messages.length - 1].created_at : 0) + ':' + res.connected;
-
+    // Include read state, not just message count/time, so receipts refresh.
+    const sig = JSON.stringify([res.with, res.connected, res.messages]);
     if (sig !== renderedSig || !body) {
       renderedSig = sig;
       renderThread(res.with, res.messages, res.connected);
-      if (res.messages.length) lastMessageTs = res.messages[res.messages.length - 1].created_at;
     }
+    const nextBody = $('threadBody');
+    if (nextBody) nextBody.scrollTop = nearBottom || silent ? nextBody.scrollHeight : previousScroll;
 
     if (res.messages.some((m) => !m.mine && !m.read)) {
-      await PJS.post('/api/conversations/' + activeId + '/read');
+      await PJS.post('/api/conversations/' + recipientId + '/read');
       PJS.refreshCounts();
       loadConversations();
     }
-    const nb = $('threadBody');
-    if (nb && (nearBottom || silent)) nb.scrollTop = nb.scrollHeight;
   }
 
   function openThread(userId) {
+    if (displayedId && $('draft')) drafts.set(displayedId, $('draft').value);
     activeId = userId;
+    displayedId = null;
     renderedSig = null;
+    $('thread').innerHTML = '<div class="empty">Loading conversation…</div>';
+    $('shell').classList.add('has-thread');
+    const url = new URL(window.location.href);
+    url.searchParams.set('with', userId);
+    window.history.replaceState({}, '', url.pathname + url.search);
     loadConversations();
     refreshThread(false);
     if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(refreshThread, 5000);
+    pollTimer = setInterval(() => refreshThread(false), 5000);
   }
 
   PJS.onReady(async function () {

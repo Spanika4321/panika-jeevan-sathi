@@ -1,12 +1,5 @@
 #!/usr/bin/env node
-/**
- * Syntax check for every JavaScript file we ship:
- *  - public/assets/js/*.js
- *  - every inline <script> block inside public/*.html
- *
- *   node scripts/check-syntax.mjs
- */
-
+/** Check every shipped JS/CJS/MJS file, inline browser script and JSON-LD block. */
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -16,16 +9,14 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = path.join(ROOT, 'public');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-syntax-'));
-
 let checked = 0;
 let broken = 0;
 
-function check(label, code) {
-  const file = path.join(tmp, `check-${checked}.mjs`);
-  fs.writeFileSync(file, code);
+function checkFile(label, file) {
+  checked++;
   try {
+    // Preserve the original module type; CommonJS source is not an ES module.
     execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' });
-    checked++;
   } catch (err) {
     broken++;
     console.log(`  ✗ ${label}`);
@@ -33,36 +24,44 @@ function check(label, code) {
   }
 }
 
-for (const file of fs.readdirSync(path.join(PUBLIC, 'assets', 'js'))) {
-  if (!file.endsWith('.js')) continue;
-  check(`assets/js/${file}`, fs.readFileSync(path.join(PUBLIC, 'assets', 'js', file), 'utf8'));
+function walk(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(file);
+    else if (/\.(?:js|cjs|mjs)$/.test(entry.name)) checkFile(path.relative(ROOT, file), file);
+  }
 }
 
-for (const file of fs.readdirSync(PUBLIC)) {
-  if (!file.endsWith('.html')) continue;
-  const html = fs.readFileSync(path.join(PUBLIC, file), 'utf8');
-  const blocks = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)];
-  blocks.forEach((m, i) => {
-    const attrs = m[1] || '';
-    const code = m[2] || '';
-    if (!code.trim()) return;
-    if (/type=["']application\/ld\+json["']/i.test(attrs)) {
-      // JSON-LD structured data is JSON, not JavaScript — validate it as such.
-      try {
-        JSON.parse(code);
+try {
+  checkFile('server.js', path.join(ROOT, 'server.js'));
+  for (const dir of ['lib', 'agents', 'scripts', 'public/assets/js']) walk(path.join(ROOT, dir));
+
+  for (const file of fs.readdirSync(PUBLIC).filter((name) => name.endsWith('.html'))) {
+    const html = fs.readFileSync(path.join(PUBLIC, file), 'utf8');
+    const blocks = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+    blocks.forEach(([_, attrs, code], index) => {
+      if (/\bsrc\s*=/i.test(attrs) || !code.trim()) return;
+      const label = `${file} <script #${index + 1}>`;
+      if (/type\s*=\s*["']application\/(?:ld\+)?json["']/i.test(attrs)) {
         checked++;
-      } catch (err) {
-        broken++;
-        console.log(`  ✗ ${file} <script #${i + 1}> (invalid JSON-LD)`);
-        console.log(err.message);
+        try {
+          JSON.parse(code);
+        } catch (err) {
+          broken++;
+          console.log(`  ✗ ${label} (invalid JSON)\n${err.message}`);
+        }
+      } else {
+        const extension = /type\s*=\s*["']module["']/i.test(attrs) ? 'mjs' : 'js';
+        const script = path.join(tmp, `inline-${checked}.${extension}`);
+        fs.writeFileSync(script, code);
+        checkFile(label, script);
       }
-      return;
-    }
-    check(`${file} <script #${i + 1}>`, code);
-  });
-  checked++;
+    });
+  }
+} finally {
+  fs.rmSync(tmp, { recursive: true, force: true });
 }
 
-console.log(`  ${checked - broken} checked, ${broken} with syntax errors`);
-fs.rmSync(tmp, { recursive: true, force: true });
-process.exit(broken ? 1 : 0);
+console.log(`  ${checked} checked, ${broken} with syntax errors`);
+process.exitCode = broken ? 1 : 0;

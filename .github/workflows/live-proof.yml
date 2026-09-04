@@ -1,95 +1,61 @@
 name: Live proof (production durability)
 
-# REAL write → restart → read proof against the live Render deployment.
-# GitHub runners CAN reach onrender.com (the agent sandbox cannot), so this
-# workflow is the honest way to prove the data-loss fix in production.
-#
-# How to use:
-#   1. Merge the Supabase PR into main (Render auto-deploys main).
-#   2. Make sure SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set on Render.
-#   3. Actions tab → "Live proof (production durability)" → Run workflow.
-#      Leave wait_minutes at 17 so a Render Free sleep-wake (≈15 min idle)
-#      happens between the write phase and the read phase.
-#   4. 🟢 only when every check in the log shows "✓ PASS".
-#
-# It also runs AUTOMATICALLY every Sunday 09:55 IST (04:25 UTC) so the
-# durability proof is re-established weekly without anyone clicking. Scheduled
-# runs carry empty `inputs`, so every reference below falls back to the
-# production defaults (url + 17-minute wait).
-#
-# The script refuses to claim success while the site is still on sqlite:
-# it stops after /api/health with a red verdict instead of writing data
-# that could vanish.
-
+# Creating/deleting synthetic members is MANUAL and opt-in, never scheduled.
+# Use Keep-alive for routine read-only monitoring. A restart must actually
+# be observed; waiting 17 minutes alone cannot establish durability.
 on:
-  schedule:
-    - cron: '25 4 * * 0'   # Sunday 04:25 UTC = 09:55 IST
   workflow_dispatch:
     inputs:
       url:
-        description: 'Base URL to prove'
+        description: 'HTTPS site origin for the explicit write/read test'
+        type: string
         required: true
         default: 'https://panikajeevansathi.onrender.com'
       wait_minutes:
-        description: 'Idle minutes before read-back (17 = past Render free sleep)'
+        description: 'Idle minutes before read-back (restart is still required)'
+        type: number
         required: true
-        default: '17'
+        default: 17
+      allow_test_members:
+        description: 'I authorise temporary synthetic members, a photo and a message, followed by cleanup'
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
   group: live-proof
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   prove:
+    if: inputs.allow_test_members
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      PROOF_SITE_URL: ${{ inputs.url }}
+      PROOF_WAIT_MINUTES: ${{ inputs.wait_minutes }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
         with:
-          node-version: '22'
-
-      - name: Health pre-check (is production on Supabase?)
+          node-version-file: '.node-version'
+      - name: Explicit test writes, observed restart, read-back and cleanup
         run: |
-          set -e
-          curl -fsS --retry 8 --retry-delay 10 --retry-all-errors \
-            -m 120 "${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}/api/health" | tee /tmp/health.json
-          echo
-          storage=$(node -e "console.log(require('/tmp/health.json').storage||'')")
-          photos=$(node -e "console.log(require('/tmp/health.json').photos||'')")
-          echo "storage=$storage photos=$photos"
-          if [ "$storage" != "supabase" ]; then
-            echo "::error::Live site is still on '$storage' — set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY on Render and redeploy before proving durability."
-            exit 1
-          fi
-
-      - name: Write → (idle) → read proof
-        run: |
-          node scripts/verify-supabase-live.mjs \
-            --url "${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}" \
-            --wait-min "${{ inputs.wait_minutes || '17' }}" 2>&1 | tee live-proof.log
-
-      - name: Verdict summary
+          set -o pipefail
+          node scripts/verify-supabase-live.mjs --allow-test-members --url "$PROOF_SITE_URL" --wait-min "$PROOF_WAIT_MINUTES" 2>&1 | tee live-proof.log
+      - name: Save verdict
         if: always()
         run: |
-          echo "### Live proof verdict" >> "$GITHUB_STEP_SUMMARY"
-          if grep -q "VERDICT: 🟢" live-proof.log 2>/dev/null; then
-            echo "🟢 **DURABLE** — write → restart → read passed against ${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "🔴 **NOT PROVEN** — see the job log for the failing checks." >> "$GITHUB_STEP_SUMMARY"
-          fi
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          grep -E "✓|✗|VERDICT" live-proof.log >> "$GITHUB_STEP_SUMMARY" || true
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload proof log
+          echo '### Live durability proof' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'PASS|FAIL|VERDICT' live-proof.log >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Save test-only log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: live-proof-log
           path: live-proof.log
           if-no-files-found: ignore
+          retention-days: 7

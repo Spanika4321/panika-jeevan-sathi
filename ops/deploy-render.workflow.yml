@@ -1,176 +1,56 @@
-# PANIKA JEEVAN SATHI — deploy to Render (Free plan)
-#
-# This file is installed as .github/workflows/deploy-render.yml (kept in sync
-# with this template). Run it from the Actions tab with one click:
-#   Actions → "Deploy to Render" → Run workflow
-#
-# Every credential is pasted into the form below, masked in the log with
-# ::add-mask:: and NEVER stored in git or sent anywhere except the official
-# api.render.com / api.supabase.com endpoints.
-#
-# Why this workflow exists: GitHub runners can reach api.render.com and
-# onrender.com (a sandboxed dev machine cannot), so this is the path that
-# deploys + verifies production from an agent session. It also switches the
-# service to durable Supabase storage in the same run when the Supabase
-# values are supplied — without them the Render Free disk is ephemeral and
-# members/photos vanish at the next sleep or redeploy.
-#
-# Before the first Supabase deploy, run supabase/schema.sql once in the
-# Supabase SQL editor (creates the users table, profiles, messages, …).
-
 name: Deploy to Render
 
+# No credentials in workflow_dispatch inputs. Configure protected GitHub
+# secrets once. Select the intended Git ref in the Actions UI; that exact
+# checked-out, tested commit is deployed. Existing Render settings are preserved.
 on:
   workflow_dispatch:
-    inputs:
-      render_api_key:
-        description: 'Render API key (dashboard → Account Settings → API keys)'
-        required: true
-      branch:
-        description: 'Git branch to deploy'
-        required: false
-        default: main
-      supabase_url:
-        description: 'Supabase project URL (https://<ref>.supabase.co) — leave blank to keep current storage'
-        required: false
-      supabase_service_role_key:
-        description: 'Supabase service_role key (Supabase → Project Settings → API) — masked, never committed'
-        required: false
-      supabase_storage_bucket:
-        description: 'Supabase Storage bucket for photos'
-        required: false
-        default: uploads
-      cf_account_id:
-        description: 'Cloudflare account ID (D1 + R2)'
-        required: false
-      cf_d1_database_id:
-        description: 'Cloudflare D1 database ID'
-        required: false
-      cf_d1_api_token:
-        description: 'Cloudflare API token with D1:Edit'
-        required: false
-      r2_account_id:
-        description: 'Cloudflare account ID for R2'
-        required: false
-      r2_bucket:
-        description: 'R2 bucket name'
-        required: false
-      r2_access_key_id:
-        description: 'R2 access key ID'
-        required: false
-      r2_secret_access_key:
-        description: 'R2 secret access key'
-        required: false
-      admin_email:
-        description: 'Site-owner administrator email'
-        required: false
-        default: sukulpanika939@gmail.com
-      admin_password:
-        description: 'Administrator password (leave blank → Render generates one)'
-        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-production-release
+  cancel-in-progress: false
 
 jobs:
+  verify:
+    name: Test release before provider changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:all
+
   deploy:
-    name: Create/update service and deploy
+    name: Preserve configuration, deploy and verify
+    needs: verify
+    environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Mask secrets in the log
-        run: |
-          for value in "${{ inputs.render_api_key }}" "${{ inputs.supabase_service_role_key }}" "${{ inputs.cf_d1_api_token }}" "${{ inputs.r2_access_key_id }}" "${{ inputs.r2_secret_access_key }}" "${{ inputs.admin_password }}"; do
-            if [ -n "$value" ]; then echo "::add-mask::$value"; fi
-          done
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
         with:
           node-version-file: '.node-version'
-
-      - name: Syntax check
-        run: npm run check
-
-      - name: Verify Cloudflare credentials (when supplied)
-        if: inputs.cf_account_id != ''
+      - name: Release exact tested commit
         env:
-          CF_ACCOUNT_ID: ${{ inputs.cf_account_id }}
-          CF_D1_DATABASE_ID: ${{ inputs.cf_d1_database_id }}
-          CF_D1_API_TOKEN: ${{ inputs.cf_d1_api_token }}
-          R2_ACCOUNT_ID: ${{ inputs.r2_account_id }}
-          R2_BUCKET: ${{ inputs.r2_bucket }}
-          R2_ACCESS_KEY_ID: ${{ inputs.r2_access_key_id }}
-          R2_SECRET_ACCESS_KEY: ${{ inputs.r2_secret_access_key }}
-        run: node scripts/verify-cloud.mjs
-
-      - name: Deploy to Render
-        env:
-          RENDER_API_KEY: ${{ inputs.render_api_key }}
-        run: |
-          node scripts/deploy-render.mjs \
-            --branch "${{ inputs.branch }}" \
-            --admin-email "${{ inputs.admin_email }}" \
-            --supabase-url "${{ inputs.supabase_url }}" \
-            --supabase-key "${{ inputs.supabase_service_role_key }}" \
-            --supabase-bucket "${{ inputs.supabase_storage_bucket }}" \
-            --cf-account-id "${{ inputs.cf_account_id }}" \
-            --cf-d1-database-id "${{ inputs.cf_d1_database_id }}" \
-            --cf-d1-api-token "${{ inputs.cf_d1_api_token }}" \
-            --r2-account-id "${{ inputs.r2_account_id }}" \
-            --r2-bucket "${{ inputs.r2_bucket }}" \
-            --r2-access-key-id "${{ inputs.r2_access_key_id }}" \
-            --r2-secret-access-key "${{ inputs.r2_secret_access_key }}" \
-            --admin-password "${{ inputs.admin_password }}" \
-          | tee deploy.log
-
-      - name: Read the public URL
-        id: url
-        run: |
-          # NOTE: block scalar is intentional — 'PUBLIC URL : ' contains ": "
-          # which breaks a single-line YAML mapping value.
-          site="$(grep -o 'PUBLIC URL : .*' deploy.log | head -1 | sed 's/PUBLIC URL : //')"
-          echo "site=$site" >> "$GITHUB_OUTPUT"
-
-      - name: Verify the live website
-        env:
-          SITE_URL: ${{ steps.url.outputs.site }}
-        run: node scripts/verify-cloud.mjs --url "$SITE_URL"
-
-      - name: If it failed — likely causes (plain English)
-        if: failure()
-        run: |
-          echo "The deploy did not finish. Look at the FIRST red line above, then match it here:"
-          echo ""
-          echo "  HTTP 401  → The Render API key was rejected."
-          echo "              dashboard.render.com → Account Settings → API Keys → create a"
-          echo "              new key, paste it whole (the script already trims stray spaces)."
-          echo ""
-          echo "  HTTP 403  → Key is valid but lacks access. Use a key from the workspace"
-          echo "              that owns 'panikajeevansathi', with full access."
-          echo ""
-          echo "  Could not write the environment variables / Blueprint"
-          echo "            → The service is Blueprint-managed, so the API cannot edit env"
-          echo "              vars. Set them by hand: dashboard.render.com →"
-          echo "              panikajeevansathi → Environment → SUPABASE_URL,"
-          echo "              SUPABASE_SERVICE_ROLE_KEY, SUPABASE_STORAGE_BUCKET=uploads,"
-          echo "              PJS_STORAGE=supabase, PJS_REQUIRE_REMOTE=1 → Save →"
-          echo "              Manual Deploy → Deploy latest commit."
-          echo ""
-          echo "  deploy_failed / pre_deploy_failed"
-          echo "            → Build was fine, the app refused to boot. Almost always the"
-          echo "              missing Supabase schema: supabase.com → SQL Editor → paste"
-          echo "              supabase/schema.sql → Run, then re-run this workflow."
-          echo ""
-          echo "  storage: sqlite in the verify step"
-          echo "            → Supabase URL/key were left blank in the form. Re-run the"
-          echo "              workflow and fill both fields."
-          echo ""
-          echo "Full guide: DEPLOY.md"
-
-      - name: Durability reminder
-        if: always()
-        run: |
-          if grep -q 'Durable    : NO' deploy.log 2>/dev/null; then
-            echo "::warning::Site is live but NOT durable (sqlite/json). Run supabase/schema.sql in the Supabase SQL editor, then re-run this workflow with the Supabase URL + service_role key so members survive Render restarts."
-          fi
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          DEPLOY_COMMIT: ${{ github.sha }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: node scripts/deploy-render.mjs

@@ -29,11 +29,15 @@ services:
     runtime: node
     plan: free
     region: singapore # closest Render region to India
-    buildCommand: node -v # zero dependencies: nothing to install
+    buildCommand: npm ci --omit=dev --ignore-scripts
     startCommand: node server.js
     healthCheckPath: /api/health
     autoDeploy: true # redeploy automatically when main changes
     envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY_HOPS
+        value: '1' # Render edge appends the client address
       - key: NODE_VERSION
         value: 22.22.3 # built-in node:sqlite (and global fetch) required
       - key: HOST
@@ -49,7 +53,7 @@ services:
       - key: ADMIN_EMAIL
         value: sukulpanika939@gmail.com
       - key: ADMIN_PASSWORD
-        generateValue: true # printed once in the deploy log; change it after login
+        generateValue: true # view only in Render Environment; never logged
 
       # ---- Supabase (database + photos) — set these in the Render dashboard ----
       - key: SUPABASE_URL

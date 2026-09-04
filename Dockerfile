@@ -1,4 +1,4 @@
-# PANIKA JEEVAN SATHI — production image (zero npm dependencies)
+# PANIKA JEEVAN SATHI — production image
 FROM node:22-alpine
 
 ENV NODE_ENV=production \
@@ -8,8 +8,10 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
-# No dependencies to install — the app uses only Node's standard library.
-COPY package.json server.js ./
+# Install the locked mail dependency; no development tools or install scripts.
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
+COPY server.js ./
 COPY lib ./lib
 COPY public ./public
 COPY scripts ./scripts

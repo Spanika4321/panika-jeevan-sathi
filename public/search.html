@@ -199,9 +199,12 @@
     PJS.cards.render($('results'), accumulating, {
       emptyTitle: 'No profiles match these filters',
       emptyText: 'Try removing a filter or widening the age range. New members join every week.',
-      emptyAction: '<button class="btn ghost sm" onclick="document.getElementById(\'resetBtn\').click()">Reset filters</button>',
+      emptyAction: '<button class="btn ghost sm" id="emptyResetBtn">Reset filters</button>',
       onChanged: () => search(true)
     });
+
+    const emptyReset = $('emptyResetBtn');
+    if (emptyReset) emptyReset.onclick = () => $('resetBtn').click();
 
     const more = $('moreBtn');
     more.style.display = accumulating.length < res.total ? 'inline-flex' : 'none';

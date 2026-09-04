@@ -591,8 +591,8 @@
     const res = await PJS.get('/api/admin/outbox');
     if (!res.ok) return;
     $('emailInfo').innerHTML = res.smtp
-      ? '<div class="alert success"><b>SMTP is configured</b>Verification and password emails are delivered by email.</div>'
-      : '<div class="alert warn"><b>SMTP not configured</b>Outgoing emails are saved below and the verification / reset links are also shown on screen to the member. ' +
+      ? '<div class="alert success"><b>SMTP is configured</b>Verification and password emails use SMTP. Confirm delivery in the recipient inbox; failed messages are saved below.</div>'
+      : '<div class="alert warn"><b>SMTP not configured</b>Outgoing emails are saved privately below for administrator-assisted recovery. Verification and reset links are never exposed in public responses. ' +
         'Set SMTP_HOST, SMTP_USER, SMTP_PASS (and optionally SMTP_PORT, MAIL_FROM) environment variables and install nodemailer to send real email.</div>';
     $('emailList').innerHTML = res.emails.length
       ? res.emails.map((e) => `<details class="mb-2"><summary class="small">${esc(e.file)}</summary>

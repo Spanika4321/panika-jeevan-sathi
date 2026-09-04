@@ -141,7 +141,7 @@
       const r = await PJS.post('/api/auth/resend-verification', { email: res.user.email });
       alertBox(r.ok ? 'success' : 'error',
         r.ok
-          ? (r.email_delivered ? 'Verification email sent — check your inbox.' : 'Verification link: ' + r.verification_link)
+          ? (r.message || 'Check your inbox and spam folder. Contact support if no email arrives.')
           : (r.error || 'Could not send verification email.'));
     };
 
