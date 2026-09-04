@@ -5,9 +5,9 @@
  *
  * Runs against a live deployment over plain HTTPS (no mocks in this file):
  *
- *   node scripts/verify-supabase-live.mjs
- *   node scripts/verify-supabase-live.mjs --url https://panikajeevansathi.onrender.com
- *   node scripts/verify-supabase-live.mjs --wait-min 17        # sleep-wake cycle
+ *   node scripts/verify-supabase-live.mjs --allow-test-members
+ *   node scripts/verify-supabase-live.mjs --allow-test-members --url https://panikajeevansathi.onrender.com
+ *   node scripts/verify-supabase-live.mjs --allow-test-members --wait-min 17        # sleep-wake cycle
  *
  * What it proves, step by step:
  *
@@ -18,8 +18,8 @@
  *      uploads a photo, interest→accept, sends a message. All REAL HTTP.
  *   3. Optional --wait-min N: stays completely idle for N minutes so a Render
  *      Free service spins down, then wakes it. A new /api/health `boot_at`
- *      (or a >5s cold-start) proves the process actually restarted on a
- *      FRESH filesystem. Then it logs in again and reads everything back.
+ *      proves a different process was observed; latency alone is not proof
+ *      and a different process does not establish a filesystem wipe. Then it logs in again and reads everything back.
  *   4. Cleans up: deletes both test members (delete must also work remotely).
  *
  * Exit code 0 = every check passed. 1 = at least one failed.
@@ -28,7 +28,8 @@
  */
 
 /* ------------------------------------------------------------------ args */
-/* Zero imports: Node 22 globals (process, fetch, Buffer, AbortSignal). */
+import crypto from 'node:crypto';
+import { productionUrl } from './lib/production-check.mjs';
 
 const args = process.argv.slice(2);
 function argValue(name, fallback) {
@@ -38,8 +39,14 @@ function argValue(name, fallback) {
   return v === undefined || String(v).startsWith('--') ? fallback : v;
 }
 
-const BASE = String(argValue('--url', 'https://panikajeevansathi.onrender.com')).replace(/\/+$/, '');
-const WAIT_MIN = Number(argValue('--wait-min', '0') || '0');
+if (!args.includes('--allow-test-members')) {
+  console.error('Refusing production writes without --allow-test-members. Use verify-production.mjs for read-only checks.');
+  process.exit(2);
+}
+const BASE = productionUrl(argValue('--url', 'https://panikajeevansathi.onrender.com'));
+const WAIT_MIN = Number(argValue('--wait-min', '17'));
+if (!Number.isFinite(WAIT_MIN) || WAIT_MIN < 0 || WAIT_MIN > 25) throw new Error('wait-min must be from 0 to 25.');
+const cleanup = [];
 const TAG = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 const REQUEST_TIMEOUT_MS = 120_000;
 
@@ -71,7 +78,7 @@ function cookieHeader(jar) {
 
 async function request(method, path, { body, jar, timeoutMs = REQUEST_TIMEOUT_MS } = {}) {
   const headers = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) headers['Content-Type'] = 'application/json';
   if (jar && jar.size) headers['Cookie'] = cookieHeader(jar);
   const t0 = Date.now();
   const res = await fetch(BASE + path, {
@@ -104,9 +111,9 @@ function client() {
   };
 }
 
-async function fetchBytes(path) {
+async function fetchBytes(path, jar) {
   const t0 = Date.now();
-  const res = await fetch(BASE + path, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  const res = await fetch(BASE + path, { headers: jar ? { Cookie: cookieHeader(jar) } : {}, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   const buf = Buffer.from(await res.arrayBuffer());
   return { status: res.status, bytes: buf, ms: Date.now() - t0 };
 }
@@ -149,7 +156,7 @@ async function main() {
     health1 = await waitForHealth();
   } catch (err) {
     record('site reachable /api/health', false, err.message);
-    return finish();
+    return;
   }
   record(
     'health storage=supabase (not sqlite)',
@@ -166,20 +173,22 @@ async function main() {
     health1.durable === true && health1.data_loss_risk === false,
     `durable=${health1.durable} data_loss_risk=${health1.data_loss_risk}`
   );
-  if (health1.storage !== 'supabase' || String(health1.photos || '').indexOf('supabase') !== 0) {
+  if (health1.ok !== true || health1.durable !== true || health1.storage !== 'supabase' || String(health1.photos || '').indexOf('supabase') !== 0) {
     console.log(
       '\nSTOP: the live site is NOT on Supabase yet. Set SUPABASE_URL + ' +
         'SUPABASE_SERVICE_ROLE_KEY on the service (and PJS_STORAGE=supabase), ' +
         'run supabase/schema.sql once, redeploy, then run this script again. ' +
         'Any member written now could vanish on the next sleep — do not rely on it.'
     );
-    return finish();
+    return;
   }
 
+  const site = await request('GET', '/api/site');
+  if (!record('test registration can be safely cleaned up', site.status === 200 && site.json?.site?.require_email_verification === false, 'Mandatory verification requires separately provisioned test accounts; no setting is changed')) return;
   const bootAt1 = health1.boot_at || null;
 
   /* ---- 2. real writes ---------------------------------------------------- */
-  const PASS = 'Passw0rd123';
+  const PASS = 'Pjs' + crypto.randomBytes(24).toString('base64url') + 'Aa1';
   const raviEmail = `ravi.proof.${TAG}@example.com`;
   const meeraEmail = `meera.proof.${TAG}@example.com`;
   const messageBody = `live-proof-${TAG}`;
@@ -195,6 +204,10 @@ async function main() {
     gender: 'male'
   });
   const raviOk = record('register member A', res.status === 200, `http ${res.status}`);
+  if (raviOk) {
+    cleanup.push({ member: ravi, email: raviEmail, password: PASS, label: 'A' });
+    await ravi.put('/api/profile', { searchable: 0 });
+  }
   res = await meera.post('/api/auth/register', {
     name: 'Meera Liveproof',
     email: meeraEmail,
@@ -203,9 +216,13 @@ async function main() {
   });
   const meeraId = res.json && res.json.user ? res.json.user.id : null;
   record('register member B', res.status === 200 && Boolean(meeraId), `http ${res.status} id=${meeraId}`);
+  if (res.status === 200 && meeraId) {
+    cleanup.push({ member: meera, email: meeraEmail, password: PASS, label: 'B' });
+    await meera.put('/api/profile', { searchable: 0 });
+  }
   if (!raviOk || !meeraId) {
     console.log('\nSTOP: registration failed — later checks are meaningless.');
-    return finish();
+    return;
   }
 
   res = await ravi.post('/api/auth/login', { email: raviEmail, password: PASS });
@@ -230,7 +247,7 @@ async function main() {
     `http ${res.status} photo=${photoPath}`
   );
   if (photoPath) {
-    const p = await fetchBytes(photoPath);
+    const p = await fetchBytes(photoPath, ravi.jar);
     photoLen1 = p.bytes.length;
     record('photo served right after upload', p.status === 200 && photoLen1 > 20, `http ${p.status} bytes=${photoLen1}`);
   }
@@ -255,13 +272,11 @@ async function main() {
     await new Promise((r) => setTimeout(r, WAIT_MIN * 60_000));
     const woke = await waitForHealth(10, 15_000);
     const bootAt2 = woke.boot_at || null;
-    const restarted = bootAt1 && bootAt2 ? bootAt2 !== bootAt1 : woke.ms > 5000;
+    const restarted = Boolean(bootAt1 && bootAt2 && bootAt2 !== bootAt1);
     record(
-      `service restarted during idle wait (fresh process/disk)`,
+      'a new service process was observed during the idle wait',
       restarted,
-      `boot_at ${bootAt1} → ${bootAt2} wake-latency=${woke.ms}ms${bootAt2 ? '' : ' (boot_at missing — latency heuristic)'}`,
-      '',
-      { warnInsteadOfFail: true }
+      `boot_at ${bootAt1} → ${bootAt2}`
     );
     if (!restarted) {
       console.log(
@@ -271,6 +286,8 @@ async function main() {
       );
     }
   }
+
+  if (!WAIT_MIN) record('a restart was actually observed', false, 'No idle/restart window was requested; a warm read-back is not restart proof.');
 
   /* ---- 4. read everything back on a (possibly fresh) process ------------- */
   const ravi2 = client();
@@ -296,7 +313,7 @@ async function main() {
   record('message survived', found, `${msgs.length} messages, looking for "${messageBody}"`);
 
   if (photoPath) {
-    const p = await fetchBytes(photoPath);
+    const p = await fetchBytes(photoPath, ravi2.jar);
     record(
       'photo bytes survived (fetched from remote store)',
       p.status === 200 && p.bytes.length === photoLen1 && photoLen1 > 20,
@@ -311,18 +328,8 @@ async function main() {
     `storage=${health2.json && health2.json.storage} durable=${health2.json && health2.json.durable}`
   );
 
-  /* ---- 5. cleanup (delete must work remotely too) ------------------------ */
-  res = await ravi2.del('/api/me');
-  record('cleanup: delete member A', res.status === 200, `http ${res.status}`);
-  res = await meera.post('/api/auth/login', { email: meeraEmail, password: PASS });
-  if (res.status === 200) {
-    res = await meera.del('/api/me');
-    record('cleanup: delete member B', res.status === 200, `http ${res.status}`);
-  } else {
-    record('cleanup: delete member B (re-login)', false, `login http ${res.status}`);
-  }
+  // Cleanup runs in finally, including registration/read-back failures.
 
-  return finish();
 }
 
 function finish() {
@@ -335,15 +342,25 @@ function finish() {
   );
   console.log('─'.repeat(70));
   if (failures === 0 && rows.length > 0) {
-    console.log('  VERDICT: 🟢 durable storage proven against the live URL above.');
+    console.log('  VERDICT: 🟢 observed restart and read-back passed. This is not a backup restore or proof of a filesystem wipe.');
   } else {
-    console.log(`  VERDICT: 🔴 ${failures} check(s) failed — data-loss risk is NOT resolved.`);
+    console.log(`  VERDICT: 🔴 ${failures} check(s) failed — production durability is NOT PROVEN by this run.`);
   }
   console.log('');
   process.exitCode = failures === 0 && rows.length > 0 ? 0 : 1;
 }
 
-main().catch((err) => {
-  console.error('\nUNEXPECTED ERROR:', err && err.stack ? err.stack : err);
-  process.exitCode = 1;
+main().catch(() => {
+  record('live proof completed without a request error', false, 'A request failed; cleanup will still be attempted.');
+}).finally(async () => {
+  for (const { member, email, password, label } of cleanup) {
+    try {
+      await member.post('/api/auth/login', { email, password });
+      const result = await member.del('/api/me');
+      record(`cleanup: delete synthetic member ${label}`, result.status === 200, `http ${result.status}`);
+    } catch (_) {
+      record(`cleanup: delete synthetic member ${label}`, false, 'Cleanup failed; review temporary Liveproof members in the admin panel.');
+    }
+  }
+  finish();
 });

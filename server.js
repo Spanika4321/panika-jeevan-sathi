@@ -15,6 +15,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const dbLib = require('./lib/db');
+const httpSecurity = require('./lib/http-security');
 const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
@@ -26,6 +27,15 @@ const PUBLIC_DIR = path.join(ROOT, 'public');
 const DATA_DIR = process.env.PJS_DATA_DIR || path.join(ROOT, 'data');
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
+httpSecurity.proxyHops(); // Reject invalid trust configuration before accepting traffic.
+if (process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') {
+  let site;
+  try { site = new URL(process.env.SITE_URL); } catch (_) { /* handled below */ }
+  if (!site || site.protocol !== 'https:' || site.username || site.password)
+    throw new Error('Production requires a trusted HTTPS SITE_URL for account emails.');
+  if (String(process.env.SESSION_SECRET || '').length < 32)
+    throw new Error('Production requires a persistent SESSION_SECRET of at least 32 characters.');
+}
 
 /* ------------------------------------------------------------------ storage */
 
@@ -102,12 +112,12 @@ async function ensureAdmin() {
 
   for (const email of ownerLib.ownerEmails()) {
     const existing = await driver.one('users', { email });
-    if (!existing) continue;
-    if (existing.role === 'admin' && existing.status === 'active' && Number(existing.email_verified) === 1) continue;
+    if (!existing || existing.status !== 'active' || Number(existing.email_verified) !== 1) continue;
+    if (existing.role === 'admin') continue;
     await driver.update(
       'users',
       { id: existing.id },
-      { role: 'admin', status: 'active', email_verified: 1, verification_token: null }
+      { role: 'admin', token_version: Number(existing.token_version || 1) + 1, reset_token: null, reset_expires: 0 }
     );
     console.log('');
     console.log(`  Promoted existing member to administrator: ${email}`);
@@ -116,6 +126,8 @@ async function ensureAdmin() {
   }
 
   if (await driver.one('users', { email: primary })) return;
+  if ((process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') && (!provided || authLib.passwordProblem(provided)))
+    throw new Error('Configure a strong ADMIN_PASSWORD for the first production boot.');
 
   const user = await driver.insert('users', {
     email: primary,
@@ -145,7 +157,7 @@ async function ensureAdmin() {
   console.log('');
   console.log('  Administrator account created');
   console.log(`  Email    : ${primary}`);
-  console.log(`  Password : ${password}`);
+  console.log(provided ? '  Password : configured by ADMIN_PASSWORD (not logged)' : `  Password : ${password}`);
   console.log('  Panel    : /admin.html');
   console.log('  This is the site-owner account — not a normal member.');
   console.log('');
@@ -218,7 +230,7 @@ async function main() {
   server.listen(PORT, HOST, () => {
     console.log('');
     console.log('  PANIKA JEEVAN SATHI is running');
-    console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
+    console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${server.address().port}`);
     console.log(`  Storage : ${driver.kind}${remote ? ' (remote write-through)' : ` (${DATA_DIR})`}`);
     console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (remote write-through)' : ' (local disk only)'}`);
     console.log('  Free forever — no payments, no locked profiles.');
@@ -250,17 +262,18 @@ const MIME = {
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'SAMEORIGIN',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Referrer-Policy': 'no-referrer',
+  'Content-Security-Policy': httpSecurity.contentSecurityPolicy(PUBLIC_DIR),
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
 };
 
-function sendFile(res, filePath, { cache = false } = {}) {
+function sendFile(res, filePath, { cache = false, privatePhoto = false } = {}) {
   fs.stat(filePath, (err, stat) => {
     if (err || !stat.isFile()) {
       const notFound = path.join(PUBLIC_DIR, '404.html');
       if (fs.existsSync(notFound)) {
         res.writeHead(404, Object.assign({ 'Content-Type': MIME['.html'] }, SECURITY_HEADERS));
-        fs.createReadStream(notFound).pipe(res);
+        streamFile(res, notFound);
       } else {
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('404 Not Found');
@@ -274,13 +287,23 @@ function sendFile(res, filePath, { cache = false } = {}) {
         {
           'Content-Type': MIME[ext] || 'application/octet-stream',
           'Content-Length': stat.size,
-          'Cache-Control': cache ? 'public, max-age=86400' : 'no-cache'
+          'Cache-Control': privatePhoto ? 'private, no-store' : cache ? 'public, max-age=86400' : 'no-cache'
         },
         SECURITY_HEADERS
       )
     );
-    fs.createReadStream(filePath).pipe(res);
+    streamFile(res, filePath);
   });
+}
+
+function streamFile(res, filePath) {
+  if (res.req.method === 'HEAD') return res.end();
+  const stream = fs.createReadStream(filePath);
+  // A photo can be deleted/replaced between stat and open. Never let that
+  // asynchronous filesystem error become an uncaught exception.
+  stream.on('error', () => res.destroy());
+  res.on('close', () => stream.destroy());
+  stream.pipe(res);
 }
 
 function resolveStatic(pathname) {
@@ -315,8 +338,7 @@ function analyticsWarn(message) {
 }
 
 function clientAddress(req) {
-  const fwd = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  return fwd || (req.socket && req.socket.remoteAddress) || '0.0.0.0';
+  return httpSecurity.clientIp(req);
 }
 
 /** Same IP + same day = same visitor id; alag din par alag id (privacy). */
@@ -465,17 +487,45 @@ function publicOrigin(req) {
   // the app is also reachable through an internal host.
   const pinned = process.env.SITE_URL;
   if (pinned && /^https?:\/\//i.test(pinned)) return pinned.replace(/\/+$/, '');
-  const host = req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`;
-  const proto = req.headers['x-forwarded-proto'] || 'http';
-  return `${String(proto).split(',')[0].trim()}://${String(host).split(',')[0].trim()}`;
+  return httpSecurity.requestOrigin(req);
 }
 
 /* ------------------------------------------------------------------- server */
 
-const server = http.createServer(async (req, res) => {
+const PAGE_ALIASES = new Map([
+  ['/register', ['/login.html', 'register']],
+  ['/register.html', ['/login.html', 'register']],
+  ['/signup', ['/login.html', 'register']],
+  ['/signup.html', ['/login.html', 'register']],
+  ['/forgot-password', ['/login.html', 'forgot']],
+  ['/forgot-password.html', ['/login.html', 'forgot']],
+  ['/reset-password', ['/reset-password.html']],
+  ['/verify-email', ['/verify-email.html']],
+  ['/login', ['/login.html']],
+  ['/chat', ['/messages.html']],
+  ['/chat.html', ['/messages.html']]
+]);
+
+const server = http.createServer((req, res) => {
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
+  if (httpSecurity.isSecure(req)) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
+  handleRequest(req, res).catch((err) => {
+    console.error('[http]', req.method, String(req.url).split('?')[0], err.message);
+    if (res.headersSent) {
+      if (!res.writableEnded) res.destroy();
+      return;
+    }
+    res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end('Something went wrong. Please try again.');
+  });
+});
+
+async function handleRequest(req, res) {
   let url;
   try {
     url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const decodedPath = decodeURIComponent(url.pathname);
+    if (/[\x00-\x1f\x7f]/.test(decodedPath)) throw new Error('Invalid path');
   } catch (_) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Bad request');
@@ -489,8 +539,15 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname.startsWith('/api/')) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     await api.handle(req, res, url);
     await persist();
+    return;
+  }
+
+  if (!['GET', 'HEAD'].includes(req.method)) {
+    res.writeHead(405, { Allow: 'GET, HEAD, OPTIONS', 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Method not allowed');
     return;
   }
 
@@ -498,6 +555,12 @@ const server = http.createServer(async (req, res) => {
     // Member photos are non-HTML, so they cannot carry a robots meta tag.
     // Google's documented alternative for files is the X-Robots-Tag header.
     res.setHeader('X-Robots-Tag', 'noindex, noimageindex, nofollow');
+    res.setHeader('Cache-Control', 'private, no-store');
+    if (!await api.canViewPhoto(req, url.pathname)) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not found');
+      return;
+    }
     const name = path.basename(url.pathname);
     // On hosts without a disk the photo is fetched from R2 and cached.
     const file = await photos.ensure(name);
@@ -506,7 +569,7 @@ const server = http.createServer(async (req, res) => {
       res.end('Not found');
       return;
     }
-    sendFile(res, file, { cache: true });
+    sendFile(res, file, { privatePhoto: true });
     return;
   }
 
@@ -574,6 +637,15 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  const alias = PAGE_ALIASES.get(url.pathname);
+  if (alias) {
+    const [destination, tab] = alias;
+    if (tab) url.searchParams.set('tab', tab);
+    res.writeHead(301, { Location: destination + url.search });
+    res.end();
+    return;
+  }
+
   const target = resolveStatic(url.pathname);
   if (!target) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });
@@ -588,7 +660,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   sendFile(res, target, { cache: url.pathname.startsWith('/assets/') });
-});
+}
 
 main().catch((err) => {
   console.error('\n  Fatal error during start-up:');

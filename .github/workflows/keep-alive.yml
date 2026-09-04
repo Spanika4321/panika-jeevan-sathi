@@ -1,35 +1,17 @@
 name: Keep-alive (Supabase + storage watchdog)
 
-# WHY THIS EXISTS
-#   Supabase free projects are PAUSED automatically after ~7 days without a
-#   database query. A paused project means the site cannot boot (and the next
-#   deploy fails) until someone resumes it in the dashboard.
-#
-# WHEN IT RUNS
-#   1. Mon + Thu 07:40 IST (02:10 UTC, max gap ≈ 3.5 days):
-#      GET /api/site — a REAL database read through the live site, so the
-#      Supabase project always counts activity and never pauses again.
-#   2. After every push/merge to main: waits ~5 minutes for the Render
-#      auto-deploy, then verifies the NEW deployment (post-deploy check).
-#   3. Manually: Actions → "Keep-alive (Supabase + storage watchdog)" → Run
-#      workflow. (Note: some bot/integration tokens cannot dispatch — the
-#      scheduled + push triggers do not need that permission.)
-#
-# WHAT THE WATCHDOG DOES
-#   GET /api/health — if the site is unreachable, or has fallen back to
-#   ephemeral sqlite storage (data-loss risk!), a REAL alert email is sent
-#   via Resend (same RESEND_API_KEY secret + .report-recipient as the
-#   employee reports) and the run is marked red in the Actions tab.
-
+# Read-only production checks every six hours, plus post-merge checks.
+# Scheduled workflows become active only after this file reaches the default branch.
 on:
   schedule:
-    - cron: '10 2 * * 1,4'   # Mon + Thu 02:10 UTC = 07:40 IST
+    - cron: '17 */6 * * *'
   push:
     branches: [main]
   workflow_dispatch:
     inputs:
       url:
-        description: 'Base URL to keep alive'
+        description: 'HTTPS site origin to check (GET requests only)'
+        type: string
         required: true
         default: 'https://panikajeevansathi.onrender.com'
 
@@ -37,83 +19,48 @@ permissions:
   contents: read
 
 concurrency:
-  group: keep-alive
+  group: production-safety-watchdog
   cancel-in-progress: false
 
 jobs:
   keep-alive:
-    name: Touch DB + verify storage
+    name: Database, photo privacy, mail configuration and public security
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
+    env:
+      SITE_URL: ${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}
     steps:
-      - name: Checkout (alert script + recipient file)
-        uses: actions/checkout@v4
-
-      - name: Wait for the Render auto-deploy (push/merge runs only)
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+      - name: Allow Render auto-deploy to finish
         if: github.event_name == 'push'
-        run: |
-          echo "Merge to main detected at ${{ github.event.head_commit.timestamp }} — giving Render ~5 minutes to deploy before probing…"
-          sleep 300
-
-      - name: 1) Touch /api/site (real DB query → Supabase activity)
-        id: touch
+        run: sleep 300
+      - name: Read-only production safety checks
+        id: verify
         continue-on-error: true
-        run: |
-          set -e
-          URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
-          echo "GET $URL/api/site — a Render Free cold start can take ~1 min…"
-          curl -fsS --retry 8 --retry-delay 10 --retry-all-errors -m 180 \
-            "$URL/api/site" -o /tmp/site.json
-          echo "✓ HTTP 200 — database touched, Supabase activity recorded."
-          echo "--- body (first 300 chars) ---"
-          head -c 300 /tmp/site.json; echo
-
-      - name: 2) Watchdog — production must stay on Supabase
-        id: watchdog
-        run: |
-          URL="${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}"
-          if [ "${{ steps.touch.outcome }}" = "failure" ]; then
-            echo "STATUS=down"    >> "$GITHUB_OUTPUT"
-            echo "DETAIL=/api/site unreachable (see step 1 log)" >> "$GITHUB_OUTPUT"
-            echo "storage: UNREACHABLE" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          set +e
-          curl -fsS --retry 3 --retry-delay 10 --retry-all-errors -m 120 \
-            "$URL/api/health" -o /tmp/health.json
-          CURL_RC=$?
-          set -e
-          if [ "$CURL_RC" -ne 0 ]; then
-            echo "STATUS=down"    >> "$GITHUB_OUTPUT"
-            echo "DETAIL=/api/health unreachable (curl rc=$CURL_RC)" >> "$GITHUB_OUTPUT"
-            echo "storage: UNREACHABLE" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          STORAGE=$(node -e "console.log(require('/tmp/health.json').storage||'')")
-          DURABLE=$(node -e "console.log(require('/tmp/health.json').durable)")
-          echo "storage=$STORAGE durable=$DURABLE"
-          echo "storage: $STORAGE, durable: $DURABLE" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$STORAGE" != "supabase" ]; then
-            echo "STATUS=sqlite"  >> "$GITHUB_OUTPUT"
-            echo "DETAIL=storage=$STORAGE durable=$DURABLE — env vars missing on Render?" >> "$GITHUB_OUTPUT"
-          else
-            echo "STATUS=ok"      >> "$GITHUB_OUTPUT"
-            echo "DETAIL=storage=supabase durable=$DURABLE" >> "$GITHUB_OUTPUT"
-            echo "✓ Site is healthy and on durable Supabase storage."
-          fi
-
-      - name: 3) REAL alert email if something is wrong
-        if: steps.watchdog.outputs.STATUS != 'ok' && steps.watchdog.outputs.STATUS != ''
+        run: node scripts/verify-production.mjs --url "$SITE_URL" --output reports/production-safety-latest.md
+      - name: Attempt an owner alert if verification failed
+        if: steps.verify.outcome == 'failure'
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
-          node scripts/keepalive-alert.mjs \
-            --url "${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}" \
-            --status "${{ steps.watchdog.outputs.STATUS }}" \
-            --detail "${{ steps.watchdog.outputs.DETAIL }}"
-
-      - name: 4) Fail loudly so the Actions tab shows red
-        if: steps.watchdog.outputs.STATUS != 'ok' && steps.watchdog.outputs.STATUS != ''
+          if [ -z "$RESEND_API_KEY" ]; then
+            echo "::warning::Alert email was NOT sent: RESEND_API_KEY is not configured."
+          else
+            node scripts/keepalive-alert.mjs --url "$SITE_URL" --status safety-check-failed --detail "Production safety checks failed. See this workflow's summary for the exact failed checks."
+          fi
+      - name: Preserve safe report (no credentials or member data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-safety-report
+          path: reports/production-safety-latest.md
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Failed checks must never be green
+        if: always() && steps.verify.outcome != 'success'
         run: |
-          echo "::error::Keep-alive watchdog: ${{ steps.watchdog.outputs.STATUS }} — ${{ steps.watchdog.outputs.DETAIL }}. Fix steps are in the alert email / DEPLOY.md."
+          echo "::error::Production safety is NOT fully verified. Review the report; an alert email is not guaranteed."
           exit 1

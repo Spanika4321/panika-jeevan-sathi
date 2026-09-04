@@ -28,6 +28,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { testEnvironment } from './lib/test-app.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -76,7 +77,7 @@ function startServer() {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ['server.js'], {
       cwd: ROOT,
-      env: { ...process.env, PORT: String(PORT), PJS_DATA_DIR: DATA_DIR, HOST: '127.0.0.1' },
+      env: { ...testEnvironment(), PORT: String(PORT), PJS_DATA_DIR: DATA_DIR, HOST: '127.0.0.1' },
       stdio: ['ignore', 'pipe', 'pipe']
     });
     let ready = false;
@@ -308,7 +309,7 @@ const report = `# PANIKA JEEVAN SATHI — Automated Health Report
 - Checks failed: **${failed}**
 
 ${failed === 0
-  ? 'Everything is working: all pages load, error handling is correct, robots.txt & sitemap.xml are healthy, SEO tags are in place, private pages are hidden from search engines, security headers are on, the API is responding, and the approved public design is unchanged.'
+  ? 'All checks in this local health suite passed: pages and assets load, error handling and SEO directives match expectations, security headers are present, the API responds, and the UI matches its reviewed baseline. This report does not verify production deployment or real email delivery.'
   : `## Problems found\n\n${failures.map((f) => `- ${f}`).join('\n')}\n\nPlease review the failures above. No automatic risky fixes were made.`}
 
 ## What was checked

@@ -1,41 +1,45 @@
 # PANIKA JEEVAN SATHI — Website Guardian
-
 name: Website Guardian
 
 on:
   schedule:
-    - cron: '30 3 * * *'   # daily, 09:00 IST
+    - cron: '30 3 * * *' # daily, 09:00 IST
   push:
     branches: ['**']
   pull_request:
-  workflow_dispatch:        # allows manual "Run workflow" button
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   guardian:
-    name: Health check & tests
+    name: Health, security and storage checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: '.node-version'
-
-      - name: 1) Syntax check
-        run: npm run check
-
-      - name: 2) End-to-end tests (SQLite store)
-        run: node scripts/e2e-test.mjs
-
-      - name: 3) End-to-end tests (JSON fallback store)
-        run: PJS_STORAGE=json node scripts/e2e-test.mjs
-
-      - name: 4) Guardian health check + design lock
-        run: node scripts/health-check.mjs
-
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Dependency security audit
+        run: npm audit --audit-level=high
+      - name: Syntax, security regressions and SQLite member journey
+        run: npm test
+      - name: JSON fallback and security regressions
+        run: npm run test:json-store
+      - name: Cloudflare D1 and R2 (local mocks only)
+        run: npm run test:cloud
+      - name: Supabase disk-wipe recovery (local mock only)
+        run: npm run test:supabase-wipe
+      - name: AWS SigV4 signatures
+        run: npm run test:sigv4
+      - name: Guardian health check and design baseline
+        run: npm run health
       - name: Upload health report
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,3 +47,22 @@ jobs:
           name: health-report
           path: reports/health-report-latest.md
           if-no-files-found: ignore
+
+  browser:
+    name: Desktop and mobile browser checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Forms, mobile layout and chat regressions
+        run: npm run test:browser

@@ -139,7 +139,10 @@
     } catch (_) {
       json = null;
     }
-    if (!json) json = { ok: res.ok, error: res.ok ? '' : `Request failed (${res.status})` };
+    if (!json || typeof json !== 'object' || Array.isArray(json)) {
+      json = { ok: false, error: res.ok ? 'Unexpected server response. Please try again.' : `Request failed (${res.status})` };
+    }
+    if (!res.ok) json.ok = false;
     json.status = res.status;
     return json;
   };
@@ -173,7 +176,10 @@
 
   /* ---------------------------------------------------------------- modal */
 
+  let modalCloseHandler = null;
+
   PJS.openModal = function (html, onMount) {
+    PJS.closeModal();
     let back = document.querySelector('.modal-back');
     if (!back) {
       back = document.createElement('div');
@@ -191,13 +197,20 @@
   };
 
   PJS.closeModal = function () {
+    const onClose = modalCloseHandler;
+    modalCloseHandler = null;
     const back = document.querySelector('.modal-back');
     if (back) {
       back.classList.remove('open');
       back.innerHTML = '';
     }
     document.body.style.overflow = '';
+    if (onClose) onClose();
   };
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && document.querySelector('.modal-back.open')) PJS.closeModal();
+  });
 
   PJS.confirm = function (title, message, confirmLabel, danger) {
     return new Promise((resolve) => {
@@ -209,11 +222,13 @@
            <button class="btn ${danger ? 'danger' : ''}" data-x="ok">${PJS.esc(confirmLabel || 'Confirm')}</button>
          </div>`,
         (modal) => {
+          modalCloseHandler = () => resolve(false);
           modal.querySelector('[data-x="cancel"]').onclick = () => {
             PJS.closeModal();
             resolve(false);
           };
           modal.querySelector('[data-x="ok"]').onclick = () => {
+            modalCloseHandler = null;
             PJS.closeModal();
             resolve(true);
           };

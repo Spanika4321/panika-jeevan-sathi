@@ -203,8 +203,9 @@
 
   function nextUrl() {
     const next = PJS.qs('next');
-    if (next && next.charAt(0) === '/' && next.charAt(1) !== '/' && next.indexOf('\\') === -1 && next.indexOf('://') === -1) {
-      return next;
+    if (next && next.startsWith('/') && !/[\s\\]/.test(next)) {
+      const target = new URL(next, window.location.origin);
+      if (target.origin === window.location.origin) return target.pathname + target.search + target.hash;
     }
     return '/dashboard.html';
   }
@@ -246,8 +247,7 @@
         'Please verify your email first',
         (res.email_delivered
           ? 'A verification link has been sent to your email inbox.'
-          : 'Email delivery is not configured on this server yet. Use this secure link to verify: <br><a href="' +
-            PJS.esc(res.verification_link) + '">' + PJS.esc(res.verification_link) + '</a>') +
+          : 'We could not deliver the verification email. Please contact support for help; verification links are never shown publicly.') +
           '<div class="mt-2"><button class="btn ghost sm" id="resendBtn" type="button">Resend verification link</button></div>'
       );
       const rb = document.getElementById('resendBtn');
@@ -262,9 +262,7 @@
             alertBox(
               'info',
               'Verification link sent',
-              r.email_delivered
-                ? 'Check your email inbox (and spam folder).'
-                : 'Open this link to verify: <br><a href="' + PJS.esc(r.verification_link) + '">' + PJS.esc(r.verification_link) + '</a>'
+              PJS.esc(r.message || 'Check your email inbox (and spam folder).')
             );
           } else {
             alertBox('error', 'Could not resend', PJS.esc(r.error));
@@ -297,20 +295,15 @@
       alertBox('error', 'Could not create account', PJS.esc(res.error || 'Please check the form.'));
       return;
     }
-    PJS.me = res.user;
+    PJS.me = res.verification_required ? null : res.user;
     if (res.verification_required) {
       alertBox(
         'success',
         'Account created — verify your email',
         res.email_delivered
           ? 'We have emailed you a verification link. Open it to activate your profile.'
-          : 'Open this link to verify your email: <br><a href="' +
-            PJS.esc(res.verification_link) + '">' + PJS.esc(res.verification_link) + '</a>'
+          : 'Your account is saved, but we could not deliver the email. Please contact support to verify your email before logging in.'
       );
-      setTimeout(function () {
-        window.location.href = '/verify-email.html?token=' +
-          encodeURIComponent(new URL(res.verification_link).searchParams.get('token'));
-      }, 1200);
       return;
     }
     alertBox('success', res.message || 'Welcome!');
@@ -335,10 +328,7 @@
     alertBox(
       'success',
       res.message,
-      res.reset_link
-        ? 'Open this link to set a new password (valid 1 hour): <br><a href="' +
-          PJS.esc(res.reset_link) + '">' + PJS.esc(res.reset_link) + '</a>'
-        : 'If the email is registered, the link is on its way. Check your inbox and spam folder.'
+      'Check your inbox and spam folder. If no email arrives, contact our support team.'
     );
   });
 

@@ -5,7 +5,7 @@
  * Runs the whole site against local stand-ins for Cloudflare D1 (database) and
  * R2 (photos), i.e. exactly the configuration Render's Free plan will use:
  *
- *   1. the full 134-assertion member journey (scripts/e2e-test.mjs),
+ *   1. the full member journey (scripts/e2e-test.mjs),
  *   2. a "cold start" simulation: the instance's disk is wiped between runs
  *      (what Render does every time a free service sleeps) and every member,
  *      profile, message and photo must come back from D1 / R2,
@@ -21,6 +21,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { testEnvironment } from './lib/test-app.mjs';
 import { createD1Mock, createR2Mock } from './lib/mock-cloud.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -52,7 +53,7 @@ async function startServer(env) {
   const port = 4000 + Math.floor(Math.random() * 900);
   const child = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
-    env: { ...process.env, ...env, PORT: String(port), NODE_NO_WARNINGS: '1' },
+    env: { ...testEnvironment(), ...env, PORT: String(port), NODE_NO_WARNINGS: '1' },
     stdio: ['ignore', 'pipe', 'pipe']
   });
   const log = [];
@@ -146,7 +147,7 @@ try {
   const suite = await new Promise((resolve) => {
     const child = spawn(process.execPath, ['scripts/e2e-test.mjs'], {
       cwd: ROOT,
-      env: { ...process.env, ...cloudEnv, NODE_NO_WARNINGS: '1' },
+      env: { ...testEnvironment(), ...cloudEnv, PJS_TEST_MOCK_CLOUD: '1' },
       stdio: ['ignore', 'pipe', 'pipe']
     });
     let out = '';
@@ -263,7 +264,7 @@ try {
     JSON.stringify(res.body && res.body.profile && res.body.profile.city)
   );
 
-  const photoRes = await fetch(serverB.base + photoUrl);
+  const photoRes = await fetch(serverB.base + photoUrl, { headers: { Cookie: [...api.jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ') } });
   const photoBytes = Buffer.from(await photoRes.arrayBuffer());
   check(
     'photo is re-fetched from R2 after the disk was wiped',

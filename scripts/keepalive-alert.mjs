@@ -42,49 +42,25 @@ if (!apiKey) {
   process.exit(2);
 }
 
-const isDown = status === 'down';
-const subject = isDown
-  ? `🔴 PANIKA JEEVAN SATHI — site DOWN (keep-alive ${when})`
-  : `🔴 PANIKA JEEVAN SATHI — wapas sqlite storage par (keep-alive ${when})`;
+const subject = `PANIKA JEEVAN SATHI — production safety check failed (${when})`;
+const text = `The production safety monitor could not verify all checks.
 
-const text = isDown
-  ? `Keep-alive watchdog ne ${when} par site ko unreachable paya.
+Site: ${url}
+Status: ${status}
+Detail: ${detail}
 
-  URL:      ${url}
-  DETAIL:   ${detail}
+Open the Keep-alive workflow summary for the exact failed checks. They can
+include availability, database/photo durability, privacy headers, missing
+security releases or SMTP configuration. A failed check is not automatically
+proof that data was lost. Do not delete data or switch storage to SQLite.
 
-  Matlab: ${url}/api/health respond nahi kar raha.
-
-  Kya karein:
-  1. https://dashboard.render.com → service "panikajeevansathi" → Logs/Events dekhein
-     (deploy fail hua hai ya service crash-loop mein hai?).
-  2. Supabase project paused to nahi? https://supabase.com/dashboard →
-     agar "Paused" dikhe to Resume karein.
-  3. Deploy hone ke baad /api/health par jaakar check karein:
-     "storage":"supabase", "durable":true dikhna chahiye.
-
-  — PANIKA JEEVAN SATHI keep-alive watchdog (GitHub Actions)`
-  : `Keep-alive watchdog ne ${when} par site ko SQLITE storage par paya —
-  matlab data-loss risk wapas aa gaya hai (Render free disk wipe).
-
-  URL:      ${url}
-  DETAIL:   ${detail}
-
-  Matlab: /api/health ne "storage":"${status === 'sqlite' ? 'sqlite' : '?'}" bataya
-  (expected: "supabase", "durable":true).
-
-  Kya karein (DEPLOY.md §B/§C):
-  1. https://dashboard.render.com → service "panikajeevansathi" → Environment:
-     SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_STORAGE_BUCKET=uploads
-     teeno set hon, phir Manual Deploy → Deploy latest commit.
-  2. Confirm: ${url}/api/health → "storage":"supabase", "durable":true,
-     "boot_at" field dikhna chahiye.
-  3. Phir Actions → "Live proof (production durability)" run karein (🟢 gate).
-
-  — PANIKA JEEVAN SATHI keep-alive watchdog (GitHub Actions)`;
+Review Render service events and Supabase status. Confirm durable=true,
+remote photos, and the required security release after any repair.
+This alert is not an inbox-delivery test for member account emails.
+`;
 
 const response = await fetch('https://api.resend.com/emails', {
-  method: 'POST',
+  method: 'POST', signal: AbortSignal.timeout(15000), redirect: 'error',
   headers: {
     Authorization: `Bearer ${apiKey}`,
     'Content-Type': 'application/json'
@@ -101,9 +77,8 @@ const body = await response.text();
 
 if (!response.ok) {
   console.error('ALERT EMAIL FAIL');
-  console.error(body);
+  console.error(`Provider returned HTTP ${response.status}; inspect Resend delivery logs.`);
   process.exit(1);
 }
 
-console.log('REAL ALERT EMAIL SENT');
-console.log(body);
+console.log('Alert accepted by the email provider; inbox delivery is not confirmed.');

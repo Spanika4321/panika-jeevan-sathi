@@ -199,7 +199,7 @@ export function createSupabaseMock(options = {}) {
               send(res, 404, { message: 'Bucket not found' });
               return;
             }
-            send(res, 200, { id: name, name });
+            send(res, 200, { id: name, name, public: false });
             return;
           }
           if (req.method === 'POST') {

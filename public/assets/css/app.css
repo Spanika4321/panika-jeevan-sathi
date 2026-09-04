@@ -494,3 +494,6 @@ table.data tr:hover td { background: var(--bg); }
 @media print {
   .site-header, .site-footer, .bottom-nav, .whatsapp-float { display: none !important; }
 }
+
+/* Keep long contact values inside their detail column on small screens. */
+.detail dd { min-width: 0; overflow-wrap: anywhere; }

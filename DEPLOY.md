@@ -7,7 +7,7 @@ This app is a **Node.js server**. Production member data must live **off the hos
 > database, so registration, login, search, interests and messaging cannot run there. Use one of the
 > options below.
 
-Requirements: **Node.js 22.5+** (uses the built-in `node:sqlite`). No `npm install` — zero dependencies.
+Requirements: **Node.js 22.5+** (uses the built-in `node:sqlite`). Run `npm ci --omit=dev --ignore-scripts` for the locked SMTP dependency.
 
 ---
 
@@ -49,7 +49,7 @@ recreate an empty site.
 2. New project → copy **Project URL** (`https://<ref>.supabase.co`).
 3. **Project Settings → API** → copy the **service_role** key (server only — never put it in the browser).
 4. **SQL Editor** → paste and run [`supabase/schema.sql`](supabase/schema.sql).
-5. Optional: **Storage** → the app creates the `uploads` bucket on first photo save.
+5. **Storage** → ensure `uploads` is **private** (`public=false`). The app can create a missing private bucket; it refuses to start against a public bucket. RLS in `supabase/schema.sql` must stay enabled.
 
 Cloudflare D1 + R2 remain a supported fallback if `SUPABASE_*` is unset and `CF_*` / `R2_*` are set.
 
@@ -68,93 +68,70 @@ The Blueprint `render.yaml` creates the service **`panikajeevansathi`**, so the 
    service **will not start** (`PJS_REQUIRE_REMOTE=1`).
 4. Click **Apply**. Deployment takes ~2 minutes.
 
-**Option 2 — fully automated (Render API key):** the workflow is already
-installed at `.github/workflows/deploy-render.yml` (template:
-`ops/deploy-render.workflow.yml`). Go to *Actions → “Deploy to Render” →
-Run workflow* and fill in the Render API key — plus the Supabase Project URL
-and `service_role` key from step A to switch the service to durable storage
-in the same run (run `supabase/schema.sql` once in the SQL editor first —
-that creates the `users` table and friends). Every value is masked in the
-log and never stored in git. Or run locally from a machine that can reach
-`api.render.com`:
+**Option 2 — guarded API deployment:** configure `RENDER_API_KEY` as a protected GitHub
+secret, then use *Actions → Deploy to Render*. Select the intended ref; the workflow runs
+the complete test suite and deploys the exact checked-out commit. Never put credentials in
+workflow form inputs, command arguments, chat, issue bodies or Git.
+
+For an existing service, storage/SMTP/owner/custom settings are read completely (including
+pagination) and preserved. A failed settings read or update aborts deployment. Changing a
+database or bucket is refused as an implicit migration. Optional `SUPABASE_*` and `SMTP_*`
+GitHub secrets can supply configuration; omitted values never delete existing settings.
+New service creation requires an explicit local `--create` and durable storage credentials.
+
+The deployment runner uses secrets already present in the process environment:
 
 ```bash
-RENDER_API_KEY=rnd_xxx node scripts/deploy-render.mjs \
-  --supabase-url https://<ref>.supabase.co --supabase-key *** \
-  --supabase-bucket uploads \
-  --cf-account-id ... --cf-d1-database-id ... --cf-d1-api-token ... \
-  --r2-account-id ... --r2-bucket ... \
-  --r2-access-key-id ... --r2-secret-access-key ...
+npm run test:all
+node scripts/deploy-render.mjs
 ```
 
-Re-deploys never wipe `SUPABASE_*` / `PJS_STORAGE` values set earlier, so a
-run without Supabase inputs cannot silently downgrade production to sqlite.
-
-### C. Check it
+### C. Read-only production safety check
 
 ```bash
-node scripts/verify-cloud.mjs --url https://panikajeevansathi.onrender.com
+npm run verify:production -- --url https://panikajeevansathi.onrender.com
 ```
 
-That checks D1/R2 (when configured) **and** the live site (pages, health endpoint,
-durable-storage verdict — Supabase **or** D1). Then log in at `/admin.html` —
-the administrator password
-was generated at first boot; it is printed once in the deploy log
-(Render → your service → **Logs**). Change it under **Admin → Account**.
+This uses GET requests only: health, a real database-backed `/api/site` read, remote database
+**and** photo status, error/pending-write flags, CSP/HSTS/privacy headers, private API denial,
+and server-file protection. It also checks that the security release is deployed and SMTP is
+configured. SMTP configuration does **not** establish inbox delivery. The check returns nonzero
+on failed or unknown requirements; a Render loading page is not healthy API JSON.
 
-### C2. Prove durability against production (the real write → restart → read)
+Use the `ADMIN_PASSWORD` stored in Render's protected Environment settings for first login.
+Configured passwords are not printed in release logs. Change it after signing in.
 
-`ok:true` in `/api/health` only means the process is up. Durability is proven by
-writing a member + photo + message, letting Render Free **spin down** (fresh,
-wiped filesystem on wake), and reading the same data back:
+### C2. Explicit production write/restart/read test
 
-**Easiest (GitHub Actions):** repo → **Actions → “Live proof (production
-durability)” → Run workflow** (leave `wait_minutes` at 17). GitHub's runners can
-reach onrender.com; the job registers two throwaway members, idles past the
-sleep window, wakes the service, proves the process actually restarted via the
-health `boot_at` timestamp changing, logs in again and reads the profile, the
-message and the photo bytes back, then deletes the test members. Every step is
-a REAL HTTPS call — no mocks. The run summary shows 🟢 only if all checks pass.
-
-**From your own machine:**
+The **Live proof** workflow is **manual and opt-in**, not scheduled. It creates two synthetic
+members, a photo and a message. It attempts cleanup even on errors and refuses to create
+unverifiable accounts when mandatory email verification would prevent cleanup. Enable its
+`allow_test_members` input only when authorised to perform this test.
 
 ```bash
-node scripts/verify-supabase-live.mjs --url https://panikajeevansathi.onrender.com --wait-min 17
+node scripts/verify-supabase-live.mjs --allow-test-members \
+  --url https://panikajeevansathi.onrender.com --wait-min 17
 ```
 
-The script **stops with a red verdict** while `/api/health` still reports
-`storage: "sqlite"` — in that state anything written can vanish on the next
-sleep, so it refuses to pretend. First check `/api/health`: it must show
-`"storage": "supabase"`, `"photos": "supabase+cache"`, `"durable": true`.
+A different `boot_at` is required for the restart check. Waiting 17 minutes or observing a slow
+request is not proof of a restart. A restart/read-back is still **not a provider backup restore
+or proof of a filesystem wipe**. If the run is forcibly cancelled or the provider stays down,
+review temporary Liveproof members and complete cleanup in the admin panel.
 
-> **Note on the free plan:** the first request after 15 minutes of inactivity
-> wakes the service and takes up to a minute (Render shows a loading page).
-> Everything else is identical to a paid plan. Upgrading to **Starter** later
-> removes the sleep and lets you add a disk — no code change needed.
+### C3. Ongoing monitoring (not an uptime guarantee)
 
-### C3. Keep-alive — so free-tier Supabase never pauses again
-
-Supabase free projects are **paused automatically after ~7 days without a
-database query** — and a paused project means the site cannot boot (and new
-deploys fail) until you resume it in the dashboard. Two scheduled GitHub
-workflows close that hole and keep watching production for you:
-
-| Workflow | Schedule (IST) | What it does |
+| Workflow | Schedule | Checks |
 | --- | --- | --- |
-| **Keep-alive (Supabase + storage watchdog)** | Mon + Thu 07:40 **and after every merge to main** | `GET /api/site` — a real DB read through the live site, so Supabase always counts activity (max gap ≈ 3.5 days, limit is ~7). Merge-triggered runs wait ~5 min for the Render auto-deploy first, so they double as a **post-deploy verification**. Then reads `/api/health`: if the site is unreachable **or back on `sqlite`** (data-loss risk), it sends a real alert email and the run turns red in the Actions tab. |
-| **Live proof (production durability)** | Sun 09:55 | The full §C2 write → sleep-wake → read proof, automatically. 🟢/🔴 verdict in the run summary + `live-proof-log` artifact. |
+| **Website Guardian** | Daily, plus code pushes/PRs | Syntax, security, dependencies, member journeys, local/mock storage, browser regressions |
+| **Keep-alive** | Every six hours; also after main merges | The §C read-only production check, with a private-data-free report |
+| **Live proof** | Manual opt-in only | §C2 synthetic write/restart/read test |
 
-Notes:
-
-- Both also have a **Run workflow** button (Actions tab) for manual runs —
-  scheduled runs use the production defaults, manual runs may override.
-- The alert email goes to the address in `.report-recipient` through the
-  `RESEND_API_KEY` GitHub secret (same one the employee reports use). If the
-  secret is missing, the run is still red in the Actions tab — just without
-  the email.
-- To stop either: Actions → workflow → **⋯ → Disable workflow**. If you later
-  upgrade Supabase or Render to a paid plan, the keep-alive becomes harmless
-  redundancy and can be disabled.
+Schedules become active only after the workflow reaches the repository's default branch.
+GitHub schedules can be delayed or disabled and provider outages/quotas remain possible.
+The keep-alive job attempts an owner alert through the `RESEND_API_KEY` secret and
+`.report-recipient`; missing credentials or provider rejection mean **no confirmed alert**,
+while the failed check still turns the job red. Resend acceptance is not an inbox receipt.
+No one-day continuous monitoring result is implied by installing these workflows.
 
 ### D. Durable data without Cloudflare (optional)
 
@@ -166,7 +143,7 @@ then set `PJS_STORAGE=sqlite`. No Cloudflare setup needed; backups = copy `/app/
 ## 1c. Restoring the previous URL on cPanel (`panikajeevansathi.coolstore.in`)
 
 The previous production site (a Next.js 16 + PostgreSQL app) was superseded by this
-zero-dependency build. The cPanel account `/home/panikaje` already has **persistent
+Node.js build. The cPanel account `/home/panikaje` already has **persistent
 storage**, so this app runs there with a durable SQLite database — no Cloudflare,
 no PostgreSQL, no extra costs.
 
@@ -258,8 +235,9 @@ Put nginx or Caddy in front for TLS and proxy `/` to `127.0.0.1:3000`.
 
 The site-owner account is **not** a normal member. On first start the server creates an
 administrator (default email `sukulpanika939@gmail.com` unless `ADMIN_EMAIL` is set). The password
-is **generated** unless you set `ADMIN_PASSWORD`. It is printed once in the process logs and written
-to `data/admin-credentials.txt` (not committed to git).
+comes from `ADMIN_PASSWORD` in production (Render can generate this environment value).
+Local development can generate one and print it once. A private copy is written to
+`data/admin-credentials.txt` (not committed); configured passwords are never printed.
 
 ```
   Email    : <ADMIN_EMAIL or sukulpanika939@gmail.com>
@@ -276,6 +254,8 @@ ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='YourStrongPass1' node server.js
 ```
 
 You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
+A newly registered owner must verify that mailbox before being promoted; an unverified or
+suspended account is never automatically activated by owner promotion.
 
 ## Environment variables
 
@@ -285,9 +265,10 @@ You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 | `HOST` | `0.0.0.0` | keep as-is on containers/PaaS |
 | `PJS_DATA_DIR` | `./data` | **must be on persistent storage** |
 | `SITE_URL` | request origin | canonical URL used in robots.txt + sitemap.xml (pin it in production) |
-| `SESSION_SECRET` | generated in `data/` | set a fixed value so sessions survive restarts/multi-instance |
+| `SESSION_SECRET` | local development: generated in `data/` | Production requires a persistent value of at least 32 characters |
+| `TRUST_PROXY_HOPS` | `1` on Render, `0` otherwise | Configure the exact trusted reverse-proxy count; protect direct backend access |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | first administrator only |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | real email; needs `npm i nodemailer` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | SMTP credentials; Nodemailer is installed by `npm ci` |
 | `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else SQLite; `supabase` / `d1` / `sqlite` / `json` force one |
 | `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (set on Render) |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production database + photos (required on Render Free) |
@@ -297,15 +278,28 @@ You can list extra owner emails with `OWNER_EMAILS=one@x.com,two@x.com`.
 | `R2_PREFIX` | `uploads` | folder inside the bucket |
 | `R2_ENDPOINT` | derived from the account id | override for other S3-compatible hosts |
 
-Without SMTP the verification / reset links are shown on screen to the member and copied to
-`data/outbox/` (visible in the admin panel → **Emails**), so nothing is ever lost.
+Verification/reset links are never shown publicly or returned by the API. Configure SMTP and
+run the locked `npm ci` install for automatic delivery. Without SMTP (or after a delivery
+failure), mail is kept in the private `data/outbox/` (admin panel → **Emails**) for local testing or
+trusted support-assisted recovery; it has **not** been delivered. Enable mandatory verification only
+after testing email delivery. Pin `SITE_URL` to the trusted production origin so forwarded Host
+headers cannot change the destination of recovery links. For SMTPS on port 465 set `SMTP_SECURE=true`.
 
-## Backups
+## Backups and recovery
 
-Everything lives in `PJS_DATA_DIR`: the SQLite database, uploaded photos (`uploads/`) and the mail
-outbox. Back up by copying that folder; restore by copying it back and restarting.
-With Cloudflare D1/R2 the data is already off-box; R2 is the photo store, D1 can be exported from
-the Cloudflare dashboard.
+Remote durability is **not a backup**. With Supabase, member records and photos do **not** live
+in `PJS_DATA_DIR`; that folder only contains cache/local support files. Back up Postgres with
+provider backup/export tooling **and** export Storage objects separately. Keep encrypted,
+access-controlled off-provider copies and test restoration into a separate non-production
+project. Confirm RLS, private buckets, membership counts and photo availability before any
+cutover. Do not send database dumps, member messages, password hashes or reset tokens by email
+or commit them to Git. Production backup scheduling/restore requires provider access and is
+not established by local tests.
+
+For SQLite, use the database backup API or stop the app before copying the entire data folder
+(including WAL files if present). For D1/R2, export the database and objects separately. A corrupt
+local database now stops startup instead of silently replacing the site with an empty store.
+Preserve damaged files, restore a verified backup, then restart; never delete the only copy.
 
 ## Checks after deploying
 

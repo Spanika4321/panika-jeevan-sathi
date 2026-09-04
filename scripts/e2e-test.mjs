@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readMailLink, testEnvironment, inheritedMockEnvironment } from './lib/test-app.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-e2e-'));
@@ -71,6 +72,7 @@ function client() {
     return { status: res.status, body: json, headers: res.headers };
   }
   return {
+    raw: (p) => fetch(BASE + p, { headers: { Cookie: [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ') } }),
     get: (p) => call('GET', p),
     post: (p, b) => call('POST', p, b || {}),
     put: (p, b) => call('PUT', p, b || {}),
@@ -110,7 +112,8 @@ async function main() {
   const child = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
     env: {
-      ...process.env,
+      ...testEnvironment(),
+      ...inheritedMockEnvironment(),
       PORT: String(PORT),
       PJS_DATA_DIR: DATA_DIR,
       ADMIN_EMAIL,
@@ -231,7 +234,7 @@ async function main() {
     check('photo uploads', res.status === 200 && /^\/uploads\//.test(res.body.photo), JSON.stringify(res.body));
     const photoPath = res.body.photo;
 
-    const photoRes = await fetch(BASE + photoPath);
+    const photoRes = await ravi.raw(photoPath);
     check('photo is served back', photoRes.status === 200);
 
     res = await ravi.post('/api/profile/photo', { data_url: 'data:text/plain;base64,aGVsbG8=' });
@@ -471,12 +474,19 @@ async function main() {
       password: 'Passw0rd123'
     });
     check(
-      'owner email registers as administrator, not a normal user',
-      res.status === 200 && res.body.user && res.body.user.role === 'admin',
+      'owner signup requires mailbox verification before admin promotion',
+      res.status === 200 && res.body.user && res.body.user.role === 'user' && res.body.verification_required,
       JSON.stringify(res.body)
     );
     res = await ownerCli.get('/api/admin/stats');
-    check('owner account can open the admin panel API', res.status === 200);
+    check('unverified owner cannot open admin APIs', res.status === 401);
+    const ownerLink = readMailLink(DATA_DIR, 'owner@test.com', 'verify-email.html');
+    res = await ownerCli.get('/api/auth/verify' + ownerLink.search);
+    check('owner can verify via the emailed token', res.status === 200);
+    res = await ownerCli.post('/api/auth/login', { email: 'owner@test.com', password: 'Passw0rd123' });
+    check('verified owner logs in as administrator', res.status === 200 && res.body.user.role === 'admin');
+    res = await ownerCli.get('/api/admin/stats');
+    check('verified owner account can open the admin panel API', res.status === 200);
 
     res = await admin.get('/api/admin/users?q=meera');
     check('admin user search', res.body.users.length === 1 && res.body.users[0].name === 'Meera Kanwar');
@@ -576,8 +586,8 @@ async function main() {
     /* ---------------------------------------------------- 12. password */
     section('12. Forgot password & password change');
     res = await ravi.post('/api/auth/forgot', { email: 'ravi@example.com' });
-    check('reset link issued', res.status === 200 && res.body.reset_link);
-    const token = new URL(res.body.reset_link).searchParams.get('token');
+    check('reset requested without leaking token', res.status === 200 && !res.body.reset_link);
+    const token = readMailLink(DATA_DIR, 'ravi@example.com', 'reset-password.html').searchParams.get('token');
     res = await ravi.post('/api/auth/reset', { token, password: 'NewPass1234' });
     check('password reset works', res.status === 200, JSON.stringify(res.body));
     res = await ravi.post('/api/auth/login', { email: 'ravi@example.com', password: 'Passw0rd123' });
@@ -649,7 +659,7 @@ async function main() {
 
     const child2 = spawn(process.execPath, ['server.js'], {
       cwd: ROOT,
-      env: { ...process.env, PORT: String(PORT), PJS_DATA_DIR: DATA_DIR, NODE_NO_WARNINGS: '1' },
+      env: { ...testEnvironment(), ...inheritedMockEnvironment(), PORT: String(PORT), PJS_DATA_DIR: DATA_DIR, ADMIN_EMAIL, ADMIN_PASSWORD, OWNER_EMAILS: 'owner@test.com', NODE_NO_WARNINGS: '1' },
       stdio: ['ignore', 'pipe', 'pipe']
     });
     child2.stdout.on('data', (d) => (serverLog += d.toString()));
@@ -665,7 +675,7 @@ async function main() {
     check('message history intact', res.body.messages.length === 3, `got ${res.body.messages.length}`);
     res = await after.get('/api/profile');
     check('profile survives restart', res.body.profile.occupation === 'Teacher');
-    const photoAgain = await fetch(BASE + photoPath);
+    const photoAgain = await after.raw(photoPath);
     check('uploaded photo survives restart', photoAgain.status === 200);
 
     child2.kill('SIGTERM');
