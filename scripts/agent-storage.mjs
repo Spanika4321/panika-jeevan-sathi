@@ -3,7 +3,7 @@
  * PANIKA JEEVAN SATHI — AI Agent Storage CLI
  * ==========================================
  *
- *   node scripts/agent-storage.mjs init       # storage tree + 13 agents
+ *   node scripts/agent-storage.mjs init       # storage tree + 14 agents
  *   node scripts/agent-storage.mjs status     # saare agents ki table
  *   node scripts/agent-storage.mjs list       # agent roster
  *   node scripts/agent-storage.mjs doctor     # integrity + retention check

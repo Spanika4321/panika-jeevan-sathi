@@ -132,11 +132,11 @@ scripts/deploy-render.mjs    create/update the Render service and deploy it
 scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
 scripts/check-syntax.mjs    syntax check for every shipped script
 scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
-scripts/agent-storage-cycle.mjs  runs all 13 agents and records every run
+scripts/agent-storage-cycle.mjs  runs all 14 agents and records every run
 agents/                 AI agent team (Guardian, Manager, Pooja, Priya, Aman + 8 workers)
 agents/storage.mjs      agent storage engine (state, memory, tasks, ledger, queue)
 agents/roster.mjs       the 13-agent roster, hierarchy and safety rules
-storage/                permanent memory of all 13 AI agents (committed baseline)
+storage/                permanent memory of all 14 AI agents (committed baseline)
 data/                   database, uploaded photos, outbox (git-ignored)
 ```
 
@@ -220,10 +220,10 @@ memory** in `storage/`:
 | `storage/shared/` | shared KV namespaces, durable job queue, hash-chained ledger, incidents, knowledge base |
 
 ```bash
-npm run storage:init      # create the storage tree + register all 13 agents
+npm run storage:init      # create the storage tree + register all 14 agents
 npm run storage:status    # status table for every agent
 npm run storage:doctor    # integrity check (corrupt JSON? ledger intact?)
-npm run storage:cycle     # run all 13 agents, snapshot, write the report
+npm run storage:cycle     # run all 14 agents, snapshot, write the report
 npm run storage:report    # reports/agents/agent-storage-report.md
 ```
 

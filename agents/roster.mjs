@@ -26,6 +26,7 @@ export const HIERARCHY = {
   workers: [
     'pooja',
     'priya',
+    'rushma',
     'arjun',
     'kavita',
     'rahul',
@@ -119,6 +120,25 @@ export const AGENTS = [
       'Referral & engagement ideas'
     ],
     requires: ['META_ACCESS_TOKEN', 'META_PAGE_ID'],
+    priority: 'high'
+  },
+  {
+    id: 'rushma',
+    name: 'Rushma',
+    role: 'User Acquisition & Outreach Planner',
+    reports_to: 'manager',
+    cadence: 'daily 05:45 UTC (aur har 6-ghante ke agent cycle mein)',
+    workflow: 'rushma.yml (ops/) + agent-storage.yml',
+    capabilities: [
+      'Panika surname + Manikpuri/Kabirpanthi/Adivasi community targeting',
+      '7-din platform rotation: Facebook, WhatsApp, Instagram, YouTube, Telegram, X, Quora + offline samaj',
+      'Daily ready-to-copy outreach kit: Hindi drafts + hashtags + search terms + action checklist',
+      'Lead tracker maintenance (owner manually status bharta hai)',
+      'Referral loop ideas — har member 2 rishtedaron ko bataye',
+      'Sunday content-handoff to Kavita/Pooja (blog + Quora topics)',
+      'KABHI auto-post nahi karti — posting hamesha owner manually karta hai'
+    ],
+    requires: [],
     priority: 'high'
   },
   {

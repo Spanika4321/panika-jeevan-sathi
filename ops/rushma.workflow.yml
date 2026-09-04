@@ -1,0 +1,91 @@
+# PANIKA JEEVAN SATHI — rushma workflow
+#
+# ⚠️ ACTIVATION REQUIRED (one-time, ~1 minute):
+# GitHub automated tools (apps/bots/agents) ko .github/workflows/ banane ya
+# update karne ki permission nahi hoti — isliye ye file yahan (ops/) rakhi hai.
+# Owner ko ek baar copy karna hai:
+#   1. github.com par repo kholein → "Add file" → "Create new file"
+#   2. Naam exactly ye rakhein:  .github/workflows/rushma.yml
+#   3. Is file ka POORA content paste karke commit kar dein.
+#      (NAYA — create karo)
+# Uske baad ye automatically chalta rahega — koi aur step nahi.
+#
+# NOTE: Ye OPTIONAL hai — Rushma pehle se hi 6-ghante wale `agent-storage`
+# cycle mein included hai (roster-driven). Ye dedicated workflow sirf tab chahiye
+# jab roz subah ek alag se outreach-plan artifact chahiye ho.
+#
+# Runs     : daily 05:45 UTC   (aur Actions tab se "Run workflow" bhi)
+# What     : Rushma — user acquisition & outreach planner
+#            (Panika/Manikpuri samaj targeting, 7-din platform rotation,
+#             daily ready-to-copy Hindi drafts + hashtags + checklist)
+# Storage  : actions/cache se run-to-run memory preserve hoti hai
+# Guide    : ops/INSTALL-WORKFLOWS.md
+#
+# HARD RULES (Rushma inhe kabhi nahi todti):
+#   • Koi auto-posting / mass-DM / scraping nahi — posting hamesha
+#     owner manually karta hai (copy-paste). Isse Facebook/WhatsApp
+#     accounts ban se bache rehte hain.
+#   • Koi fake account / fake engagement / jhoothi claim nahi.
+#   • Koi bhi API credentials ki zaroorat NAHI — 100% local planning.
+
+name: Rushma — User Acquisition & Outreach
+
+on:
+  schedule:
+    - cron: '45 5 * * *'     # daily 05:45 UTC (~11:15 IST)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-storage
+  cancel-in-progress: false
+
+jobs:
+  rushma:
+    name: Daily outreach kit (Panika/Manikpuri targeting)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.node-version'
+
+      # Rushma ki pichhli memory / tasks / metrics wapas lao.
+      - name: Restore agent storage
+        uses: actions/cache/restore@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+          restore-keys: |
+            agent-storage-
+
+      - name: Ensure storage
+        run: node scripts/agent-storage.mjs init
+
+      - name: Run Rushma
+        run: |
+          mkdir -p reports/agents
+          node agents/worker.mjs rushma | tee reports/agents/rushma-latest.json
+
+      # Is run ki memory agle run ke liye save karo.
+      - name: Save agent storage
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: storage
+          key: agent-storage-${{ github.run_id }}
+
+      - name: Upload Rushma outreach plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rushma-outreach-plan
+          path: reports/agents/rushma-latest.json
+          if-no-files-found: ignore

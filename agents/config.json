@@ -11,7 +11,8 @@
     "backlink_opportunities": 10,
     "campaign_ideas": 5,
     "seo_tasks": 10,
-    "health_checks": true
+    "health_checks": true,
+    "user_acquisition_plans": 1
   },
   "safety": {
     "preserve_public_ui": true,

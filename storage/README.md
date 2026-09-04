@@ -1,6 +1,6 @@
 # PANIKA JEEVAN SATHI — AI Agent Storage
 
-Ye folder **13 AI agents ki permanent memory** hai. GitHub Actions ka runner
+Ye folder **14 AI agents ki permanent memory** hai. GitHub Actions ka runner
 har baar naya (ephemeral) hota hai, isliye bina storage ke agents har run par
 sab kuch bhool jaate hain. Is system se unki memory, tasks, metrics, log aur
 audit trail run ke beech preserve rehti hai.
@@ -15,7 +15,7 @@ ke liye hai.
 ```
 storage/
 ├── agents/
-│   ├── index.json              ← registry: 13 agents, roles, capabilities
+│   ├── index.json              ← registry: 14 agents, roles, capabilities
 │   └── <agent-id>/             ← har agent ki apni storage (13 folders)
 │       ├── profile.json        ← naam, role, capabilities, requirements
 │       ├── state.json          ← status, run count, last run, failure streak
@@ -63,11 +63,11 @@ koi raw IP ya private member data store nahi hota.
 ## 3. CLI
 
 ```bash
-npm run storage:init       # storage tree + 13 agents create karo
+npm run storage:init       # storage tree + 14 agents create karo
 npm run storage:status     # sab agents ki status table
 npm run storage:doctor     # integrity check (JSON corrupt? ledger intact?)
 npm run storage:report     # markdown report: reports/agents/agent-storage-report.md
-npm run storage:cycle      # poora cycle: 13 agents + snapshot + report
+npm run storage:cycle      # poora cycle: 14 agents + snapshot + report
 npm run storage -- list    # agent roster
 npm run storage -- seed    # demo tasks + knowledge base
 ```

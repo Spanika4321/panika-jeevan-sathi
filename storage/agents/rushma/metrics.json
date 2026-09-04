@@ -1,0 +1,25 @@
+{
+  "agent": "rushma",
+  "counters": {
+    "plans_generated": 2,
+    "drafts_generated": 4,
+    "hashtags_tracked": 30,
+    "runs": 2,
+    "status_ok": 2
+  },
+  "history": [
+    {
+      "at": "2026-09-04T13:27:44.747Z",
+      "status": "OK",
+      "duration_ms": 17,
+      "summary": "Aaj ka outreach kit ready (Shukravar (Friday) · Telegram + X (Twitter)) — 2 Hindi drafts, 3 actions, 15 hashtags. Posting hamesha manual (owner)."
+    },
+    {
+      "at": "2026-09-04T13:27:59.153Z",
+      "status": "OK",
+      "duration_ms": 61,
+      "summary": "OK — Aaj ka outreach kit ready (Shukravar (Friday) · Telegram + X (Twitter)) — 2 Hindi drafts, 3 actions, 15 hashtags. Posting hamesha manual (owner)."
+    }
+  ],
+  "updated_at": "2026-09-04T13:27:59.153Z"
+}

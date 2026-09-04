@@ -1,0 +1,9 @@
+{
+  "agent": "rushma",
+  "status": "OK",
+  "last_run_at": "2026-09-04T13:27:59.150Z",
+  "last_status": "OK",
+  "runs": 2,
+  "consecutive_failures": 0,
+  "updated_at": "2026-09-04T13:27:59.150Z"
+}

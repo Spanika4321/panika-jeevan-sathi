@@ -43,7 +43,7 @@ kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.
 
 | Priority | File | Kyun |
 | --- | --- | --- |
-| **1st** | `agent-storage.yml` | Naya hai — 13 agents ki permanent memory isi se chalti hai |
+| **1st** | `agent-storage.yml` | Naya hai — 14 agents ki permanent memory isi se chalti hai |
 | **2nd** | `employee-report.yml` | Har 10 min cycle — isme storage save/restore lagana sabse zyada faydemand |
 | 3rd | `pooja.yml` / `priya.yml` | Daily SEO + campaign agents ki memory |
 | 4th | `manager.yml` | Daily coordinator |
@@ -66,7 +66,7 @@ kar ke naya paste kar dein — ya `Add file` se same naam daal kar overwrite.
    - `Agent Manager`
    - `Website Guardian`
 3. `AI Agent Storage` → **Run workflow** (dropdown se) → green run hona chahiye
-4. Run ke andar **"Cycle summary"** step mein 13 agents ki table dikhegi
+4. Run ke andar **"Cycle summary"** step mein 14 agents ki table dikhegi
 
 Turant test karne ke liye har workflow mein `workflow_dispatch` hai —
 schedule ka wait karne ki zaroorat nahi.
@@ -77,7 +77,7 @@ schedule ka wait karne ki zaroorat nahi.
 
 | Workflow | Kitni baar | Kya karta hai |
 | --- | --- | --- |
-| `AI Agent Storage` | har 6 ghante | 13 agents + snapshot + storage report |
+| `AI Agent Storage` | har 6 ghante | 14 agents + snapshot + storage report |
 | `Employee Reports` | har 10 minute | Pooja + Priya + Guardian + Manager + email |
 | `Aman` | daily 13:05 UTC | live aggregate analytics → owner ko site & member report email |
 | `Pooja` | daily 04:30 UTC | SEO analysis |
