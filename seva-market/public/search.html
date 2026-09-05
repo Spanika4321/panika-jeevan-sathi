@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Find local service providers — SEVA MARKET INDIA</title>
+    <meta
+      name="description"
+      content="Search local service providers across India by service, category, city, locality or PIN code. Compare and contact verified providers near you."
+    />
+    <meta name="theme-color" content="#123c8f" />
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <meta name="robots" content="index,follow" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to results</a>
+    <div id="siteHeader"></div>
+
+    <main id="main">
+      <section class="section-tight filter-bar">
+        <div class="container">
+          <form class="searchbar" id="searchForm">
+            <div class="searchbar__grid">
+              <div class="field">
+                <label class="field__label" for="service">Service</label>
+                <select class="select" id="service" name="service">
+                  <option value="">All services</option>
+                </select>
+              </div>
+              <div class="field field--autocomplete">
+                <label class="field__label" for="place">Location or PIN code</label>
+                <input class="input" id="place" name="place" type="search" placeholder="e.g. 560034 or Bengaluru" />
+                <ul class="suggestions hide" id="suggestions" role="listbox" aria-label="Location suggestions"></ul>
+              </div>
+              <button class="btn searchbar__submit" type="submit">Search</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="section section-tight">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h1 class="mb-2 page-title" id="resultTitle">Local service providers</h1>
+              <p class="small muted mb-0" id="resultSummary">Loading providers…</p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="sort">Sort by</label>
+              <select class="select" id="sort" name="sort">
+                <option value="relevance">Most relevant</option>
+                <option value="rating">Highest rated</option>
+                <option value="experience">Most experienced</option>
+                <option value="newest">Newest</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row row-wrap mb-3" id="activeFilters"></div>
+          <div class="provider-grid" id="results" aria-busy="true"></div>
+          <div class="row row-between mt-4" id="pager"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="siteFooter"></div>
+    <div id="bottomNav"></div>
+
+    <script src="/assets/js/app.js" defer></script>
+    <script src="/assets/js/search.js" defer></script>
+  </body>
+</html>

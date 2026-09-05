@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>SEVA MARKET INDIA — Find Trusted Local Service Providers Near You</title>
+    <meta
+      name="description"
+      content="SEVA MARKET INDIA is an India-wide local services marketplace. Search plumbers, electricians, cleaners, tutors and more by service, city, locality or PIN code, then call or WhatsApp them directly."
+    />
+    <meta name="theme-color" content="#123c8f" />
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/assets/img/favicon.svg" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SEVA MARKET INDIA" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content="SEVA MARKET INDIA — Find Trusted Local Service Providers Near You" />
+    <meta
+      property="og:description"
+      content="Search by service, city, locality or PIN code and contact verified local providers across India. Free for customers."
+    />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "/#organization",
+            "name": "SEVA MARKET INDIA",
+            "url": "/",
+            "description": "India-wide local services marketplace connecting customers with nearby service providers.",
+            "areaServed": { "@type": "Country", "name": "India" }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "/#website",
+            "url": "/",
+            "name": "SEVA MARKET INDIA",
+            "inLanguage": "en-IN",
+            "publisher": { "@id": "/#organization" },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "/search.html?service={service}&pincode={pincode}",
+              "query-input": "required name=service"
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="siteHeader"></div>
+
+    <main id="main">
+      <!-- ============================================================ hero -->
+      <section class="hero">
+        <div class="container hero__inner">
+          <span class="hero__eyebrow">India-wide · Free for customers</span>
+          <h1>Find trusted local service providers near you</h1>
+          <p class="hero__lead">
+            Plumber in Karol Bagh. AC repair in 560034. Home tutor in Salt Lake. Search by service,
+            city, locality or PIN code and contact a verified provider directly.
+          </p>
+
+          <div class="hero__search">
+            <form class="searchbar" id="searchForm" novalidate>
+              <div class="searchbar__grid">
+                <div class="field">
+                  <label class="field__label" for="service">What do you need?</label>
+                  <select class="select" id="service" name="service">
+                    <option value="">All services</option>
+                  </select>
+                </div>
+
+                <div class="field field--autocomplete">
+                  <label class="field__label" for="place">Where? (city, locality or PIN)</label>
+                  <input
+                    class="input"
+                    id="place"
+                    name="place"
+                    type="search"
+                    inputmode="numeric"
+                    autocomplete="postal-code"
+                    placeholder="e.g. 110001, Koramangala, Imphal"
+                    aria-describedby="placeHelp"
+                  />
+                  <ul class="suggestions hide" id="suggestions" role="listbox" aria-label="Location suggestions"></ul>
+                </div>
+
+                <button class="btn btn--accent searchbar__submit" type="submit">
+                  Search providers
+                </button>
+              </div>
+              <p class="tiny muted mb-0 mt-4" id="placeHelp">
+                Tip: a 6-digit PIN code gives the most accurate results.
+              </p>
+            </form>
+          </div>
+
+          <div class="hero__chips" id="quickChips"></div>
+        </div>
+      </section>
+
+      <!-- ======================================================= categories -->
+      <section class="section" id="categories">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2>Browse by service</h2>
+              <p class="small muted mb-0">Twelve categories covering the work Indian homes book most.</p>
+            </div>
+          </div>
+          <div class="category-scroll" id="categoryGrid" aria-busy="true"></div>
+        </div>
+      </section>
+
+      <!-- ========================================================= featured -->
+      <section class="section section-tight" id="featured">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2>Verified providers</h2>
+              <p class="small muted mb-0">A few listings available right now.</p>
+            </div>
+            <a class="link" href="/search.html">See all providers →</a>
+          </div>
+          <div class="provider-grid" id="featuredGrid" aria-busy="true"></div>
+        </div>
+      </section>
+
+      <!-- ============================================================== how -->
+      <section class="section" id="how">
+        <div class="container">
+          <div class="section-head"><h2>How it works</h2></div>
+          <div class="steps">
+            <div class="step">
+              <div class="step__number">1</div>
+              <h3>Search your area</h3>
+              <p>Enter the service you need and your locality or PIN code. No sign-up needed to browse.</p>
+            </div>
+            <div class="step">
+              <div class="step__number">2</div>
+              <h3>Compare providers</h3>
+              <p>See services, experience, service radius and verification level before you reach out.</p>
+            </div>
+            <div class="step">
+              <div class="step__number">3</div>
+              <h3>Contact directly</h3>
+              <p>Call or message the provider and agree the price and timing yourself. No commission, no gateway.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ cities -->
+      <section class="section section-tight" id="cities">
+        <div class="container">
+          <div class="section-head"><h2>Popular cities</h2></div>
+          <div class="row row-wrap" id="cityChips"></div>
+        </div>
+      </section>
+
+      <!-- ==================================================== for providers -->
+      <section class="section" id="for-providers">
+        <div class="container">
+          <div class="cta-banner">
+            <h2>Do you run a local service business?</h2>
+            <p>List your business so customers in your PIN code can find and call you. Listings are free.</p>
+            <div class="btn-row justify-center">
+              <a class="btn btn--accent" href="/account.html#provider">Create your listing</a>
+              <a class="btn btn--outline-light" href="/search.html">Browse the marketplace</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="siteFooter"></div>
+    <div id="bottomNav"></div>
+
+    <script src="/assets/js/app.js" defer></script>
+    <script src="/assets/js/home.js" defer></script>
+  </body>
+</html>

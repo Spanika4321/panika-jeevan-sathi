@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Sign in · Register — SEVA MARKET INDIA</title>
+    <meta
+      name="description"
+      content="Create a free SEVA MARKET INDIA account to list your local service business and manage your listing."
+    />
+    <meta name="theme-color" content="#123c8f" />
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <meta name="robots" content="index,follow" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="siteHeader"></div>
+
+    <main id="main" class="section">
+      <div class="container container-narrow">
+        <h1 class="page-title">Your account</h1>
+        <p class="muted small">
+          Customers can search without an account. Sign in to list and manage a service business.
+        </p>
+
+        <div class="tabs" role="tablist">
+          <button class="tabs__tab" type="button" role="tab" data-tab="signin" aria-selected="true">Sign in</button>
+          <button class="tabs__tab" type="button" role="tab" data-tab="register" aria-selected="false">Register</button>
+          <button class="tabs__tab" type="button" role="tab" data-tab="provider" aria-selected="false">List your business</button>
+        </div>
+
+        <!-- ------------------------------------------------------ sign in -->
+        <section class="card" data-panel="signin">
+          <h2 class="small">Sign in</h2>
+          <form id="signinForm" class="stack" novalidate>
+            <div class="field">
+              <label class="field__label" for="signinEmail">Email</label>
+              <input class="input" id="signinEmail" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="signinPassword">Password</label>
+              <input class="input" id="signinPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <div id="signinError" class="form-error hide" role="alert"></div>
+            <button class="btn btn--block" type="submit">Sign in</button>
+          </form>
+        </section>
+
+        <!-- ------------------------------------------------------ register -->
+        <section class="card hide" data-panel="register">
+          <h2 class="small">Create your free account</h2>
+          <form id="registerForm" class="stack" novalidate>
+            <div class="field">
+              <label class="field__label" for="registerName">Full name</label>
+              <input class="input" id="registerName" type="text" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="registerEmail">Email</label>
+              <input class="input" id="registerEmail" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="registerPhone">Mobile number (optional)</label>
+              <input class="input" id="registerPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit Indian mobile" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="registerPassword">Password</label>
+              <input class="input" id="registerPassword" type="password" autocomplete="new-password" required />
+              <span class="tiny muted">At least 8 characters, with a letter and a number.</span>
+            </div>
+            <div id="registerError" class="form-error hide" role="alert"></div>
+            <button class="btn btn--block" type="submit">Create account</button>
+          </form>
+        </section>
+
+        <!-- ------------------------------------------------------ provider -->
+        <section class="card hide" data-panel="provider">
+          <h2 class="small">List your business</h2>
+          <p class="small muted">
+            Sign in first, then submit your listing. It goes to our team for verification before it
+            appears in search.
+          </p>
+          <form id="providerForm" class="stack" novalidate>
+            <div class="field">
+              <label class="field__label" for="businessName">Business name</label>
+              <input class="input" id="businessName" type="text" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="businessCategory">Category</label>
+              <select class="select" id="businessCategory" required></select>
+            </div>
+            <div class="field">
+              <label class="field__label" for="businessServices">Services offered</label>
+              <select class="select" id="businessServices" multiple size="5" required></select>
+              <span class="tiny muted">Hold Ctrl (Windows) or Cmd (Mac) to select more than one.</span>
+            </div>
+            <div class="field">
+              <label class="field__label" for="businessPin">PIN code</label>
+              <input class="input" id="businessPin" type="text" inputmode="numeric" placeholder="e.g. 110001" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="businessPhone">Contact number</label>
+              <input class="input" id="businessPhone" type="tel" inputmode="numeric" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="businessAbout">About your business</label>
+              <textarea class="input" id="businessAbout" rows="4"></textarea>
+            </div>
+            <div id="providerError" class="form-error hide" role="alert"></div>
+            <button class="btn btn--accent btn--block" type="submit">Submit listing</button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <div id="siteFooter"></div>
+    <div id="bottomNav"></div>
+
+    <script src="/assets/js/app.js" defer></script>
+    <script src="/assets/js/account.js" defer></script>
+  </body>
+</html>

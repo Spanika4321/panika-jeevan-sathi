@@ -27,7 +27,13 @@
     "test:browser": "node --test scripts/browser-test.mjs",
     "test:all": "npm test && npm run test:json-store && npm run test:cloud && npm run test:supabase-wipe && npm run test:sigv4 && npm run health && npm run test:browser",
     "test:security": "node --test scripts/security-test.mjs scripts/deployment-test.mjs",
-    "verify:production": "node scripts/verify-production.mjs"
+    "verify:production": "node scripts/verify-production.mjs",
+    "start:seva": "cd seva-market && node server.js",
+    "dev:seva": "cd seva-market && node --watch server.js",
+    "test:seva": "cd seva-market && npm test",
+    "check:seva": "cd seva-market && npm run check",
+    "migrate:seva": "cd seva-market && node scripts/migrate.js",
+    "seed:seva": "cd seva-market && node scripts/seed.js --demo"
   },
   "engines": {
     "node": ">=22.5.0"

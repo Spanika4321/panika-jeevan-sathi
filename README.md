@@ -13,6 +13,31 @@ Built as a single Node.js application. The core uses built-in modules; the locke
 
 ---
 
+## SEVA MARKET INDIA (second app in this repository)
+
+This repository is also home to **SEVA MARKET INDIA**, an India-wide **local services marketplace**:
+customers find and contact nearby providers by service, city, locality or PIN code.
+
+It is a separate, self-contained application under **[`seva-market/`](seva-market/README.md)** — new
+code, its own database, migrations, tests and UI. It does **not** share code, routes or data with the
+matrimonial site above, so neither app can break the other.
+
+```bash
+npm run start:seva     # http://localhost:3100
+npm run test:seva      # syntax + 131 tests
+npm run seed:seva      # seed India reference data + demo listings
+```
+
+Status: **foundation** — structure, mobile-first UI, home page, header/navigation, database
+architecture and the Users / Providers / Categories / Services / Locations models. No payment
+gateway, UPI/QR, AdSense or deployment host is wired in yet.
+
+Docs: [`seva-market/README.md`](seva-market/README.md) ·
+[`seva-market/docs/ARCHITECTURE.md`](seva-market/docs/ARCHITECTURE.md) ·
+[`seva-market/docs/DATA-MODEL.md`](seva-market/docs/DATA-MODEL.md)
+
+---
+
 ## Run it
 
 ```bash

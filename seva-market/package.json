@@ -1,0 +1,26 @@
+{
+  "name": "seva-market-india",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SEVA MARKET INDIA — India-wide local services marketplace. Customers find and contact local service providers by service, location and PIN code.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node scripts/check-syntax.js",
+    "test": "node scripts/run-tests.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "marketplace",
+    "local-services",
+    "india",
+    "seva-market"
+  ]
+}
