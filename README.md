@@ -278,4 +278,4 @@ Full documentation: [`storage/README.md`](storage/README.md).
 ## Notes
 
 - No third-party CDNs, fonts or trackers — the site is fast and works offline.
-- `panika-jeevan-sathi-website-prompt.zip` is the original project brief archive; it is not used by the site.
+- The original project brief archive (`panika-jeevan-sathi-website-prompt.zip`) was removed on 2026-09-05: it was an early Next.js/cPanel draft, is not used by the site, and is still recoverable from git history if ever needed.
