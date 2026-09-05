@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in / Register — SEVA MARKET INDIA</title>
+  <meta name="description" content="Log in to SEVA MARKET INDIA or create a free customer or professional account.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <div class="auth-shell">
+    <aside class="auth-side">
+      <div>
+        <p class="eyebrow" style="color:#fbbf24">SEVA MARKET INDIA</p>
+        <h2>Your neighbourhood, one tap away.</h2>
+        <ul>
+          <li>Verified professionals with real customer ratings</li>
+          <li>Upfront prices — no surprise charges at the door</li>
+          <li>Pay only after the work is completed</li>
+          <li>30-day rework guarantee on every completed job</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <div class="mb-3">
+          <a class="brand" href="/">
+            <span class="brand-mark" id="brandMark"></span>
+            <span><span class="brand-name">SEVA MARKET</span><br><span class="brand-sub">India</span></span>
+          </a>
+        </div>
+
+        <div class="tabs" id="tabs">
+          <button data-tab="login" class="active">Log in</button>
+          <button data-tab="register">Create account</button>
+        </div>
+
+        <!-- login -->
+        <form id="loginForm" class="card">
+          <h2 class="mb-2" style="font-size:24px">Welcome back</h2>
+          <div class="field mb-2">
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+          </div>
+          <div class="field mb-2">
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="••••••••">
+          </div>
+          <button class="btn btn-primary btn-block mt-2" type="submit" id="loginBtn">Log in</button>
+          <p class="small muted mt-2 mb-0">
+            Demo accounts: <code>demo.customer@sevamarketindia.in</code> (customer) or
+            <code>demo.provider@sevamarketindia.in</code> (professional) — password <code>Demo@12345</code>.
+          </p>
+        </form>
+
+        <!-- register -->
+        <form id="registerForm" class="card hide">
+          <h2 class="mb-1" style="font-size:24px">Create your free account</h2>
+          <p class="small muted">Join as a customer to book services, or as a professional to receive jobs.</p>
+
+          <div class="tabs" id="roleTabs" style="margin-bottom:18px">
+            <button data-role="customer" class="active">I need a service</button>
+            <button data-role="provider">I am a professional</button>
+          </div>
+
+          <div class="field mb-2">
+            <label for="regName">Full name</label>
+            <input id="regName" required placeholder="Your full name" autocomplete="name">
+          </div>
+          <div class="field mb-2">
+            <label for="regEmail">Email</label>
+            <input id="regEmail" type="email" required placeholder="you@example.com" autocomplete="email">
+          </div>
+          <div class="field mb-2">
+            <label for="regPhone">Phone</label>
+            <input id="regPhone" placeholder="+91 90000 00000" autocomplete="tel">
+          </div>
+          <div class="field mb-2">
+            <label for="regCity">City</label>
+            <select id="regCity"><option value="">Select your city</option></select>
+          </div>
+          <div class="field mb-2">
+            <label for="regPassword">Password</label>
+            <input id="regPassword" type="password" required placeholder="Minimum 8 characters" autocomplete="new-password">
+          </div>
+
+          <div id="providerFields" class="hide">
+            <div class="field mb-2">
+              <label for="regBusiness">Business / service name</label>
+              <input id="regBusiness" placeholder="e.g. Sharma Plumbing Works">
+            </div>
+            <div class="field mb-2">
+              <label for="regCategory">Main service category</label>
+              <select id="regCategory"><option value="">Select a category</option></select>
+            </div>
+            <div class="field mb-2">
+              <label for="regArea">Area / locality</label>
+              <input id="regArea" placeholder="e.g. Rohini">
+            </div>
+            <div class="field mb-2">
+              <label for="regExperience">Years of experience</label>
+              <input id="regExperience" type="number" min="0" max="60" placeholder="e.g. 8">
+            </div>
+            <div class="field mb-2">
+              <label for="regHeadline">Short headline</label>
+              <input id="regHeadline" placeholder="e.g. Same-day plumbing repairs across North Delhi">
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block mt-2" type="submit" id="registerBtn">Create account</button>
+          <p class="tiny muted mt-2 mb-0">
+            By creating an account you agree to our <a href="/terms.html">Terms</a> and
+            <a href="/privacy.html">Privacy Policy</a>.
+          </p>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="/assets/js/app.js"></script>
+  <script src="/assets/js/login.js"></script>
+</body>
+</html>

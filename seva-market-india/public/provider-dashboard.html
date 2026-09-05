@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My jobs — SEVA MARKET INDIA</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <div class="container section-sm">
+    <div class="page-head spread row-wrap">
+      <div>
+        <p class="eyebrow">Professional dashboard</p>
+        <h1 class="mb-0" id="title">My jobs</h1>
+      </div>
+      <span id="profileStatus"></span>
+    </div>
+
+    <div class="stat-grid mt-3" id="stats"></div>
+
+    <h2 class="mt-3">Booking requests</h2>
+    <div class="list mt-2" id="requests">
+      <div class="card"><div class="skeleton" style="width:60%"></div></div>
+    </div>
+
+    <h2 class="mt-3">Completed &amp; closed</h2>
+    <div class="list mt-2" id="closed"></div>
+
+    <div class="card mt-3">
+      <h3 class="mb-2">Business profile</h3>
+      <div class="filters">
+        <div class="field">
+          <label for="business">Business name</label>
+          <input id="business">
+        </div>
+        <div class="field">
+          <label for="city">City</label>
+          <select id="city"><option value="">Select city</option></select>
+        </div>
+        <div class="field">
+          <label for="area">Area</label>
+          <input id="area" placeholder="Locality">
+        </div>
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category"><option value="">Select category</option></select>
+        </div>
+        <div class="field">
+          <label for="experience">Experience (years)</label>
+          <input id="experience" type="number" min="0" max="60">
+        </div>
+        <div class="field">
+          <label for="price_from">Starting price (₹)</label>
+          <input id="price_from" type="number" min="0" max="100000">
+        </div>
+      </div>
+      <div class="field mt-2">
+        <label for="headline">Headline</label>
+        <input id="headline" placeholder="One line customers read first">
+      </div>
+      <div class="field mt-2">
+        <label for="bio">About your work</label>
+        <textarea id="bio" placeholder="Tell customers about your experience, tools, team and guarantees."></textarea>
+      </div>
+      <button class="btn btn-primary mt-2" id="saveProfile">Save profile</button>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+  <script src="/assets/js/app.js"></script>
+  <script src="/assets/js/provider-dashboard.js"></script>
+</body>
+</html>

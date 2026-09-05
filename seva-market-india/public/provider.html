@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Professional profile — SEVA MARKET INDIA</title>
+  <meta name="description" content="View a verified service professional's ratings, services, prices and reviews, and book a time slot that suits you.">
+  <meta name="robots" content="index,follow">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <div class="container section-sm">
+    <div class="breadcrumb" id="crumb"><a href="/">Home</a> · <a href="/providers.html">Professionals</a></div>
+    <div id="detail">
+      <div class="skeleton" style="width:300px;height:28px"></div>
+      <div class="skeleton mt-2" style="width:70%"></div>
+    </div>
+
+    <div class="split mt-3" id="lower" style="display:none">
+      <div>
+        <div class="card mb-2">
+          <h3 class="mb-2">Services &amp; prices</h3>
+          <div id="services"></div>
+        </div>
+        <div class="card mb-2">
+          <h3 class="mb-2">About</h3>
+          <p class="muted" id="bio"></p>
+          <div class="row row-wrap" id="facts"></div>
+        </div>
+        <div class="card">
+          <h3 class="mb-2">Customer reviews</h3>
+          <div id="reviews"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card sticky-card">
+          <h3 class="mb-2">Book this professional</h3>
+          <div id="bookingForm">
+            <div class="field mb-2">
+              <label for="service">Service</label>
+              <select id="service"></select>
+            </div>
+            <div class="field mb-2">
+              <label for="date">Date</label>
+              <input id="date" type="date">
+            </div>
+            <div class="field mb-2">
+              <label for="slot">Time slot</label>
+              <select id="slot"></select>
+            </div>
+            <div class="field mb-2">
+              <label for="address">Service address</label>
+              <textarea id="address" placeholder="Flat / house number, street, locality, landmark, PIN code"></textarea>
+            </div>
+            <div class="field mb-2">
+              <label for="notes">Notes (optional)</label>
+              <textarea id="notes" placeholder="Anything the professional should know before arriving"></textarea>
+            </div>
+
+            <div class="mt-2">
+              <div class="price-row"><span>Service charge</span><span id="summaryPrice">—</span></div>
+              <div class="price-row"><span>Visit &amp; inspection</span><span>Included</span></div>
+              <div class="price-row total"><span>Payable after service</span><span id="summaryTotal">—</span></div>
+            </div>
+
+            <button class="btn btn-primary btn-block mt-2" id="bookBtn">Request booking</button>
+            <p class="tiny muted mt-1 mb-0">
+              You pay the professional directly after the work is done. Every completed booking
+              carries a 30-day rework guarantee.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+  <script src="/assets/js/app.js"></script>
+  <script src="/assets/js/provider.js"></script>
+</body>
+</html>

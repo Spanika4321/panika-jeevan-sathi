@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find professionals — SEVA MARKET INDIA</title>
+  <meta name="description" content="Search verified service professionals by city, category, rating and price. Compare real reviews and book a time slot in under a minute.">
+  <link rel="canonical" href="https://sevamarketindia.in/providers.html">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <div class="container">
+    <div class="page-head">
+      <div class="breadcrumb"><a href="/">Home</a> · Professionals</div>
+      <h1>Find a professional near you</h1>
+    </div>
+
+    <div class="card section-sm">
+      <div class="filters">
+        <div class="field">
+          <label for="q">Search</label>
+          <input id="q" type="search" placeholder="Plumber, AC service, tutor…" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category"><option value="">All categories</option></select>
+        </div>
+        <div class="field">
+          <label for="city">City</label>
+          <select id="city"><option value="">All cities</option></select>
+        </div>
+        <div class="field">
+          <label for="sort">Sort by</label>
+          <select id="sort">
+            <option value="rating">Highest rated</option>
+            <option value="price">Lowest price</option>
+            <option value="experience">Most experienced</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="min_rating">Minimum rating</label>
+          <select id="min_rating">
+            <option value="">Any rating</option>
+            <option value="4.5">4.5 &amp; above</option>
+            <option value="4">4.0 &amp; above</option>
+            <option value="3">3.0 &amp; above</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" id="apply">Apply filters</button>
+        </div>
+      </div>
+      <label class="small row mt-2" style="gap:8px;cursor:pointer">
+        <input type="checkbox" id="verified"> Show verified professionals only
+      </label>
+    </div>
+
+    <div class="section-sm">
+      <p class="muted small" id="resultCount">Loading…</p>
+      <div class="provider-grid mt-2" id="results">
+        <div class="card"><div class="skeleton" style="width:60%"></div><div class="skeleton mt-2" style="width:80%"></div></div>
+        <div class="card"><div class="skeleton" style="width:60%"></div><div class="skeleton mt-2" style="width:80%"></div></div>
+        <div class="card"><div class="skeleton" style="width:60%"></div><div class="skeleton mt-2" style="width:80%"></div></div>
+      </div>
+      <div class="row spread mt-3" id="pager"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+  <script src="/assets/js/app.js"></script>
+  <script src="/assets/js/providers.js"></script>
+</body>
+</html>

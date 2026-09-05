@@ -1,0 +1,17 @@
+{
+  "name": "seva-market-india",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SEVA MARKET INDIA — a local services marketplace: find, book and review trusted service professionals across India.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node scripts/check-syntax.mjs",
+    "test": "node scripts/check-syntax.mjs && node scripts/smoke-test.mjs"
+  },
+  "license": "MIT"
+}

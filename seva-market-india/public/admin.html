@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin panel — SEVA MARKET INDIA</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <div class="container section-sm">
+    <div class="page-head">
+      <p class="eyebrow">Platform administration</p>
+      <h1 class="mb-0">Admin panel</h1>
+    </div>
+
+    <div class="stat-grid mt-3" id="stats"></div>
+
+    <div class="card mt-3">
+      <h3 class="mb-2">Professionals awaiting approval</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Business</th><th>Category</th><th>City</th><th>Experience</th><th>Action</th></tr>
+          </thead>
+          <tbody id="pendingRows"></tbody>
+        </table>
+      </div>
+      <p class="small muted mt-2 mb-0" id="pendingEmpty"></p>
+    </div>
+
+    <div class="card mt-3">
+      <h3 class="mb-2">All professionals</h3>
+      <div class="field mb-2" style="max-width:280px">
+        <label for="statusFilter">Filter by status</label>
+        <select id="statusFilter">
+          <option value="approved">Approved</option>
+          <option value="pending">Pending</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Business</th><th>Category</th><th>City</th><th>Rating</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="providerRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <h3 class="mb-2">Recent bookings</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Customer</th><th>Professional</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+          </thead>
+          <tbody id="bookingRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+  <script src="/assets/js/app.js"></script>
+  <script src="/assets/js/admin.js"></script>
+</body>
+</html>
