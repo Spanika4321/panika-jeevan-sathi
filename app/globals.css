@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Font stacks — families bundled via @fontsource (see app/layout.tsx). */
+:root {
+  --font-inter: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-poppins: "Poppins", var(--font-inter);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  @apply bg-brand-200 text-navy-900;
+}
+
+/* Consistent focus ring for keyboard users */
+:focus-visible {
+  @apply outline-none ring-2 ring-brand-500 ring-offset-2;
+}

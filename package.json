@@ -1,50 +1,50 @@
 {
-  "name": "panika-jeevan-sathi",
-  "version": "2.0.0",
+  "name": "seva-market-india",
+  "version": "0.1.0",
   "private": true,
-  "description": "PANIKA JEEVAN SATHI \u2014 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node scripts/check-syntax.mjs",
-    "health": "node scripts/health-check.mjs",
-    "test": "node scripts/check-syntax.mjs && node --test scripts/regression-test.mjs scripts/security-test.mjs scripts/deployment-test.mjs && node scripts/e2e-test.mjs",
-    "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs && PJS_STORAGE=json node --test scripts/regression-test.mjs scripts/security-test.mjs",
-    "test:cloud": "node scripts/e2e-cloud-test.mjs",
-    "test:supabase-wipe": "node scripts/prove-supabase-wipe.mjs",
-    "test:sigv4": "node scripts/test-sigv4.mjs",
-    "verify:cloud": "node scripts/verify-cloud.mjs",
-    "deploy:render": "node scripts/deploy-render.mjs",
-    "cloud:setup": "node scripts/cloud-setup.mjs",
-    "storage": "node scripts/agent-storage.mjs",
-    "storage:init": "node scripts/agent-storage.mjs init",
-    "storage:status": "node scripts/agent-storage.mjs status",
-    "storage:doctor": "node scripts/agent-storage.mjs doctor",
-    "storage:report": "node scripts/agent-storage.mjs report",
-    "storage:cycle": "node scripts/agent-storage-cycle.mjs",
-    "test:regression": "node --test scripts/regression-test.mjs",
-    "test:browser": "node --test scripts/browser-test.mjs",
-    "test:all": "npm test && npm run test:json-store && npm run test:cloud && npm run test:supabase-wipe && npm run test:sigv4 && npm run health && npm run test:browser",
-    "test:security": "node --test scripts/security-test.mjs scripts/deployment-test.mjs",
-    "verify:production": "node scripts/verify-production.mjs"
-  },
+  "description": "SEVA MARKET INDIA — India-wide local services marketplace. Find trusted local service providers by service, location and PIN code.",
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=18.17.0"
   },
-  "keywords": [
-    "matrimonial",
-    "panika",
-    "manikpuri",
-    "kabirpanthi",
-    "adivasi",
-    "free"
-  ],
-  "license": "UNLICENSED",
-  "devDependencies": {
-    "playwright": "^1.62.1"
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:push": "tsx db/push.ts",
+    "db:reset": "tsx db/push.ts --reset",
+    "db:seed": "tsx db/seed.ts",
+    "db:setup": "tsx db/push.ts && tsx db/seed.ts",
+    "test": "DATABASE_URL=file:./test.db tsx db/push.ts --reset && vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "nodemailer": "10.0.0"
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.45.2",
+    "lucide-react": "^0.454.0",
+    "next": "^14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^20.17.6",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   }
 }

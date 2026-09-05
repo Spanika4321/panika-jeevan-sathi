@@ -1,281 +1,139 @@
-# PANIKA JEEVAN SATHI
+# 🇮🇳 SEVA MARKET INDIA
 
-[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Coming%20soon-da552f?logo=producthunt&logoColor=white)](https://www.producthunt.com/products?q=PANIKA%20JEEVAN%20SATHI)
-[![GitHub](https://img.shields.io/badge/GitHub-Spanika4321%2Fpanika-jeevan-sathi-181717?logo=github)](https://github.com/Spanika4321/panika-jeevan-sathi)
+**India-wide local services marketplace** — customers local service providers ko **service + city/locality + PIN code** ke through dhoondh aur contact kar sakte hain.
 
-A community **matrimonial website** for the Panika, Manikpuri, Kabirpanthi and Adivasi
-communities — **100% free for members**: no payment gateway, no subscription plans, no premium tiers,
-no locked profiles, no paid messaging.
-
-**Product Hunt:** this GitHub repo is the product source. Connect it under [Ship → GitHub](https://www.producthunt.com/ship) and use the copy in **[PRODUCTHUNT.md](PRODUCTHUNT.md)**.
-
-Built as a single Node.js application. The core uses built-in modules; the locked Nodemailer dependency handles SMTP. Playwright is used only for browser tests.
+> **Status: Foundation v0.1** — ye starting foundation hai. Payments/UPI/QR, AdSense aur cloud deployment intentionally **abhi included nahi hain** (roadmap par hain).
 
 ---
 
-## Run it
+## ✅ Foundation mein kya hai
 
-```bash
-npm ci --ignore-scripts
-node server.js          # http://localhost:3000
-PORT=8080 node server.js
-```
-
-Requirements: **Node.js 22.5 or newer** (uses the built-in `node:sqlite` driver). Production builds run `npm ci --omit=dev --ignore-scripts` so SMTP support is installed.
-
-On first start the **site-owner administrator** is created (default email
-`sukulpanika939@gmail.com`, or `ADMIN_EMAIL`). The password is taken from `ADMIN_PASSWORD` or
-generated for local development. The private `data/admin-credentials.txt` is git-ignored; configured passwords are never printed. Set `ADMIN_PASSWORD` for first production boot. Log in at
-`/admin.html` and change it. Only active, verified member accounts whose email is in `ADMIN_EMAIL` /
-`OWNER_EMAILS` are promoted to administrator on boot. New sign-ups claiming an owner
-email must verify that mailbox before getting any session or administrator access.
-
-```bash
-npm start          # run the site
-npm run dev        # run with auto-reload while editing
-npm test           # all-source syntax + security regressions + end-to-end suite
-npm run check      # server, libraries, agents, scripts and inline browser syntax
-npm run test:regression # security, error handling and privacy regressions
-npm run test:browser    # real Chromium forms, mobile layout and chat tests
-npm run test:cloud # the same suite against Cloudflare D1 + R2 (local mocks)
-npm run test:supabase-wipe # write → external store → wipe app disk → read (PostgREST mock)
-npm run verify:cloud   # check real D1/R2 credentials and a deployed site
-```
-
-### Environment variables (production requirements below)
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `PORT` | `3000` | HTTP port |
-| `HOST` | `0.0.0.0` | Bind address |
-| `PJS_DATA_DIR` | `./data` | Database + uploaded photos |
-| `SITE_URL` | request origin | Canonical production URL for email links, `robots.txt` and `sitemap.xml` (pin it in production) |
-| `SESSION_SECRET` | auto-generated in `data/` | Session signing key |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
-| `OWNER_EMAILS` | — | Additional owners; only active, independently verified accounts are promoted |
-| `TRUST_PROXY_HOPS` | `1` on Render, `0` otherwise | Exact trusted proxy count; never trust arbitrary forwarded IPs |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | SMTP support is installed by `npm ci`; delivery credentials still required |
-| `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else local SQLite; `supabase`/`d1`/`sqlite`/`json` force one |
-| `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (required on Render Free) |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production Postgres + Storage (see `supabase/schema.sql`) |
-| `SUPABASE_STORAGE_BUCKET` | `uploads` | Photo bucket |
-| `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_D1_API_TOKEN` | — | Cloudflare D1 fallback |
-| `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 fallback photos |
-
-Verification and password-reset tokens are **never returned by public APIs or displayed on screen**.
-Configure SMTP (Nodemailer is included in the locked install) for automatic delivery. If SMTP is absent
-or fails, emails are saved with private permissions in `data/outbox/` for local testing or trusted
-administrator-assisted recovery; this is **not** proof of email delivery. Configure delivery before
-enabling mandatory email verification. Production requires an HTTPS `SITE_URL` and a persistent
-`SESSION_SECRET` of at least 32 characters. Supabase photo buckets must be **private**; startup
-refuses a public bucket or missing core tables. See [SECURITY.md](SECURITY.md) for checks and limits.
-
-```bash
-npm run test:security       # auth, CSRF, privacy, storage failure and deployment regressions
-npm run verify:production  # GET-only live check; never creates members or sends emails
-```
-
-The production watchdog checks every six hours **after its workflow reaches the default branch**.
-A green local suite is not proof of live deployment, inbox delivery, a backup restore, or 24-hour uptime.
-
----
-
-## Features
-
-**Accounts & security**
-- Register with email + password, log in, log out, forgot password, reset password, change password
-- Optional email verification (`require_email_verification` in the admin panel)
-- scrypt password hashing, HMAC-signed expiring session cookies, server-side logout invalidation
-- Rate limiting on login, registration, interests and messaging; account suspension by admin
-
-**Matrimonial profile**
-- Create / edit profile: photo, name, age, gender, height, marital status, religion, community,
-  sub-community, gotra, mother tongue, city / state / country, education, occupation, employer,
-  income, diet, habits, about me, full family details
-- Partner preferences: age range, gender, location, education, occupation, marital status, community
-- Privacy: profile visibility (everyone / members / hidden), hide photo, hide contact number,
-  switch off search visibility. Photo privacy is also enforced on direct `/uploads/` requests,
-  including previously known URLs; private photos are not publicly cached.
-- Profile-strength score; everything is saved to the database and reloaded on every visit
-
-**Matchmaking**
-- Search with filters: keyword, gender, age range, community, religion, state, city, education,
-  occupation, marital status, mother tongue, photo-only; sorting and pagination
-- Recommended matches scored against your partner preferences, with the reason shown
-- Profile detail page · Send interest with a note · Accept / decline · Shortlist (toggle)
-
-**Messaging (real, database-backed)**
-- Private 1:1 conversations, full history, unread counts, read receipts, 5-second live refresh
-- Messaging opens automatically once an interest is accepted (keeps conversations respectful)
-- Notifications for new messages, interests received and interests accepted
-
-**Member dashboard**
-My profile · Edit profile · Recommended matches · Interests sent / received · Shortlist · Messages ·
-Notifications · Account settings · Delete account
-
-**Contact**
-WhatsApp button and floating chat bubble that open a chat with **+91 80998 34725**
-(`https://wa.me/918099834725`), plus a contact form that lands in the admin inbox.
-
-**Admin panel** (`/admin.html`, administrator role required, server-side checks on every API)
-- Live dashboard: accounts, active/suspended, new members, reports, contact queue, recent activity
-- Members: search, role/status filters, details, edit, hide profile, remove photo, suspend, delete
-- Reported users: review, resolve, dismiss, suspend or delete the reported member
-- Success stories, contact inbox, website content, email outbox
-- Activity / audit log (no passwords or tokens)
-- Admin account + password change
-- Last remaining administrator cannot be demoted, suspended or deleted
-
----
-
-## Project layout
-
-```
-server.js               HTTP server: static files + API + uploads
-lib/db.js               storage layer (node:sqlite, JSON fallback) + schema
-lib/auth.js             scrypt hashing, signed session cookies
-lib/api.js              all REST endpoints
-lib/profiles.js         profile validation, privacy, search filters, match scoring
-lib/settings.js         editable website content
-lib/mailer.js           optional SMTP / outbox mailer
-lib/owner.js            site-owner emails that must stay administrators
-public/                 the website (HTML + CSS + JS, no build step, no CDN)
-public/assets/css/app.css
-public/assets/js/app.js     shared client: API, auth, chrome, helpers
-public/assets/js/cards.js   profile cards + member actions
-scripts/e2e-test.mjs    full end-to-end test (boots a real server)
-scripts/e2e-cloud-test.mjs   member journey + cold-start test against D1 & R2
-scripts/test-sigv4.mjs  AWS SigV4 conformance (the official AWS test vectors)
-scripts/verify-cloud.mjs     check real Cloudflare credentials + a live site
-scripts/deploy-render.mjs    create/update the Render service and deploy it
-scripts/cloud-setup.mjs      create the D1 database and print the Render env vars
-scripts/check-syntax.mjs    syntax check for every shipped script
-scripts/agent-storage.mjs   CLI for the AI agent storage (init/status/doctor/report)
-scripts/agent-storage-cycle.mjs  runs all 13 agents and records every run
-agents/                 AI agent team (Guardian, Manager, Pooja, Priya, Aman + 8 workers)
-agents/storage.mjs      agent storage engine (state, memory, tasks, ledger, queue)
-agents/roster.mjs       the 13-agent roster, hierarchy and safety rules
-storage/                permanent memory of all 13 AI agents (committed baseline)
-data/                   database, uploaded photos, outbox (git-ignored)
-```
-
----
-
-## API overview
-
-```
-POST /api/auth/register | /api/auth/login | /api/auth/logout
-POST /api/auth/forgot | /api/auth/reset | /api/auth/resend-verification
-GET  /api/auth/verify?token=…
-GET  /api/me                     GET/PUT /api/profile
-POST /api/profile/photo          DELETE /api/profile/photo
-POST /api/me/password | /api/me/name      DELETE /api/me
-GET  /api/profiles (filters)     GET /api/profiles/:id      GET /api/matches
-POST /api/interests              GET /api/interests?direction=sent|received
-POST /api/interests/:id/respond  POST /api/shortlist        GET /api/shortlist
-GET  /api/conversations          GET /api/conversations/:id POST /api/messages
-POST /api/conversations/:id/read GET /api/unread
-GET  /api/notifications          POST /api/notifications/:id/read
-POST /api/reports                POST /api/contact          GET /api/site | /api/stories
-GET/POST/PATCH/DELETE /api/admin/…   (administrators only)
-```
-
----
-
-## Tests
-
-`npm test` boots a real server on a temporary database and runs the full assertion suite covering:
-
-registration, duplicate email, weak password, profile save/validation, photo upload + serving,
-rejection of non-images, every search filter, match scoring, interest flow (send → receive → accept,
-duplicate/self/twice rejected), messaging permissions and delivery, unread counts, read receipts,
-shortlist toggle, privacy (hidden profile, hidden photo), reports, contact form, admin rights and
-admin actions, logout, wrong password, re-login, persistence, forgot/reset password, password change,
-all pages and assets returning 200, security headers, 404 handling, path-traversal blocking — and
-finally that **all data survives a full server restart**.
-
-The same suite and security regressions run on the JSON fallback store: `npm run test:json-store`.
-The tests use disposable databases and explicit local cloud mocks, never inherited production
-storage or SMTP credentials.
-
-For desktop/mobile browser checks (registration, profile edits, email verification, chat read
-receipts, per-recipient drafts, stale responses, dialogs and layout):
-
-```bash
-npm ci
-npx playwright install --with-deps chromium
-npm run test:browser
-npm run test:all       # all local suites, storage mocks, health and browser checks
-```
-
-An already installed Chromium binary may be selected with `PJS_CHROMIUM_EXECUTABLE`.
-The Guardian workflow runs these checks on pushes and pull requests. Mock cloud tests are not
-live-production durability verification; use the separate deployment verification instructions.
-
----
-
-## Deploying
-
-Full instructions (Render, cPanel, Railway, Docker, VPS + systemd, backups, environment variables)
-are in **[DEPLOY.md](DEPLOY.md)**. The production target is:
-
-- **Render (free) — one-click Blueprint → `https://panikajeevansathi.onrender.com`**
-  (`render.yaml` creates the service named `panikajeevansathi`; pair it with
-  Supabase so members & photos survive Render's free sleep/redeploys).
-- The previous production URL `https://panikajeevansathi.coolstore.in` can be restored on the same
-  cPanel account by running *this* app (see DEPLOY.md § 1c) — its storage is already persistent.
-- **Railway is not used:** its free sandbox no longer exists, which produced the
-  “Sandbox Not Found” / 502 errors. Use Render or cPanel instead.
-
-Note: **GitHub Pages cannot host this app** — it needs a Node process and a database, not static files.
-
-**VPS / shared Node hosting**
-
-```bash
-git clone <your repo> && cd panika-jeevan-sathi
-PORT=3000 SESSION_SECRET="a-long-random-string" node server.js
-```
-
-Keep it alive with `pm2`, `systemd` or your host's Node manager, and put nginx/Caddy in front for TLS.
-Back up by copying the `data/` folder — it contains the database and every uploaded photo.
-
-**cPanel / hosting without Node 22.5+**: the site automatically falls back to the JSON file store, but
-Node 22.5+ with SQLite is strongly recommended for a live site.
-
----
-
-## AI agent storage
-
-Twelve AI agents run on GitHub Actions, 24×7, and each one keeps a **permanent
-memory** in `storage/`:
-
-| | |
+| Area | Detail |
 | --- | --- |
-| `storage/agents/<id>/` | state, memory, tasks, metrics, log, inbox, outbox — one folder per agent |
-| `storage/shared/` | shared KV namespaces, durable job queue, hash-chained ledger, incidents, knowledge base |
+| Project structure | Next.js 14 App Router + TypeScript, layered & scalable |
+| UI foundation | Mobile-first, Tailwind CSS design system (brand saffron + navy tokens) |
+| Homepage | Hero + service/location/PIN search, categories grid, how-it-works, provider CTA |
+| Header & navigation | Sticky header, desktop nav, mobile hamburger menu, mobile bottom nav bar |
+| Database | Drizzle ORM + @libsql/client — SQLite-compatible (dev), PostgreSQL/libsql-ready |
+| Models | `User`, `ProviderProfile`, `ServiceListing`, `Category`, `Service`, `State`, `District`, `City`, `Locality`, `PINCode` |
+| Location tree | India → State → District → City → Locality → PIN (36 states/UTs + metro sample data seeded) |
+| Pages | `/`, `/categories`, `/category/[slug]`, `/search`, `/provider/join`, `/api/health`, 404 |
+| Validation | zod schemas at app boundary (search params, provider onboarding shape) |
+| Tests | Vitest + Testing Library — utils, validation, components, database architecture |
 
-```bash
-npm run storage:init      # create the storage tree + register all 13 agents
-npm run storage:status    # status table for every agent
-npm run storage:doctor    # integrity check (corrupt JSON? ledger intact?)
-npm run storage:cycle     # run all 13 agents, snapshot, write the report
-npm run storage:report    # reports/agents/agent-storage-report.md
-```
+## 🗺️ Roadmap (not in this phase)
 
-Agents: **Guardian (Sardar)** → **Manager** → Pooja, Priya, **Aman**
-(owner ko daily site & member report), Arjun, Kavita, Rahul, Sneha, Amit,
-Nisha, Vikram, Meera.
-
-The ledger is hash-chained (`sha256(prevHash + entry)`), so a single edited
-line makes `doctor` fail. On GitHub Actions the storage is preserved between
-runs with `actions/cache`; if the cache is ever evicted, the committed
-baseline restores it.
-
-Full documentation: [`storage/README.md`](storage/README.md).
+Payments gateway · UPI/QR · Google AdSense · Render/cloud deployment · Auth (OTP login) · Reviews & ratings flow · Leads/chat · Provider dashboards
 
 ---
 
-## Notes
+## 🛠️ Tech stack
 
-- No third-party CDNs, fonts or trackers — the site is fast and works offline.
-- `panika-jeevan-sathi-website-prompt.zip` is the original project brief archive; it is not used by the site.
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, React Server Components)
+- **Language:** TypeScript (strict mode)
+- **Styling:** Tailwind CSS (mobile-first) + lucide-react icons, fonts bundled via Fontsource
+- **Database:** [Drizzle ORM](https://orm.drizzle.team) + [@libsql/client](https://github.com/tursodatabase/libsql) (local `file:` SQLite now; managed libsql/Turso or PostgreSQL later)
+- **Validation:** zod
+- **Testing:** Vitest, @testing-library/react, jsdom
+
+## 🚀 Getting started
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Create the dev database + seed (36 states/UTs, metros, categories, demo providers)
+npm run db:setup
+
+# 3. Start dev server
+npm run dev          # http://localhost:3000
+```
+
+Useful URLs: `/` homepage · `/categories` · `/search?service=Electrician&location=Karol+Bagh&pin=110005` · `/api/health`
+
+## 🧪 Testing
+
+```bash
+npm test             # resets a throwaway test DB, then runs the full suite
+npm run typecheck    # strict TypeScript check
+npm run build        # production build verification
+```
+
+## 📜 Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Dev server (`0.0.0.0:3000`) |
+| `npm run build` / `start` | Production build / serve |
+| `npm run db:setup` | Schema push + seed dev database |
+| `npm run db:push` | Create/sync tables (idempotent) |
+| `npm run db:reset` | Drop & re-create all tables |
+| `npm run db:seed` | Seed only (idempotent upserts) |
+| `npm test` | Test DB reset + full Vitest suite |
+| `npm run typecheck` | `tsc --noEmit` |
+
+## 📁 Project structure
+
+```
+├── app/                      # Next.js App Router
+│   ├── layout.tsx            # Root layout — header, footer, bottom nav, SEO metadata
+│   ├── page.tsx              # Homepage (DB-driven category grid)
+│   ├── categories/           # All categories index
+│   ├── category/[slug]/      # Category detail + services
+│   ├── search/               # Provider search results (service + location + PIN)
+│   ├── provider/join/        # Provider onboarding landing (static, foundation)
+│   ├── api/health/           # Health check endpoint (app + DB)
+│   └── not-found.tsx         # 404
+├── components/
+│   ├── layout/               # Header, Footer, MobileBottomNav, Logo
+│   ├── home/                 # Hero, CategoryGrid, HowItWorks, ProviderCta
+│   └── search/               # SearchBar (service + location + PIN)
+├── lib/
+│   ├── constants.ts          # Site config, nav links, fallback categories
+│   ├── icons.tsx             # Category icon registry
+│   ├── search.ts             # Shared provider-search filter builder
+│   ├── utils.ts              # Pure helpers (slugify, formatINR, PIN/phone validators…)
+│   └── validation.ts         # zod schemas (app boundary)
+├── db/
+│   ├── schema.ts             # Drizzle tables + relations + types (the data model)
+│   ├── ddl.ts                # DDL kept 1:1 with schema (drift-guarded by tests)
+│   ├── client.ts             # libsql client singleton + .env loader + FK pragma
+│   ├── index.ts              # Drizzle instance (typed relational query API)
+│   ├── push.ts               # `db:push` / `db:reset` schema sync script
+│   └── seed.ts               # States/UTs, metros, categories, services, demo providers
+├── tests/                    # Vitest suite (utils, validation, components, DB)
+└── docs/
+    └── ARCHITECTURE.md       # Architecture decisions & scaling path
+```
+
+## 🗃️ Data model
+
+```
+User 1 ── 1 ProviderProfile ──┐
+        (role: PROVIDER)      │ lists
+                               ▼
+Category 1 ── N Service N ── 1 ServiceListing (provider ⇄ service, price band)
+
+Location tree:
+State 1 ── N District 1 ── N City 1 ── N Locality N ── 1 PINCode
+                                    ▲                (one PIN covers many localities)
+        ProviderProfile.baseLocality┘
+```
+
+Search flow: **service name/category → provider listings**, **city/locality name or PIN → provider locality** — dono filters combine hote hain (`/search?service=…&location=…&pin=…`).
+
+## ⚙️ Environment
+
+See [.env.example](./.env.example). Foundation sirf ek variable use karta hai:
+
+```
+DATABASE_URL="file:./dev.db"     # dev SQLite file (production: libsql/Turso URL)
+```
+
+**Production database paths (schema is dialect-portable):**
+1. **libsql/Turso (zero-change):** `DATABASE_URL="libsql://…"` + auth token — same Drizzle schema, just add credentials.
+2. **PostgreSQL:** `db/schema.ts` ko `drizzle-orm/pg-core` definitions mein port kijiye (column types 1:1 map hoti hain) — queries unchanged rehte hain kyunki app sirf relational query API use karta hai.
+
+## 📄 License
+
+© Seva Market India. All rights reserved. (Proprietary — license TBD before launch.)
