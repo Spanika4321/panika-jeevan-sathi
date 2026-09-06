@@ -30,7 +30,8 @@ test('a file-backed database migrates and runs in WAL mode', () => {
   const { dir, file } = tempFile();
   const db = new Database(file);
   const result = migrate(db, config.db.migrationsDir);
-  assert.deepEqual(result.applied, ['0001']);
+  assert.ok(result.applied.includes('0001'));
+  assert.ok(result.applied.includes('0002'));
 
   const mode = db.get('PRAGMA journal_mode');
   assert.equal(String(Object.values(mode)[0]).toLowerCase(), 'wal', 'file databases must use WAL');

@@ -11,8 +11,9 @@ const { esc } = require('./escape');
 
 const NAV = [
   { href: '/', label: 'Home' },
-  { href: '/search', label: 'Browse services' },
+  { href: '/services', label: 'Services' },
   { href: '/categories', label: 'Categories' },
+  { href: '/search', label: 'Browse providers' },
   { href: '/locations', label: 'Locations' },
   { href: '/providers/new', label: 'List your service', cta: true },
 ];
@@ -90,8 +91,9 @@ ${body}
       <nav aria-label="Marketplace">
         <p class="site-footer__heading">Marketplace</p>
         <ul>
-          <li><a href="/search">Browse services</a></li>
+          <li><a href="/services">All services</a></li>
           <li><a href="/categories">All categories</a></li>
+          <li><a href="/search">Browse providers</a></li>
           <li><a href="/locations">States &amp; cities</a></li>
         </ul>
       </nav>

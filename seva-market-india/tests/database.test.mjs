@@ -27,10 +27,12 @@ test('migration 0001 creates every foundation table', () => {
   for (const expected of [
     'audit_logs', 'categories', 'leads', 'locations', 'providers',
     'schema_migrations', 'service_areas', 'services', 'users',
+    'subcategories', 'catalog_services',
   ]) {
     assert.ok(tables.includes(expected), `missing table: ${expected}`);
   }
-  assert.deepEqual(migrationResult.applied, ['0001']);
+  assert.ok(migrationResult.applied.includes('0001'), '0001 must have been applied');
+  assert.ok(migrationResult.applied.includes('0002'), '0002 catalog migration must have been applied');
   db.close();
 });
 
@@ -38,7 +40,8 @@ test('running migrations twice applies nothing the second time', () => {
   const { db } = makeDb({ withSeed: false });
   const second = migrate(db, config.db.migrationsDir);
   assert.deepEqual(second.applied, []);
-  assert.deepEqual(second.skipped, ['0001']);
+  assert.ok(second.skipped.includes('0001'), '0001 should be skipped on second run');
+  assert.ok(second.skipped.includes('0002'), '0002 should be skipped on second run');
   db.close();
 });
 

@@ -77,8 +77,10 @@ function createApp({ config, db: injectedDb } = {}) {
   require('./routes/api/health').register(router, context);
   require('./routes/api/locations').register(router, context);
   require('./routes/api/categories').register(router, context);
+  require('./routes/api/catalog').register(router, context);
   require('./routes/api/services').register(router, context);
   require('./routes/api/providers').register(router, context);
+  require('./routes/api/admin').register(router, context);
   require('./routes/pages').register(router, context);
 
   /** Turn a handler's return value into a response. */

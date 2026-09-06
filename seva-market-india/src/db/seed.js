@@ -4,10 +4,15 @@
  *
  * Idempotent: every insert goes through `ensure*` helpers that match on
  * slug, so re-running the seed updates nothing and duplicates nothing.
+ * After the foundation seed, the comprehensive Category → Subcategory →
+ * Service catalog is seeded from `catalog-data.js`.
  */
 
 const { categories, geography, providers } = require('./seed-data');
+const { catalog } = require('./catalog-data');
 const categoryModel = require('../models/category');
+const subcategoryModel = require('../models/subcategory');
+const catalogServiceModel = require('../models/catalogService');
 const locationModel = require('../models/location');
 const providerModel = require('../models/provider');
 const serviceModel = require('../models/service');
@@ -16,10 +21,10 @@ const { slugify } = require('./values');
 /**
  * Insert the full seed dataset.
  * @param {import('./client').Database} db
- * @returns {{categories:number, locations:number, providers:number, services:number}}
+ * @returns {{categories:number, locations:number, providers:number, services:number, catalogCategories:number, subcategories:number, catalogServices:number}}
  */
 function seed(db) {
-  const counters = { categories: 0, locations: 0, providers: 0, services: 0 };
+  const counters = { categories: 0, locations: 0, providers: 0, services: 0, catalogCategories: 0, subcategories: 0, catalogServices: 0 };
 
   db.transaction(() => {
     /* ------------------------------------------------------- categories */
@@ -41,6 +46,57 @@ function seed(db) {
         });
         categoryBySlug.set(childRow.slug, childRow);
         counters.categories += 1;
+      }
+    }
+
+    /* ------------------- backfill legacy categories with descriptions */
+    // Foundation categories from 0001 were seeded without descriptions.
+    // For a complete, SEO-ready catalog every row must have one.
+    const legacyWithoutDesc = db.all('SELECT id, name FROM categories WHERE description IS NULL OR description = ?', ['']);
+    for (const row of legacyWithoutDesc) {
+      const seoDesc = `${row.name} — professional ${row.name.toLowerCase()} services across India. Book verified providers near your PIN code. Compare prices, reviews and availability.`;
+      try { categoryModel.updateCategory(db, row.id, { description: seoDesc }); } catch (_) {}
+    }
+
+    /* ------------------------------------------ comprehensive catalog */
+    // New 23-category catalog (idempotent via slug). This runs after the
+    // foundation categories so existing slugs (e.g. beauty-personal-care)
+    // are reused rather than duplicated.
+    for (const cat of catalog) {
+      const catRow = categoryModel.ensureCategory(db, {
+        name: cat.name,
+        description: cat.description,
+        icon: cat.icon,
+        sortOrder: cat.sortOrder,
+      });
+      // Ensure description/icon are populated on re-seed if previously empty.
+      if ((!catRow.description || catRow.description.length < 10) && cat.description) {
+        categoryModel.updateCategory(db, catRow.id, { description: cat.description, icon: cat.icon });
+      }
+      categoryBySlug.set(catRow.slug, catRow);
+      counters.catalogCategories += 1;
+
+      for (const sub of cat.subcategories || []) {
+        const subRow = subcategoryModel.ensureSubcategory(db, {
+          categoryId: catRow.id,
+          name: sub.name,
+          description: sub.description,
+          icon: sub.icon,
+          sortOrder: sub.sortOrder,
+        });
+        counters.subcategories += 1;
+
+        for (const svc of sub.services || []) {
+          catalogServiceModel.ensureCatalogService(db, {
+            categoryId: catRow.id,
+            subcategoryId: subRow.id,
+            name: svc.name,
+            description: svc.description,
+            icon: svc.icon,
+            sortOrder: svc.sortOrder,
+          });
+          counters.catalogServices += 1;
+        }
       }
     }
 
