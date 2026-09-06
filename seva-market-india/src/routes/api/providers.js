@@ -55,6 +55,14 @@ function register(router, { db, config }) {
     });
     if (!valid) throw HttpError.badRequest('Please correct the highlighted fields.', errors);
 
+    if (value.serviceId) {
+      const owned = db.get(
+        'SELECT id FROM services WHERE id = ? AND provider_id = ?',
+        [value.serviceId, value.providerId],
+      );
+      if (!owned) throw HttpError.badRequest('That service does not belong to the provider.');
+    }
+
     const tooMany = leadModel.recentCountFromIp(db, req.socket?.remoteAddress, {
       minutes: 60,
       secret: config.security.sessionSecret,

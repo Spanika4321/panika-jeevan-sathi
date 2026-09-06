@@ -107,6 +107,14 @@ function findBySlug(db, slug) {
     WHERE providers.slug = ?`, [slug]));
 }
 
+/** The provider owned by a user account (dashboard access). */
+function findByUserId(db, userId) {
+  return baseCard(db.get(`SELECT ${CARD_COLUMNS} FROM providers
+    LEFT JOIN categories ON categories.id = providers.category_id
+    LEFT JOIN locations  ON locations.id  = providers.location_id
+    WHERE providers.user_id = ?`, [userId]));
+}
+
 /**
  * The core marketplace query: providers by category + place + PIN.
  * @param {object} db
@@ -120,6 +128,7 @@ function findBySlug(db, slug) {
 function searchProviders(db, {
   categoryIds = null,
   locationId = null,
+  locationIds = null,
   pin = null,
   query = null,
   verifiedOnly = false,
@@ -133,9 +142,12 @@ function searchProviders(db, {
     where.push(`providers.category_id IN (${categoryIds.map(() => '?').join(',')})`);
     params.push(...categoryIds);
   }
-  if (locationId) {
-    where.push('providers.location_id = ?');
-    params.push(locationId);
+  // Providers match by location subtree (e.g. any provider whose primary
+  // address is somewhere in the chosen state/city).
+  let areaIds = locationIds || (locationId ? [locationId] : null);
+  if (areaIds && areaIds.length) {
+    where.push(`providers.location_id IN (${areaIds.map(() => '?').join(',')})`);
+    params.push(...areaIds);
   }
   if (pin) {
     where.push('(providers.pin_code = ? OR EXISTS (SELECT 1 FROM service_areas sa WHERE sa.provider_id = providers.id AND sa.pin_code = ?))');
@@ -205,6 +217,7 @@ module.exports = {
   createProvider,
   findById,
   findBySlug,
+  findByUserId,
   searchProviders,
   setServiceAreas,
   serviceAreas,

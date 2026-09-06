@@ -63,6 +63,31 @@ function byProvider(db, providerId, { limit = 50 } = {}) {
   );
 }
 
+const LEAD_STATUSES = ['new', 'contacted', 'closed', 'spam'];
+
+/**
+ * Update an enquiry's status, scoped to the owning provider so one provider
+ * can never mutate another's lead. Statuses: new, contacted, closed, spam.
+ */
+function setStatus(db, id, { providerId, status }) {
+  if (!LEAD_STATUSES.includes(status)) throw new Error(`Unknown lead status: ${status}`);
+  const owned = db.get('SELECT id FROM leads WHERE id = ? AND provider_id = ?', [id, providerId]);
+  if (!owned) throw new Error('Enquiry not found or not owned by this provider.');
+  db.run('UPDATE leads SET status = ? WHERE id = ?', [status, id]);
+  return findById(db, id);
+}
+
+/** Count leads per status for a provider's dashboard summary. */
+function statusCounts(db, providerId) {
+  const rows = db.all(
+    `SELECT status, COUNT(*) AS total FROM leads WHERE provider_id = ? GROUP BY status`,
+    [providerId],
+  );
+  const counts = Object.fromEntries(LEAD_STATUSES.map((s) => [s, 0]));
+  for (const row of rows) counts[row.status] = Number(row.total);
+  return counts;
+}
+
 /** Leads in the last `minutes` from one IP — naive abuse throttle. */
 function recentCountFromIp(db, ip, { minutes = 60, secret = '' } = {}) {
   const ipHash = hashIp(ip, secret);
@@ -80,4 +105,15 @@ function count(db) {
   return Number(db.scalar('SELECT COUNT(*) FROM leads') ?? 0);
 }
 
-module.exports = { COLUMNS, hashIp, createLead, findById, byProvider, recentCountFromIp, count };
+module.exports = {
+  COLUMNS,
+  LEAD_STATUSES,
+  hashIp,
+  createLead,
+  findById,
+  byProvider,
+  setStatus,
+  statusCounts,
+  recentCountFromIp,
+  count,
+};

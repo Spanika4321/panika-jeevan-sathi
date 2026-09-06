@@ -59,12 +59,13 @@ function register(router, { db, config }) {
       title,
       description,
       body,
-      currentPath: currentPath || ctx.pathname,
+      currentPath: currentPath || (ctx && ctx.pathname) || '/',
       site: config.site,
+      user: ctx && ctx.user ? ctx.user : null,
     });
 
   /* ------------------------------------------------------------- home */
-  router.get('/', () => {
+  router.get('/', (ctx) => {
     const totals = locationModel.stats(db);
     const markup = homeBody({
       stats: {
@@ -79,7 +80,7 @@ function register(router, { db, config }) {
       site: config.site,
     });
     return {
-      html: render(null, {
+      html: render(ctx, {
         title: 'Find local service providers by service, city and PIN code',
         description: `${config.site.name} — search plumbers, electricians, tutors and more across every state, district, city, locality and PIN code in India.`,
         body: markup,
@@ -87,6 +88,27 @@ function register(router, { db, config }) {
       }),
     };
   });
+
+  /** A compact, in-page refine bar shown atop search results. */
+  function searchBarMarkup(filters, activeCat) {
+    return `
+        <form class="search search--compact" action="/search" method="get" role="search">
+          ${activeCat ? `<input type="hidden" name="category" value="${esc(activeCat)}">` : ''}
+          <div class="search__field">
+            <label for="q">Service</label>
+            <input id="q" name="q" type="search" maxlength="80" value="${esc(filters.query || '')}" placeholder="What do you need?">
+          </div>
+          <div class="search__field">
+            <label for="place">City / state</label>
+            <input id="place" name="place" type="search" maxlength="80" value="${esc(filters.place || '')}" placeholder="Guwahati, Assam…">
+          </div>
+          <div class="search__field">
+            <label for="pin">PIN</label>
+            <input id="pin" name="pin" type="text" inputmode="numeric" maxlength="6" value="${esc(filters.pin || '')}" placeholder="781001">
+          </div>
+          <button class="btn btn--primary search__submit" type="submit">Search</button>
+        </form>`;
+  }
 
   /* ----------------------------------------------------------- search */
   router.get('/search', (ctx) => {
@@ -96,16 +118,21 @@ function register(router, { db, config }) {
     }
     const { items, total } = serviceModel.searchServices(db, filters);
     const heading = describeFilters(filters);
+    const activeCat = filters.category ? filters.category.slug : '';
+    const where = filters.location
+      ? ` for "${esc(filters.location.name)}"`
+      : ' across India';
 
     const body = `
     <section class="page-head">
       <div class="container">
         <h1 class="page-head__title">${esc(heading)}</h1>
-        <p class="page-head__lede">${total} ${total === 1 ? 'service' : 'services'} available${filters.place ? ` for "${esc(filters.place)}"` : ' across India'}</p>
+        <p class="page-head__lede">${total} ${total === 1 ? 'service' : 'services'} available${where}</p>
       </div>
     </section>
     <section class="section">
       <div class="container container--narrow">
+        ${searchBarMarkup(filters, activeCat)}
         ${items.length ? items.map(resultCardMarkup).join('') : `
           <div class="empty">
             <h2>No services matched your search yet</h2>
@@ -129,13 +156,13 @@ function register(router, { db, config }) {
     const body = `
     <section class="page-head"><div class="container">
       <h1 class="page-head__title">Service categories</h1>
-      <p class="page-head__lede">${tree.length} categories, from home repair to tutoring.</p>
+      <p class="page-head__lede">${tree.length} service groups — pick one to see what is available near you.</p>
     </div></section>
     <section class="section"><div class="container">
       ${tree.length ? tree.map((parent) => `
         <div class="category-block">
           <h2 class="category-block__title">
-            <a href="/search?category=${esc(parent.slug)}">${esc(parent.name)}</a>
+            <a href="/search?category=${esc(parent.slug)}">${esc(parent.icon || '')} ${esc(parent.name)}</a>
           </h2>
           ${parent.children.length ? `<ul class="pill-list">${parent.children
             .map((child) => `<li><a href="/search?category=${esc(child.slug)}">${esc(child.name)}</a></li>`)
@@ -166,26 +193,20 @@ function register(router, { db, config }) {
     return { html: render(ctx, { title: 'Locations across India', body }) };
   });
 
-  /* ------------------------------------------------- provider signup */
-  router.get('/providers/new', (ctx) => {
-    const body = `
-    <section class="page-head"><div class="container container--narrow">
-      <h1 class="page-head__title">List your service</h1>
-      <p class="page-head__lede">Provider registration opens in the next build. Tell us where you work and we
-        will prioritise your area.</p>
-    </div></section>
-    <section class="section"><div class="container container--narrow">
-      <p class="empty">Coming soon — provider onboarding, verification and service management.</p>
-    </div></section>`;
-    return { html: render(ctx, { title: 'List your service', body }) };
-  });
-
   /* -------------------------------------------------- static pages */
   const staticPages = [
-    { path: '/about', title: 'About us', text: `${config.site.name} connects customers with local service providers across India, organised by state, district, city, locality and PIN code.` },
-    { path: '/contact', title: 'Contact', text: 'Questions about a listing? Contact the provider directly from their profile. For site issues, reach the team through the GitHub repository.' },
-    { path: '/privacy', title: 'Privacy', text: 'We store only what is needed to connect a customer with a provider. Enquiry phone numbers are never sold or shared beyond the provider contacted.' },
-    { path: '/terms', title: 'Terms', text: 'Listings are provided by independent providers. SEVA MARKET INDIA introduces the two parties and is not a party to the service agreement.' },
+    {
+      path: '/about', title: 'About us', prose: `${config.site.name} connects customers with local service providers across India, organised by state, district, city, locality and PIN code. Customers search by service and location, compare verified providers, and contact them directly — no middleman, no booking fee.`,
+    },
+    {
+      path: '/contact', title: 'Contact', prose: 'Questions about a listing? Contact the provider directly from their public profile. For help using the site, or to report a problem with a listing, reach the team through the GitHub repository or a verified site contact page.',
+    },
+    {
+      path: '/privacy', title: 'Privacy', prose: 'We store only what is needed to connect a customer with a provider — your name, contact details and the enquiry message. Enquiry phone numbers are shared only with the provider you contact and are never sold. Reviews are public; passwords are hashed and never stored in plain text.',
+    },
+    {
+      path: '/terms', title: 'Terms of service', prose: 'Listings are provided by independent providers and are not verified or endorsed unless explicitly marked verified. SEVA MARKET INDIA introduces the two parties and is not a party to the service agreement between a customer and a provider. Prices and availability are set by each provider. Use of the site implies agreement to these terms.',
+    },
   ];
 
   for (const page of staticPages) {
@@ -195,8 +216,7 @@ function register(router, { db, config }) {
       <h1 class="page-head__title">${esc(page.title)}</h1>
     </div></section>
     <section class="section"><div class="container container--narrow">
-      <p class="prose">${esc(page.text)}</p>
-      <p class="prose">This is the foundation build of the site; full policies ship with the provider onboarding milestone.</p>
+      <p class="prose">${esc(page.prose)}</p>
     </div></section>`;
       return { html: render(ctx, { title: page.title, body }) };
     });

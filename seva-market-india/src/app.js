@@ -12,10 +12,12 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 
 const { Router } = require('./http/router');
-const { ok, created, html, fail, HttpError } = require('./http/respond');
+const { ok, created, html, fail, redirect, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
+const { userFromRequest } = require('./http/session');
+const { RedirectError } = require('./http/auth');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -80,6 +82,11 @@ function createApp({ config, db: injectedDb } = {}) {
   require('./routes/api/services').register(router, context);
   require('./routes/api/providers').register(router, context);
   require('./routes/pages').register(router, context);
+  require('./routes/seo').register(router, context);
+  require('./routes/accounts').register(router, context);
+  require('./routes/dashboard').register(router, context);
+  require('./routes/public-profile').register(router, context);
+  require('./routes/api/reviews').register(router, context);
 
   /** Turn a handler's return value into a response. */
   function sendResult(req, res, result) {
@@ -91,6 +98,24 @@ function createApp({ config, db: injectedDb } = {}) {
     }
     if (typeof result === 'object' && result.__status === 201) {
       return created(res, result.data);
+    }
+    if (typeof result === 'object' && typeof result.redirect === 'string') {
+      const status = result.status || 303; // 303 = See Other after a POST
+      if (result.cookies && result.cookies.length) {
+        res.setHeader('Set-Cookie', result.cookies);
+      }
+      return redirect(res, result.redirect, status);
+    }
+    if (typeof result === 'object' && (typeof result.text === 'string' || typeof result.xml === 'string')) {
+      const isText = typeof result.text === 'string';
+      const contentType = isText ? 'text/plain; charset=utf-8' : 'application/xml; charset=utf-8';
+      const body = Buffer.from(isText ? result.text : result.xml, 'utf8');
+      applySecurityHeaders(res);
+      res.writeHead(result.status || 200, {
+        'Content-Type': contentType,
+        'Content-Length': body.length,
+      });
+      return res.end(body);
     }
     return ok(res, result);
   }
@@ -143,7 +168,15 @@ function createApp({ config, db: injectedDb } = {}) {
       query: url.searchParams,
       pathname,
       ip: clientIp(req, config.http.trustProxyHops),
+      user: null,
+      token: null,
     };
+
+    // Attach the logged-in user (if a valid session cookie is present).
+    ctx.user = userFromRequest(req, {
+      db,
+      cookieName: config.security.cookie.name,
+    });
 
     try {
       const result = await match.handler(ctx);
@@ -151,6 +184,9 @@ function createApp({ config, db: injectedDb } = {}) {
     } catch (err) {
       if (err instanceof HttpError) {
         return fail(res, err.status, err.message, err.details);
+      }
+      if (err instanceof RedirectError) {
+        return redirect(res, err.location, 303);
       }
       if (err && err.name === 'ValidationError') {
         return fail(res, 400, err.message, { [err.field || 'field']: err.message });

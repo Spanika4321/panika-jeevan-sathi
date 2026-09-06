@@ -17,12 +17,31 @@ const NAV = [
   { href: '/providers/new', label: 'List your service', cta: true },
 ];
 
-function navMarkup(currentPath = '/') {
-  return NAV.map((item) => {
+function navMarkup(currentPath = '/', user = null) {
+  const links = NAV.map((item) => {
     const isActive = item.href === currentPath ? ' aria-current="page"' : '';
     const className = item.cta ? 'nav__link nav__link--cta' : 'nav__link';
     return `<a class="${className}" href="${esc(item.href)}"${isActive}>${esc(item.label)}</a>`;
-  }).join('\n        ');
+  });
+
+  // Account-aware tail: show a login link when signed out, and a dashboard /
+  // sign-out action when signed in.
+  if (user && user.role === 'provider') {
+    links.push(`<a class="nav__link${currentPath === '/dashboard' ? ' is-current' : ''}" href="/dashboard">Dashboard</a>`);
+  } else {
+    links.push(
+      `<a class="nav__link${currentPath === '/login' ? ' is-current' : ''}" href="/login">Log in</a>`,
+      `<a class="nav__link${currentPath === '/register' ? ' is-current' : ''}" href="/register">Sign up</a>`,
+    );
+  }
+  if (user) {
+    links.push(
+      `<form class="nav__logout" action="/logout" method="post">
+        <button class="nav__link nav__link--btn" type="submit">Log out</button>
+      </form>`,
+    );
+  }
+  return links.join('\n        ');
 }
 
 /**
@@ -33,7 +52,7 @@ function navMarkup(currentPath = '/') {
  * @param {string} [options.currentPath]
  * @param {{name: string, tagline: string}} options.site
  */
-function layout({ title, description = '', body, currentPath = '/', site }) {
+function layout({ title, description = '', body, currentPath = '/', site, user = null }) {
   const year = new Date().getFullYear();
   return `<!DOCTYPE html>
 <html lang="en-IN">
@@ -72,7 +91,7 @@ function layout({ title, description = '', body, currentPath = '/', site }) {
       </button>
 
       <nav class="nav" id="primary-nav" aria-label="Primary" data-nav>
-        ${navMarkup(currentPath)}
+        ${navMarkup(currentPath, user)}
       </nav>
     </div>
   </header>

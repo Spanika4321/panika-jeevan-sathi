@@ -141,6 +141,27 @@ function search(db, query, { kind = null, limit = 20 } = {}) {
   );
 }
 
+/**
+ * Every location id in the subtree rooted at `locationId`, including the
+ * root itself. Used so "in Assam" / "in Guwahati" style searches match any
+ * service pinned anywhere beneath that node.
+ *
+ * Because each row's `search_text` is its full root-to-node breadcrumb, a
+ * node's descendants are exactly the rows whose `search_text` ends with the
+ * node's own breadcrumb — one indexed LIKE finds the whole subtree with no
+ * recursive walk.
+ */
+function descendantIds(db, locationId) {
+  const node = db.get(`SELECT ${COLUMNS} FROM locations WHERE id = ?`, [locationId]);
+  if (!node) return [];
+  const tail = node.search_text;
+  if (!tail) return [node.id];
+  const escaped = tail.replace(/[\\%_]/g, (char) => `\\${char}`);
+  return db
+    .all(`SELECT id FROM locations WHERE search_text LIKE ? ESCAPE '\\'`, [`%${escaped}`])
+    .map((row) => row.id);
+}
+
 /** The India root row, creating it on first use. */
 function ensureIndia(db) {
   return ensureLocation(db, { kind: 'country', name: 'India', code: 'IN' });
@@ -164,5 +185,6 @@ module.exports = {
   findBySlug,
   findByPin,
   search,
+  descendantIds,
   stats,
 };

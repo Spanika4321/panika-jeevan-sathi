@@ -30,7 +30,16 @@ test('migration 0001 creates every foundation table', () => {
   ]) {
     assert.ok(tables.includes(expected), `missing table: ${expected}`);
   }
-  assert.deepEqual(migrationResult.applied, ['0001']);
+  assert.deepEqual(migrationResult.applied, ['0001', '0002']);
+  db.close();
+});
+
+test('migration 0002 adds the auth session and review tables', () => {
+  const { db } = makeDb({ withSeed: false });
+  const tables = tableList(db);
+  for (const expected of ['sessions', 'reviews']) {
+    assert.ok(tables.includes(expected), `missing table: ${expected}`);
+  }
   db.close();
 });
 
@@ -38,7 +47,7 @@ test('running migrations twice applies nothing the second time', () => {
   const { db } = makeDb({ withSeed: false });
   const second = migrate(db, config.db.migrationsDir);
   assert.deepEqual(second.applied, []);
-  assert.deepEqual(second.skipped, ['0001']);
+  assert.deepEqual(second.skipped, ['0001', '0002']);
   db.close();
 });
 

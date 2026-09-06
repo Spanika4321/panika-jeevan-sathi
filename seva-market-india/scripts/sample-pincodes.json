@@ -1,0 +1,9 @@
+[
+  { "pin": "380001", "state": "Gujarat", "district": "Ahmedabad", "city": "Ahmedabad", "locality": "Lal Darwaja" },
+  { "pin": "380009", "state": "Gujarat", "district": "Ahmedabad", "city": "Ahmedabad", "locality": "Maninagar" },
+  { "pin": "700001", "state": "West Bengal", "district": "Kolkata", "city": "Kolkata", "locality": "BBD Bagh" },
+  { "pin": "700019", "state": "West Bengal", "district": "Kolkata", "city": "Kolkata", "locality": "Salt Lake Sector I" },
+  { "pin": "411001", "state": "Maharashtra", "district": "Pune", "city": "Pune", "locality": "Shaniwar Peth" },
+  { "pin": "500001", "state": "Telangana", "district": "Hyderabad", "city": "Hyderabad", "locality": "Abids" },
+  { "pin": "682001", "state": "Kerala", "district": "Ernakulam", "city": "Kochi", "locality": "Kochi Fort" }
+]

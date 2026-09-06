@@ -23,12 +23,22 @@ function resolveSearchFilters(db, params, options = {}) {
   const category = categorySlug ? categoryModel.findBySlug(db, categorySlug) : null;
   const categoryIds = category ? categoryModel.selfAndDescendantIds(db, category.id) : null;
 
+  // A targeted area can come from a state/city slug link (?state=assam) or
+  // from free-text "place". Whichever resolves, we match the whole subtree
+  // beneath that node so any service pinned in the area is found.
+  const stateSlug = cleanText(params.get('state'), 80);
   const place = cleanText(params.get('place'), 80);
-  let location = null;
-  if (place) {
-    const matches = locationModel.search(db, place, { limit: 1 });
-    location = matches.length ? matches[0] : null;
+  let areaNode = null;
+  if (stateSlug) {
+    areaNode = locationModel.findBySlug(db, 'state', stateSlug);
   }
+  if (!areaNode && place) {
+    const matches = locationModel.search(db, place, { limit: 1 });
+    areaNode = matches.length ? matches[0] : null;
+  }
+  const locationIds = areaNode
+    ? locationModel.descendantIds(db, areaNode.id)
+    : null;
 
   const rawPin = cleanText(params.get('pin'), 6);
   const pin = rawPin && isValidPin(rawPin) ? rawPin : null;
@@ -42,8 +52,10 @@ function resolveSearchFilters(db, params, options = {}) {
     category,
     categoryIds,
     place,
-    location,
-    locationId: location ? location.id : null,
+    state: stateSlug,
+    location: areaNode,
+    locationId: areaNode ? areaNode.id : null,
+    locationIds,
     pin,
     pinValid: rawPin ? Boolean(pin) : true,
     ...paging,

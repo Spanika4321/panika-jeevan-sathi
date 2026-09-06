@@ -61,15 +61,32 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
  * Create a user account.
+ * @param {object} db
+ * @param {object} input
+ * @param {string} input.email
+ * @param {string} input.fullName
+ * @param {string} input.password
+ * @param {string|null} [input.phone]
+ * @param {'customer'|'provider'|'admin'} [input.role]
+ * @param {'pending'|'active'|'suspended'} [input.status] — 'pending' unless
+ *   a signup flow that verifies identity sets it 'active'.
  * @returns {{user: object, passwordHash: string}}
  */
-function createUser(db, { email, fullName, password, phone = null, role = 'customer' }) {
+function createUser(db, {
+  email,
+  fullName,
+  password,
+  phone = null,
+  role = 'customer',
+  status = 'pending',
+}) {
   const cleanEmail = cleanText(email, 254)?.toLowerCase() ?? null;
   if (!cleanEmail || !EMAIL_RE.test(cleanEmail)) throw new Error('A valid email is required.');
 
   const name = cleanText(fullName, 120);
   if (!name) throw new Error('Full name is required.');
   if (!['customer', 'provider', 'admin'].includes(role)) throw new Error(`Unknown role: ${role}`);
+  if (!['pending', 'active', 'suspended'].includes(status)) throw new Error(`Unknown status: ${status}`);
 
   const passwordHash = hashPassword(password);
   const normalizedPhone = phone ? normalizePhone(phone) : null;
@@ -78,9 +95,9 @@ function createUser(db, { email, fullName, password, phone = null, role = 'custo
   if (duplicate) throw new Error('An account with that email already exists.');
 
   const result = db.run(
-    `INSERT INTO users (email, phone, full_name, password_hash, role)
-     VALUES (?, ?, ?, ?, ?)`,
-    [cleanEmail, normalizedPhone, name, passwordHash, role],
+    `INSERT INTO users (email, phone, full_name, password_hash, role, status)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [cleanEmail, normalizedPhone, name, passwordHash, role, status],
   );
   return { user: findById(db, Number(result.lastInsertRowid)), passwordHash };
 }
@@ -98,6 +115,18 @@ function findByEmail(db, email) {
 function setStatus(db, id, status) {
   if (!['pending', 'active', 'suspended'].includes(status)) throw new Error(`Unknown status: ${status}`);
   return db.run(`UPDATE users SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [status, id]);
+}
+
+/** Change a user's role (e.g. promote a customer to provider). */
+function updateRole(db, id, role) {
+  if (!['customer', 'provider', 'admin'].includes(role)) throw new Error(`Unknown role: ${role}`);
+  return db.run(`UPDATE users SET role = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [role, id]);
+}
+
+/** Activate a pending account (verification success path). */
+function verify(db, id) {
+  return db.run(`UPDATE users SET status = 'active', email_verified_at = strftime('%Y-%m-%dT%H:%M:%fZ','now'),
+    updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [id]);
 }
 
 function countByRole(db, role) {
@@ -119,6 +148,8 @@ module.exports = {
   findById,
   findByEmail,
   setStatus,
+  updateRole,
+  verify,
   countByRole,
   count,
 };

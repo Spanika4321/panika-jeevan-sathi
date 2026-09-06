@@ -124,6 +124,7 @@ function searchServices(db, {
   query = null,
   categoryIds = null,
   locationId = null,
+  locationIds = null,
   pin = null,
   limit = 20,
   offset = 0,
@@ -145,9 +146,12 @@ function searchServices(db, {
     where.push(`services.category_id IN (${categoryIds.map(() => '?').join(',')})`);
     params.push(...categoryIds);
   }
-  if (locationId) {
-    where.push('services.location_id = ?');
-    params.push(locationId);
+  // Match by location *subtree*: "in Assam" / "in Guwahati" should find any
+  // service pinned beneath that node, not just ones attached to it exactly.
+  let areaIds = locationIds || (locationId ? [locationId] : null);
+  if (areaIds && areaIds.length) {
+    where.push(`services.location_id IN (${areaIds.map(() => '?').join(',')})`);
+    params.push(...areaIds);
   }
   if (pin) {
     // A service matches a PIN directly, or via the provider's coverage list.
@@ -180,6 +184,35 @@ function searchServices(db, {
   return { items, total };
 }
 
+/** Every service a provider owns, any status — for the dashboard. */
+function byProviderAll(db, providerId) {
+  return db
+    .all(
+      `SELECT ${CARD_COLUMNS} ${CARD_JOINS}
+       WHERE services.provider_id = ?
+       ORDER BY (services.status = 'active') DESC, services.created_at DESC`,
+      [providerId],
+    )
+    .map(card);
+}
+
+/**
+ * Change a service's status, but only for the owning provider (dashboard
+ * action). Statuses: draft, active, paused, archived.
+ */
+function updateStatus(db, id, { providerId, status }) {
+  if (!['draft', 'active', 'paused', 'archived'].includes(status)) {
+    throw new Error(`Unknown status: ${status}`);
+  }
+  const owned = db.get('SELECT id FROM services WHERE id = ? AND provider_id = ?', [id, providerId]);
+  if (!owned) throw new Error('Service not found or not owned by this provider.');
+  db.run(
+    `UPDATE services SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
+    [status, id],
+  );
+  return findById(db, id);
+}
+
 /** Top categories by live service count — homepage "popular" strip. */
 function popularCategories(db, limit = 8) {
   return db.all(
@@ -207,6 +240,8 @@ module.exports = {
   findById,
   findBySlug,
   byProvider,
+  byProviderAll,
+  updateStatus,
   searchServices,
   popularCategories,
   count,
