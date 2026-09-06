@@ -87,6 +87,23 @@ function ensureLocation(db, { kind, parentId = null, name, code = null, pinCode 
   return db.get(`SELECT ${COLUMNS} FROM locations WHERE id = ?`, [Number(result.lastInsertRowid)]);
 }
 
+/**
+ * A reusable "this node and everything below it" predicate.
+ *
+ * Written as a recursive CTE rather than a JS walk so one query does the work
+ * and the caller never has to worry about an id list growing past SQLite's
+ * parameter limit. A state has thousands of localities in the full master.
+ */
+const SUBTREE_SQL = `WITH RECURSIVE subtree(id) AS (
+  SELECT ? UNION ALL
+  SELECT l.id FROM locations l JOIN subtree s ON l.parent_id = s.id
+) SELECT id FROM subtree`;
+
+/** `location_id IN (subtree of :id)` — the fragment models drop into a WHERE. */
+function subtreeInClause(column = 'locations.id') {
+  return `${column} IN (${SUBTREE_SQL})`;
+}
+
 /** Direct children of a node, optionally filtered by kind. */
 function findChildren(db, parentId, kind = null) {
   if (parentId === null || parentId === undefined) {
@@ -156,6 +173,8 @@ function stats(db) {
 
 module.exports = {
   COLUMNS,
+  SUBTREE_SQL,
+  subtreeInClause,
   chainFor,
   breadcrumbFor,
   ensureLocation,

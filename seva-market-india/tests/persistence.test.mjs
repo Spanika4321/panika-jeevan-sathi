@@ -30,7 +30,7 @@ test('a file-backed database migrates and runs in WAL mode', () => {
   const { dir, file } = tempFile();
   const db = new Database(file);
   const result = migrate(db, config.db.migrationsDir);
-  assert.deepEqual(result.applied, ['0001']);
+  assert.deepEqual(result.applied, ['0001', '0002']);
 
   const mode = db.get('PRAGMA journal_mode');
   assert.equal(String(Object.values(mode)[0]).toLowerCase(), 'wal', 'file databases must use WAL');
@@ -63,8 +63,46 @@ test('data survives closing and reopening the file', () => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
-test('the migration file contains no connection-level PRAGMAs', () => {
-  const sql = fs.readFileSync(path.join(config.db.migrationsDir, '0001_foundation.sql'), 'utf8');
+test('no migration file contains connection-level PRAGMAs', () => {
+  // The rule applies to every migration, not just the first one: a PRAGMA
+  // inside a transaction either throws (journal_mode) or lies (foreign_keys).
+  const files = fs.readdirSync(config.db.migrationsDir).filter((name) => name.endsWith('.sql'));
+  assert.ok(files.length >= 2, 'at least the foundation and auth migrations must exist');
+  const sql = files.map((name) => fs.readFileSync(path.join(config.db.migrationsDir, name), 'utf8')).join('\n');
   assert.ok(!/^\s*PRAGMA\s+journal_mode/im.test(sql), 'journal_mode must be set on the connection, not in a migration');
   assert.ok(!/^\s*PRAGMA\s+foreign_keys/im.test(sql), 'foreign_keys must be set on the connection, not in a migration');
+});
+
+test('a fresh development database seeds itself on boot', () => {
+  // The live preview is the product demo: `node server.js` on an empty file
+  // must not produce an empty marketplace whose onboarding form has no
+  // category to select.
+  const { createApp } = require('../src/app');
+  const { dir, file } = tempFile();
+  const bootConfig = { ...config, env: 'development', db: { ...config.db, file } };
+
+  const first = createApp({ config: bootConfig });
+  const categories = first.db.scalar('SELECT COUNT(*) FROM categories');
+  const providers = first.db.scalar("SELECT COUNT(*) FROM providers WHERE status = 'active'");
+  assert.ok(categories > 0, 'categories must exist after a fresh boot');
+  assert.ok(providers > 0, 'and so must the launch listings');
+  first.close();
+
+  // Idempotence: booting again over a populated database changes nothing.
+  const second = createApp({ config: bootConfig });
+  assert.equal(second.db.scalar('SELECT COUNT(*) FROM categories'), categories);
+  assert.equal(second.db.scalar('SELECT COUNT(*) FROM providers'), providers);
+  second.close();
+
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('production never seeds automatically', () => {
+  const { createApp } = require('../src/app');
+  const { dir, file } = tempFile();
+  const prodConfig = { ...config, env: 'production', admin: { email: '', password: '' }, db: { ...config.db, file } };
+  const app = createApp({ config: prodConfig });
+  assert.equal(app.db.scalar('SELECT COUNT(*) FROM categories'), 0, 'an operator seeds production with `npm run seed`');
+  app.close();
+  fs.rmSync(dir, { recursive: true, force: true });
 });

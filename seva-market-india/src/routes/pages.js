@@ -7,25 +7,19 @@
  * app.js sends it with the security headers.
  */
 
-const { layout, esc } = require('../views/layout');
+const { esc } = require('../views/layout');
 const { homeBody } = require('../views/home');
+const { renderPage, redirectTo } = require('../views/render');
+const { fromQuery: flashFromQuery } = require('../views/flash');
+const { providerProfileBody, serviceBody } = require('../views/provider');
+const leadModel = require('../models/lead');
 const categoryModel = require('../models/category');
 const locationModel = require('../models/location');
 const providerModel = require('../models/provider');
 const serviceModel = require('../models/service');
 const { resolveSearchFilters, describeFilters } = require('./search-context');
+const { priceLabel } = require('../views/pricing');
 const { HttpError } = require('../http/respond');
-
-function priceLabel(service) {
-  if (service.price_min === null && service.price_max === null) return 'Price on request';
-  const unit = { visit: '/visit', hour: '/hour', day: '/day', sqft: '/sq.ft', job: '/job', month: '/month' };
-  const suffix = unit[service.price_unit] || '';
-  if (service.price_min !== null && service.price_max !== null) {
-    return `₹${service.price_min}–₹${service.price_max}${suffix}`;
-  }
-  const single = service.price_min ?? service.price_max;
-  return `₹${single}${suffix}`;
-}
 
 function resultCardMarkup(service) {
   return `
@@ -53,18 +47,52 @@ function resultCardMarkup(service) {
       </article>`;
 }
 
-function register(router, { db, config }) {
-  const render = (ctx, { title, description, body, currentPath }) =>
-    layout({
-      title,
-      description,
-      body,
-      currentPath: currentPath || ctx.pathname,
-      site: config.site,
+/**
+ * Enquiry capture shared by the provider and service pages. Field rules come
+ * from the lead model so the JSON API and the HTML form cannot diverge; the
+ * per-IP throttle is the same one the API applies.
+ */
+function captureEnquiry(db, config, ctx, provider, body) {
+  const { validators, validate } = require('../http/request');
+  const { value, errors, valid } = validate({
+    name: () => validators.text(body.name, { field: 'name', max: 120 }),
+    phone: () => validators.phone(body.phone, { field: 'phone' }),
+    email: () => validators.email(body.email, { field: 'email' }),
+    pin: () => validators.pin(body.pin_code ?? body.pin, { field: 'pin_code' }),
+    message: () => validators.text(body.message, { field: 'message', required: false, max: 1000 }),
+  });
+  if (!valid) return { errors, status: 400 };
+
+  const tooMany = leadModel.recentCountFromIp(db, ctx.ip, { minutes: 60, secret: config.security.sessionSecret });
+  if (tooMany >= 5) return { errors: { form: 'Too many enquiries from this connection. Please call the provider or try again later.' }, status: 429 };
+
+  try {
+    const lead = leadModel.createLead(db, {
+      providerId: provider.id,
+      serviceId: body.service_id ? Number(body.service_id) : null,
+      name: value.name,
+      phone: value.phone,
+      email: value.email,
+      pinCode: value.pin,
+      message: value.message,
+      ip: ctx.ip,
+      secret: config.security.sessionSecret,
     });
+    require('../mail/mailer').newLeadMessage({ to: provider.email, business: provider.business_name, lead, config });
+    return null;
+  } catch (err) {
+    return { errors: { form: err.message }, status: 400 };
+  }
+}
+
+function register(router, { db, config }) {
+  // Pages are rendered through the shared helper so the header, the flash
+  // message and the `noindex` rule behave identically everywhere.
+  const render = (ctx, { title, description, body, currentPath }) =>
+    renderPage(ctx, { title, description, body, currentPath });
 
   /* ------------------------------------------------------------- home */
-  router.get('/', () => {
+  router.get('/', (ctx) => {
     const totals = locationModel.stats(db);
     const markup = homeBody({
       stats: {
@@ -78,14 +106,12 @@ function register(router, { db, config }) {
       states: locationModel.findChildren(db, locationModel.ensureIndia(db).id, 'state').slice(0, 12),
       site: config.site,
     });
-    return {
-      html: render(null, {
-        title: 'Find local service providers by service, city and PIN code',
-        description: `${config.site.name} — search plumbers, electricians, tutors and more across every state, district, city, locality and PIN code in India.`,
-        body: markup,
-        currentPath: '/',
-      }),
-    };
+    return render(ctx, {
+      title: 'Find local service providers by service, city and PIN code',
+      description: `${config.site.name} — search plumbers, electricians, tutors and more across every state, district, city, locality and PIN code in India.`,
+      body: markup,
+      currentPath: '/',
+    });
   });
 
   /* ----------------------------------------------------------- search */
@@ -94,8 +120,14 @@ function register(router, { db, config }) {
     if (!filters.pinValid) {
       throw HttpError.badRequest('PIN code must be 6 digits and cannot start with 0.');
     }
-    const { items, total } = serviceModel.searchServices(db, filters);
+    const found = filters.locationNotFound
+      ? { items: [], total: 0 }
+      : serviceModel.searchServices(db, filters);
+    const { items, total } = found;
     const heading = describeFilters(filters);
+    const emptyNote = filters.locationNotFound
+      ? `No listings in ${filters.placeRequested} yet — no provider has registered there. Be the first: <a href="/providers/new">list your service</a>.`
+      : null;
 
     const body = `
     <section class="page-head">
@@ -106,6 +138,7 @@ function register(router, { db, config }) {
     </section>
     <section class="section">
       <div class="container container--narrow">
+        ${emptyNote ? `<div class="callout"><p class="callout__title">${esc(emptyNote)}</p></div>` : ''}
         ${items.length ? items.map(resultCardMarkup).join('') : `
           <div class="empty">
             <h2>No services matched your search yet</h2>
@@ -114,13 +147,11 @@ function register(router, { db, config }) {
       </div>
     </section>`;
 
-    return {
-      html: render(ctx, {
-        title: `${heading} — Services`,
-        description: `${total} local services for ${heading}. Contact providers directly.`,
-        body,
-      }),
-    };
+    return render(ctx, {
+      title: `${heading} — Services`,
+      description: `${total} local services for ${heading}. Contact providers directly.`,
+      body,
+    });
   });
 
   /* ------------------------------------------------------- categories */
@@ -143,7 +174,7 @@ function register(router, { db, config }) {
         </div>`).join('') : '<p class="empty">No categories yet.</p>'}
     </div></section>`;
 
-    return { html: render(ctx, { title: 'Service categories', body }) };
+    return render(ctx, { title: 'Service categories', body });
   });
 
   /* -------------------------------------------------------- locations */
@@ -163,21 +194,109 @@ function register(router, { db, config }) {
         .join('')}</ul>` : '<p class="empty">No locations seeded yet. Run <code>npm run seed</code>.</p>'}
     </div></section>`;
 
-    return { html: render(ctx, { title: 'Locations across India', body }) };
+    return render(ctx, { title: 'Locations across India', body });
   });
 
-  /* ------------------------------------------------- provider signup */
-  router.get('/providers/new', (ctx) => {
-    const body = `
-    <section class="page-head"><div class="container container--narrow">
-      <h1 class="page-head__title">List your service</h1>
-      <p class="page-head__lede">Provider registration opens in the next build. Tell us where you work and we
-        will prioritise your area.</p>
-    </div></section>
-    <section class="section"><div class="container container--narrow">
-      <p class="empty">Coming soon — provider onboarding, verification and service management.</p>
-    </div></section>`;
-    return { html: render(ctx, { title: 'List your service', body }) };
+  /* -------------------------------------------------- public profile */
+
+  /**
+   * GET /providers/:slug — the public business page.
+   * Only an ACTIVE provider has a public page; the owner is sent to their
+   * dashboard so a pending listing is never silently 404 on its author.
+   */
+  router.get('/providers/:slug', (ctx) => {
+    const provider = providerModel.findBySlug(db, ctx.params.slug);
+    if (!provider) throw HttpError.notFound(`Provider "${ctx.params.slug}" not found.`);
+    if (provider.status !== 'active') {
+      if (ctx.user && ctx.user.id === provider.user_id) return { redirect: '/dashboard' };
+      throw HttpError.notFound('This listing is not published yet.');
+    }
+    const services = serviceModel.byProvider(db, provider.id);
+    return render(ctx, {
+      title: `${provider.business_name} — ${provider.category_name} in ${provider.location_label || 'India'}`,
+      description: `${provider.business_name} in ${provider.location_label || 'India'}: ${services.length || 'no'} priced ${provider.category_name} ${services.length === 1 ? 'service' : 'services'}. Call or send an enquiry directly.`,
+      body: providerProfileBody({
+        provider,
+        services,
+        areas: providerModel.serviceAreas(db, provider.id),
+        csrf: ctx.csrfToken || '',
+        errors: {},
+        values: {},
+        query: ctx.query.toString(),
+        flash: flashFromQuery(ctx.query),
+      }),
+    });
+  });
+
+  /** POST /providers/:slug/enquiry — the customer form behind "Ask for a quote". */
+  router.post('/providers/:slug/enquiry', async (ctx) => {
+    const provider = providerModel.findBySlug(db, ctx.params.slug);
+    if (!provider || provider.status !== 'active') {
+      throw HttpError.notFound('This listing is not accepting enquiries.');
+    }
+    const body = await ctx.readBody();
+    const failure = captureEnquiry(db, config, ctx, provider, body);
+    if (failure) {
+      const services = serviceModel.byProvider(db, provider.id);
+      return {
+        ...render(ctx, {
+          title: `${provider.business_name} — ${provider.category_name}`,
+          body: providerProfileBody({
+            provider,
+            services,
+            areas: providerModel.serviceAreas(db, provider.id),
+            csrf: ctx.csrfToken || '',
+            errors: failure.errors,
+            values: body,
+            query: ctx.query.toString(),
+          }),
+        }),
+        status: failure.status,
+      };
+    }
+    return redirectTo(`/providers/${provider.slug}`, 'enquiry-sent');
+  });
+
+  /* ------------------------------------------------ public service page */
+
+  /** GET /services/:slug — every search result card links here. */
+  router.get('/services/:slug', (ctx) => {
+    const service = serviceModel.findBySlug(db, ctx.params.slug);
+    if (!service || service.status !== 'active') throw HttpError.notFound(`Service "${ctx.params.slug}" not found.`);
+    const provider = providerModel.findById(db, service.provider_id);
+    if (!provider || provider.status !== 'active') throw HttpError.notFound('This listing is not published.');
+    return render(ctx, {
+      title: `${service.title} — ${priceLabel(service)} in ${service.location_label || 'India'}`,
+      description: `${service.title} by ${provider.business_name}${service.description ? `: ${service.description.slice(0, 140)}` : ''}`,
+      body: serviceBody({
+        service,
+        provider,
+        csrf: ctx.csrfToken || '',
+        errors: {},
+        values: {},
+        flash: flashFromQuery(ctx.query),
+      }),
+    });
+  });
+
+  /** POST /services/:slug/enquiry — same capture path, tagged with the service. */
+  router.post('/services/:slug/enquiry', async (ctx) => {
+    const service = serviceModel.findBySlug(db, ctx.params.slug);
+    if (!service || service.status !== 'active') throw HttpError.notFound('This service is not available.');
+    const provider = providerModel.findById(db, service.provider_id);
+    if (!provider || provider.status !== 'active') throw HttpError.notFound('This listing is not published.');
+    const body = await ctx.readBody();
+    const failure = captureEnquiry(db, config, ctx, provider, { ...body, service_id: service.id });
+    if (failure) {
+      return {
+        ...render(ctx, {
+          title: `${service.title}`,
+          body: serviceBody({ service, provider, csrf: ctx.csrfToken || '', errors: failure.errors, values: body }),
+        }),
+        status: failure.status,
+      };
+    }
+    return redirectTo(`/services/${service.slug}`, 'enquiry-sent');
   });
 
   /* -------------------------------------------------- static pages */
@@ -198,7 +317,7 @@ function register(router, { db, config }) {
       <p class="prose">${esc(page.text)}</p>
       <p class="prose">This is the foundation build of the site; full policies ship with the provider onboarding milestone.</p>
     </div></section>`;
-      return { html: render(ctx, { title: page.title, body }) };
+      return render(ctx, { title: page.title, body });
     });
   }
 }

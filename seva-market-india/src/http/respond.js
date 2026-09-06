@@ -79,4 +79,16 @@ function redirect(res, location, status = 302) {
   res.end();
 }
 
-module.exports = { HttpError, json, ok, created, fail, html, redirect, STATUSES };
+/**
+ * Turn an action result (`{ ok, errors, ... }`) into either data or a typed
+ * error. Both the JSON API and the HTML forms call this, so a failure can
+ * never be reported one way to a browser and another way to an app.
+ */
+function unwrapAction(result, fallback = 'The request could not be completed.') {
+  if (result && result.ok) return result;
+  const errors = result && result.errors ? result.errors : null;
+  const message = (result && (result.error || (errors && Object.values(errors)[0]))) || fallback;
+  throw new HttpError(result && result.status ? result.status : 400, message, errors || undefined);
+}
+
+module.exports = { HttpError, json, ok, created, fail, html, redirect, unwrapAction, STATUSES };
