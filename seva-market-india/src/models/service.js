@@ -124,6 +124,7 @@ function searchServices(db, {
   query = null,
   categoryIds = null,
   locationId = null,
+  expandTree = false,
   pin = null,
   limit = 20,
   offset = 0,
@@ -146,7 +147,13 @@ function searchServices(db, {
     params.push(...categoryIds);
   }
   if (locationId) {
-    where.push('services.location_id = ?');
+    // "Plumber in Assam" has to include Guwahati's listings, so a coarse
+    // level expands to its subtree; a city or locality is matched exactly.
+    if (expandTree) {
+      where.push(require('./location').subtreeInClause('services.location_id'));
+    } else {
+      where.push('services.location_id = ?');
+    }
     params.push(locationId);
   }
   if (pin) {
@@ -180,6 +187,114 @@ function searchServices(db, {
   return { items, total };
 }
 
+/**
+ * Everything a provider owns, in any status — the dashboard list.
+ * Drafts first would bury the live ones, so ordering is by status rank.
+ */
+function listForProvider(db, providerId, { status = null } = {}) {
+  const params = [providerId];
+  let clause = 'WHERE services.provider_id = ?';
+  if (status) {
+    clause += ' AND services.status = ?';
+    params.push(status);
+  }
+  return db.all(
+    `SELECT ${CARD_COLUMNS}, services.updated_at
+     ${CARD_JOINS}
+     ${clause}
+     ORDER BY CASE services.status
+                WHEN 'active' THEN 0 WHEN 'draft' THEN 1 WHEN 'paused' THEN 2 ELSE 3 END,
+              services.updated_at DESC, services.title`,
+    params,
+  ).map(card);
+}
+
+/** A single service the provider owns, raw row (no joins) — used for edits. */
+function findByIdForProvider(db, id, providerId) {
+  return db.get('SELECT * FROM services WHERE id = ? AND provider_id = ?', [id, providerId]);
+}
+
+const STATUSES = ['draft', 'active', 'paused', 'archived'];
+
+/**
+ * Patch a service. `provider_id` is never editable, so a service cannot be
+ * moved between businesses, and every mutation may be scoped to an owner.
+ */
+function updateService(db, id, { providerId = null, ...patch } = {}) {
+  const existing = db.get('SELECT id, provider_id, price_min, price_max FROM services WHERE id = ?', [id]);
+  if (!existing) throw new Error(`Unknown service: ${id}`);
+  if (providerId !== null && existing.provider_id !== Number(providerId)) {
+    throw new Error('That service belongs to another provider.');
+  }
+
+  const sets = [];
+  const params = [];
+  const take = (column, value) => {
+    sets.push(`${column} = ?`);
+    params.push(value);
+  };
+
+  if (patch.title !== undefined) {
+    const title = cleanText(patch.title, 140);
+    if (!title) throw new Error('Service title is required.');
+    take('title', title);
+  }
+  if (patch.description !== undefined) take('description', cleanText(patch.description, 2000));
+  if (patch.price_unit !== undefined) {
+    if (!['visit', 'hour', 'day', 'sqft', 'job', 'month'].includes(patch.price_unit)) {
+      throw new Error(`Unknown price unit: ${patch.price_unit}`);
+    }
+    take('price_unit', patch.price_unit);
+  }
+  if (patch.price_min !== undefined || patch.price_max !== undefined) {
+    const num = (raw, current) => (raw === undefined ? current : (raw === null || raw === '' ? null : Math.trunc(Number(raw))));
+    const min = num(patch.price_min, existing.price_min);
+    const max = num(patch.price_max, existing.price_max);
+    if (min !== null && (!Number.isFinite(min) || min < 0)) throw new Error('price_min must be 0 or more.');
+    if (max !== null && (!Number.isFinite(max) || max < 0)) throw new Error('price_max must be 0 or more.');
+    if (min !== null && max !== null && max < min) throw new Error('price_max cannot be below price_min.');
+    take('price_min', min);
+    take('price_max', max);
+  }
+  if (patch.category_id !== undefined) {
+    const category = db.get('SELECT id FROM categories WHERE id = ? AND is_active = 1', [Number(patch.category_id)]);
+    if (!category) throw new Error(`Unknown category: ${patch.category_id}`);
+    take('category_id', category.id);
+  }
+  if (patch.location_id !== undefined) {
+    const location = db.get('SELECT id FROM locations WHERE id = ?', [Number(patch.location_id)]);
+    if (!location) throw new Error(`Unknown location: ${patch.location_id}`);
+    take('location_id', location.id);
+  }
+  if (patch.pin_code !== undefined) {
+    const pin = patch.pin_code ? String(patch.pin_code) : null;
+    if (pin !== null && !isValidPin(pin)) throw new Error(`Invalid PIN code: ${pin}`);
+    take('pin_code', pin);
+  }
+  if (patch.status !== undefined) {
+    if (!STATUSES.includes(patch.status)) throw new Error(`Unknown status: ${patch.status}`);
+    take('status', patch.status);
+  }
+
+  if (!sets.length) return findById(db, id);
+  params.push(id);
+  db.run(
+    `UPDATE services SET ${sets.join(', ')}, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
+    params,
+  );
+  return findById(db, id);
+}
+
+/** Publish, pause or archive — the only status changes an owner may make. */
+function setServiceStatus(db, id, status, { providerId = null } = {}) {
+  return updateService(db, id, { providerId, status });
+}
+
+/** Archive instead of DELETE: leads may already point at this service. */
+function archiveService(db, id, { providerId = null } = {}) {
+  return updateService(db, id, { providerId, status: 'archived' });
+}
+
 /** Top categories by live service count — homepage "popular" strip. */
 function popularCategories(db, limit = 8) {
   return db.all(
@@ -201,12 +316,18 @@ function count(db, { status = 'active' } = {}) {
 }
 
 module.exports = {
+  STATUSES,
   CARD_COLUMNS,
   CARD_JOINS,
   createService,
+  updateService,
+  setServiceStatus,
   findById,
+  findByIdForProvider,
   findBySlug,
   byProvider,
+  listForProvider,
+  archiveService,
   searchServices,
   popularCategories,
   count,

@@ -12,7 +12,10 @@ function register(router, { db }) {
    */
   router.get('/api/v1/services', ({ query }) => {
     const filters = resolveSearchFilters(db, query);
-    const { items, total } = serviceModel.searchServices(db, filters);
+    // An unresolvable place is an empty answer, never an unfiltered one.
+    const { items, total } = filters.locationNotFound
+      ? { items: [], total: 0 }
+      : serviceModel.searchServices(db, filters);
     return {
       items,
       total,
@@ -23,6 +26,8 @@ function register(router, { db }) {
         q: filters.query,
         category: filters.category ? filters.category.slug : null,
         place: filters.location ? filters.location.name : null,
+        place_requested: filters.placeRequested,
+        place_found: !filters.locationNotFound,
         pin: filters.pin,
       },
     };

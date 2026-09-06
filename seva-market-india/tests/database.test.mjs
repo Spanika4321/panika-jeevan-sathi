@@ -20,17 +20,56 @@ function tableList(db) {
     .map((row) => row.name);
 }
 
-test('migration 0001 creates every foundation table', () => {
+test('the migrations create every table the app needs', () => {
   const { db, migrationResult } = makeDb({ withSeed: false });
   const tables = tableList(db);
 
   for (const expected of [
     'audit_logs', 'categories', 'leads', 'locations', 'providers',
     'schema_migrations', 'service_areas', 'services', 'users',
+    // milestone 2: accounts, onboarding and the review queue
+    'sessions', 'auth_tokens', 'login_throttle', 'provider_documents',
   ]) {
     assert.ok(tables.includes(expected), `missing table: ${expected}`);
   }
-  assert.deepEqual(migrationResult.applied, ['0001']);
+  assert.deepEqual(migrationResult.applied, ['0001', '0002']);
+  db.close();
+});
+
+test('migration 0002 adds auth columns without touching milestone-1 data', () => {
+  const { db } = makeDb({ withSeed: true });
+  const before = db.scalar('SELECT COUNT(*) FROM providers');
+  const columns = db.all('PRAGMA table_info(providers)').map((row) => row.name);
+  for (const column of ['verified_at', 'review_note', 'reviewed_at', 'website', 'gst_number']) {
+    assert.ok(columns.includes(column), `providers.${column} missing`);
+  }
+  const userColumns = db.all('PRAGMA table_info(users)').map((row) => row.name);
+  for (const column of ['password_changed_at', 'last_login_at']) {
+    assert.ok(userColumns.includes(column), `users.${column} missing`);
+  }
+  assert.equal(db.scalar('SELECT COUNT(*) FROM providers'), before, 'a migration must not change row counts');
+  db.close();
+});
+
+test('session tokens are unique so one cookie can only name one session', () => {
+  const { db } = makeDb({ withSeed: false });
+  db.run("INSERT INTO users (email, full_name, password_hash) VALUES ('a@b.co', 'A', 'x')");
+  const user = db.get('SELECT id FROM users');
+  db.run('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)', ['t1', user.id, '2999-01-01']);
+  assert.throws(
+    () => db.run('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)', ['t1', user.id, '2999-01-01']),
+    /UNIQUE/i,
+  );
+  db.close();
+});
+
+test('a session row cannot outlive its user', () => {
+  const { db } = makeDb({ withSeed: false });
+  db.run("INSERT INTO users (email, full_name, password_hash) VALUES ('c@d.co', 'C', 'x')");
+  const user = db.get('SELECT id FROM users');
+  db.run('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)', ['t2', user.id, '2999-01-01']);
+  db.run('DELETE FROM users WHERE id = ?', [user.id]);
+  assert.equal(db.scalar('SELECT COUNT(*) FROM sessions'), 0, 'ON DELETE CASCADE must clean up');
   db.close();
 });
 
@@ -38,7 +77,7 @@ test('running migrations twice applies nothing the second time', () => {
   const { db } = makeDb({ withSeed: false });
   const second = migrate(db, config.db.migrationsDir);
   assert.deepEqual(second.applied, []);
-  assert.deepEqual(second.skipped, ['0001']);
+  assert.deepEqual(second.skipped, ['0001', '0002']);
   db.close();
 });
 

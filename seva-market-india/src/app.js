@@ -12,12 +12,21 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 
 const { Router } = require('./http/router');
-const { ok, created, html, fail, HttpError } = require('./http/respond');
+const { ok, created, html, fail, redirect, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
+const { readBody } = require('./http/request');
+const authHttp = require('./http/auth');
+const authModel = require('./models/auth');
+const userModel = require('./models/user');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
+const { seed } = require('./db/seed');
+const categoryModel = require('./models/category');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+
+/** Methods that change state, and therefore need a CSRF proof when a session rides along. */
+const STATE_CHANGING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 const STATIC_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -69,7 +78,22 @@ function createApp({ config, db: injectedDb } = {}) {
   if (!config) throw new Error('createApp requires config.');
 
   const db = injectedDb || new Database(config.db.file);
-  if (!injectedDb) migrate(db, config.db.migrationsDir);
+  if (!injectedDb) {
+    migrate(db, config.db.migrationsDir);
+    // A brand-new development database would otherwise look broken: an empty
+    // homepage, and an onboarding form with no category to choose. Seed it once
+    // when nothing is there yet — never in production, where `npm run seed` is
+    // the operator's decision, and never for an injected (test) connection.
+    if (config.env !== 'production' && categoryModel.count(db) === 0) {
+      const result = seed(db);
+      console.log(`Seeded a fresh database: ${result.providers} providers, ${result.services} services, ${result.locations} locations.`);
+    }
+  }
+
+  // Boot-time housekeeping, both idempotent: expired sessions/tokens are
+  // dropped, and ADMIN_EMAIL (if configured) is created or promoted.
+  authModel.purgeExpired(db);
+  userModel.ensureAdmin(db, config.admin);
 
   const router = new Router();
   const context = { db, config };
@@ -78,7 +102,19 @@ function createApp({ config, db: injectedDb } = {}) {
   require('./routes/api/locations').register(router, context);
   require('./routes/api/categories').register(router, context);
   require('./routes/api/services').register(router, context);
+  // Order matters: `/api/v1/providers/me` must be registered before the
+  // pattern route `/api/v1/providers/:slug`, or "me" is read as a slug.
+  require('./routes/api/onboarding').register(router, context);
+  require('./routes/api/provider-account').register(router, context);
   require('./routes/api/providers').register(router, context);
+  require('./routes/api/auth').register(router, context);
+  require('./routes/api/admin').register(router, context);
+  // HTML routes, most specific first: `/providers/new` must be registered
+  // before the pattern route `/providers/:slug` or the literal is eaten.
+  require('./routes/auth-pages').register(router, context);
+  require('./routes/onboarding-pages').register(router, context);
+  require('./routes/dashboard-pages').register(router, context);
+  require('./routes/admin-pages').register(router, context);
   require('./routes/pages').register(router, context);
 
   /** Turn a handler's return value into a response. */
@@ -88,6 +124,11 @@ function createApp({ config, db: injectedDb } = {}) {
     }
     if (typeof result === 'object' && typeof result.html === 'string') {
       return html(res, result.status || 200, result.html);
+    }
+    // Handlers answer with `{ redirect }` after a successful form post, so
+    // the browser ends on a GET it can reload without re-submitting.
+    if (typeof result === 'object' && typeof result.redirect === 'string') {
+      return redirect(res, result.redirect, result.status || 303);
     }
     if (typeof result === 'object' && result.__status === 201) {
       return created(res, result.data);
@@ -143,9 +184,36 @@ function createApp({ config, db: injectedDb } = {}) {
       query: url.searchParams,
       pathname,
       ip: clientIp(req, config.http.trustProxyHops),
+      userAgent: req.headers['user-agent'] || null,
+    };
+
+    /** Body parsing happens once; the CSRF check and the handler share it. */
+    ctx.readBody = () => {
+      if (!ctx._bodyPromise) ctx._bodyPromise = readBody(req, config.http.maxBodyBytes);
+      return ctx._bodyPromise;
     };
 
     try {
+      // 1. Who is calling? 2. If they are calling with a session and want to
+      // change state, prove the request came from our own page.
+      const principal = authHttp.resolvePrincipal(db, config, req);
+      if (principal) {
+        ctx.user = principal.user;
+        ctx.session = principal.session;
+        ctx.sessionToken = principal.token;
+        ctx.csrfToken = authModel.csrfTokenFor(principal.token, config.security.sessionSecret);
+      }
+      if (!ctx.user) ctx.user = null;
+
+      if (STATE_CHANGING.has(req.method) && ctx.sessionToken) {
+        const header = req.headers['x-csrf-token'];
+        const fromBody = header ? null : (await ctx.readBody())?._csrf ?? null;
+        const submitted = header || fromBody;
+        if (!authModel.csrfTokenMatches(ctx.sessionToken, submitted, config.security.sessionSecret)) {
+          throw new HttpError(403, 'Your session expired or the form was not submitted from this site. Please try again.');
+        }
+      }
+
       const result = await match.handler(ctx);
       sendResult(req, res, result);
     } catch (err) {

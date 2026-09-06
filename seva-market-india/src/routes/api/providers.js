@@ -12,7 +12,8 @@ function register(router, { db, config }) {
   /** GET /api/v1/providers?category=&place=&pin=&q=&verified=1 */
   router.get('/api/v1/providers', ({ query }) => {
     const filters = resolveSearchFilters(db, query);
-    const { items, total } = providerModel.searchProviders(db, {
+    const empty = { items: [], total: 0 };
+    const { items, total } = filters.locationNotFound ? empty : providerModel.searchProviders(db, {
       ...filters,
       verifiedOnly: validators.boolean(query.get('verified')),
     });
