@@ -1,0 +1,48 @@
+# SEVA MARKET INDIA — Render Blueprint
+#
+# Deploy: Render dashboard → New + → Blueprint → pick this repository.
+# This Blueprint creates the service `seva-market-india`, so the public URL is:
+#
+#     https://seva-market-india.onrender.com
+#
+# DURABLE DATA — why there IS a disk here:
+#   Render's *Free* plan has an ephemeral filesystem and cannot attach a
+#   persistent disk, so a SQLite file under ./data would be erased on sleep /
+#   redeploy. This app keeps its data in a SQLite database, so it needs a
+#   **persistent disk**, which requires a Starter plan or higher. The disk is
+#   mounted at /app/data and the app bootstraps from `db-bootstrap` on the
+#   first boot (scripts/bootstrap-db.cjs). Signups, providers, leads and
+#   reviews survive sleeps and redeploys.
+#
+# If you must stay on the Free plan, the database would reset whenever the
+# service sleeps — use the Starter+ plan below for a durable site.
+
+services:
+  - type: web
+    name: seva-market-india
+    runtime: node
+    plan: starter # persistent disk needs Starter+ (free plan has no disk)
+    region: singapore # closest Render region to India
+    buildCommand: npm ci --omit=dev --ignore-scripts
+    startCommand: node scripts/start.js
+    healthCheckPath: /api/v1/health
+    autoDeploy: true # redeploy automatically when main changes
+    disk:
+      name: seva-market-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY_HOPS
+        value: '1' # Render edge appends the client address
+      - key: NODE_VERSION
+        value: 22.22.3 # built-in node:sqlite (and global fetch) required
+      - key: HOST
+        value: 0.0.0.0
+      - key: SEVA_DB_FILE
+        value: /app/data/seva-market.db # lives on the mounted persistent disk
+      - key: SITE_URL
+        value: https://seva-market-india.onrender.com # canonical origin for robots/sitemap
+      - key: SESSION_SECRET
+        generateValue: true # keeps providers signed in across restarts
