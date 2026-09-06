@@ -23,7 +23,7 @@ services:
     runtime: node
     plan: starter # persistent disk needs Starter+ (free plan has no disk)
     region: singapore # closest Render region to India
-    buildCommand: npm ci --omit=dev --ignore-scripts
+    buildCommand: npm install --omit=dev --ignore-scripts
     startCommand: node scripts/start.js
     healthCheckPath: /api/v1/health
     autoDeploy: true # redeploy automatically when main changes
