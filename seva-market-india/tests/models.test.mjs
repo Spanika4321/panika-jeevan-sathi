@@ -119,14 +119,15 @@ test('stats reports a count for all six levels', () => {
 
 /* ---------------------------------------------------------- category */
 
-test('category tree nests children under parents', () => {
+test('category tree nests children under their parent', () => {
   const { db } = makeDb();
   const tree = categories.tree(db);
-  const homeRepair = tree.find((node) => node.slug === 'home-repair-maintenance');
-  assert.ok(homeRepair, 'Home Repair & Maintenance should be a top-level category');
-  const childSlugs = homeRepair.children.map((child) => child.slug);
+  const plumbing = tree.find((node) => node.slug === 'plumbing-water-services');
+  assert.ok(plumbing, 'Plumbing & Water Services should be a top-level category');
+  const childSlugs = plumbing.children.map((child) => child.slug);
   assert.ok(childSlugs.includes('plumber'));
-  assert.ok(childSlugs.includes('electrician'));
+  const electrical = tree.find((node) => node.slug === 'electrical-services');
+  assert.ok(electrical.children.some((child) => child.slug === 'electrician'));
   db.close();
 });
 
@@ -143,7 +144,7 @@ test('categories nest at most two levels deep', () => {
 
 test('searching a parent category includes its children', () => {
   const { db } = makeDb();
-  const parent = categories.findBySlug(db, 'home-repair-maintenance');
+  const parent = categories.findBySlug(db, 'plumbing-water-services');
   const ids = categories.selfAndDescendantIds(db, parent.id);
   assert.ok(ids.includes(parent.id));
   assert.ok(ids.length > 5, 'the parent should expand to its children');

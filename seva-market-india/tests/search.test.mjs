@@ -26,7 +26,7 @@ test('searching by PIN returns services covering that PIN', () => {
 
 test('searching by category name expands to child categories', () => {
   const { db } = makeDb();
-  const parent = categories.findBySlug(db, 'home-repair-maintenance');
+  const parent = categories.findBySlug(db, 'plumbing-water-services');
   const ids = categories.selfAndDescendantIds(db, parent.id);
   const result = services.searchServices(db, { categoryIds: ids });
   assert.ok(result.total > 0);

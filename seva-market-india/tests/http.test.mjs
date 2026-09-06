@@ -122,9 +122,9 @@ test('GET /api/v1/categories returns the nested tree with live counts', async ()
   const res = await request(app, { url: '/api/v1/categories' });
   const body = res.json();
   assert.ok(body.data.total >= 8);
-  const homeRepair = body.data.items.find((row) => row.slug === 'home-repair-maintenance');
-  assert.ok(homeRepair.children.length >= 6);
-  const plumber = homeRepair.children.find((row) => row.slug === 'plumber');
+  const plumbing = body.data.items.find((row) => row.slug === 'plumbing-water-services');
+  assert.ok(plumbing.children.length >= 6);
+  const plumber = plumbing.children.find((row) => row.slug === 'plumber');
   assert.ok(plumber.service_count >= 2);
 });
 
