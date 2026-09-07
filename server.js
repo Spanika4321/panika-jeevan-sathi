@@ -55,7 +55,7 @@ const photos = photoSetup.store;
 
 if (dbLib.mustUseRemote() && !photos.remote) {
   throw new Error(
-    'This host has an ephemeral disk. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY so photos are stored in Supabase Storage. Local uploads/ would be deleted on the next sleep/redeploy.'
+    'This host has an ephemeral disk. Set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (Supabase Storage) or R2_* so photos are stored remotely. Local uploads/ would be deleted on the next sleep/redeploy.'
   );
 }
 
@@ -65,7 +65,7 @@ if (driverError) {
   );
 }
 if (photos.remote && !remote) {
-  console.warn('[storage] Photo remote storage is configured but the database is local — check SUPABASE_* / PJS_STORAGE.');
+  console.warn('[storage] Photo remote storage is configured but the database is local — check SUPABASE_* / R2_* / PJS_STORAGE.');
 }
 if (!photos.remote && remote) {
   console.warn('[storage] The database is remote but photo storage is local: uploaded photos will be lost when the host restarts.');
@@ -202,7 +202,7 @@ async function loadRemoteDatabase() {
   console.error('');
   console.error('  ⚠  THE DATABASE COULD NOT BE REACHED — THE SITE WILL NOT START');
   console.error(`     ${lastError && lastError.message}`);
-  console.error('     Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on this service,');
+  console.error('     Check your storage credentials on this service (SUPABASE_* / CF_* / APPWRITE_*),');
   console.error('     then redeploy. Starting with local sqlite would wipe members on the next sleep.');
   console.error('');
   process.exit(1);

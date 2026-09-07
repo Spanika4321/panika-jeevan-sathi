@@ -22,16 +22,39 @@ export function testEnvironment() {
 }
 
 export function inheritedMockEnvironment() {
-  if (process.env.PJS_TEST_MOCK_CLOUD !== '1') return {};
-  const keys = ['CF_ACCOUNT_ID', 'CF_D1_DATABASE_ID', 'CF_D1_API_TOKEN', 'CF_D1_API_URL',
-    'R2_ACCOUNT_ID', 'R2_BUCKET', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_ENDPOINT', 'R2_PREFIX'];
-  for (const key of ['CF_D1_API_URL', 'R2_ENDPOINT']) {
-    const url = new URL(process.env[key]);
-    if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1') {
-      throw new Error('Local test suite refuses a non-loopback cloud endpoint.');
+  if (process.env.PJS_TEST_MOCK_CLOUD === '1') {
+    const keys = ['CF_ACCOUNT_ID', 'CF_D1_DATABASE_ID', 'CF_D1_API_TOKEN', 'CF_D1_API_URL',
+      'R2_ACCOUNT_ID', 'R2_BUCKET', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_ENDPOINT', 'R2_PREFIX'];
+    for (const key of ['CF_D1_API_URL', 'R2_ENDPOINT']) {
+      const url = new URL(process.env[key]);
+      if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1') {
+        throw new Error('Local test suite refuses a non-loopback cloud endpoint.');
+      }
     }
+    return { PJS_STORAGE: 'd1', ...Object.fromEntries(keys.map((key) => [key, process.env[key]])) };
   }
-  return { PJS_STORAGE: 'd1', ...Object.fromEntries(keys.map((key) => [key, process.env[key]])) };
+  if (process.env.PJS_TEST_MOCK_APPWRITE === '1') {
+    const endpoint = process.env.APPWRITE_ENDPOINT;
+    const url = new URL(endpoint);
+    if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1') {
+      throw new Error('Local test suite refuses a non-loopback Appwrite endpoint.');
+    }
+    const r2Url = new URL(process.env.R2_ENDPOINT);
+    if (r2Url.protocol !== 'http:' || r2Url.hostname !== '127.0.0.1') {
+      throw new Error('Local test suite refuses a non-loopback R2 endpoint.');
+    }
+    const r2Keys = ['R2_ACCOUNT_ID', 'R2_BUCKET', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_ENDPOINT', 'R2_PREFIX'];
+    return {
+      PJS_STORAGE: 'appwrite',
+      APPWRITE_ENDPOINT: endpoint,
+      APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID,
+      APPWRITE_API_KEY: process.env.APPWRITE_API_KEY,
+      APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID,
+      APPWRITE_AUTO_SCHEMA: process.env.APPWRITE_AUTO_SCHEMA || '1',
+      ...Object.fromEntries(r2Keys.map((key) => [key, process.env[key]]))
+    };
+  }
+  return {};
 }
 
 /** An isolated app: never inherit production storage, mail or owner credentials. */

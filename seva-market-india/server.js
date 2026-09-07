@@ -9,8 +9,10 @@
  */
 
 const http = require('node:http');
+const fs = require('node:fs');
 
 const config = require('./src/config');
+const durability = require('./src/db/durability');
 const { createApp } = require('./src/app');
 
 const { handle, close } = createApp({ config });
@@ -25,6 +27,14 @@ const server = http.createServer((req, res) => {
 
 server.listen(config.http.port, config.http.host, () => {
   console.log(`${config.site.name} listening on http://${config.http.host}:${config.http.port} (${config.env})`);
+  if (config.db.file !== ':memory:') {
+    const report = durability.durabilityReport(config);
+    const fileInfo = report.fileExists
+      ? `ok (${report.fileBytes} bytes)`
+      : 'MISSING — the site will re-create an empty database. Set SEVA_BACKUP_DIR or SEVA_REQUIRE_REMOTE=1 to fail closed.';
+    console.log(`Database    : ${report.file} — ${fileInfo}`);
+    console.log(`Backups     : ${report.backups.length ? `${report.backups.length} snapshot(s) in ${report.backupDir}` : 'none — run `npm run db:backup`'}`);
+  }
 });
 
 function shutdown(signal) {

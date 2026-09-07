@@ -44,6 +44,12 @@ const config = {
     // ':memory:' keeps the whole suite hermetic; a file path gives persistence.
     file: process.env.SEVA_DB_FILE || path.join(ROOT, 'data', 'seva-market.db'),
     migrationsDir: path.join(ROOT, 'src', 'db', 'migrations'),
+    // Directory that outlives this instance (mounted volume, external NAS,
+    // object storage sync target). When set, the app snapshots its database
+    // there on every boot and restores from the newest backup instead of
+    // ever starting empty. On ephemeral hosts (Render/Railway/Fly) this is
+    // the difference between a recovered site and silent total data loss.
+    backupDir: process.env.SEVA_BACKUP_DIR || '',
   },
 
   security: {

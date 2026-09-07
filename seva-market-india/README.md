@@ -25,20 +25,87 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (114 tests)
+npm test           # full suite (121 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
+npm run db:status  # durability report: db file, journal mode, snapshots
+npm run db:backup  # crash-safe snapshot of the live database (cron-friendly)
+npm run db:restore # integrity-checked restore (newest snapshot, or pass a path)
 ```
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `PORT` | `3000` | HTTP port |
 | `HOST` | `0.0.0.0` | Bind address |
-| `NODE_ENV` | `development` | `production` tightens logging |
+| `NODE_ENV` | `development` | `production` enables the durability fail-closed policy |
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
+| `SEVA_BACKUP_DIR` | — | **Durable backup home** (mounted volume / external disk). Every boot snapshots the database here; an empty-disk boot restores the newest snapshot instead of starting empty |
+| `SEVA_REQUIRE_REMOTE` | — | `1` = refuse to boot on a local file database. **Set on every ephemeral host (Render/Railway/Fly free tiers)** so a wiped disk can never silently serve an empty site |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
+
+---
+
+## Keeping member data safe (read this before deploying)
+
+**The risk.** This site stores its database in a local SQLite file
+(`SEVA_DB_FILE`). Free-tier hosts — Render, Railway, Fly.io, Vercel — erase the
+whole filesystem whenever an instance sleeps or redeploys. When that happens,
+the file is gone; a normal boot then runs the migrations and creates a brand
+new **empty** database, and the site keeps serving as if nothing happened.
+That silent "second empty life" is what data loss looks like from the outside.
+
+**The protection.** Three layers, all covered by `tests/durability.test.mjs`
+and `tests/boot-durability.test.mjs`:
+
+1. **Boot snapshot** — whenever the app starts against a file database, it
+   writes a crash-safe snapshot (`src/db/backup.js`: integrity-verified,
+   atomic rename) into `SEVA_BACKUP_DIR`.
+
+2. **Boot restore** — if the database file is missing/empty but the backup
+   home has a snapshot and has never been seen by a previous boot, the newest
+   snapshot is restored *before the app opens the database*. The site never
+   starts empty when a recovery is possible.
+
+3. **Fail closed** — with `SEVA_REQUIRE_REMOTE=1` the app refuses to start on
+   a local file database at all. An ephemeral host that has lost its data
+   then fails loudly instead of serving an empty site. `NODE_ENV=production`
+   already refuses to boot when a database file that previously existed is
+   missing.
+
+### What you must do on an ephemeral host
+
+1. **Give the instance a durable home for backups.** On Render, add a
+   **Disk** to the service and point `SEVA_BACKUP_DIR` at its mount path
+   (e.g. `/var/data/backups`). On Railway, a volume mounts the same way.
+   A disk survives redeploys — it is what makes recovery possible.
+
+2. **Run `npm run db:backup` on a schedule.** Boot snapshots cover the moment
+   of (re)deploy, but between boots your leads deserve an hourly copy. A
+   Render **Cron Service** (or any scheduler) running
+   `npm run db:backup` against the same `SEVA_BACKUP_DIR` keeps snapshots
+   fresh. The backup uses SQLite's online mechanism, so the live site never
+   blocks.
+
+3. **Set `SEVA_REQUIRE_REMOTE=1`** so a wiped instance refuses to serve an
+   empty database instead of quietly deleting the site's content.
+
+4. **Keep an off-host copy** for real disasters: point a small script at the
+   backup dir and ship snapshots to object storage, or simply download them
+   after each seed/launch milestone.
+
+### Recovery after a wipe
+
+With the setup above, nothing to do: the new instance restores the newest
+snapshot at boot and logs `[durability] local database was missing — restored
+from backup`. To recover manually:
+
+```bash
+npm run db:restore                  # newest snapshot in SEVA_BACKUP_DIR
+npm run db:restore ./old-snapshot.db
+npm run db:status                   # verify file + snapshots before/after
+```
 
 ---
 
@@ -190,6 +257,8 @@ persistence tests) and drives the actual router and handlers in-process.
 | --- | --- |
 | `database.test.mjs` | Migrations, idempotency, FK + CHECK enforcement, hierarchy counts, PIN validity |
 | `persistence.test.mjs` | WAL on a real file, data surviving reopen, no PRAGMAs in migrations |
+| `durability.test.mjs` | Boot snapshots, missing-db restore, `SEVA_REQUIRE_REMOTE` fail-closed, integrity-checked restores, online backup of a live database |
+| `boot-durability.test.mjs` | `createApp` boots through a simulated instance wipe: restore path and fail-closed path |
 | `models.test.mjs` | Location tree, categories, providers, services, scrypt auth, leads |
 | `search.test.mjs` | Every filter combination, coverage PINs, pagination, wildcard escaping |
 | `http.test.mjs` | Routes, envelope, status codes, 404/405/500, static files, security headers |

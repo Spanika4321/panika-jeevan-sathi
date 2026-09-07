@@ -16,6 +16,7 @@ const { ok, created, html, fail, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
+const durability = require('./db/durability');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -68,8 +69,42 @@ function serveStatic(req, res, pathname) {
 function createApp({ config, db: injectedDb } = {}) {
   if (!config) throw new Error('createApp requires config.');
 
+  // Durability pre-flight (file databases only — tests inject :memory:).
+  // An ephemeral host that lost its database must fail loudly or restore a
+  // backup here, before a single request can serve an empty site.
+  if (!injectedDb && config.db.file !== ':memory:') {
+    const outcome = durability.guardFileDatabase(config.db.file, {
+      ...process.env,
+      SEVA_BACKUP_DIR: process.env.SEVA_BACKUP_DIR || config.db.backupDir || '',
+    });
+    if (outcome === 'restored') console.warn(`[durability] local database was missing — restored from backup`);
+    if (outcome === 'refused') {
+      throw new Error(
+        'This database was supposed to exist but is missing/empty and no backup could be ' +
+          'restored. Refusing to start on an empty database — see SEVA_BACKUP_DIR / ' +
+          'SEVA_REQUIRE_REMOTE in README.'
+      );
+    }
+  }
   const db = injectedDb || new Database(config.db.file);
-  if (!injectedDb) migrate(db, config.db.migrationsDir);
+  if (!injectedDb) {
+    migrate(db, config.db.migrationsDir);
+    // After a successful migration the file is a valid schema: snapshot it
+    // into the backup home so a later empty-disk boot can recover.
+    const snapshot = durability.snapshotToBackup(db, config, process.env);
+    if (snapshot) console.warn(`[durability] boot snapshot → ${snapshot}`);
+    // Mark the backup home as seen, so a later boot on an empty disk does
+    // not re-restore an old snapshot over a deliberately re-seeded site.
+    const backupDir = process.env.SEVA_BACKUP_DIR || config.db.backupDir || '';
+    if (backupDir) {
+      try {
+        fs.mkdirSync(backupDir, { recursive: true });
+        fs.writeFileSync(path.join(backupDir, '.seva-restored'), new Date().toISOString());
+      } catch (_) {
+        /* best effort */
+      }
+    }
+  }
 
   const router = new Router();
   const context = { db, config };
@@ -170,7 +205,7 @@ function createApp({ config, db: injectedDb } = {}) {
     if (!injectedDb) db.close();
   }
 
-  return { handle, router, db, close };
+  return { handle, router, db, close, durability: durability.durabilityReport(config) };
 }
 
 function notFoundPage(res) {
