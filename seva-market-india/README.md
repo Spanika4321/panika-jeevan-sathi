@@ -25,7 +25,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (114 tests)
+npm test           # full suite (121 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -39,6 +39,40 @@ npm run seed       # load seed data
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
+| `APPWRITE_ENDPOINT` | `https://cloud.appwrite.io/v1` | Appwrite API endpoint |
+| `APPWRITE_PROJECT_ID` | — | Appwrite project id — setting this (+ key) turns on the durability mirror |
+| `APPWRITE_API_KEY` | — | Server API key with Databases scopes (never sent to the browser) |
+| `APPWRITE_DATABASE_ID` | `seva-market` | Appwrite database id (created automatically) |
+| `SEVA_ALLOW_EPHEMERAL` | — | Set `1` to knowingly run production without Appwrite (data loss on redeploy) |
+
+---
+
+## Durable storage on free hosts (Appwrite mirror)
+
+Free hosts (Render/Railway) wipe the local disk on every sleep or redeploy —
+which would delete every provider, service and customer lead. The fix, in
+`src/db/mirror.js`, keeps SQLite as the local **query engine** (all SQL joins
+and search stay untouched) and makes **Appwrite** the durable store:
+
+- **Boot** → every Appwrite document is restored into SQLite before the
+  server accepts traffic. First run with existing local data pushes it up.
+- **Write** → after each INSERT/UPDATE/DELETE the changed rows are diffed
+  and pushed to Appwrite (one collection per table, one document per row,
+  the full row stored as JSON — no attribute migrations ever needed).
+- **Shutdown** → SIGTERM waits for the final flush before exiting.
+
+Setup (one time):
+
+1. Create a project at [cloud.appwrite.io](https://cloud.appwrite.io).
+2. In the project: **Overview → API keys → Create API key** with the
+   **Databases** scopes (read + write for databases, collections, attributes,
+   documents).
+3. Set `APPWRITE_PROJECT_ID` and `APPWRITE_API_KEY` on the host. Done — the
+   database, collections and attributes are created automatically at boot.
+
+In production the server **refuses to start** without Appwrite configured,
+so a misconfigured deploy fails loudly instead of silently losing data.
+`GET /api/v1/health/deep` reports `durable: true` plus mirror status.
 
 ---
 

@@ -1,0 +1,42 @@
+# SEVA MARKET INDIA — Render blueprint (free plan)
+#
+# Data durability: the local disk on Render's free plan is EPHEMERAL — it is
+# wiped on every sleep/redeploy. This service therefore runs with the
+# Appwrite mirror (src/db/mirror.js): SQLite is only the local query engine,
+# every row lives in Appwrite and is restored at boot. The server REFUSES to
+# start in production until APPWRITE_PROJECT_ID + APPWRITE_API_KEY are set.
+#
+# One-time setup after the first deploy attempt:
+#   1. Create a project at https://cloud.appwrite.io (free).
+#   2. Project → Overview → API keys → Create API key with the Databases
+#      scopes (databases/collections/attributes/documents, read + write).
+#   3. Render dashboard → this service → Environment: fill in
+#      APPWRITE_PROJECT_ID and APPWRITE_API_KEY. Redeploy.
+#   Database, collections and attributes are created automatically at boot.
+
+services:
+  - type: web
+    name: seva-market-india
+    runtime: node
+    plan: free
+    rootDir: seva-market-india
+    buildCommand: 'echo "zero npm dependencies — nothing to build"'
+    startCommand: node server.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: '22.22.0'
+      - key: TRUST_PROXY_HOPS
+        value: '1' # Render terminates TLS one hop in front of the app
+      - key: SESSION_SECRET
+        generateValue: true # salts lead IP hashing
+      - key: APPWRITE_ENDPOINT
+        value: https://cloud.appwrite.io/v1
+      - key: APPWRITE_PROJECT_ID
+        sync: false # fill in the dashboard (Appwrite → project settings)
+      - key: APPWRITE_API_KEY
+        sync: false # fill in the dashboard (server key, Databases scopes)
+      - key: APPWRITE_DATABASE_ID
+        value: seva-market

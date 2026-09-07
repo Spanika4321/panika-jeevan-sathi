@@ -18,9 +18,19 @@ function register(router, { db, config }) {
 
   router.get('/api/v1/health/deep', () => {
     const tables = tableNames(db);
+    const mirrored = Boolean(db.remote && db.remote.kind === 'appwrite');
     return {
       status: tables.length > 0 ? 'ok' : 'degraded',
       database: db.file === ':memory:' ? 'memory' : 'sqlite',
+      durable: mirrored,
+      mirror: mirrored
+        ? {
+            kind: 'appwrite',
+            databaseId: db.remote.databaseId,
+            pendingTables: db.dirty ? db.dirty.size : 0,
+            lastError: db.lastError ? String(db.lastError.message).slice(0, 200) : null,
+          }
+        : null,
       tables,
     };
   });
