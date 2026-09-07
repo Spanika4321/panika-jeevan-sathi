@@ -17,6 +17,8 @@ const { applySecurityHeaders, clientIp } = require('./http/security');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
 const durability = require('./db/durability');
+const appwriteLib = require('./db/appwrite');
+const remoteLib = require('./db/remote');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -66,31 +68,82 @@ function serveStatic(req, res, pathname) {
  * @param {Database} [options.db]  supply one to reuse a connection (tests)
  * @returns {{handle: Function, router: Router, db: Database, close: Function}}
  */
-function createApp({ config, db: injectedDb } = {}) {
+function createApp({ config, db: injectedDb, remote } = {}) {
   if (!config) throw new Error('createApp requires config.');
+
+  // A configured Appwrite mirror is this app's durable storage. `remote` may
+  // be passed explicitly (tests hand over a mock config). For real boots
+  // (`db` owned here) it comes from SEVA_APPWRITE_* env — never from env when
+  // a database is injected, so running the test suite on a machine that
+  // exports real Appwrite credentials cannot touch the real mirror.
+  const remoteConfig =
+    remote === null || injectedDb
+      ? null
+      : remote || appwriteLib.configFromEnv(process.env);
+  let remoteClient = null;
+  let remoteTimer = null;
+  let ready = Promise.resolve();
 
   // Durability pre-flight (file databases only — tests inject :memory:).
   // An ephemeral host that lost its database must fail loudly or restore a
-  // backup here, before a single request can serve an empty site.
+  // backup here, before a single request can serve an empty site. A
+  // configured Appwrite mirror counts as remote storage: with it, an empty
+  // local database is recovered from Appwrite right after migrate below.
   if (!injectedDb && config.db.file !== ':memory:') {
-    const outcome = durability.guardFileDatabase(config.db.file, {
-      ...process.env,
+    const guardEnv = Object.assign({}, process.env, {
       SEVA_BACKUP_DIR: process.env.SEVA_BACKUP_DIR || config.db.backupDir || '',
+      // The Appwrite mirror satisfies the "remote" requirement; without it,
+      // SEVA_REQUIRE_REMOTE=1 keeps failing closed (no silent empty DB).
+      SEVA_REQUIRE_REMOTE: remoteConfig ? '0' : process.env.SEVA_REQUIRE_REMOTE || '',
     });
+    const outcome = durability.guardFileDatabase(config.db.file, guardEnv);
     if (outcome === 'restored') console.warn(`[durability] local database was missing — restored from backup`);
     if (outcome === 'refused') {
       throw new Error(
         'This database was supposed to exist but is missing/empty and no backup could be ' +
           'restored. Refusing to start on an empty database — see SEVA_BACKUP_DIR / ' +
-          'SEVA_REQUIRE_REMOTE in README.'
+          'SEVA_REQUIRE_REMOTE / SEVA_APPWRITE_* in README.'
       );
     }
   }
   const db = injectedDb || new Database(config.db.file);
   if (!injectedDb) {
     migrate(db, config.db.migrationsDir);
-    // After a successful migration the file is a valid schema: snapshot it
-    // into the backup home so a later empty-disk boot can recover.
+
+    // Appwrite mirror. An empty local database is recovered from the remote
+    // mirror before the site answers a single request (server.js waits for
+    // `ready`). Schema provisioning + initial drain run in the same step.
+    if (remoteConfig) {
+      const client = appwriteLib.createClient(remoteConfig, { log: (m) => console.warn(`[remote] ${m}`) });
+      remoteClient = client;
+      const log = (m) => console.warn(`[remote] ${m}`);
+      ready = (async () => {
+        const recovered = await remoteLib.recoverMissingLocal(db, client, { log });
+        if (recovered) console.warn('[durability] local database rebuilt from the Appwrite mirror');
+        await client.ensureSchema(remoteLib.TABLES);
+        const drained = await remoteLib.drainPending(db, client, { log });
+        if (drained) console.warn(`[remote] pushed ${drained} queued change(s) to Appwrite`);
+      })();
+      // A remote outage must never take the site down when the local
+      // database already has data; only an empty local DB + unreachable
+      // remote is fatal (there is nothing to serve).
+      ready = ready.catch((err) => {
+        const localRows = remoteLib.ALL_TABLES.some(
+          (t) => Number(db.scalar(`SELECT COUNT(*) FROM "${t}"`) || 0) > 0,
+        );
+        if (localRows) {
+          console.error(`[remote] sync unavailable: ${err.message} — continuing with queued local writes`);
+          return undefined;
+        }
+        throw new Error(
+          `The local database is empty and Appwrite could not be reached (${err.message}). ` +
+            'Refusing to start on an empty site — restore SEVA_* storage or check the Appwrite connection.',
+        );
+      });
+    }
+
+    // After migrations the file is a valid schema: snapshot it into the
+    // backup home so a later empty-disk boot can recover.
     const snapshot = durability.snapshotToBackup(db, config, process.env);
     if (snapshot) console.warn(`[durability] boot snapshot → ${snapshot}`);
     // Mark the backup home as seen, so a later boot on an empty disk does
@@ -198,14 +251,66 @@ function createApp({ config, db: injectedDb } = {}) {
       const ms = Number(process.hrtime.bigint() - started) / 1e6;
       res.setHeader && !res.headersSent && res.setHeader('X-Response-Time', `${ms.toFixed(2)}ms`);
     }
+
+    // Mirror: push any queued changes to Appwrite. The response has already
+    // been written; a healthy flush (small queue) is awaited so the next
+    // request starts from a synced state, a huge backlog drains in the
+    // background instead of stalling this request.
+    if (remoteClient) {
+      try {
+        const pending = Number(db.scalar('SELECT COUNT(*) FROM _sync_log WHERE synced_at IS NULL') || 0);
+        if (pending > 0 && pending <= 40) {
+          await remoteLib.drainPending(db, remoteClient, {
+            log: (m) => console.warn(`[remote] ${m}`),
+            chunk: 40,
+            maxRounds: 1,
+          });
+        } else if (pending > 40) {
+          remoteLib.drainPending(db, remoteClient, { log: (m) => console.warn(`[remote] ${m}`) }).catch(() => {});
+        }
+      } catch (err) {
+        console.warn(`[remote] post-request sync failed: ${err.message}`);
+      }
+    }
     return undefined;
   }
 
-  function close() {
-    if (!injectedDb) db.close();
+  // Background safety net: a drain every few seconds catches writes that
+  // happened between requests (analytics-style) and retries failed pushes.
+  if (remoteClient && !injectedDb) {
+    remoteTimer = setInterval(() => {
+      remoteLib.drainPending(db, remoteClient, { log: (m) => console.warn(`[remote] ${m}`) }).catch(() => {});
+    }, Number(process.env.SEVA_REMOTE_INTERVAL_MS || 3000));
+    remoteTimer.unref();
   }
 
-  return { handle, router, db, close, durability: durability.durabilityReport(config) };
+  function close() {
+    // Final drain before the database closes — best-effort, never throws.
+    if (injectedDb) return Promise.resolve();
+    return ready
+      .catch(() => {})
+      .then(() => {
+        if (remoteClient) {
+          return remoteLib
+            .drainPending(db, remoteClient, { log: (m) => console.warn(`[remote] ${m}`) })
+            .catch((err) => console.warn(`[remote] shutdown drain failed: ${err.message}`));
+        }
+        return undefined;
+      })
+      .then(() => {
+        if (remoteTimer) clearInterval(remoteTimer);
+        db.close();
+      });
+  }
+
+  return {
+    handle,
+    router,
+    db,
+    close,
+    ready,
+    durability: durability.durabilityReport(config),
+  };
 }
 
 function notFoundPage(res) {

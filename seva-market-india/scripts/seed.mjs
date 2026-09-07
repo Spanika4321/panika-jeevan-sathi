@@ -22,6 +22,21 @@ const migrations = migrate(db, config.db.migrationsDir);
 if (migrations.applied.length) console.log(`Migrations applied: ${migrations.applied.join(', ')}`);
 
 const result = seed(db);
+
+// If an Appwrite mirror is configured, push the seeded baseline now so the
+// remote never lags behind the local database.
+const appwrite = require('../src/db/appwrite');
+const remoteLib = require('../src/db/remote');
+const remoteConfig = appwrite.configFromEnv(process.env);
+if (remoteConfig) {
+  const client = appwrite.createClient(remoteConfig, { log: (m) => console.log(m) });
+  await client.ensureSchema(remoteLib.TABLES);
+  let total = 0;
+  for (let i = 0; i < 100 && db.scalar('SELECT COUNT(*) FROM _sync_log WHERE synced_at IS NULL') > 0; i++) {
+    total += await remoteLib.drainPending(db, client, { log: () => {} });
+  }
+  console.log(`\nAppwrite mirror : ${total} change(s) pushed to ${remoteConfig.databaseId}`);
+}
 const totals = locationModel.stats(db);
 
 console.log(`\nDatabase : ${config.db.file}`);

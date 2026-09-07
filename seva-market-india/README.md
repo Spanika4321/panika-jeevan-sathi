@@ -23,15 +23,16 @@ node server.js             # http://localhost:3000
 ```
 
 ```bash
-npm start          # run the site
-npm run dev        # run with auto-reload
-npm test           # full suite (121 tests)
-npm run check      # syntax check every source file
-npm run migrate    # apply migrations
-npm run seed       # load seed data
-npm run db:status  # durability report: db file, journal mode, snapshots
-npm run db:backup  # crash-safe snapshot of the live database (cron-friendly)
-npm run db:restore # integrity-checked restore (newest snapshot, or pass a path)
+npm start           # run the site
+npm run dev         # run with auto-reload
+npm test            # full suite (127 tests)
+npm run check       # syntax check every source file
+npm run migrate     # apply migrations
+npm run seed        # load seed data (also mirrors to Appwrite when configured)
+npm run db:status   # durability report: db file, journal mode, snapshots
+npm run db:backup   # crash-safe snapshot of the live database (cron-friendly)
+npm run db:restore  # integrity-checked restore (newest snapshot, or pass a path)
+npm run appwrite:setup  # one-time Appwrite provisioning + initial sync (idempotent)
 ```
 
 | Variable | Default | Purpose |
@@ -41,7 +42,12 @@ npm run db:restore # integrity-checked restore (newest snapshot, or pass a path)
 | `NODE_ENV` | `development` | `production` enables the durability fail-closed policy |
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
 | `SEVA_BACKUP_DIR` | — | **Durable backup home** (mounted volume / external disk). Every boot snapshots the database here; an empty-disk boot restores the newest snapshot instead of starting empty |
-| `SEVA_REQUIRE_REMOTE` | — | `1` = refuse to boot on a local file database. **Set on every ephemeral host (Render/Railway/Fly free tiers)** so a wiped disk can never silently serve an empty site |
+| `SEVA_REQUIRE_REMOTE` | — | `1` = refuse to boot on a local file database. **Set on every ephemeral host (Render/Railway/Fly free tiers)** so a wiped disk can never silently serve an empty site. A configured Appwrite mirror satisfies this requirement, so the app starts and recovers from the mirror instead of refusing |
+| `SEVA_APPWRITE_ENDPOINT` | `https://cloud.appwrite.io/v1` | Appwrite Cloud endpoint (custom/self-hosted Appwrite: your `/v1` URL) |
+| `SEVA_APPWRITE_PROJECT_ID` | — | Appwrite project id (server API key must have `databases.*` scopes) |
+| `SEVA_APPWRITE_API_KEY` | — | Appwrite **server** API key — never ship it in code, set it only on the host |
+| `SEVA_APPWRITE_DATABASE_ID` | — | Appwrite Database id that holds the mirror collections |
+| `SEVA_REMOTE_INTERVAL_MS` | `3000` | Background re-drain interval for queued changes that failed to push |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
 
@@ -56,50 +62,94 @@ the file is gone; a normal boot then runs the migrations and creates a brand
 new **empty** database, and the site keeps serving as if nothing happened.
 That silent "second empty life" is what data loss looks like from the outside.
 
-**The protection.** Three layers, all covered by `tests/durability.test.mjs`
-and `tests/boot-durability.test.mjs`:
+**The protection.** SQLite stays the query engine and the API is unchanged;
+everything the site writes is also pushed to an **Appwrite Cloud mirror**
+(see below), which survives any host wipe. Four layers, all covered by
+`tests/durability.test.mjs`, `tests/boot-durability.test.mjs` and
+`tests/boot-remote.test.mjs`:
 
-1. **Boot snapshot** — whenever the app starts against a file database, it
+1. **Appwrite mirror (recommended, fully automatic)** — every insert/update/
+   delete in the site's tables is recorded in a SQLite change log
+   (`_sync_log`, migration `0002`) inside the same transaction, then pushed
+   to Appwrite: right after each HTTP response, on a background interval, and
+   once more at shutdown. On boot, an empty database is **rebuilt from the
+   Appwrite mirror before the site answers a single request** — no disk to
+   mount, nothing to schedule. Covered end-to-end: seed → mirror → wipe →
+   boot serves the recovered data.
+
+2. **Boot snapshot** — whenever the app starts against a file database, it
    writes a crash-safe snapshot (`src/db/backup.js`: integrity-verified,
    atomic rename) into `SEVA_BACKUP_DIR`.
 
-2. **Boot restore** — if the database file is missing/empty but the backup
+3. **Boot restore** — if the database file is missing/empty but the backup
    home has a snapshot and has never been seen by a previous boot, the newest
    snapshot is restored *before the app opens the database*. The site never
    starts empty when a recovery is possible.
 
-3. **Fail closed** — with `SEVA_REQUIRE_REMOTE=1` the app refuses to start on
-   a local file database at all. An ephemeral host that has lost its data
-   then fails loudly instead of serving an empty site. `NODE_ENV=production`
-   already refuses to boot when a database file that previously existed is
-   missing.
+4. **Fail closed** — with `SEVA_REQUIRE_REMOTE=1` the app refuses to start on
+   a local file database with no durable store. A configured Appwrite mirror
+   *is* a durable store, so with `SEVA_APPWRITE_*` set the app recovers from
+   the mirror instead of refusing; without it, a wiped instance fails loudly
+   rather than serving an empty site. `NODE_ENV=production` already refuses
+   to boot when a database file that previously existed is missing.
+
+### Setting up the Appwrite mirror (one-time, ~5 minutes)
+
+These are the only manual steps — everything after them is automatic:
+
+1. In the [Appwrite console](https://cloud.appwrite.io) create a **Project**
+   and inside it a **Database** (free tier is fine).
+2. Create a **server API key** with `databases.*` scopes (Databases → read,
+   write, create/delete collections and attributes — the key only ever needs
+   to manage the mirror collections).
+3. Put the four values on the host (server-side only, never in the repo):
+   `SEVA_APPWRITE_PROJECT_ID`, `SEVA_APPWRITE_API_KEY`,
+   `SEVA_APPWRITE_DATABASE_ID`, and `SEVA_APPWRITE_ENDPOINT` if you are not
+   using Appwrite Cloud. `APPWRITE_*` spellings are accepted as aliases.
+4. Run the one-time provision + initial sync once from anywhere that can
+   reach both the database and Appwrite:
+
+   ```bash
+   SEVA_APPWRITE_PROJECT_ID=... SEVA_APPWRITE_API_KEY=... \
+   SEVA_APPWRITE_DATABASE_ID=... npm run appwrite:setup
+   ```
+
+   It creates the mirror collections/attributes if missing (idempotent —
+   safe to re-run) and pushes every existing row, so the remote starts in
+   sync. `npm run seed` pushes its own baseline too when Appwrite is
+   configured.
+
+That's it. Every boot now provisions/mirrors automatically, every write is
+pushed after the response, and a wiped instance rebuilds itself from
+Appwrite (log: `[durability] local database rebuilt from the Appwrite
+mirror`). If Appwrite is briefly unreachable the site keeps serving local
+writes, which stay queued in `_sync_log` and drain on the retry interval /
+at shutdown.
 
 ### What you must do on an ephemeral host
 
-1. **Give the instance a durable home for backups.** On Render, add a
-   **Disk** to the service and point `SEVA_BACKUP_DIR` at its mount path
-   (e.g. `/var/data/backups`). On Railway, a volume mounts the same way.
-   A disk survives redeploys — it is what makes recovery possible.
+1. **Set the four `SEVA_APPWRITE_*` variables** (above) on the service. That
+   alone gives you wipe-proof data: no mounted disk required.
 
-2. **Run `npm run db:backup` on a schedule.** Boot snapshots cover the moment
-   of (re)deploy, but between boots your leads deserve an hourly copy. A
-   Render **Cron Service** (or any scheduler) running
-   `npm run db:backup` against the same `SEVA_BACKUP_DIR` keeps snapshots
-   fresh. The backup uses SQLite's online mechanism, so the live site never
-   blocks.
+2. **Set `SEVA_REQUIRE_REMOTE=1`** so that a wiped instance with a broken
+   Appwrite connection refuses to serve an empty database instead of
+   quietly deleting the site's content.
 
-3. **Set `SEVA_REQUIRE_REMOTE=1`** so a wiped instance refuses to serve an
-   empty database instead of quietly deleting the site's content.
+3. **Optionally add a `SEVA_BACKUP_DIR` + hourly `npm run db:backup`** for a
+   second, independent copy. The backup uses SQLite's online mechanism, so
+   the live site never blocks.
 
-4. **Keep an off-host copy** for real disasters: point a small script at the
-   backup dir and ship snapshots to object storage, or simply download them
-   after each seed/launch milestone.
+4. **Keep an off-host copy** for real disasters: ship `db:backup` snapshots
+   to object storage, or simply download them after each seed/launch
+   milestone.
 
 ### Recovery after a wipe
 
-With the setup above, nothing to do: the new instance restores the newest
-snapshot at boot and logs `[durability] local database was missing — restored
-from backup`. To recover manually:
+With the Appwrite mirror configured, nothing to do: the new instance rebuilds
+the database from Appwrite at boot and logs `[durability] local database
+rebuilt from the Appwrite mirror`. With only backup snapshots, it restores
+the newest snapshot at boot (`[durability] local database was missing —
+restored from backup`). To recover manually:
 
 ```bash
 npm run db:restore                  # newest snapshot in SEVA_BACKUP_DIR
