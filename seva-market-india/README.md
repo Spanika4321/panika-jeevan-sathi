@@ -25,7 +25,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (137 tests)
+npm test           # full suite (139 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -77,7 +77,7 @@ seva-market-india/
 ├── scripts/                     migrate, seed, syntax check, Supabase setup
 │   ├── supabase-init.sql        paste-once bootstrap SQL (5 statements)
 │   └── supabase-setup.mjs       --sql printer + PostgREST mirror sync
-└── tests/                       137 tests over schema, models, search, HTTP, pages, Supabase
+└── tests/                       139 tests over schema, models, search, HTTP, pages, Supabase
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -184,7 +184,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test          # 137 tests
+npm test          # 139 tests
 npm run test:unit # schema, models, search
 npm run test:http # HTTP layer + rendered pages
 ```
@@ -229,6 +229,11 @@ npm run supabase:sql
 ```
 
 ```sql
+SET lock_timeout = '10s';
+SET statement_timeout = '30s';
+
+BEGIN;
+
 CREATE TABLE IF NOT EXISTS public.seva_mirror (
   tbl       text NOT NULL,
   id        text NOT NULL,
@@ -243,6 +248,8 @@ REVOKE ALL ON TABLE public.seva_mirror FROM anon;
 REVOKE ALL ON TABLE public.seva_mirror FROM authenticated;
 
 NOTIFY pgrst, 'reload schema';
+
+COMMIT;
 ```
 
 Expected result: `Success. No rows returned`. Check it with
@@ -251,6 +258,38 @@ Expected result: `Success. No rows returned`. Check it with
 `--sql` echoes `scripts/supabase-init.sql` byte for byte and refuses to print if the
 file has picked up anything that is not SQL (a path, a fence, a comment) — the exact
 class of paste error that produces `syntax error at or near ")"`.
+
+### Stuck at "Running..." with no result?
+
+`ALTER TABLE` and `REVOKE` need an `ACCESS EXCLUSIVE` lock. If a previous query tab
+is idle in a transaction, or a PostgREST connection is holding the table, the
+statement waits — and the editor shows no error, just a spinner. The file sets
+`lock_timeout = '10s'` so that case now fails in ten seconds with
+`canceling statement due to lock timeout` instead of hanging.
+
+Find what is holding it (this query itself needs no lock, so it always returns):
+
+```sql
+select pid,
+       state,
+       wait_event_type || '/' || coalesce(wait_event, '-') as waiting_on,
+       pg_blocking_pids(pid) as blocked_by,
+       now() - query_start as running_for,
+       left(query, 60) as query
+from pg_stat_activity
+where datname = current_database()
+  and pid <> pg_backend_pid()
+order by query_start;
+```
+
+Cancel the blocker by its `pid`, then re-run:
+
+```sql
+select pg_terminate_backend(<pid>);
+```
+
+If the project itself is paused (free tier goes idle), open the dashboard's
+**Database** page and restore it first — no query will return until it is back up.
 
 **2. Sync.** Then push the local rows:
 

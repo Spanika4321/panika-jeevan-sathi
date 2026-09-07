@@ -19,7 +19,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { makeDb } from './helpers.mjs';
@@ -74,21 +74,43 @@ test('lintSql() rejects every class of junk that broke a previous paste', () => 
   }
 });
 
-test('supabase-init.sql is exactly five statements of the expected kinds', () => {
+test('supabase-init.sql is exactly nine statements of the expected kinds', () => {
   const sql = readSql();
   const { statements, trailing } = splitStatements(sql);
   assert.equal(trailing, '', 'trailing text after the last semicolon');
-  assert.equal(statements.length, 5, `expected 5 statements, found ${statements.length}`);
+  assert.equal(statements.length, 9, `expected 9 statements, found ${statements.length}`);
   assert.deepEqual(statementHeads(sql), [
+    'SET LOCK_TIMEOUT',
+    'SET STATEMENT_TIMEOUT',
+    'BEGIN',
     'CREATE TABLE',
     'ALTER TABLE',
     'REVOKE ALL',
     'REVOKE ALL',
     'NOTIFY PGRST',
+    'COMMIT',
   ]);
   assert.match(sql, /PRIMARY KEY \(tbl, id\)/);
   assert.match(sql, /ENABLE ROW LEVEL SECURITY/);
   assert.match(sql, /NOTIFY pgrst, 'reload schema';/, 'the quoted channel must survive splitting');
+  // A blocked DDL must fail fast instead of leaving the editor spinning.
+  assert.match(sql, /SET lock_timeout = '10s';/);
+  assert.match(sql, /SET statement_timeout = '30s';/);
+});
+
+test('lintSql() rejects a bootstrap SQL that could hang or land half-applied', () => {
+  const clean = readSql();
+  assert.deepEqual(lintSql(clean), []);
+  const noTimeout = clean.replace(/SET lock_timeout = '10s';\n/, '');
+  assert.ok(
+    lintSql(noTimeout).some((p) => p.includes('lock_timeout')),
+    'removing lock_timeout must be caught: a blocked ALTER would hang forever',
+  );
+  const noTx = clean.replace('BEGIN;', '').replace('COMMIT;', '');
+  assert.ok(
+    lintSql(noTx).some((p) => p.includes('BEGIN/COMMIT')),
+    'removing the transaction must be caught: the table would be readable before the REVOKEs',
+  );
 });
 
 test('--sql refuses to print a file that is not clean SQL', async () => {
@@ -490,6 +512,91 @@ test(
     assert.equal(one("select doc->>'business_name' from public.seva_mirror where tbl='providers' and id='1'"), "Ravi's Repairs");
     run('delete from public.seva_mirror');
     run('DROP TABLE public.seva_mirror');
+  },
+);
+
+test(
+  'a blocked ALTER fails in ~10s with a lock timeout instead of hanging forever',
+  { skip: PSQL ? false : 'set SEVA_PSQL to a psql binary to run against real PostgreSQL' },
+  async () => {
+    const run = (sql) =>
+      execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-c', sql], { encoding: 'utf8' });
+    for (const role of ['anon', 'authenticated']) {
+      try {
+        run(`CREATE ROLE ${role} NOLOGIN`);
+      } catch (_) {
+        /* already present */
+      }
+    }
+    run('DROP TABLE IF EXISTS public.seva_mirror');
+    execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-f', SQL_FILE], { encoding: 'utf8' });
+
+    // Hold an ACCESS SHARE lock from another session, the way a leftover
+    // "idle in transaction" query tab does in the Supabase editor.
+    const blocker = spawn(
+      PSQL,
+      ['-X', '-q', '-c', 'BEGIN; LOCK TABLE public.seva_mirror IN ACCESS SHARE MODE; SELECT pg_sleep(60);'],
+      { stdio: 'ignore', detached: true },
+    );
+    const runSqlFile = () =>
+      new Promise((resolve) => {
+        const child = spawn(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-f', SQL_FILE], {
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        const started = Date.now();
+        let stderr = '';
+        child.stderr.on('data', (chunk) => {
+          stderr += chunk.toString();
+        });
+        child.on('close', (code) => resolve({ code, stderr, elapsed: (Date.now() - started) / 1000 }));
+      });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const started = runSqlFile();
+      // Give the DDL time to reach the lock queue before inspecting it.
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      const one = (sql) =>
+        execFileSync(PSQL, ['-X', '-q', '-t', '-A', '-c', sql], { encoding: 'utf8' }).trim();
+      const blockers = one(
+        'select count(*) from pg_stat_activity where cardinality(pg_blocking_pids(pid)) > 0',
+      );
+      assert.match(blockers, /^[1-9]/, 'the diagnostic query must show a blocked backend');
+      assert.match(
+        one("select count(*) from pg_stat_activity where wait_event_type = 'Lock'"),
+        /^[1-9]/,
+        'the blocked backend must be waiting on a lock',
+      );
+
+      const result = await started;
+      assert.notEqual(result.code, 0, 'the script must fail while blocked');
+      assert.match(result.stderr, /canceling statement due to lock timeout/, 'must fail on the lock timeout');
+      assert.ok(result.elapsed < 30, `must give up quickly, waited ${result.elapsed}s`);
+      assert.ok(result.elapsed >= 9, `must actually honour the 10s lock_timeout, waited ${result.elapsed}s`);
+    } finally {
+      blocker.kill('SIGKILL');
+      // Killing the client does not release the server-side lock instantly, so
+      // terminate the backend holding pg_sleep before dropping — otherwise the
+      // teardown itself blocks and stalls the whole suite.
+      execFileSync(
+        PSQL,
+        [
+          '-X',
+          '-q',
+          '-c',
+          "select pg_terminate_backend(pid) from pg_stat_activity where pid <> pg_backend_pid() and query like '%pg_sleep%'",
+        ],
+        { encoding: 'utf8' },
+      );
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      execFileSync(
+        PSQL,
+        ['-X', '-q', '-c', "set lock_timeout = '5s'; drop table if exists public.seva_mirror"],
+        { encoding: 'utf8' },
+      );
+    }
   },
 );
 

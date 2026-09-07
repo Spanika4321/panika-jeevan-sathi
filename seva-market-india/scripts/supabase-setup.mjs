@@ -90,13 +90,21 @@ export function lintSql(sql) {
   if (!/\n$/.test(sql)) problems.push('file does not end with a newline');
   if (!/PRIMARY KEY \(tbl, id\)/.test(sql)) problems.push('missing PRIMARY KEY (tbl, id)');
   if (!/ENABLE ROW LEVEL SECURITY/.test(sql)) problems.push('missing ENABLE ROW LEVEL SECURITY');
+  // Without a lock_timeout a blocked DDL waits forever and the SQL editor
+  // just spins at "Running..." with no result and no error.
+  if (!/SET\s+lock_timeout/i.test(sql)) problems.push('missing SET lock_timeout (a blocked DDL would hang forever)');
+  // Without BEGIN/COMMIT the table exists before the REVOKEs land, leaving a
+  // window where anon can read it; a timeout would also leave it half-done.
+  if (!/\bBEGIN\b/.test(sql) || !/\bCOMMIT\b/.test(sql)) {
+    problems.push('missing BEGIN/COMMIT (RLS and REVOKEs must land atomically)');
+  }
 
   for (const line of sql.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed) continue;
     // A line is either a statement opener, an indented column definition,
     // or the `);` that closes the CREATE TABLE. Nothing else.
-    if (!/^(CREATE|ALTER|REVOKE|GRANT|NOTIFY|PRIMARY\s+KEY\s*\(|\);|[a-z_]+\s+\S)/.test(trimmed)) {
+    if (!/^(CREATE|ALTER|REVOKE|GRANT|NOTIFY|SET|BEGIN|COMMIT|ROLLBACK|PRIMARY\s+KEY\s*\(|\);|[a-z_]+\s+\S)/.test(trimmed)) {
       problems.push(`line does not look like SQL: ${JSON.stringify(trimmed)}`);
     }
   }
