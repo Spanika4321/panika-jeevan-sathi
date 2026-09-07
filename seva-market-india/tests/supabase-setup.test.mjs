@@ -33,6 +33,7 @@ import {
   selectTables,
   buildRows,
   batch,
+  emitInsertSql,
   syncRows,
   summarize,
   parseArgs,
@@ -632,6 +633,60 @@ test('the SQL block documented in the README is byte-identical to the file', () 
   assert.ok(match, 'README must show the bootstrap SQL in a ```sql block');
   assert.equal(match[1], readSql(), 'README block drifted from scripts/supabase-init.sql');
   assert.deepEqual(lintSql(match[1]), [], 'the documented block must also lint clean');
+});
+
+test('emitInsertSql() keeps one row per line with balanced parentheses', () => {
+  const { db } = makeDb();
+  const { sql, parts } = emitInsertSql(buildRows(db));
+  db.close();
+
+  assert.equal(parts.reduce((sum, part) => sum + part.rows, 0), 190, 'every row is emitted');
+  assert.equal(parts.length, 7, 'the paste is split into 7 chunks');
+  for (const part of parts) {
+    assert.ok(part.bytes <= 9500, `${part.label} is ${part.bytes} bytes — too big for a phone paste`);
+  }
+
+  const valueLines = sql.split('\n').filter((line) => line.startsWith("('"));
+  assert.equal(valueLines.length, 190);
+  for (const line of valueLines) {
+    const open = (line.match(/\(/g) || []).length;
+    const close = (line.match(/\)/g) || []).length;
+    assert.equal(open, close, `unbalanced parentheses on line: ${line.slice(0, 80)}`);
+    assert.match(line, /\),?$/, 'a value line ends with ")" or "),"');
+  }
+});
+
+test('a dropped middle row still parses — only that row is missing', () => {
+  // The whole point of one-row-per-line: a flaky mobile paste that loses a
+  // line in the middle must not break the statement.
+  const { db } = makeDb();
+  const { parts } = emitInsertSql(buildRows(db, selectTables('providers')));
+  db.close();
+  const lines = parts[0].text.split('\n');
+  const first = lines.findIndex((line) => line.startsWith("('"));
+  const without = [...lines.slice(0, first + 1), ...lines.slice(first + 2)];
+  const kept = without.filter((line) => line.startsWith("('"));
+  assert.equal(kept.length, 9, 'one of ten provider rows removed');
+  // The line before the last must end in a comma; the last must not.
+  assert.match(kept[kept.length - 2], /\),$/);
+  assert.equal(/\),$/.test(kept[kept.length - 1]), false);
+});
+
+test('the committed supabase-data files match the seed data exactly', () => {
+  // Drift guard: if the seed dataset changes, these paste files must be
+  // regenerated, not silently left behind.
+  const dir = path.join(ROOT, 'supabase-data');
+  assert.ok(fs.existsSync(dir), 'supabase-data/ must exist — run `npm run supabase:emit`');
+  const { db } = makeDb();
+  const { parts } = emitInsertSql(buildRows(db));
+  db.close();
+
+  const onDisk = fs.readdirSync(dir).filter((name) => name.endsWith('.sql')).sort();
+  assert.deepEqual(onDisk, parts.map((part) => `${part.label}.sql`));
+  for (const part of parts) {
+    const file = path.join(dir, `${part.label}.sql`);
+    assert.equal(fs.readFileSync(file, 'utf8'), part.text, `${part.label}.sql is stale`);
+  }
 });
 
 test('every mirrored table exists in the local schema', () => {

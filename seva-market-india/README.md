@@ -25,7 +25,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (140 tests)
+npm test           # full suite (143 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -77,7 +77,7 @@ seva-market-india/
 ├── scripts/                     migrate, seed, syntax check, Supabase setup
 │   ├── supabase-init.sql        paste-once bootstrap SQL (5 statements)
 │   └── supabase-setup.mjs       --sql printer + PostgREST mirror sync
-└── tests/                       140 tests over schema, models, search, HTTP, pages, Supabase
+└── tests/                       143 tests over schema, models, search, HTTP, pages, Supabase
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -184,7 +184,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test          # 140 tests
+npm test          # 143 tests
 npm run test:unit # schema, models, search
 npm run test:http # HTTP layer + rendered pages
 ```
@@ -252,6 +252,45 @@ Expected result: `Success. No rows returned`. Check it with
 `--sql` echoes `scripts/supabase-init.sql` byte for byte and refuses to print if the
 file has picked up anything that is not SQL (a path, a fence, a comment) — the exact
 class of paste error that produces `syntax error at or near ")"`.
+
+### No terminal? Paste the data instead
+
+`npm run supabase:setup` needs Node on a computer. On a phone there is only the
+SQL editor, so the same 190 rows ship as paste-ready SQL:
+
+```bash
+npm run supabase:emit      # regenerate supabase-data/*.sql from the seed data
+```
+
+`supabase-data/` holds seven files, each under 10 KB:
+
+| File | Rows |
+| --- | --- |
+| `01-locations.sql` … `03-locations.sql` | 36 + 36 + 33 |
+| `04-categories.sql` | 36 |
+| `05-providers.sql` | 10 |
+| `06-services.sql` | 14 |
+| `07-service_areas.sql` | 25 |
+
+Open each one, copy it, paste it into the Supabase SQL editor in filename order
+and press Run. Each file is one `INSERT ... ON CONFLICT DO UPDATE`, so re-running
+any of them is harmless.
+
+Shaped for a flaky mobile copy/paste:
+
+* **One row per line.** Losing a line in the middle still parses — it just
+  inserts one row fewer — instead of leaving a dangling comma or parenthesis.
+* **`created_at` / `updated_at` are omitted** from the pasted `doc`. They are
+  stamped at seed time, so keeping them would make the files
+  non-deterministic; `seva_mirror.synced_at` already records arrival. The
+  PostgREST sync path still sends full rows.
+* A test regenerates these files from the seed data and fails if they drift.
+
+Confirm afterwards:
+
+```sql
+select tbl, count(*) from public.seva_mirror group by tbl order by 1;
+```
 
 ### Stuck at "Running..." with no result?
 

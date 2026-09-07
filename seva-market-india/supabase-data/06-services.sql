@@ -1,0 +1,20 @@
+-- seva_mirror 06-services: 14 row(s) of services
+SET lock_timeout = '10s';
+BEGIN;
+INSERT INTO public.seva_mirror (tbl, id, doc) VALUES
+('services','1','{"id":1,"provider_id":1,"category_id":2,"location_id":5,"title":"Bathroom tap & shower repair","slug":"bathroom-tap-shower-repair-1","description":null,"pin_code":"781001","price_min":299,"price_max":699,"price_unit":"visit","status":"active"}'::jsonb),
+('services','2','{"id":2,"provider_id":1,"category_id":2,"location_id":5,"title":"Water motor installation","slug":"water-motor-installation-1","description":null,"pin_code":"781001","price_min":1200,"price_max":2500,"price_unit":"job","status":"active"}'::jsonb),
+('services','3','{"id":3,"provider_id":2,"category_id":3,"location_id":7,"title":"House wiring fault diagnosis","slug":"house-wiring-fault-diagnosis-2","description":null,"pin_code":"781006","price_min":400,"price_max":900,"price_unit":"visit","status":"active"}'::jsonb),
+('services','4','{"id":4,"provider_id":2,"category_id":3,"location_id":7,"title":"Inverter & battery setup","slug":"inverter-battery-setup-2","description":null,"pin_code":"781006","price_min":800,"price_max":1500,"price_unit":"job","status":"active"}'::jsonb),
+('services','5','{"id":5,"provider_id":3,"category_id":2,"location_id":45,"title":"Kitchen sink leakage repair","slug":"kitchen-sink-leakage-repair-3","description":null,"pin_code":"560038","price_min":350,"price_max":800,"price_unit":"visit","status":"active"}'::jsonb),
+('services','6','{"id":6,"provider_id":4,"category_id":3,"location_id":24,"title":"Emergency power failure visit","slug":"emergency-power-failure-visit-4","description":null,"pin_code":"400069","price_min":500,"price_max":500,"price_unit":"visit","status":"active"}'::jsonb),
+('services','7','{"id":7,"provider_id":4,"category_id":3,"location_id":24,"title":"MCB & distribution board upgrade","slug":"mcb-distribution-board-upgrade-4","description":null,"pin_code":"400069","price_min":1500,"price_max":4000,"price_unit":"job","status":"active"}'::jsonb),
+('services','8','{"id":8,"provider_id":5,"category_id":13,"location_id":32,"title":"Class 10 Maths home tuition","slug":"class-10-maths-home-tuition-5","description":null,"pin_code":"411038","price_min":3000,"price_max":5000,"price_unit":"month","status":"active"}'::jsonb),
+('services','9','{"id":9,"provider_id":6,"category_id":9,"location_id":60,"title":"2BHK full home deep cleaning","slug":"2bhk-full-home-deep-cleaning-6","description":null,"pin_code":"600017","price_min":3500,"price_max":4500,"price_unit":"job","status":"active"}'::jsonb),
+('services','10','{"id":10,"provider_id":7,"category_id":6,"location_id":75,"title":"Split AC jet service","slug":"split-ac-jet-service-7","description":null,"pin_code":"110024","price_min":599,"price_max":899,"price_unit":"visit","status":"active"}'::jsonb),
+('services','11','{"id":11,"provider_id":7,"category_id":6,"location_id":75,"title":"AC gas refilling","slug":"ac-gas-refilling-7","description":null,"pin_code":"110024","price_min":2200,"price_max":3500,"price_unit":"job","status":"active"}'::jsonb),
+('services','12','{"id":12,"provider_id":8,"category_id":25,"location_id":97,"title":"Doorstep general car service","slug":"doorstep-general-car-service-8","description":null,"pin_code":"700064","price_min":2500,"price_max":5500,"price_unit":"visit","status":"active"}'::jsonb),
+('services','13','{"id":13,"provider_id":9,"category_id":21,"location_id":102,"title":"Full-day candid wedding coverage","slug":"full-day-candid-wedding-coverage-9","description":null,"pin_code":"302017","price_min":45000,"price_max":85000,"price_unit":"day","status":"active"}'::jsonb),
+('services','14','{"id":14,"provider_id":10,"category_id":33,"location_id":84,"title":"Individual ITR filing","slug":"individual-itr-filing-10","description":null,"pin_code":"226001","price_min":1000,"price_max":2500,"price_unit":"job","status":"active"}'::jsonb)
+ON CONFLICT (tbl, id) DO UPDATE SET doc = EXCLUDED.doc, synced_at = now();
+COMMIT;

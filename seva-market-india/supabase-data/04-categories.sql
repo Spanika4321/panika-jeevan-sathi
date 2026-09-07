@@ -1,0 +1,42 @@
+-- seva_mirror 04-categories: 36 row(s) of categories
+SET lock_timeout = '10s';
+BEGIN;
+INSERT INTO public.seva_mirror (tbl, id, doc) VALUES
+('categories','1','{"id":1,"parent_id":null,"name":"Home Repair & Maintenance","slug":"home-repair-maintenance","description":null,"icon":"🔧","sort_order":1,"is_active":1}'::jsonb),
+('categories','2','{"id":2,"parent_id":1,"name":"Plumber","slug":"plumber","description":null,"icon":"🚿","sort_order":1,"is_active":1}'::jsonb),
+('categories','3','{"id":3,"parent_id":1,"name":"Electrician","slug":"electrician","description":null,"icon":"💡","sort_order":2,"is_active":1}'::jsonb),
+('categories','4','{"id":4,"parent_id":1,"name":"Carpenter","slug":"carpenter","description":null,"icon":"🪚","sort_order":3,"is_active":1}'::jsonb),
+('categories','5','{"id":5,"parent_id":1,"name":"Painter","slug":"painter","description":null,"icon":"🎨","sort_order":4,"is_active":1}'::jsonb),
+('categories','6','{"id":6,"parent_id":1,"name":"AC Repair & Service","slug":"ac-repair-service","description":null,"icon":"❄️","sort_order":5,"is_active":1}'::jsonb),
+('categories','7','{"id":7,"parent_id":1,"name":"Appliance Repair","slug":"appliance-repair","description":null,"icon":"🧰","sort_order":6,"is_active":1}'::jsonb),
+('categories','8','{"id":8,"parent_id":null,"name":"Cleaning & Pest Control","slug":"cleaning-pest-control","description":null,"icon":"🧽","sort_order":2,"is_active":1}'::jsonb),
+('categories','9','{"id":9,"parent_id":8,"name":"Home Deep Cleaning","slug":"home-deep-cleaning","description":null,"icon":"🏠","sort_order":1,"is_active":1}'::jsonb),
+('categories','10','{"id":10,"parent_id":8,"name":"Pest Control","slug":"pest-control","description":null,"icon":"🐜","sort_order":2,"is_active":1}'::jsonb),
+('categories','11','{"id":11,"parent_id":8,"name":"Sofa & Carpet Cleaning","slug":"sofa-carpet-cleaning","description":null,"icon":"🛋️","sort_order":3,"is_active":1}'::jsonb),
+('categories','12','{"id":12,"parent_id":null,"name":"Education & Tutoring","slug":"education-tutoring","description":null,"icon":"📚","sort_order":3,"is_active":1}'::jsonb),
+('categories','13','{"id":13,"parent_id":12,"name":"Home Tutor","slug":"home-tutor","description":null,"icon":"🧑‍🏫","sort_order":1,"is_active":1}'::jsonb),
+('categories','14','{"id":14,"parent_id":12,"name":"Competitive Exam Coaching","slug":"competitive-exam-coaching","description":null,"icon":"🎯","sort_order":2,"is_active":1}'::jsonb),
+('categories','15','{"id":15,"parent_id":12,"name":"Computer Training","slug":"computer-training","description":null,"icon":"💻","sort_order":3,"is_active":1}'::jsonb),
+('categories','16','{"id":16,"parent_id":null,"name":"Health & Wellness","slug":"health-wellness","description":null,"icon":"🩺","sort_order":4,"is_active":1}'::jsonb),
+('categories','17','{"id":17,"parent_id":16,"name":"Physiotherapist at Home","slug":"physiotherapist-at-home","description":null,"icon":"🧘","sort_order":1,"is_active":1}'::jsonb),
+('categories','18','{"id":18,"parent_id":16,"name":"Nurse at Home","slug":"nurse-at-home","description":null,"icon":"⚕️","sort_order":2,"is_active":1}'::jsonb),
+('categories','19','{"id":19,"parent_id":16,"name":"Yoga Trainer","slug":"yoga-trainer","description":null,"icon":"🕉️","sort_order":3,"is_active":1}'::jsonb),
+('categories','20','{"id":20,"parent_id":null,"name":"Events & Photography","slug":"events-photography","description":null,"icon":"📸","sort_order":5,"is_active":1}'::jsonb),
+('categories','21','{"id":21,"parent_id":20,"name":"Wedding Photographer","slug":"wedding-photographer","description":null,"icon":"📷","sort_order":1,"is_active":1}'::jsonb),
+('categories','22','{"id":22,"parent_id":20,"name":"Catering Services","slug":"catering-services","description":null,"icon":"🍛","sort_order":2,"is_active":1}'::jsonb),
+('categories','23','{"id":23,"parent_id":20,"name":"Tent & Decoration","slug":"tent-decoration","description":null,"icon":"🎪","sort_order":3,"is_active":1}'::jsonb),
+('categories','24','{"id":24,"parent_id":null,"name":"Vehicles & Transport","slug":"vehicles-transport","description":null,"icon":"🚗","sort_order":6,"is_active":1}'::jsonb),
+('categories','25','{"id":25,"parent_id":24,"name":"Car Mechanic","slug":"car-mechanic","description":null,"icon":"🔩","sort_order":1,"is_active":1}'::jsonb),
+('categories','26','{"id":26,"parent_id":24,"name":"Two-Wheeler Repair","slug":"two-wheeler-repair","description":null,"icon":"🛵","sort_order":2,"is_active":1}'::jsonb),
+('categories','27','{"id":27,"parent_id":24,"name":"Taxi & Rental","slug":"taxi-rental","description":null,"icon":"🚕","sort_order":3,"is_active":1}'::jsonb),
+('categories','28','{"id":28,"parent_id":24,"name":"Driver on Hire","slug":"driver-on-hire","description":null,"icon":"🧑‍✈️","sort_order":4,"is_active":1}'::jsonb),
+('categories','29','{"id":29,"parent_id":null,"name":"Beauty & Personal Care","slug":"beauty-personal-care","description":null,"icon":"💇","sort_order":7,"is_active":1}'::jsonb),
+('categories','30','{"id":30,"parent_id":29,"name":"Salon at Home","slug":"salon-at-home","description":null,"icon":"💅","sort_order":1,"is_active":1}'::jsonb),
+('categories','31','{"id":31,"parent_id":29,"name":"Bridal Makeup","slug":"bridal-makeup","description":null,"icon":"👰","sort_order":2,"is_active":1}'::jsonb),
+('categories','32','{"id":32,"parent_id":null,"name":"Professional Services","slug":"professional-services","description":null,"icon":"💼","sort_order":8,"is_active":1}'::jsonb),
+('categories','33','{"id":33,"parent_id":32,"name":"CA & Tax Filing","slug":"ca-tax-filing","description":null,"icon":"🧾","sort_order":1,"is_active":1}'::jsonb),
+('categories','34','{"id":34,"parent_id":32,"name":"Legal Consultant","slug":"legal-consultant","description":null,"icon":"⚖️","sort_order":2,"is_active":1}'::jsonb),
+('categories','35','{"id":35,"parent_id":32,"name":"Interior Designer","slug":"interior-designer","description":null,"icon":"📐","sort_order":3,"is_active":1}'::jsonb),
+('categories','36','{"id":36,"parent_id":32,"name":"Website & App Developer","slug":"website-app-developer","description":null,"icon":"🌐","sort_order":4,"is_active":1}'::jsonb)
+ON CONFLICT (tbl, id) DO UPDATE SET doc = EXCLUDED.doc, synced_at = now();
+COMMIT;

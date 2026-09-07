@@ -194,6 +194,103 @@ export function batch(rows, size) {
   return out;
 }
 
+/**
+ * Columns left out of the pasted `doc`.
+ *
+ * `created_at` / `updated_at` are stamped by SQLite at seed time, so they
+ * differ on every run. Keeping them would make the emitted SQL
+ * non-deterministic — regenerating the files would churn every line, and the
+ * "files match the seed data" guard could never be byte-exact. They are also
+ * meaningless remotely: `seva_mirror.synced_at` already records when the row
+ * arrived. The PostgREST sync path is unaffected and still sends full rows.
+ */
+const EMIT_SKIP_COLUMNS = /^(created|updated)_at$/;
+
+/** Escape a JS string for a single-quoted SQL literal. */
+function sqlLiteral(value) {
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
+/**
+ * Render mirror rows as paste-ready INSERT statements.
+ *
+ * This is the no-terminal path: someone on a phone cannot run
+ * `npm run supabase:setup`, so the same data is emitted as SQL they can paste
+ * straight into the Supabase SQL editor.
+ *
+ * Shaped for a flaky mobile copy/paste:
+ *   - one row per line, so a dropped *middle* line still parses (it just
+ *     sends one row fewer) instead of leaving a dangling comma or paren;
+ *   - chunks stay small, because a huge paste is what gets truncated;
+ *   - upsert on (tbl, id), so re-running any chunk is harmless.
+ *
+ * @returns {{sql: string, chunks: {rows: number, bytes: number}[]}}
+ */
+export function emitInsertSql(rows, { maxChunkBytes = 9000 } = {}) {
+  if (!rows.length) return { sql: '', chunks: [] };
+
+  const valueLine = (row) => {
+    const doc = Object.fromEntries(
+      Object.entries(row.doc).filter(([column]) => !EMIT_SKIP_COLUMNS.test(column)),
+    );
+    return `(${sqlLiteral(row.tbl)},${sqlLiteral(row.id)},${sqlLiteral(JSON.stringify(doc))}::jsonb)`;
+  };
+
+  // Group by table first so a chunk never straddles two tables: the header
+  // comment stays true and each paste is logically self-contained.
+  const byTable = new Map();
+  for (const row of rows) {
+    if (!byTable.has(row.tbl)) byTable.set(row.tbl, []);
+    byTable.get(row.tbl).push(row);
+  }
+
+  const chunks = [];
+  for (const [table, tableRows] of byTable) {
+    let current = [];
+    let bytes = 0;
+    for (const row of tableRows) {
+      const line = valueLine(row);
+      if (current.length && bytes + line.length + 1 > maxChunkBytes) {
+        chunks.push({ table, lines: current });
+        current = [];
+        bytes = 0;
+      }
+      current.push(line);
+      bytes += line.length + 1;
+    }
+    if (current.length) chunks.push({ table, lines: current });
+  }
+
+  const parts = chunks.map(({ table, lines }, index) => {
+    const label = `${String(index + 1).padStart(2, '0')}-${table}`;
+    return {
+      label,
+      table,
+      rows: lines.length,
+      text: [
+        `-- seva_mirror ${label}: ${lines.length} row(s) of ${table}`,
+        "SET lock_timeout = '10s';",
+        'BEGIN;',
+        'INSERT INTO public.seva_mirror (tbl, id, doc) VALUES',
+        lines.join(',\n'),
+        'ON CONFLICT (tbl, id) DO UPDATE SET doc = EXCLUDED.doc, synced_at = now();',
+        'COMMIT;',
+      ].join('\n'),
+    };
+  });
+
+  return {
+    sql: `${parts.map((part) => part.text).join('\n\n')}\n`,
+    parts: parts.map(({ label, table, rows: count, text }) => ({
+      label,
+      table,
+      rows: count,
+      bytes: Buffer.byteLength(text),
+      text: `${text}\n`,
+    })),
+  };
+}
+
 /** Human-readable failure text for a PostgREST/Postgres error response. */
 function describeFailure(status, body) {
   if (status === 404) {
@@ -367,6 +464,24 @@ export async function main(argv = process.argv.slice(2), deps = {}) {
 
     if (args['dry-run']) {
       log('\nDry run — nothing was sent.');
+      return 0;
+    }
+
+    // --emit-insert: the no-terminal path. Prints (or writes) the same rows as
+    // paste-ready SQL, for anyone who only has the Supabase SQL editor.
+    if (args['emit-insert']) {
+      const { sql, parts } = emitInsertSql(buildRows(db, tables));
+      const outDir = args['out-dir'];
+      if (outDir) {
+        fs.mkdirSync(outDir, { recursive: true });
+        for (const part of parts) {
+          fs.writeFileSync(path.join(outDir, `${part.label}.sql`), part.text);
+          log(`  ${part.label}.sql  ${String(part.rows).padStart(4)} row(s)  ${String(part.bytes).padStart(6)} bytes`);
+        }
+        log(`\nWrote ${parts.length} file(s) to ${outDir}. Paste them into the SQL editor in filename order.`);
+      } else {
+        log(sql);
+      }
       return 0;
     }
 
