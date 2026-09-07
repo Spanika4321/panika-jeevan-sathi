@@ -1,0 +1,6 @@
+insert into public.seva_mirror (tbl, id, doc) values ('service_areas','8:700064','{"provider_id":8,"pin_code":"700064","location_id":98}'::jsonb) on conflict (tbl, id) do update set doc = excluded.doc;
+insert into public.seva_mirror (tbl, id, doc) values ('service_areas','9:302017','{"provider_id":9,"pin_code":"302017","location_id":103}'::jsonb) on conflict (tbl, id) do update set doc = excluded.doc;
+insert into public.seva_mirror (tbl, id, doc) values ('service_areas','9:302021','{"provider_id":9,"pin_code":"302021","location_id":105}'::jsonb) on conflict (tbl, id) do update set doc = excluded.doc;
+insert into public.seva_mirror (tbl, id, doc) values ('service_areas','10:201301','{"provider_id":10,"pin_code":"201301","location_id":91}'::jsonb) on conflict (tbl, id) do update set doc = excluded.doc;
+insert into public.seva_mirror (tbl, id, doc) values ('service_areas','10:226001','{"provider_id":10,"pin_code":"226001","location_id":85}'::jsonb) on conflict (tbl, id) do update set doc = excluded.doc;
+insert into public.seva_mirror (tbl, id, doc) values ('service_areas','10:226010','{"provider_id":10,"pin_code":"226010","location_id":87}'::jsonb) on conflict (tbl, id) do update set doc = excluded.doc;
