@@ -39,6 +39,7 @@ npm run seed       # load seed data
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Optional. Used by `npm run supabase:setup` to upsert local rows into `public.seva_mirror` |
 
 ---
 
@@ -194,6 +195,37 @@ persistence tests) and drives the actual router and handlers in-process.
 | `search.test.mjs` | Every filter combination, coverage PINs, pagination, wildcard escaping |
 | `http.test.mjs` | Routes, envelope, status codes, 404/405/500, static files, security headers |
 | `pages.test.mjs` | Header/nav, search form, data-driven content, escaping, mobile-first CSS |
+
+---
+
+## Optional: Supabase mirror
+
+Local SQLite remains the runtime database. `public.seva_mirror` is an optional
+Postgres document store (one JSON row per SQLite row) so a hosted project can
+keep a copy off the app disk.
+
+1. Print paste-ready SQL (no file path, no comments):
+
+   ```bash
+   node scripts/supabase-setup.mjs --sql
+   ```
+
+2. In the Supabase dashboard open **SQL Editor → New query**. Clear the editor
+   (`Ctrl+A`, Delete). Paste **only** those statements. Run. Success is
+   `Success. No rows returned`.
+
+3. Sync local rows (needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`):
+
+   ```bash
+   node scripts/seed.mjs              # if the local db is empty
+   node scripts/supabase-setup.mjs
+   ```
+
+A filename such as `seva-market-india/scripts/supabase-init.sql` is **not SQL**.
+Pasting it produces `ERROR 42601: syntax error at or near "seva"`.
+
+The table has RLS enabled and `anon` / `authenticated` revoked; only the
+service-role key can read or write it.
 
 ---
 
