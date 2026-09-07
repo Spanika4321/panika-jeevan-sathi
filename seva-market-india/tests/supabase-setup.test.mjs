@@ -98,6 +98,31 @@ test('supabase-init.sql is exactly nine statements of the expected kinds', () =>
   assert.match(sql, /SET statement_timeout = '30s';/);
 });
 
+test('every line of supabase-init.sql is one complete, self-contained statement', () => {
+  // This is the paste-robustness guard. A multi-line CREATE TABLE can lose its
+  // column lines in a copy/paste and leave a dangling ")" that Postgres
+  // reports as: syntax error at or near ")". One statement per line with
+  // balanced parentheses makes that impossible to produce.
+  const lines = readSql().split('\n').filter((line) => line.trim());
+  assert.ok(lines.length >= 9, 'expected the full bootstrap script');
+  for (const line of lines) {
+    const open = (line.match(/\(/g) || []).length;
+    const close = (line.match(/\)/g) || []).length;
+    assert.equal(open, close, `unbalanced parentheses on line: ${line}`);
+    assert.match(line.trim(), /;$/, `line is not a complete statement: ${line}`);
+    assert.equal(
+      line.trim(),
+      line.trimStart(),
+      'no line is indented, so a paste cannot silently drop leading whitespace',
+    );
+  }
+  assert.equal(
+    lines.filter((line) => /^\)/.test(line.trim())).length,
+    0,
+    'no line may begin with a closing parenthesis',
+  );
+});
+
 test('lintSql() rejects a bootstrap SQL that could hang or land half-applied', () => {
   const clean = readSql();
   assert.deepEqual(lintSql(clean), []);

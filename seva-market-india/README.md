@@ -25,7 +25,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (139 tests)
+npm test           # full suite (140 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -77,7 +77,7 @@ seva-market-india/
 ├── scripts/                     migrate, seed, syntax check, Supabase setup
 │   ├── supabase-init.sql        paste-once bootstrap SQL (5 statements)
 │   └── supabase-setup.mjs       --sql printer + PostgREST mirror sync
-└── tests/                       139 tests over schema, models, search, HTTP, pages, Supabase
+└── tests/                       140 tests over schema, models, search, HTTP, pages, Supabase
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -184,7 +184,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test          # 139 tests
+npm test          # 140 tests
 npm run test:unit # schema, models, search
 npm run test:http # HTTP layer + rendered pages
 ```
@@ -231,26 +231,20 @@ npm run supabase:sql
 ```sql
 SET lock_timeout = '10s';
 SET statement_timeout = '30s';
-
 BEGIN;
-
-CREATE TABLE IF NOT EXISTS public.seva_mirror (
-  tbl       text NOT NULL,
-  id        text NOT NULL,
-  doc       jsonb NOT NULL DEFAULT '{}'::jsonb,
-  synced_at timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (tbl, id)
-);
-
+CREATE TABLE IF NOT EXISTS public.seva_mirror (tbl text NOT NULL, id text NOT NULL, doc jsonb NOT NULL DEFAULT '{}'::jsonb, synced_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY (tbl, id));
 ALTER TABLE public.seva_mirror ENABLE ROW LEVEL SECURITY;
-
 REVOKE ALL ON TABLE public.seva_mirror FROM anon;
 REVOKE ALL ON TABLE public.seva_mirror FROM authenticated;
-
 NOTIFY pgrst, 'reload schema';
-
 COMMIT;
 ```
+
+Every statement sits on **one line with balanced parentheses**, on purpose. A
+multi-line `CREATE TABLE` can lose its indented column lines in a copy/paste and
+leave a dangling `)`, which Postgres reports as `syntax error at or near ")"`.
+The test suite asserts no line starts with `)` and every line is a complete
+statement, so that shape cannot come back.
 
 Expected result: `Success. No rows returned`. Check it with
 `select to_regclass('public.seva_mirror');` → `seva_mirror`.
