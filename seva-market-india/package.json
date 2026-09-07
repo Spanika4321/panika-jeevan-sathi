@@ -16,6 +16,7 @@
     "supabase:sql": "node scripts/supabase-setup.mjs --sql",
     "supabase:setup": "node scripts/supabase-setup.mjs",
     "supabase:emit": "node scripts/supabase-setup.mjs --emit-insert --out-dir=supabase-data",
+    "supabase:emit-csv": "node scripts/supabase-setup.mjs --emit-csv --out-dir=supabase-data",
     "test:unit": "node --test tests/models.test.mjs tests/database.test.mjs tests/search.test.mjs",
     "test:http": "node --test tests/http.test.mjs tests/pages.test.mjs"
   },

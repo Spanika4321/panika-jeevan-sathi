@@ -212,83 +212,92 @@ function sqlLiteral(value) {
 }
 
 /**
- * Render mirror rows as paste-ready INSERT statements.
+ * Render mirror rows as CSV for the Supabase Table Editor's "Import data from
+ * CSV" flow.
  *
- * This is the no-terminal path: someone on a phone cannot run
- * `npm run supabase:setup`, so the same data is emitted as SQL they can paste
- * straight into the Supabase SQL editor.
- *
- * Shaped for a flaky mobile copy/paste:
- *   - one row per line, so a dropped *middle* line still parses (it just
- *     sends one row fewer) instead of leaving a dangling comma or paren;
- *   - chunks stay small, because a huge paste is what gets truncated;
- *   - upsert on (tbl, id), so re-running any chunk is harmless.
- *
- * @returns {{sql: string, chunks: {rows: number, bytes: number}[]}}
+ * This is the mobile path that avoids the clipboard entirely. Copy/paste of a
+ * 9 KB text file on a phone is not reliable: soft-wrapped lines come back as
+ * real newlines and long pastes arrive reordered, which is how `COMMIT;` ended
+ * up glued to the middle of a JSON document and Postgres reported
+ * `syntax error at or near ""latitude""`. Downloading a file has none of those
+ * failure modes.
  */
-export function emitInsertSql(rows, { maxChunkBytes = 9000 } = {}) {
-  if (!rows.length) return { sql: '', chunks: [] };
-
-  const valueLine = (row) => {
+export function emitCsv(rows) {
+  const field = (value) => {
+    const text = String(value);
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  const lines = ['tbl,id,doc'];
+  for (const row of rows) {
     const doc = Object.fromEntries(
       Object.entries(row.doc).filter(([column]) => !EMIT_SKIP_COLUMNS.test(column)),
     );
-    return `(${sqlLiteral(row.tbl)},${sqlLiteral(row.id)},${sqlLiteral(JSON.stringify(doc))}::jsonb)`;
+    lines.push(`${field(row.tbl)},${field(row.id)},${field(JSON.stringify(doc))}`);
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+/**
+ * Render mirror rows as paste-ready SQL.
+ *
+ * One **complete statement per line**, deliberately. Postgres splits on
+ * semicolons, not newlines, so a line that arrives soft-wrapped, reordered or
+ * glued to its neighbour still parses on its own -- unlike a multi-row VALUES
+ * list, where one lost line leaves a dangling comma or parenthesis and the
+ * whole paste fails.
+ *
+ * Each statement upserts on (tbl, id), so re-running any chunk is harmless.
+ */
+export function emitInsertSql(rows, { maxChunkBytes = 4000 } = {}) {
+  if (!rows.length) return { sql: '', parts: [] };
+
+  const statement = (row) => {
+    const doc = Object.fromEntries(
+      Object.entries(row.doc).filter(([column]) => !EMIT_SKIP_COLUMNS.test(column)),
+    );
+    return (
+      'insert into public.seva_mirror (tbl, id, doc) values ' +
+      `(${sqlLiteral(row.tbl)},${sqlLiteral(row.id)},${sqlLiteral(JSON.stringify(doc))}::jsonb) ` +
+      'on conflict (tbl, id) do update set doc = excluded.doc;'
+    );
   };
 
-  // Group by table first so a chunk never straddles two tables: the header
-  // comment stays true and each paste is logically self-contained.
+  // Group by table so each file is one coherent slice of the dataset.
   const byTable = new Map();
   for (const row of rows) {
     if (!byTable.has(row.tbl)) byTable.set(row.tbl, []);
     byTable.get(row.tbl).push(row);
   }
 
-  const chunks = [];
+  const groups = [];
   for (const [table, tableRows] of byTable) {
     let current = [];
     let bytes = 0;
     for (const row of tableRows) {
-      const line = valueLine(row);
+      const line = statement(row);
       if (current.length && bytes + line.length + 1 > maxChunkBytes) {
-        chunks.push({ table, lines: current });
+        groups.push({ table, lines: current });
         current = [];
         bytes = 0;
       }
       current.push(line);
       bytes += line.length + 1;
     }
-    if (current.length) chunks.push({ table, lines: current });
+    if (current.length) groups.push({ table, lines: current });
   }
 
-  const parts = chunks.map(({ table, lines }, index) => {
-    const label = `${String(index + 1).padStart(2, '0')}-${table}`;
+  const parts = groups.map(({ table, lines }, index) => {
+    const text = `${lines.join('\n')}\n`;
     return {
-      label,
+      label: `${String(index + 1).padStart(2, '0')}-${table}`,
       table,
       rows: lines.length,
-      text: [
-        `-- seva_mirror ${label}: ${lines.length} row(s) of ${table}`,
-        "SET lock_timeout = '10s';",
-        'BEGIN;',
-        'INSERT INTO public.seva_mirror (tbl, id, doc) VALUES',
-        lines.join(',\n'),
-        'ON CONFLICT (tbl, id) DO UPDATE SET doc = EXCLUDED.doc, synced_at = now();',
-        'COMMIT;',
-      ].join('\n'),
+      bytes: Buffer.byteLength(text),
+      text,
     };
   });
 
-  return {
-    sql: `${parts.map((part) => part.text).join('\n\n')}\n`,
-    parts: parts.map(({ label, table, rows: count, text }) => ({
-      label,
-      table,
-      rows: count,
-      bytes: Buffer.byteLength(text),
-      text: `${text}\n`,
-    })),
-  };
+  return { sql: parts.map((part) => part.text).join(''), parts };
 }
 
 /** Human-readable failure text for a PostgREST/Postgres error response. */
@@ -467,13 +476,25 @@ export async function main(argv = process.argv.slice(2), deps = {}) {
       return 0;
     }
 
-    // --emit-insert: the no-terminal path. Prints (or writes) the same rows as
-    // paste-ready SQL, for anyone who only has the Supabase SQL editor.
-    if (args['emit-insert']) {
-      const { sql, parts } = emitInsertSql(buildRows(db, tables));
-      const outDir = args['out-dir'];
-      if (outDir) {
-        fs.mkdirSync(outDir, { recursive: true });
+    // --emit-insert / --emit-csv: the no-terminal path. Writes the same rows
+    // as files for anyone who only has the Supabase dashboard on a phone.
+    if (args['emit-insert'] || args['emit-csv']) {
+      const rows = buildRows(db, tables);
+      const outDir = args['out-dir'] || path.join(ROOT, 'supabase-data');
+      fs.mkdirSync(outDir, { recursive: true });
+
+      if (args['emit-csv']) {
+        const csv = emitCsv(rows);
+        const target = path.join(outDir, 'seva_mirror.csv');
+        fs.writeFileSync(target, csv);
+        log(`  seva_mirror.csv  ${String(rows.length).padStart(4)} row(s)  ${String(Buffer.byteLength(csv)).padStart(6)} bytes`);
+        log(`\nWrote ${target}.`);
+        log('Import it: Table Editor -> seva_mirror -> Insert -> Import data from CSV.');
+        return 0;
+      }
+
+      const { sql, parts } = emitInsertSql(rows);
+      if (args['out-dir']) {
         for (const part of parts) {
           fs.writeFileSync(path.join(outDir, `${part.label}.sql`), part.text);
           log(`  ${part.label}.sql  ${String(part.rows).padStart(4)} row(s)  ${String(part.bytes).padStart(6)} bytes`);

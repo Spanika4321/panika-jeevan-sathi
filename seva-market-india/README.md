@@ -25,7 +25,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (143 tests)
+npm test           # full suite (144 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -77,7 +77,7 @@ seva-market-india/
 ├── scripts/                     migrate, seed, syntax check, Supabase setup
 │   ├── supabase-init.sql        paste-once bootstrap SQL (5 statements)
 │   └── supabase-setup.mjs       --sql printer + PostgREST mirror sync
-└── tests/                       143 tests over schema, models, search, HTTP, pages, Supabase
+└── tests/                       144 tests over schema, models, search, HTTP, pages, Supabase
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -184,7 +184,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test          # 143 tests
+npm test          # 144 tests
 npm run test:unit # schema, models, search
 npm run test:http # HTTP layer + rendered pages
 ```
@@ -253,38 +253,39 @@ Expected result: `Success. No rows returned`. Check it with
 file has picked up anything that is not SQL (a path, a fence, a comment) — the exact
 class of paste error that produces `syntax error at or near ")"`.
 
-### No terminal? Paste the data instead
+### No terminal? Import the data instead
 
 `npm run supabase:setup` needs Node on a computer. On a phone there is only the
-SQL editor, so the same 190 rows ship as paste-ready SQL:
+dashboard, so the same 190 rows ship as files:
 
 ```bash
-npm run supabase:emit      # regenerate supabase-data/*.sql from the seed data
+npm run supabase:emit-csv    # supabase-data/seva_mirror.csv  (one download)
+npm run supabase:emit        # supabase-data/*.sql            (19 small pastes)
 ```
 
-`supabase-data/` holds seven files, each under 10 KB:
+**Preferred: the CSV.** Copy/paste of a large text file on a phone is not
+reliable — soft-wrapped lines come back as real newlines and long pastes arrive
+reordered, which is how `COMMIT;` once landed in the middle of a JSON document
+and Postgres reported `syntax error at or near ""latitude""`. A downloaded file
+has none of those failure modes.
 
-| File | Rows |
-| --- | --- |
-| `01-locations.sql` … `03-locations.sql` | 36 + 36 + 33 |
-| `04-categories.sql` | 36 |
-| `05-providers.sql` | 10 |
-| `06-services.sql` | 14 |
-| `07-service_areas.sql` | 25 |
+Open `supabase-data/seva_mirror.csv`, save it to the phone, then in the
+dashboard: **Table Editor → `seva_mirror` → Insert → Import data from CSV**.
 
-Open each one, copy it, paste it into the Supabase SQL editor in filename order
-and press Run. Each file is one `INSERT ... ON CONFLICT DO UPDATE`, so re-running
-any of them is harmless.
+**Fallback: the SQL files.** Nineteen files of under 4 KB each, in
+`supabase-data/`, pasted into the SQL editor in filename order. Each line is a
+**complete, independent `INSERT ... ON CONFLICT` statement**, so:
 
-Shaped for a flaky mobile copy/paste:
+* line order does not matter — verified on PostgreSQL 16.2 by running a file
+  with its lines reversed, `rc=0`;
+* a lost line costs exactly one row instead of failing the whole paste;
+* re-running any file is harmless.
 
-* **One row per line.** Losing a line in the middle still parses — it just
-  inserts one row fewer — instead of leaving a dangling comma or parenthesis.
-* **`created_at` / `updated_at` are omitted** from the pasted `doc`. They are
-  stamped at seed time, so keeping them would make the files
-  non-deterministic; `seva_mirror.synced_at` already records arrival. The
-  PostgREST sync path still sends full rows.
-* A test regenerates these files from the seed data and fails if they drift.
+`created_at` / `updated_at` are omitted from the pasted `doc` — they are stamped
+at seed time, so keeping them made the output non-deterministic, and
+`seva_mirror.synced_at` already records arrival. The PostgREST sync path still
+sends full rows. Tests regenerate both outputs from the seed data and fail if
+the committed files drift.
 
 Confirm afterwards:
 

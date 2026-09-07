@@ -33,6 +33,7 @@ import {
   selectTables,
   buildRows,
   batch,
+  emitCsv,
   emitInsertSql,
   syncRows,
   summarize,
@@ -635,57 +636,78 @@ test('the SQL block documented in the README is byte-identical to the file', () 
   assert.deepEqual(lintSql(match[1]), [], 'the documented block must also lint clean');
 });
 
-test('emitInsertSql() keeps one row per line with balanced parentheses', () => {
-  const { db } = makeDb();
-  const { sql, parts } = emitInsertSql(buildRows(db));
-  db.close();
-
-  assert.equal(parts.reduce((sum, part) => sum + part.rows, 0), 190, 'every row is emitted');
-  assert.equal(parts.length, 7, 'the paste is split into 7 chunks');
-  for (const part of parts) {
-    assert.ok(part.bytes <= 9500, `${part.label} is ${part.bytes} bytes — too big for a phone paste`);
-  }
-
-  const valueLines = sql.split('\n').filter((line) => line.startsWith("('"));
-  assert.equal(valueLines.length, 190);
-  for (const line of valueLines) {
-    const open = (line.match(/\(/g) || []).length;
-    const close = (line.match(/\)/g) || []).length;
-    assert.equal(open, close, `unbalanced parentheses on line: ${line.slice(0, 80)}`);
-    assert.match(line, /\),?$/, 'a value line ends with ")" or "),"');
-  }
-});
-
-test('a dropped middle row still parses — only that row is missing', () => {
-  // The whole point of one-row-per-line: a flaky mobile paste that loses a
-  // line in the middle must not break the statement.
-  const { db } = makeDb();
-  const { parts } = emitInsertSql(buildRows(db, selectTables('providers')));
-  db.close();
-  const lines = parts[0].text.split('\n');
-  const first = lines.findIndex((line) => line.startsWith("('"));
-  const without = [...lines.slice(0, first + 1), ...lines.slice(first + 2)];
-  const kept = without.filter((line) => line.startsWith("('"));
-  assert.equal(kept.length, 9, 'one of ten provider rows removed');
-  // The line before the last must end in a comma; the last must not.
-  assert.match(kept[kept.length - 2], /\),$/);
-  assert.equal(/\),$/.test(kept[kept.length - 1]), false);
-});
-
-test('the committed supabase-data files match the seed data exactly', () => {
-  // Drift guard: if the seed dataset changes, these paste files must be
-  // regenerated, not silently left behind.
-  const dir = path.join(ROOT, 'supabase-data');
-  assert.ok(fs.existsSync(dir), 'supabase-data/ must exist — run `npm run supabase:emit`');
+test('emitInsertSql() makes every line a complete, independent statement', () => {
   const { db } = makeDb();
   const { parts } = emitInsertSql(buildRows(db));
   db.close();
 
+  assert.equal(parts.reduce((sum, part) => sum + part.rows, 0), 190, 'every row is emitted');
+  assert.equal(parts.length, 19, 'the paste is split into 19 small chunks');
+
+  for (const part of parts) {
+    assert.ok(part.bytes <= 4200, `${part.label} is ${part.bytes} bytes — too big for a phone paste`);
+    for (const line of part.text.trim().split('\n')) {
+      assert.match(line, /^insert into public\.seva_mirror \(tbl, id, doc\) values /, `not an insert: ${line.slice(0, 60)}`);
+      assert.match(line, /;$/, 'each line is a complete statement');
+      const open = (line.match(/\(/g) || []).length;
+      const close = (line.match(/\)/g) || []).length;
+      assert.equal(open, close, `unbalanced parentheses: ${line.slice(0, 80)}`);
+      assert.match(line, /on conflict \(tbl, id\) do update set doc = excluded\.doc;$/, 'must upsert');
+    }
+  }
+});
+
+test('line order does not matter — a scrambled paste still loads every row', () => {
+  // The failure that motivated this: a phone clipboard returned the file
+  // reordered, so `COMMIT;` landed in the middle of a JSON document and the
+  // whole VALUES list failed to parse. With one statement per line, order is
+  // irrelevant and a lost line costs exactly one row.
+  const { db } = makeDb();
+  const { parts } = emitInsertSql(buildRows(db, selectTables('providers')));
+  db.close();
+  const file = parts[0];
+  const lines = file.text.trim().split('\n');
+  assert.equal(lines.length, 7, 'seven provider rows in the first chunk');
+
+  const reversed = [...lines].reverse();
+  for (const line of reversed) {
+    assert.match(line, /;$/, 'every line still ends a statement after reordering');
+  }
+  // Losing any single line costs one row and leaves the rest valid.
+  for (let i = 0; i < lines.length; i += 1) {
+    const remaining = lines.filter((_, index) => index !== i);
+    assert.equal(remaining.length, lines.length - 1);
+    assert.ok(remaining.every((line) => line.endsWith(';')), `dropping line ${i} leaves valid statements`);
+  }
+});
+
+test('emitCsv() quotes fields and covers every row', () => {
+  const { db } = makeDb();
+  const csv = emitCsv(buildRows(db));
+  db.close();
+  const lines = csv.trim().split('\n');
+  assert.equal(lines[0], 'tbl,id,doc');
+  assert.equal(lines.length, 191, 'header + 190 rows');
+  for (const line of lines.slice(1)) {
+    // tbl and id are bare; doc contains commas so it must be double-quoted.
+    assert.match(line, /^(locations|categories|providers|services|service_areas),[^,]+,"\{.*\}"$/);
+  }
+});
+
+test('the committed supabase-data files match the seed data exactly', () => {
+  // Drift guard: if the seed dataset changes, these files must be regenerated.
+  const dir = path.join(ROOT, 'supabase-data');
+  assert.ok(fs.existsSync(dir), 'supabase-data/ must exist — run `npm run supabase:emit`');
+  const { db } = makeDb();
+  const rows = buildRows(db);
+  const { parts } = emitInsertSql(rows);
+  db.close();
+
+  assert.equal(fs.readFileSync(path.join(dir, 'seva_mirror.csv'), 'utf8'), emitCsv(rows), 'seva_mirror.csv is stale');
   const onDisk = fs.readdirSync(dir).filter((name) => name.endsWith('.sql')).sort();
   assert.deepEqual(onDisk, parts.map((part) => `${part.label}.sql`));
   for (const part of parts) {
-    const file = path.join(dir, `${part.label}.sql`);
-    assert.equal(fs.readFileSync(file, 'utf8'), part.text, `${part.label}.sql is stale`);
+    assert.equal(fs.readFileSync(path.join(dir, `${part.label}.sql`), 'utf8'), part.text, `${part.label}.sql is stale`);
   }
 });
 
