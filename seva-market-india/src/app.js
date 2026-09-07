@@ -17,8 +17,8 @@ const { applySecurityHeaders, clientIp } = require('./http/security');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
 const durability = require('./db/durability');
-const appwriteLib = require('./db/appwrite');
 const remoteLib = require('./db/remote');
+const remoteConfigLib = require('./db/remote-config');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -71,15 +71,23 @@ function serveStatic(req, res, pathname) {
 function createApp({ config, db: injectedDb, remote } = {}) {
   if (!config) throw new Error('createApp requires config.');
 
-  // A configured Appwrite mirror is this app's durable storage. `remote` may
-  // be passed explicitly (tests hand over a mock config). For real boots
-  // (`db` owned here) it comes from SEVA_APPWRITE_* env — never from env when
-  // a database is injected, so running the test suite on a machine that
-  // exports real Appwrite credentials cannot touch the real mirror.
-  const remoteConfig =
-    remote === null || injectedDb
-      ? null
-      : remote || appwriteLib.configFromEnv(process.env);
+  // A configured remote mirror (Supabase or Appwrite) is this app's durable
+  // storage. `remote` may be passed explicitly (tests hand over a mock
+  // config or {provider,config}). For real boots (`db` owned here) it comes
+  // from env — never from env when a database is injected, so running the
+  // test suite on a machine that exports real credentials cannot touch the
+  // real mirror.
+  let resolvedRemote = null;
+  if (!(remote === null || injectedDb)) {
+    if (remote && remote.provider) {
+      resolvedRemote = remote; // {provider:'supabase'|'appwrite', config}
+    } else if (remote) {
+      resolvedRemote = { provider: 'appwrite', config: remote }; // raw config (tests)
+    } else {
+      resolvedRemote = remoteConfigLib.resolveRemoteConfig(process.env);
+    }
+  }
+  const remoteConfig = resolvedRemote ? resolvedRemote.config : null;
   let remoteClient = null;
   let remoteTimer = null;
   let ready = Promise.resolve();
@@ -113,16 +121,19 @@ function createApp({ config, db: injectedDb, remote } = {}) {
     // Appwrite mirror. An empty local database is recovered from the remote
     // mirror before the site answers a single request (server.js waits for
     // `ready`). Schema provisioning + initial drain run in the same step.
-    if (remoteConfig) {
-      const client = appwriteLib.createClient(remoteConfig, { log: (m) => console.warn(`[remote] ${m}`) });
+    if (resolvedRemote) {
+      const { client } = remoteConfigLib.createRemoteClient(resolvedRemote, {
+        log: (m) => console.warn(`[remote] ${m}`),
+      });
       remoteClient = client;
       const log = (m) => console.warn(`[remote] ${m}`);
+      const storeName = resolvedRemote.provider === 'supabase' ? 'Supabase' : 'Appwrite';
       ready = (async () => {
         const recovered = await remoteLib.recoverMissingLocal(db, client, { log });
-        if (recovered) console.warn('[durability] local database rebuilt from the Appwrite mirror');
+        if (recovered) console.warn(`[durability] local database rebuilt from the ${storeName} mirror`);
         await client.ensureSchema(remoteLib.TABLES);
         const drained = await remoteLib.drainPending(db, client, { log });
-        if (drained) console.warn(`[remote] pushed ${drained} queued change(s) to Appwrite`);
+        if (drained) console.warn(`[remote] pushed ${drained} queued change(s) to ${storeName}`);
       })();
       // A remote outage must never take the site down when the local
       // database already has data; only an empty local DB + unreachable
@@ -136,8 +147,8 @@ function createApp({ config, db: injectedDb, remote } = {}) {
           return undefined;
         }
         throw new Error(
-          `The local database is empty and Appwrite could not be reached (${err.message}). ` +
-            'Refusing to start on an empty site — restore SEVA_* storage or check the Appwrite connection.',
+          `The local database is empty and the ${storeName} mirror could not be reached (${err.message}). ` +
+            'Refusing to start on an empty site — restore SEVA_* storage or check the remote connection.',
         );
       });
     }

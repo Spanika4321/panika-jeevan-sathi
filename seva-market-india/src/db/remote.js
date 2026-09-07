@@ -242,7 +242,7 @@ async function recoverMissingLocal(db, client, { log = () => {} } = {}) {
     return false;
   }
   const inserted = await restoreFromRemote(db, client, { log });
-  log(`[remote] recovered ${Object.values(inserted).reduce((a, b) => a + b, 0)} row(s) from Appwrite`);
+  log(`[remote] recovered ${Object.values(inserted).reduce((a, b) => a + b, 0)} row(s) from the mirror`);
   return true;
 }
 

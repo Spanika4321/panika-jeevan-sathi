@@ -25,13 +25,14 @@ node server.js             # http://localhost:3000
 ```bash
 npm start           # run the site
 npm run dev         # run with auto-reload
-npm test            # full suite (127 tests)
+npm test            # full suite (131 tests)
 npm run check       # syntax check every source file
 npm run migrate     # apply migrations
-npm run seed        # load seed data (also mirrors to Appwrite when configured)
+npm run seed        # load seed data (also mirrors to Supabase/Appwrite when configured)
 npm run db:status   # durability report: db file, journal mode, snapshots
 npm run db:backup   # crash-safe snapshot of the live database (cron-friendly)
 npm run db:restore  # integrity-checked restore (newest snapshot, or pass a path)
+npm run supabase:setup  # verify Supabase mirror table + initial sync (idempotent)
 npm run appwrite:setup  # one-time Appwrite provisioning + initial sync (idempotent)
 ```
 
@@ -42,11 +43,14 @@ npm run appwrite:setup  # one-time Appwrite provisioning + initial sync (idempot
 | `NODE_ENV` | `development` | `production` enables the durability fail-closed policy |
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
 | `SEVA_BACKUP_DIR` | — | **Durable backup home** (mounted volume / external disk). Every boot snapshots the database here; an empty-disk boot restores the newest snapshot instead of starting empty |
-| `SEVA_REQUIRE_REMOTE` | — | `1` = refuse to boot on a local file database. **Set on every ephemeral host (Render/Railway/Fly free tiers)** so a wiped disk can never silently serve an empty site. A configured Appwrite mirror satisfies this requirement, so the app starts and recovers from the mirror instead of refusing |
-| `SEVA_APPWRITE_ENDPOINT` | `https://cloud.appwrite.io/v1` | Appwrite Cloud endpoint (custom/self-hosted Appwrite: your `/v1` URL) |
-| `SEVA_APPWRITE_PROJECT_ID` | — | Appwrite project id (server API key must have `databases.*` scopes) |
-| `SEVA_APPWRITE_API_KEY` | — | Appwrite **server** API key — never ship it in code, set it only on the host |
-| `SEVA_APPWRITE_DATABASE_ID` | — | Appwrite Database id that holds the mirror collections |
+| `SEVA_REQUIRE_REMOTE` | — | `1` = refuse to boot on a local file database with no mirror. **Set on every ephemeral host (Render/Railway/Fly free tiers)** so a wiped disk can never silently serve an empty site. A configured mirror (Supabase or Appwrite) satisfies this requirement, so the app starts and recovers from the mirror instead of refusing |
+| `SEVA_SUPABASE_URL` | — | Supabase project URL (`https://<ref>.supabase.co`) — the mirror store. Plain `SUPABASE_URL` also works (same vars Panika already uses) |
+| `SEVA_SUPABASE_SERVICE_ROLE_KEY` | — | Supabase **service-role** key — never ship it in code, host env only. Plain `SUPABASE_SERVICE_ROLE_KEY` also works |
+| `SEVA_SUPABASE_TABLE` | `seva_mirror` | Mirror table name (unique — Panika's tables are never touched) |
+| `SEVA_APPWRITE_ENDPOINT` | `https://cloud.appwrite.io/v1` | Appwrite endpoint (only if you use Appwrite instead of Supabase) |
+| `SEVA_APPWRITE_PROJECT_ID` | — | Appwrite project id (server API key needs `databases.*` scopes) |
+| `SEVA_APPWRITE_API_KEY` | — | Appwrite **server** API key — host env only |
+| `SEVA_APPWRITE_DATABASE_ID` | — | Appwrite Database id holding the mirror collections |
 | `SEVA_REMOTE_INTERVAL_MS` | `3000` | Background re-drain interval for queued changes that failed to push |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
@@ -63,19 +67,20 @@ new **empty** database, and the site keeps serving as if nothing happened.
 That silent "second empty life" is what data loss looks like from the outside.
 
 **The protection.** SQLite stays the query engine and the API is unchanged;
-everything the site writes is also pushed to an **Appwrite Cloud mirror**
-(see below), which survives any host wipe. Four layers, all covered by
-`tests/durability.test.mjs`, `tests/boot-durability.test.mjs` and
+everything the site writes is also pushed to a **Supabase mirror** (or
+Appwrite, if configured instead), which survives any host wipe. Four layers,
+all covered by `tests/durability.test.mjs`, `tests/boot-durability.test.mjs`,
+`tests/remote.test.mjs`, `tests/supabase.test.mjs` and
 `tests/boot-remote.test.mjs`:
 
-1. **Appwrite mirror (recommended, fully automatic)** — every insert/update/
+1. **Supabase mirror (recommended, fully automatic)** — every insert/update/
    delete in the site's tables is recorded in a SQLite change log
    (`_sync_log`, migration `0002`) inside the same transaction, then pushed
-   to Appwrite: right after each HTTP response, on a background interval, and
+   to Supabase: right after each HTTP response, on a background interval, and
    once more at shutdown. On boot, an empty database is **rebuilt from the
-   Appwrite mirror before the site answers a single request** — no disk to
-   mount, nothing to schedule. Covered end-to-end: seed → mirror → wipe →
-   boot serves the recovered data.
+   mirror before the site answers a single request** — no disk to mount,
+   nothing to schedule. Covered end-to-end: seed → mirror → wipe → boot
+   serves the recovered data.
 
 2. **Boot snapshot** — whenever the app starts against a file database, it
    writes a crash-safe snapshot (`src/db/backup.js`: integrity-verified,
@@ -87,13 +92,38 @@ everything the site writes is also pushed to an **Appwrite Cloud mirror**
    starts empty when a recovery is possible.
 
 4. **Fail closed** — with `SEVA_REQUIRE_REMOTE=1` the app refuses to start on
-   a local file database with no durable store. A configured Appwrite mirror
-   *is* a durable store, so with `SEVA_APPWRITE_*` set the app recovers from
-   the mirror instead of refusing; without it, a wiped instance fails loudly
-   rather than serving an empty site. `NODE_ENV=production` already refuses
-   to boot when a database file that previously existed is missing.
+   a local file database with no durable store. A configured mirror
+   (Supabase or Appwrite) *is* a durable store, so with the `SEVA_SUPABASE_*`
+   (or `SEVA_APPWRITE_*`) vars set the app recovers from the mirror instead
+   of refusing; without it, a wiped instance fails loudly rather than
+   serving an empty site. `NODE_ENV=production` already refuses to boot when
+   a database file that previously existed is missing.
 
-### Setting up the Appwrite mirror (one-time, ~5 minutes)
+### Setting up the Supabase mirror (one-time, ~3 minutes — the recommended path)
+
+This reuses an **existing Supabase project** (e.g. the one Panika Jeevan
+Sathi already runs on) — Seva's data goes into its own single mirror table
+`seva_mirror`, so nothing of Panika's is touched or mixed:
+
+1. **Create the mirror table once** — Supabase dashboard → **SQL Editor** →
+   open `scripts/supabase-init.sql` → paste → **Run**. (PostgREST cannot
+   create tables for you, so this one step is manual; it is idempotent.)
+2. **Put two env vars on the host** (same values Panika already uses —
+   the plain `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` names work too,
+   so a host that already exports them needs no changes):
+   `SEVA_SUPABASE_URL=https://<ref>.supabase.co` and
+   `SEVA_SUPABASE_SERVICE_ROLE_KEY=<service-role key>`.
+3. **Optional initial sync** from anywhere with DB access:
+   `SEVA_SUPABASE_URL=... SEVA_SUPABASE_SERVICE_ROLE_KEY=... npm run supabase:setup`
+   (boot and `npm run seed` also sync automatically when the env is set).
+
+Done — every write mirrors after the response, every boot drains the queue,
+and a wiped instance rebuilds itself from the mirror (log: `[durability]
+local database rebuilt from the Supabase mirror`). If Supabase is briefly
+unreachable the site keeps serving local writes; they stay queued in
+`_sync_log` and drain on the retry interval / at shutdown.
+
+### Setting up the Appwrite mirror (one-time, ~5 minutes — alternative store)
 
 These are the only manual steps — everything after them is automatic:
 
@@ -128,12 +158,14 @@ at shutdown.
 
 ### What you must do on an ephemeral host
 
-1. **Set the four `SEVA_APPWRITE_*` variables** (above) on the service. That
-   alone gives you wipe-proof data: no mounted disk required.
+1. **Set `SEVA_SUPABASE_URL` + `SEVA_SUPABASE_SERVICE_ROLE_KEY`** (above) on
+   the service (plain `SUPABASE_*` spellings work too — Panika-style hosts
+   already export them). That alone gives you wipe-proof data: no mounted
+   disk required.
 
 2. **Set `SEVA_REQUIRE_REMOTE=1`** so that a wiped instance with a broken
-   Appwrite connection refuses to serve an empty database instead of
-   quietly deleting the site's content.
+   mirror connection refuses to serve an empty database instead of quietly
+   deleting the site's content.
 
 3. **Optionally add a `SEVA_BACKUP_DIR` + hourly `npm run db:backup`** for a
    second, independent copy. The backup uses SQLite's online mechanism, so
@@ -145,11 +177,11 @@ at shutdown.
 
 ### Recovery after a wipe
 
-With the Appwrite mirror configured, nothing to do: the new instance rebuilds
-the database from Appwrite at boot and logs `[durability] local database
-rebuilt from the Appwrite mirror`. With only backup snapshots, it restores
-the newest snapshot at boot (`[durability] local database was missing —
-restored from backup`). To recover manually:
+With the mirror configured, nothing to do: the new instance rebuilds the
+database from Supabase/Appwrite at boot and logs `[durability] local database
+rebuilt from the … mirror`. With only backup snapshots, it restores the
+newest snapshot at boot (`[durability] local database was missing — restored
+from backup`). To recover manually:
 
 ```bash
 npm run db:restore                  # newest snapshot in SEVA_BACKUP_DIR

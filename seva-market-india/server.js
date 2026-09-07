@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-// Wait for the durability pre-flight (backup restore / Appwrite recovery)
+// Wait for the durability pre-flight (backup restore / mirror recovery)
 // before accepting a single request.
 ready
   .then(() => {
@@ -34,12 +34,13 @@ ready
       console.log(`${config.site.name} listening on http://${config.http.host}:${config.http.port} (${config.env})`);
       if (config.db.file !== ':memory:') {
         const report = durability.durabilityReport(config);
+        const mirror = mirrorStatus();
         const fileInfo = report.fileExists
           ? `ok (${report.fileBytes} bytes)`
-          : 'MISSING — the site will re-create an empty database. Set SEVA_BACKUP_DIR / SEVA_APPWRITE_* to keep data safe.';
+          : 'MISSING — the site will re-create an empty database. Set SEVA_BACKUP_DIR / SUPABASE_* to keep data safe.';
         console.log(`Database    : ${report.file} — ${fileInfo}`);
         console.log(`Backups     : ${report.backups.length ? `${report.backups.length} snapshot(s) in ${report.backupDir}` : 'none — run `npm run db:backup`'}`);
-        console.log(`Appwrite    : ${appwriteConfigured() ? 'mirror enabled (SEVA_APPWRITE_*)' : 'not configured — set SEVA_APPWRITE_* for durable storage'}`);
+        console.log(`Remote      : ${mirror || 'not configured — set SEVA_SUPABASE_URL + SEVA_SUPABASE_SERVICE_ROLE_KEY (or SEVA_APPWRITE_*) for durable storage'}`);
       }
     });
   })
@@ -48,8 +49,13 @@ ready
     process.exit(1);
   });
 
-function appwriteConfigured() {
-  return Boolean(require('./src/db/appwrite').configFromEnv(process.env));
+function mirrorStatus() {
+  const rc = require('./src/db/remote-config');
+  const resolved = rc.resolveRemoteConfig(process.env);
+  if (!resolved) return '';
+  return resolved.provider === 'supabase'
+    ? `Supabase mirror enabled (table ${resolved.config.table})`
+    : `Appwrite mirror enabled (${resolved.config.databaseId})`;
 }
 
 function shutdown(signal) {

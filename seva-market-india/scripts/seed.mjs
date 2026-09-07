@@ -23,19 +23,27 @@ if (migrations.applied.length) console.log(`Migrations applied: ${migrations.app
 
 const result = seed(db);
 
-// If an Appwrite mirror is configured, push the seeded baseline now so the
-// remote never lags behind the local database.
-const appwrite = require('../src/db/appwrite');
+// If a remote mirror (Supabase first, else Appwrite) is configured, push the
+// seeded baseline now so the remote never lags behind the local database.
 const remoteLib = require('../src/db/remote');
-const remoteConfig = appwrite.configFromEnv(process.env);
-if (remoteConfig) {
-  const client = appwrite.createClient(remoteConfig, { log: (m) => console.log(m) });
-  await client.ensureSchema(remoteLib.TABLES);
-  let total = 0;
-  for (let i = 0; i < 100 && db.scalar('SELECT COUNT(*) FROM _sync_log WHERE synced_at IS NULL') > 0; i++) {
-    total += await remoteLib.drainPending(db, client, { log: () => {} });
+const remoteConfigLib = require('../src/db/remote-config');
+const resolved = remoteConfigLib.resolveRemoteConfig(process.env);
+if (resolved) {
+  const { client } = remoteConfigLib.createRemoteClient(resolved, { log: (m) => console.log(`[remote] ${m}`) });
+  try {
+    await client.ensureSchema(remoteLib.TABLES);
+    let total = 0;
+    for (let i = 0; i < 100 && db.scalar('SELECT COUNT(*) FROM _sync_log WHERE synced_at IS NULL') > 0; i++) {
+      total += await remoteLib.drainPending(db, client, { log: () => {} });
+    }
+    console.log(`\nRemote mirror : ${total} change(s) pushed (${resolved.provider})`);
+  } catch (err) {
+    const hint =
+      resolved.provider === 'supabase'
+        ? '\n   → Run scripts/supabase-init.sql once in the Supabase SQL editor.'
+        : '\n   → Check SEVA_APPWRITE_* values / network.';
+    console.warn(`\n[remote] Mirror not ready (${err.message}).${hint}\n   Local seed is complete; remote sync will happen automatically once the mirror is reachable.`);
   }
-  console.log(`\nAppwrite mirror : ${total} change(s) pushed to ${remoteConfig.databaseId}`);
 }
 const totals = locationModel.stats(db);
 
