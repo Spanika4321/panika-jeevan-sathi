@@ -18,7 +18,7 @@ const COLUMNS = `providers.id, providers.business_name, providers.slug, provider
 
 /** Denormalised columns for search results: category + place names. */
 const CARD_COLUMNS = `${COLUMNS},
-  categories.name AS category_name, categories.slug AS category_slug,
+  categories.name AS category_name, categories.slug AS category_slug, categories.icon AS category_icon,
   locations.search_text AS location_label`;
 
 function baseCard(row) {
@@ -107,6 +107,78 @@ function findBySlug(db, slug) {
     WHERE providers.slug = ?`, [slug]));
 }
 
+/** The business profile(s) owned by a user account (usually zero or one). */
+function byUserId(db, userId) {
+  return db.all(`SELECT ${CARD_COLUMNS} FROM providers
+    LEFT JOIN categories ON categories.id = providers.category_id
+    LEFT JOIN locations  ON locations.id  = providers.location_id
+    WHERE providers.user_id = ?
+    ORDER BY providers.id`, [userId]).map(baseCard);
+}
+
+/**
+ * Update the editable fields of an owned business profile. Same validation
+ * rules as createProvider — the dashboard form and the seed share one truth.
+ */
+function updateProvider(db, id, {
+  businessName = null,
+  contactName = null,
+  phone = null,
+  altPhone = null,
+  email = null,
+  categoryId = null,
+  locationId = null,
+  pinCode = null,
+  addressLine = null,
+  about = null,
+  experienceYears = null,
+} = {}) {
+  const existing = findById(db, id);
+  if (!existing) throw new Error(`Unknown provider: ${id}`);
+
+  const patch = { updated_at: new Date().toISOString() };
+
+  if (businessName !== null) {
+    const name = cleanText(businessName, 140);
+    if (!name) throw new Error('Business name is required.');
+    patch.business_name = name;
+  }
+  if (contactName !== null) patch.contact_name = cleanText(contactName, 120);
+  if (phone !== null) {
+    const digits = normalizePhone(phone);
+    if (!digits) throw new Error('A valid 10-digit Indian mobile number is required.');
+    patch.phone = digits;
+  }
+  if (altPhone !== null) patch.alt_phone = altPhone ? normalizePhone(altPhone) : null;
+  if (email !== null) patch.email = cleanText(email, 254)?.toLowerCase() ?? null;
+
+  if (categoryId !== null) {
+    const category = db.get('SELECT id FROM categories WHERE id = ? AND is_active = 1', [categoryId]);
+    if (!category) throw new Error(`Unknown category: ${categoryId}`);
+    patch.category_id = categoryId;
+  }
+  if (locationId !== null) {
+    const location = db.get('SELECT id, pin_code FROM locations WHERE id = ? AND is_active = 1', [locationId]);
+    if (!location) throw new Error(`Unknown location: ${locationId}`);
+    patch.location_id = locationId;
+    patch.pin_code = location.pin_code ?? existing.pin_code;
+  }
+  if (pinCode !== null) {
+    const pin = String(pinCode);
+    if (pin !== existing.pin_code && !isValidPin(pin)) throw new Error(`Invalid PIN code: ${pin}`);
+    patch.pin_code = pin;
+  }
+  if (addressLine !== null) patch.address_line = cleanText(addressLine, 200);
+  if (about !== null) patch.about = cleanText(about, 2000);
+  if (experienceYears !== null) {
+    patch.experience_years = Math.max(0, Math.trunc(Number(experienceYears) || 0));
+  }
+
+  const sets = Object.keys(patch).map((column) => `${column} = ?`);
+  db.run(`UPDATE providers SET ${sets.join(', ')} WHERE id = ?`, [...Object.values(patch), id]);
+  return findById(db, id);
+}
+
 /**
  * The core marketplace query: providers by category + place + PIN.
  * @param {object} db
@@ -120,6 +192,7 @@ function findBySlug(db, slug) {
 function searchProviders(db, {
   categoryIds = null,
   locationId = null,
+  locationIds = null,
   pin = null,
   query = null,
   verifiedOnly = false,
@@ -133,7 +206,10 @@ function searchProviders(db, {
     where.push(`providers.category_id IN (${categoryIds.map(() => '?').join(',')})`);
     params.push(...categoryIds);
   }
-  if (locationId) {
+  if (locationIds && locationIds.length) {
+    where.push(`providers.location_id IN (${locationIds.map(() => '?').join(',')})`);
+    params.push(...locationIds);
+  } else if (locationId) {
     where.push('providers.location_id = ?');
     params.push(locationId);
   }
@@ -205,6 +281,8 @@ module.exports = {
   createProvider,
   findById,
   findBySlug,
+  byUserId,
+  updateProvider,
   searchProviders,
   setServiceAreas,
   serviceAreas,

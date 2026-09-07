@@ -12,8 +12,9 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 
 const { Router } = require('./http/router');
-const { ok, created, html, fail, HttpError } = require('./http/respond');
+const { ok, created, html, fail, redirect, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
+const { sessionSecret, readSession } = require('./auth/session');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
 const { createStore } = require('./store');
@@ -92,9 +93,17 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
     ensureCatalog(db);
   }
 
-  const router = new Router();
-  const context = { db, store, config };
+  // Session machinery: the secret signs the auth cookie. An explicit,
+  // long-enough SESSION_SECRET wins; otherwise sessionSecret() warns and
+  // falls back (dev-only fixed secret, or a fresh random one per boot).
+  const session = {
+    secret: sessionSecret(process.env),
+    secure: Boolean(config.isProduction),
+  };
+  const site = config.site;
 
+  const router = new Router();
+  const context = { db, store, config, session, site };
 
   require('./routes/api/health').register(router, context);
   require('./routes/api/locations').register(router, context);
@@ -102,17 +111,33 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
   require('./routes/api/services').register(router, context);
   require('./routes/api/providers').register(router, context);
   require('./routes/pages').register(router, context);
+  require('./routes/auth-pages').register(router, context);
+  require('./routes/account').register(router, context);
+  require('./routes/listings').register(router, context);
 
   /** Turn a handler's return value into a response. */
   function sendResult(req, res, result) {
     if (result === null || result === undefined) {
       return res.writeHead(204, { 'Content-Length': 0 }), res.end();
     }
+    if (typeof result === 'object' && result.headers) {
+      // Extra headers first (e.g. Set-Cookie on auth redirects); writeHead
+      // below only merges, never overwrites, what setHeader stored.
+      for (const [name, value] of Object.entries(result.headers)) {
+        try {
+          res.setHeader(name, value);
+        } catch (_) { /* header already sent */ }
+      }
+    }
     if (typeof result === 'object' && typeof result.html === 'string') {
       return html(res, result.status || 200, result.html);
     }
     if (typeof result === 'object' && result.__status === 201) {
       return created(res, result.data);
+    }
+    if (typeof result === 'object' && result.redirect) {
+      // 303 See Other keeps refresh-after-POST semantics browser-friendly.
+      return redirect(res, result.redirect, result.status || 303);
     }
     return ok(res, result);
   }
@@ -166,6 +191,11 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
       query: url.searchParams,
       pathname,
       ip: clientIp(req, config.http.trustProxyHops),
+      // Verified cookie claims for the page header (name + role); the
+      // account routes re-read the user row from the store on every request.
+      auth: readSession(req.headers.cookie, session.secret),
+      session,
+      site,
     };
 
     try {
@@ -177,6 +207,10 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
       }
       if (err && err.name === 'ValidationError') {
         return fail(res, 400, err.message, { [err.field || 'field']: err.message });
+      }
+      // Cross-origin POSTs are refused explicitly (403), never as a 500.
+      if (err && err.name === 'OriginError' && err.status === 403) {
+        return fail(res, 403, err.message);
       }
       // Never leak internals to the client; keep the detail server-side.
       const ref = crypto.randomBytes(6).toString('hex');

@@ -89,6 +89,15 @@ function byProvider(db, providerId, { limit = 50 } = {}) {
   );
 }
 
+/** Move an enquiry through new -> contacted -> closed (or flag it spam). */
+function setStatus(db, id, status) {
+  if (!['new', 'contacted', 'closed', 'spam'].includes(status)) {
+    throw new Error(`Unknown lead status: ${status}`);
+  }
+  db.run('UPDATE leads SET status = ? WHERE id = ?', [status, id]);
+  return findById(db, id);
+}
+
 /** Leads in the last `minutes` from one IP — naive abuse throttle. */
 function recentCountFromIp(db, ip, { minutes = 60, secret = '' } = {}) {
   const ipHash = hashIp(ip, secret);
@@ -114,6 +123,7 @@ module.exports = {
   createLead,
   findById,
   byProvider,
+  setStatus,
   recentCountFromIp,
   count,
 };

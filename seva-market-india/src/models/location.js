@@ -141,6 +141,29 @@ function search(db, query, { kind = null, limit = 20 } = {}) {
   );
 }
 
+/**
+ * Every descendant id of a node (itself included). A service hangs off a
+ * locality row, so searching "state=assam" or a city needs the full
+ * subtree, not one id. The tree is ~100 rows in this build — recursion in
+ * JS over four levels is fine and avoids N SQL round-trips.
+ */
+function descendantIds(db, locationId) {
+  const ids = [locationId];
+  const queue = [locationId];
+  while (queue.length) {
+    const parentId = queue.shift();
+    const children = db.all(
+      'SELECT id FROM locations WHERE parent_id = ? AND is_active = 1',
+      [parentId],
+    );
+    for (const child of children) {
+      ids.push(child.id);
+      queue.push(child.id);
+    }
+  }
+  return ids;
+}
+
 /** The India root row, creating it on first use. */
 function ensureIndia(db) {
   return ensureLocation(db, { kind: 'country', name: 'India', code: 'IN' });
@@ -163,6 +186,7 @@ module.exports = {
   findChildren,
   findBySlug,
   findByPin,
+  descendantIds,
   search,
   stats,
 };

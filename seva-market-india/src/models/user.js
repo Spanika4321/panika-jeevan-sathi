@@ -117,6 +117,31 @@ function setStatus(db, id, status) {
   return db.run(`UPDATE users SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [status, id]);
 }
 
+/** Switch an account between customer / provider / admin. */
+function setRole(db, id, role) {
+  if (!['customer', 'provider', 'admin'].includes(role)) throw new Error(`Unknown role: ${role}`);
+  return db.run(`UPDATE users SET role = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [role, id]);
+}
+
+/** Update contact details shown on the account. */
+function updateProfile(db, id, { fullName = null, phone = null } = {}) {
+  const name = cleanText(fullName, 120);
+  if (fullName && !name) throw new Error('Full name is required.');
+  const digits = phone ? normalizePhone(phone) : null;
+  if (phone && !digits) throw new Error('A valid 10-digit Indian mobile number is required.');
+  if (!name && !digits) return findById(db, id);
+  const sets = [];
+  const params = [];
+  if (name) { sets.push('full_name = ?'); params.push(name); }
+  if (digits) { sets.push('phone = ?'); params.push(digits); }
+  params.push(id);
+  db.run(
+    `UPDATE users SET ${sets.join(', ')}, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
+    params,
+  );
+  return findById(db, id);
+}
+
 function countByRole(db, role) {
   return Number(
     db.scalar("SELECT COUNT(*) FROM users WHERE role = ? AND status != 'suspended'", [role]) ?? 0,
@@ -137,6 +162,8 @@ module.exports = {
   findById,
   findByEmail,
   setStatus,
+  setRole,
+  updateProfile,
   countByRole,
   count,
 };
