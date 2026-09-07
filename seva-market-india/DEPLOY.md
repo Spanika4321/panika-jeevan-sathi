@@ -101,6 +101,24 @@ The repo already runs `panikajeevansathi` from a blueprint, so this is a
    They have no value in git on purpose; a blueprint cannot invent secrets.
 4. **Approve**. Render creates and deploys the service.
 
+### The three Environment rows this service needs
+
+Service **`seva-market-india-tast`** → left sidebar → **Environment**. These
+three are the whole manual job; everything else comes from the blueprint:
+
+| Key | Value (exactly) | Where it comes from |
+|---|---|---|
+| `SUPABASE_URL` | `https://<your-ref>.supabase.co` | Supabase → **Project Settings → API → Project URL** — no trailing `/` |
+| `SUPABASE_SERVICE_ROLE_KEY` | the long `eyJhbGciOi…` token | same page → **API Keys → `service_role` → Reveal**. **Never the `anon` key** |
+| `SITE_URL` | `https://seva-market-india-tast.onrender.com` | the URL Render shows at the top of the service page — **with the `-tast` suffix**, no trailing `/` |
+
+The "Secret" toggle is optional for each. **Save Changes** redeploys
+automatically on Render.
+
+> ⚠️ Never paste the service-role key into chat, email, tickets or a commit —
+> it bypasses Row Level Security. It goes only from Supabase's reveal dialog
+> straight into Render's Environment box.
+
 *No "Create web service" row?* Then the blueprint is not looking at this file.
 **Blueprints → `render.yaml` → Settings → Blueprint file path** can be pointed
 at `seva-market-india/render.yaml` to give this app its own, independent
@@ -117,11 +135,18 @@ service.
 Everything else (`NODE_ENV`, `SEVA_STORAGE=supabase`,
 `SEVA_REQUIRE_REMOTE=1`, `SESSION_SECRET`, …) is set by the blueprint.
 
-> **Check `SITE_URL` once, after creation.** The blueprint sets
-> `https://seva-market-india.onrender.com`. If that name was taken Render
-> suffixes the service URL (`seva-market-india-abcd1234`), and canonical links
-> would then point at somebody else's domain. Settings → Environment →
-> `SITE_URL` → the URL Render actually gave you.
+> **Set `SITE_URL` once, after creation.** The blueprint deliberately does
+> **not** pin it (`sync: false`, dashboard-owned): if the service name was
+> taken Render suffixes the URL — this service is
+> `seva-market-india-tast.onrender.com`, not `seva-market-india.onrender.com`
+> — and a committed value would keep pointing at the wrong host and get
+> reverted by every blueprint sync. So after the service exists:
+> **Settings → Environment → Add/Edit `SITE_URL`** → paste the exact URL Render
+> shows at the top of the service page, **including any suffix, with no
+> trailing slash** (e.g. `https://seva-market-india-tast.onrender.com`).
+> A boot guard compares it with the URL the host reports and prints a loud
+> `[site] WARNING` in **Logs** if they disagree — fix the env var and the
+> warning clears on the next deploy.
 
 > Deploying without a blueprint? Create a Web Service by hand with
 > **Root Directory** `seva-market-india`, **Build** `npm install --omit=dev`,
@@ -133,7 +158,7 @@ Everything else (`NODE_ENV`, `SEVA_STORAGE=supabase`,
 Open the service → **Logs**. A healthy boot prints:
 
 ```
-Catalog seeded: 27 categories, 154 locations, 6 providers, 12 services.
+Catalog seeded: 36 categories, 105 locations, 10 providers, 14 services.
 SEVA MARKET INDIA listening on http://0.0.0.0:10000 (production)
 ```
 
@@ -216,7 +241,7 @@ npm run storage:verify     # config + tables + a real write, exit 0 = durable
 | `SEVA_DB_FILE` | no | path to the local catalog file |
 | `SESSION_SECRET` | recommended | salts the HMAC used by the per-IP enquiry throttle |
 | `TRUST_PROXY_HOPS` | on Render: `1` | how many proxy hops to trust for the client IP |
-| `SITE_URL` | no | canonical origin |
+| `SITE_URL` | set in dashboard | canonical origin; `sync: false` so the blueprint never overwrites it. Paste the exact URL Render gave, including any suffix (e.g. `-tast`), no trailing slash. A boot `[site] WARNING` means it disagrees with the host's real URL |
 
 ---
 

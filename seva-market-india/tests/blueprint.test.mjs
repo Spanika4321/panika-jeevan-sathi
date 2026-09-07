@@ -78,6 +78,18 @@ test('the SEVA service is deployed the only safe way on a free ephemeral host', 
     assert.ok(!new RegExp(`^ {6}- key: ${secret}\\n {8}value:`, 'm').test(block), `${secret} must never have a committed value`);
   }
   assert.ok(!/^ {6}- key: SEVA_ALLOW_EPHEMERAL/m.test(block), 'SEVA_ALLOW_EPHEMERAL must not appear: it silences the very warning this service exists to honour');
+
+  // SITE_URL must be dashboard-owned, never committed. A pinned value pointed
+  // at seva-market-india.onrender.com even after Render suffixed the live
+  // service to seva-market-india-tast — and every blueprint sync reverted the
+  // dashboard fix. sync:false makes the dashboard value stick; the boot guard
+  // (src/site-url.js, tested in tests/site-url.test.mjs) warns when it is
+  // wrong for the host.
+  assert.ok(
+    /^ {6}- key: SITE_URL\n(?:^ {8}#.*\n)*^ {8}sync: false$/m.test(block),
+    'SITE_URL must be sync:false with no committed value: set the URL Render actually gave you in the dashboard',
+  );
+  assert.ok(!/^ {6}- key: SITE_URL\n(?:^ {8}#.*\n)*^ {8}value:/m.test(block), 'SITE_URL must never carry a committed value — a suffix from Render (e.g. -tast) makes it wrong');
 });
 
 test('the lockfile keeps `npm ci` working without adding a dependency', () => {
