@@ -4,11 +4,10 @@
 const { HttpError } = require('../../http/respond');
 const providerModel = require('../../models/provider');
 const serviceModel = require('../../models/service');
-const leadModel = require('../../models/lead');
 const { resolveSearchFilters } = require('../search-context');
 const { validate, validators, readBody } = require('../../http/request');
 
-function register(router, { db, config }) {
+function register(router, { db, store, config }) {
   /** GET /api/v1/providers?category=&place=&pin=&q=&verified=1 */
   router.get('/api/v1/providers', ({ query }) => {
     const filters = resolveSearchFilters(db, query);
@@ -55,13 +54,12 @@ function register(router, { db, config }) {
     });
     if (!valid) throw HttpError.badRequest('Please correct the highlighted fields.', errors);
 
-    const tooMany = leadModel.recentCountFromIp(db, req.socket?.remoteAddress, {
-      minutes: 60,
-      secret: config.security.sessionSecret,
-    });
+    const tooMany = await store.leads.recentCountFromIp(req.socket?.remoteAddress, { minutes: 60 });
     if (tooMany >= 5) throw HttpError.tooManyRequests('Too many enquiries from your connection. Try again later.');
 
-    const lead = leadModel.createLead(db, {
+    // Awaited write-through: on the Supabase backend this only resolves once
+    // Postgres has the row, so a 201 can never be a lie.
+    const lead = await store.leads.create({
       providerId: value.providerId,
       serviceId: value.serviceId,
       name: value.name,
@@ -70,7 +68,6 @@ function register(router, { db, config }) {
       pinCode: value.pin,
       message: value.message,
       ip: req.socket?.remoteAddress,
-      secret: config.security.sessionSecret,
     });
     // 201: a new resource really was created.
     return { __status: 201, data: { id: lead.id, status: 'received' } };
