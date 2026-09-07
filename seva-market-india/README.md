@@ -39,6 +39,24 @@ npm run seed       # load seed data
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Only for `npm run supabase:setup` (off-site mirror of the local rows) |
+
+### Supabase mirror (optional, off-site copy of the data)
+
+The local SQLite file stays the source of truth. `scripts/supabase-setup.mjs` copies every
+row into one Postgres table, `public.seva_mirror` (`tbl`, `id`, `doc jsonb`, `synced_at`),
+so the data survives a lost disk. One-time setup:
+
+1. `npm run supabase:sql` prints **only** the SQL (also in `scripts/supabase-init.sql`).
+2. Supabase → SQL Editor → **New query** → paste that output alone → Run.
+   Expected: `Success. No rows returned`. Verify with
+   `select to_regclass('public.seva_mirror');` → `seva_mirror`.
+3. `SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... npm run supabase:setup`
+   (add `-- --dry-run` to only count rows, `-- --tables=providers,services` to limit).
+
+The SQL enables RLS and revokes `anon` / `authenticated`, so only the service-role key
+(server-side) can read the mirror. Re-running either step is safe: `CREATE TABLE IF NOT EXISTS`
+and PostgREST upserts (`on_conflict=tbl,id`) make both idempotent.
 
 ---
 

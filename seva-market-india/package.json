@@ -2,7 +2,7 @@
   "name": "seva-market-india",
   "version": "0.1.0",
   "private": true,
-  "description": "SEVA MARKET INDIA \u2014 India-wide local services marketplace. Customers find and contact local service providers by service + location + PIN code.",
+  "description": "SEVA MARKET INDIA — India-wide local services marketplace. Customers find and contact local service providers by service + location + PIN code.",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -14,7 +14,9 @@
     "migrate": "node scripts/migrate.mjs",
     "check": "node scripts/check.mjs",
     "test:unit": "node --test tests/models.test.mjs tests/database.test.mjs tests/search.test.mjs",
-    "test:http": "node --test tests/http.test.mjs tests/pages.test.mjs"
+    "test:http": "node --test tests/http.test.mjs tests/pages.test.mjs",
+    "supabase:sql": "node scripts/supabase-setup.mjs --sql",
+    "supabase:setup": "node scripts/supabase-setup.mjs"
   },
   "engines": {
     "node": ">=22.5.0"
