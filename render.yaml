@@ -1,9 +1,16 @@
-# PANIKA JEEVAN SATHI — Render Blueprint (Free plan)
+# PANIKA JEEVAN SATHI + SEVA MARKET INDIA — Render Blueprint (Free plan)
 #
 # Deploy: Render dashboard → New + → Blueprint → pick this repository.
-# This Blueprint creates the service `panikajeevansathi`, so the public URL is:
+# This one file creates and manages BOTH services:
 #
-#     https://panikajeevansathi.onrender.com
+#     panikajeevansathi    https://panikajeevansathi.onrender.com
+#     seva-market-india    https://seva-market-india.onrender.com
+#
+# Render reads exactly one blueprint file per repository, so a subfolder's
+# render.yaml is only a copy. The SEVA block at the bottom is kept byte
+# identical to seva-market-india/render.yaml, and its test suite fails if the
+# two ever drift — editing one alone is how a deploy ends up different from the
+# code you reviewed.
 #
 # IMPORTANT — why there is no disk here:
 # Render's Free plan has an *ephemeral* filesystem and cannot attach a
@@ -80,3 +87,63 @@ services:
         sync: false
       - key: R2_SECRET_ACCESS_KEY
         sync: false
+
+# ---------------------------------------------------------------------------
+# SEVA MARKET INDIA — the second service in this same Blueprint.
+#
+# Render drives this workspace from ONE Blueprint file: the render.yaml at the
+# repository root. So the service lives here too, and its definition is kept
+# byte-identical to `seva-market-india/render.yaml` (that file exists so the
+# folder still deploys if it ever becomes a repository of its own — and
+# `seva-market-india/tests/blueprint.test.mjs` fails the build if the two ever
+# drift apart).
+#
+# It is a separate service, on its own free instance, with its own SQLite
+# catalog and its own Supabase tables (seva_users / seva_leads /
+# seva_audit_logs — `seva-market-india/scripts/supabase-storage.sql`).
+# Nothing is shared with the matrimonial app except the repository and, if you
+# like, the Supabase project; the seva_ prefix is what keeps those apart.
+#
+# Setting the two SUPABASE_* values is the only manual step, and
+# SEVA_REQUIRE_REMOTE=1 means the service refuses to boot without them rather
+# than quietly writing customer enquiries to an ephemeral disk.
+
+  - type: web
+    name: seva-market-india
+    runtime: node
+    plan: free
+    region: singapore # closest Render region to India
+    rootDir: seva-market-india
+    buildCommand: npm ci --omit=dev --ignore-scripts || npm install --omit=dev --ignore-scripts
+    startCommand: node server.js
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.22.3 # built-in node:sqlite + global fetch
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY_HOPS
+        value: '1' # Render's edge appends the client address
+
+      # ---- durability ----
+      - key: SEVA_STORAGE
+        value: supabase # accounts + enquiries go to Postgres, never to this disk
+      - key: SEVA_REQUIRE_REMOTE
+        value: '1' # fail closed: no Supabase config -> no boot
+      - key: SEVA_SEED_ON_BOOT
+        value: '1' # rebuild the catalog after the filesystem is wiped
+
+      # ---- Supabase: set these two in the dashboard, they are secrets ----
+      - key: SUPABASE_URL
+        sync: false # https://<ref>.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Project Settings -> API -> service_role (NOT anon)
+
+      # ---- app ----
+      - key: SITE_URL
+        value: https://seva-market-india.onrender.com
+      - key: SESSION_SECRET
+        generateValue: true # also salts the IP hash used by the enquiry throttle

@@ -1,7 +1,13 @@
 # SEVA MARKET INDIA — Render Blueprint (Free plan)
 #
+# THIS IS THE SOURCE OF TRUTH FOR THE SERVICE DEFINITION, but it is not the
+# file Render reads when the repository is panikajeevansathi: a repository has
+# one blueprint, the root render.yaml, which mirrors this service byte for byte
+# (seva-market-india/tests/blueprint.test.mjs fails if the two drift).
+#
 # Deploy: Render dashboard -> New + -> Blueprint -> pick this repository ->
-# Render finds this file at seva-market-india/render.yaml.
+# the root render.yaml proposes both services. Deploying this folder as its own
+# repository: this file works as-is.
 #
 # WHY THERE IS NO DISK HERE
 # Render's Free plan has an ephemeral filesystem and cannot attach a

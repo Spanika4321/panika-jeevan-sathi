@@ -32,6 +32,32 @@ nothing. It creates three tables with Row Level Security **on** and all
 `anon` / `authenticated` grants revoked, so a leaked public key can read
 nothing.
 
+5. Paste `seva-market-india/scripts/supabase-verify.sql` and press Run. That
+   message above only means "nothing errored"; this file answers "is the
+   schema actually there, and is it locked down?". It is SELECT-only — safe
+   to run as often as you like, and every line is independent, so a line
+   lost in a phone paste costs one check, not the whole file.
+
+   | Check | Expected |
+   |---|---|
+   | tables present | 4 rows, `present = t` |
+   | RLS on | `rls_enabled = t` on all four |
+   | policies | `policy_count = 0` |
+   | public-key grants | `can_select = f`, `can_insert = f` on all 8 rows |
+   | mirror rows | the counts on the file's `EXPECTED MIRROR ROWS` line (190 in total) |
+   | durable tables | `0` until a real signup or enquiry arrives |
+
+### Which paste is which
+
+| Paste | File | Creates |
+|---|---|---|
+| reference-data mirror | `scripts/supabase-init.sql` | `seva_mirror` (catalog copy, optional) |
+| durable storage | `scripts/supabase-storage.sql` | `seva_users`, `seva_leads`, `seva_audit_logs` |
+
+Both are checked by `scripts/supabase-verify.sql`. Step 1 above is the one
+this deploy needs; the mirror is documented in `README.md` and only feeds
+read-only catalog queries.
+
 ## Step 2 — Copy the two Supabase secrets
 
 In the same project: **Project Settings** → **API**.
@@ -48,17 +74,54 @@ In the same project: **Project Settings** → **API**.
 
 ## Step 3 — Create the Render service
 
-1. Open <https://dashboard.render.com> → **New +** → **Blueprint**.
-2. Pick the repository `Spanika4321/panika-jeevan-sathi`.
-3. Render reads `seva-market-india/render.yaml` and proposes a service named
-   **seva-market-india**. Approve it.
-4. It will ask for the two values marked `sync: false`. Paste:
+Render drives a workspace from **one** blueprint file: `render.yaml` at the
+repository root. This app's service is declared there, and `render.yaml` in
+this folder carries a byte-identical copy so the directory still deploys if it
+ever becomes its own repository — `tests/blueprint.test.mjs` fails the build if
+the two drift apart.
+
+### If a Blueprint already exists for this repo (usual case)
+
+The repo already runs `panikajeevansathi` from a blueprint, so this is a
+*change*, not a new resource:
+
+1. Get the change onto the blueprint's branch (`main`). Render starts a **Sync**
+   and lists a diff.
+2. Expect **Create web service seva-market-india** in that list. Anything else
+   in the list refers to the matrimonial service — e.g. *"Update web service
+   … build command to `npm ci --omit=dev --ignore-scripts`"* or *"Create
+   environment variable `NODE_ENV`"*. Those are the blueprint catching the
+   dashboard up with `render.yaml`; read them, then approve. Leaving them
+   unapproved just means the file and the dashboard disagree until the next
+   sync.
+3. Edit (the pencil / **Edit** link) the two `sync: false` rows on the new
+   service and paste Step 2's values:
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
-5. **Apply** / **Create resources**.
+   They have no value in git on purpose; a blueprint cannot invent secrets.
+4. **Approve**. Render creates and deploys the service.
+
+*No "Create web service" row?* Then the blueprint is not looking at this file.
+**Blueprints → `render.yaml` → Settings → Blueprint file path** can be pointed
+at `seva-market-india/render.yaml` to give this app its own, independent
+blueprint; otherwise confirm the root `render.yaml` on `main` declares the
+service.
+
+### Starting from scratch
+
+1. Open <https://dashboard.render.com> → **New +** → **Blueprint**.
+2. Pick the repository `Spanika4321/panika-jeevan-sathi`.
+3. Render reads the root `render.yaml` and proposes both services. Approve, and
+   fill the two secrets on `seva-market-india`.
 
 Everything else (`NODE_ENV`, `SEVA_STORAGE=supabase`,
 `SEVA_REQUIRE_REMOTE=1`, `SESSION_SECRET`, …) is set by the blueprint.
+
+> **Check `SITE_URL` once, after creation.** The blueprint sets
+> `https://seva-market-india.onrender.com`. If that name was taken Render
+> suffixes the service URL (`seva-market-india-abcd1234`), and canonical links
+> would then point at somebody else's domain. Settings → Environment →
+> `SITE_URL` → the URL Render actually gave you.
 
 > Deploying without a blueprint? Create a Web Service by hand with
 > **Root Directory** `seva-market-india`, **Build** `npm install --omit=dev`,
@@ -163,7 +226,7 @@ npm run storage:verify     # config + tables + a real write, exit 0 = durable
 npm install
 npm run seed
 npm start          # storage driver: sqlite, everything in ./data
-npm test           # 175 tests (172 offline, 3 gated on real Postgres)
+npm test           # 179 tests (175 offline, 4 gated on real Postgres)
 ```
 
 The Supabase path only switches on in production or when you set
