@@ -140,6 +140,96 @@ test('lintSql() rejects a bootstrap SQL that could hang or land half-applied', (
   );
 });
 
+// ------------------------------------------------------------- verify script
+//
+// scripts/supabase-verify.sql is the answer to "the editor said Success. No
+// rows returned — and then what?" for the phone-only case: no terminal, no
+// node, just the dashboard. It must stay read-only, stay paste-safe, and keep
+// naming the tables the two paste scripts actually create.
+
+const VERIFY_FILE = path.join(ROOT, 'scripts', 'supabase-verify.sql');
+const STORAGE_FILE = path.join(ROOT, 'scripts', 'supabase-storage.sql');
+
+/**
+ * The lines a user actually pastes: one self-contained statement per line,
+ * with the `--` prose above them left in the file but out of the clipboard.
+ */
+function pasteStatements(file) {
+  return fs
+    .readFileSync(file, 'utf8')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('--'));
+}
+
+test('supabase-verify.sql is read-only and one paste-safe statement per line', () => {
+  const statements = pasteStatements(VERIFY_FILE);
+  assert.equal(statements.length, 7, 'the seven checks are all one-liners');
+  for (const line of statements) {
+    assert.match(line, /^select\b/i, `a check may only read: ${line.slice(0, 60)}`);
+    // Keywords, not string literals: has_table_privilege(..., 'insert') is a
+    // question about a privilege, not a write.
+    const keywords = line.replace(/'[^']*'/g, "''");
+    assert.doesNotMatch(
+      keywords,
+      /\b(insert|update|delete|create|alter|drop|truncate|grant|revoke|begin|commit|rollback|set|notify)\b/i,
+      `statement mutates or reconfigures: ${line.slice(0, 60)}`,
+    );
+    assert.match(line, /;$/, 'each line is a complete statement');
+    assert.equal(line, line.trimStart(), 'no line is indented, so a paste cannot drop leading whitespace');
+    assert.ok(!line.startsWith(')'), 'no line may begin with a closing parenthesis');
+    const open = (line.match(/\(/g) || []).length;
+    const close = (line.match(/\)/g) || []).length;
+    assert.equal(open, close, `unbalanced parentheses: ${line}`);
+    // Long lines wrap on a phone screen, but a *single* line cannot lose its
+    // middle the way a multi-line statement can; 600 is a generous ceiling.
+    assert.ok(line.length <= 600, `${line.length} chars is too long for a phone paste: ${line.slice(0, 40)}…`);
+  }
+});
+
+test('supabase-verify.sql checks every table the two paste scripts create', () => {
+  const created = new Set();
+  for (const file of [SQL_FILE, STORAGE_FILE]) {
+    for (const match of fs.readFileSync(file, 'utf8').matchAll(/CREATE TABLE IF NOT EXISTS public\.(\w+)/g)) {
+      created.add(match[1]);
+    }
+  }
+  assert.deepEqual([...created].sort(), ['seva_audit_logs', 'seva_leads', 'seva_mirror', 'seva_users']);
+
+  const statements = pasteStatements(VERIFY_FILE);
+  for (const table of created) {
+    const checked = statements.filter(
+      (line) => line.includes(`'${table}'`) || line.includes(`public.${table}`),
+    );
+    assert.ok(checked.length >= 2, `${table} is created by a paste script but checked in only ${checked.length} statement(s)`);
+  }
+  // The mirror is data, so its contents are counted per source table.
+  assert.match(statements.join('\n'), /from public\.seva_mirror group by tbl/, 'the mirror must be counted per table');
+});
+
+test('the mirror counts promised in supabase-verify.sql match the seed data', () => {
+  // The file tells people what a good answer looks like. If the launch dataset
+  // grows and the promise does not, a partial paste looks like a success.
+  const promised = /-- EXPECTED MIRROR ROWS: (.+)/.exec(fs.readFileSync(VERIFY_FILE, 'utf8'));
+  assert.ok(promised, 'supabase-verify.sql must state the counts it expects');
+  const wanted = Object.fromEntries(promised[1].trim().split(/\s+/).map((pair) => pair.split('=')));
+
+  const { db } = makeDb();
+  const rows = buildRows(db);
+  db.close();
+  const actual = {};
+  for (const row of rows) actual[row.tbl] = (actual[row.tbl] || 0) + 1;
+  assert.deepEqual(
+    wanted,
+    {
+      ...Object.fromEntries(Object.entries(actual).map(([tbl, count]) => [tbl, String(count)])),
+      total: String(rows.length),
+    },
+    'the documented counts drifted from the seed dataset',
+  );
+  assert.deepEqual(Object.keys(actual).sort(), TABLES.map((table) => table.name).sort());
+});
+
 test('--sql refuses to print a file that is not clean SQL', async () => {
   const tmp = path.join(os.tmpdir(), `seva-bad-${process.pid}.sql`);
   fs.writeFileSync(tmp, '-- do not paste this\nCREATE TABLE nope ();\n');
@@ -624,6 +714,89 @@ test(
         { encoding: 'utf8' },
       );
     }
+  },
+);
+
+test(
+  'supabase-verify.sql runs on real PostgreSQL and reports the locked-down state',
+  { skip: PSQL ? false : 'set SEVA_PSQL to a psql binary to run against real PostgreSQL' },
+  () => {
+    const run = (sql) =>
+      execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-c', sql], { encoding: 'utf8' });
+    // Each check is wrapped in json_agg so the assertions read objects rather
+    // than depending on how psql happens to lay columns out on a terminal.
+    const query = (sql) => {
+      const out = execFileSync(
+        PSQL,
+        ['-X', '-q', '-t', '-A', '-c', `select coalesce(json_agg(t)::text, '[]') from (${sql.replace(/;\s*$/, '')}) t`],
+        { encoding: 'utf8' },
+      ).trim();
+      return JSON.parse(out || '[]');
+    };
+
+    for (const role of ['anon', 'authenticated']) {
+      try {
+        run(`CREATE ROLE ${role} NOLOGIN`);
+      } catch (_) {
+        /* already present */
+      }
+    }
+    const tables = ['seva_mirror', 'seva_users', 'seva_leads', 'seva_audit_logs'];
+    for (const table of tables) run(`DROP TABLE IF EXISTS public.${table}`);
+
+    // Both paste scripts, in the order the docs tell people to run them.
+    for (const file of [SQL_FILE, STORAGE_FILE]) {
+      execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-f', file], { encoding: 'utf8' });
+    }
+    // Running the whole file is the assertion that matters most: ON_ERROR_STOP
+    // turns any semantic mistake in a check — a column that does not exist, a
+    // role the server has never heard of — into a failed test.
+    execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-f', VERIFY_FILE], { encoding: 'utf8' });
+
+    const statements = pasteStatements(VERIFY_FILE);
+    const sorted = [...tables].sort();
+    assert.deepEqual(
+      query(statements[0]).map((row) => `${row.table_name}:${row.present}`).sort(),
+      sorted.map((table) => `${table}:true`),
+      'check 1: all four tables exist',
+    );
+    assert.deepEqual(
+      query(statements[1]).map((row) => `${row.table_name}:${row.rls_enabled}`).sort(),
+      sorted.map((table) => `${table}:true`),
+      'check 2: RLS is on for all four',
+    );
+    assert.deepEqual(query(statements[2]), [{ policy_count: 0 }], 'check 3: no policy exists');
+    assert.deepEqual(
+      query(statements[3]).map((row) => `${row.grantee}:${row.table_name}:${row.can_select}/${row.can_insert}`).sort(),
+      ['anon', 'authenticated'].flatMap((grantee) => sorted.map((table) => `${grantee}:${table}:false/false`)),
+      'check 4: the public keys hold no privilege on any of them',
+    );
+
+    // Rows arrive, and the counting checks see them.
+    run(
+      "insert into public.seva_mirror (tbl, id, doc) select 'providers', g::text, '{}'::jsonb from generate_series(1, 3) g",
+    );
+    run("insert into public.seva_leads (provider_id, name, phone) values (7, 'Probe', '9864012345')");
+    assert.deepEqual(
+      query(statements[4]).map((row) => `${row.tbl}:${row.row_count}`),
+      ['providers:3'],
+      'check 5: the mirror is counted per source table',
+    );
+    assert.equal(query(statements[5])[0].total_rows, 3, 'check 6: the mirror total is reported');
+    assert.equal(query(statements[6])[0].leads_stored, 1, 'check 7: a stored enquiry shows up');
+
+    // A leaked grant must not read as clean, or the check proves nothing.
+    run('GRANT SELECT ON public.seva_leads TO anon');
+    assert.deepEqual(
+      query(statements[3])
+        .filter((row) => row.can_select || row.can_insert)
+        .map((row) => `${row.grantee}:${row.table_name}`),
+      ['anon:seva_leads'],
+      'check 4 must name a leaked grant, not shrug at it',
+    );
+    run('REVOKE SELECT ON public.seva_leads FROM anon');
+
+    for (const table of tables) run(`DROP TABLE IF EXISTS public.${table}`);
   },
 );
 

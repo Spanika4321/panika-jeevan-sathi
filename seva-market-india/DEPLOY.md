@@ -32,6 +32,32 @@ nothing. It creates three tables with Row Level Security **on** and all
 `anon` / `authenticated` grants revoked, so a leaked public key can read
 nothing.
 
+5. Paste `seva-market-india/scripts/supabase-verify.sql` and press Run. That
+   message above only means "nothing errored"; this file answers "is the
+   schema actually there, and is it locked down?". It is SELECT-only — safe
+   to run as often as you like, and every line is independent, so a line
+   lost in a phone paste costs one check, not the whole file.
+
+   | Check | Expected |
+   |---|---|
+   | tables present | 4 rows, `present = t` |
+   | RLS on | `rls_enabled = t` on all four |
+   | policies | `policy_count = 0` |
+   | public-key grants | `can_select = f`, `can_insert = f` on all 8 rows |
+   | mirror rows | the counts on the file's `EXPECTED MIRROR ROWS` line (190 in total) |
+   | durable tables | `0` until a real signup or enquiry arrives |
+
+### Which paste is which
+
+| Paste | File | Creates |
+|---|---|---|
+| reference-data mirror | `scripts/supabase-init.sql` | `seva_mirror` (catalog copy, optional) |
+| durable storage | `scripts/supabase-storage.sql` | `seva_users`, `seva_leads`, `seva_audit_logs` |
+
+Both are checked by `scripts/supabase-verify.sql`. Step 1 above is the one
+this deploy needs; the mirror is documented in `README.md` and only feeds
+read-only catalog queries.
+
 ## Step 2 — Copy the two Supabase secrets
 
 In the same project: **Project Settings** → **API**.
@@ -163,7 +189,7 @@ npm run storage:verify     # config + tables + a real write, exit 0 = durable
 npm install
 npm run seed
 npm start          # storage driver: sqlite, everything in ./data
-npm test           # 175 tests (172 offline, 3 gated on real Postgres)
+npm test           # 179 tests (175 offline, 4 gated on real Postgres)
 ```
 
 The Supabase path only switches on in production or when you set
