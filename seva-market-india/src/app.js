@@ -16,6 +16,7 @@ const { ok, created, html, fail, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
+const { createStore } = require('./store');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -63,16 +64,30 @@ function serveStatic(req, res, pathname) {
  * @param {object} options
  * @param {import('./config')} options.config
  * @param {Database} [options.db]  supply one to reuse a connection (tests)
- * @returns {{handle: Function, router: Router, db: Database, close: Function}}
+ * @param {object} [options.store] supply one to bypass storage wiring (tests)
+ * @param {Function} [options.fetchImpl] injected into the Supabase store (tests)
+ * @returns {{handle: Function, router: Router, db: Database, store: object, close: Function}}
  */
-function createApp({ config, db: injectedDb } = {}) {
+function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } = {}) {
   if (!config) throw new Error('createApp requires config.');
 
   const db = injectedDb || new Database(config.db.file);
   if (!injectedDb) migrate(db, config.db.migrationsDir);
 
+  // Storage is resolved before any other work: this throws, on purpose, when
+  // the configuration would lose customer data. Failing here means nothing
+  // has been seeded, no port is open, and the deploy log shows exactly why.
+  const store = injectedStore || createStore({ config, db, fetchImpl });
+
+  if (!injectedDb && config.db.seedOnBoot) {
+    // Ephemeral hosts boot with an empty file; the catalog is seed data, so
+    // rebuild it rather than serving an empty site. Idempotent by slug.
+    ensureCatalog(db);
+  }
+
   const router = new Router();
-  const context = { db, config };
+  const context = { db, store, config };
+
 
   require('./routes/api/health').register(router, context);
   require('./routes/api/locations').register(router, context);
@@ -136,6 +151,7 @@ function createApp({ config, db: injectedDb } = {}) {
 
     const ctx = {
       db,
+      store,
       config,
       req,
       res,
@@ -170,7 +186,26 @@ function createApp({ config, db: injectedDb } = {}) {
     if (!injectedDb) db.close();
   }
 
-  return { handle, router, db, close };
+  return { handle, router, db, store, close };
+}
+
+/**
+ * Load the seed catalog when the database has none.
+ *
+ * Deliberately conditional: seeding is idempotent, but skipping the work
+ * entirely on a warm database keeps boot instant on a host with a disk.
+ */
+function ensureCatalog(db) {
+  const categories = Number(db.scalar('SELECT COUNT(*) FROM categories') ?? 0);
+  const providers = Number(db.scalar('SELECT COUNT(*) FROM providers') ?? 0);
+  if (categories > 0 && providers > 0) return { seeded: false };
+  const { seed } = require('./db/seed');
+  const result = seed(db);
+  console.log(
+    `Catalog seeded: ${result.categories} categories, ${result.locations} locations, `
+    + `${result.providers} providers, ${result.services} services.`,
+  );
+  return { seeded: true, ...result };
 }
 
 function notFoundPage(res) {
@@ -187,4 +222,4 @@ function notFoundPage(res) {
   return html(res, 404, body);
 }
 
-module.exports = { createApp, serveStatic, resolveStatic, STATIC_TYPES };
+module.exports = { createApp, ensureCatalog, serveStatic, resolveStatic, STATIC_TYPES };

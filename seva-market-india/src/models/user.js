@@ -60,10 +60,14 @@ function verifyPassword(password, stored) {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
- * Create a user account.
- * @returns {{user: object, passwordHash: string}}
+ * Validate + normalise signup input into a storable row (snake_case columns,
+ * identical in SQLite and Postgres).
+ *
+ * Extracted from `createUser` so the Supabase-backed store applies exactly
+ * the same rules — including the scrypt hashing — without a second copy of
+ * the logic drifting out of sync.
  */
-function createUser(db, { email, fullName, password, phone = null, role = 'customer' }) {
+function prepareUser({ email, fullName, password, phone = null, role = 'customer' }) {
   const cleanEmail = cleanText(email, 254)?.toLowerCase() ?? null;
   if (!cleanEmail || !EMAIL_RE.test(cleanEmail)) throw new Error('A valid email is required.');
 
@@ -71,18 +75,31 @@ function createUser(db, { email, fullName, password, phone = null, role = 'custo
   if (!name) throw new Error('Full name is required.');
   if (!['customer', 'provider', 'admin'].includes(role)) throw new Error(`Unknown role: ${role}`);
 
-  const passwordHash = hashPassword(password);
-  const normalizedPhone = phone ? normalizePhone(phone) : null;
+  return {
+    email: cleanEmail,
+    phone: phone ? normalizePhone(phone) : null,
+    full_name: name,
+    password_hash: hashPassword(password),
+    role,
+  };
+}
 
-  const duplicate = db.get('SELECT id FROM users WHERE lower(email) = ?', [cleanEmail]);
+/**
+ * Create a user account.
+ * @returns {{user: object, passwordHash: string}}
+ */
+function createUser(db, input) {
+  const row = prepareUser(input);
+
+  const duplicate = db.get('SELECT id FROM users WHERE lower(email) = ?', [row.email]);
   if (duplicate) throw new Error('An account with that email already exists.');
 
   const result = db.run(
     `INSERT INTO users (email, phone, full_name, password_hash, role)
      VALUES (?, ?, ?, ?, ?)`,
-    [cleanEmail, normalizedPhone, name, passwordHash, role],
+    [row.email, row.phone, row.full_name, row.password_hash, row.role],
   );
-  return { user: findById(db, Number(result.lastInsertRowid)), passwordHash };
+  return { user: findById(db, Number(result.lastInsertRowid)), passwordHash: row.password_hash };
 }
 
 function findById(db, id) {
@@ -115,6 +132,7 @@ module.exports = {
   COLUMNS,
   hashPassword,
   verifyPassword,
+  prepareUser,
   createUser,
   findById,
   findByEmail,

@@ -25,12 +25,15 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (144 tests)
+npm test           # full suite (175 tests; 3 need a real Postgres)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
 npm run supabase:sql    # print the Supabase bootstrap SQL (paste into the SQL editor)
 npm run supabase:setup  # mirror local rows into public.seva_mirror
+npm run storage:sql     # print the Postgres schema for accounts + enquiries
+npm run storage:doctor  # is customer data actually durable on this host?
+npm run storage:prove   # wipe the disk in a sandbox and show the data survives
 ```
 
 | Variable | Default | Purpose |
@@ -39,10 +42,68 @@ npm run supabase:setup  # mirror local rows into public.seva_mirror
 | `HOST` | `0.0.0.0` | Bind address |
 | `NODE_ENV` | `development` | `production` tightens logging |
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
+| `SEVA_STORAGE` | auto | `sqlite` or `supabase` — where accounts + enquiries are written |
+| `SEVA_REQUIRE_REMOTE` | `0` | `1` = refuse to boot without Supabase (ephemeral hosts) |
+| `SEVA_ALLOW_EPHEMERAL` | `0` | `1` = silence the SQLite-in-production warning |
+| `SEVA_SEED_ON_BOOT` | `1` | Rebuild the catalog at startup when it is empty |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
-| `SUPABASE_URL` | — | Project URL for the Supabase mirror (`npm run supabase:setup`) |
-| `SUPABASE_SERVICE_ROLE_KEY` | — | Service-role key for the mirror; never the `anon` key |
+| `SUPABASE_URL` | — | Project URL for durable storage and the mirror |
+| `SUPABASE_SERVICE_ROLE_KEY` | — | Service-role key; never the `anon` key |
+
+---
+
+## Durability: what survives a redeploy
+
+Free PaaS hosts (Render, Railway, most containers) have an **ephemeral
+filesystem**: everything written to disk is deleted on each deploy and each
+wake-from-sleep. So the data is split by whether it can be regenerated.
+
+| Data | Home | After a wipe |
+| --- | --- | --- |
+| Catalog — locations, categories, providers, services, service areas | local SQLite, seeded from `src/db/seed-data.js` | rebuilt at boot in ~1 s |
+| **Accounts** (`seva_users`) | **Supabase Postgres** | untouched |
+| **Enquiries** (`seva_leads`) | **Supabase Postgres** | untouched |
+| **Audit trail** (`seva_audit_logs`) | **Supabase Postgres** | untouched |
+
+Three properties make this safe rather than hopeful:
+
+1. **Write-through, awaited.** `store.leads.create()` resolves only after
+   Postgres has the row. There is no queue to lose, and a `201` can never be
+   a lie — if Supabase is unreachable the API returns `500`.
+2. **Fail-closed boot.** With `SEVA_REQUIRE_REMOTE=1` a missing, malformed or
+   anon-typed Supabase key stops the process with a one-paragraph
+   explanation. A crashed deploy is visible in the log; silently writing
+   customer enquiries to a disk that is about to vanish is not.
+3. **Proof on demand.** `npm run storage:prove` boots the app against a local
+   Postgres stand-in, submits a real enquiry over the real HTTP handler,
+   **deletes the SQLite file**, boots again, and reads the enquiry back.
+
+```
+$ npm run storage:prove
+  ok   catalog rebuilt from seed — 10 providers, 14 services
+  ok   POST /api/v1/leads returned 201
+  ok   nothing customer-facing is in the SQLite file
+  ok   SQLite file deleted — seva-market.db
+  ok   catalog rebuilt automatically — 10 providers
+  ok   the enquiry survived — "Durability Test" <durability@example.com>
+  ok   the account survived — owner@example.com
+  ok   password hash still verifies
+```
+
+`GET /api/v1/health` reports the answer in production too:
+
+```json
+{ "storage": { "driver": "supabase", "durable": true } }
+```
+
+The Postgres side is created by pasting `scripts/supabase-storage.sql` into
+the Supabase SQL editor once: three tables, RLS enabled, no policies, and
+`anon`/`authenticated` grants revoked, so only the server's service-role key
+can read or write them. Table names are `seva_`-prefixed because the same
+project may also host Panika Jeevan Sathi, which owns `public.users`.
+
+**Deploying?** `DEPLOY.md` is the click-by-click Render guide.
 
 ---
 
@@ -61,6 +122,7 @@ seva-market-india/
 │   │   ├── migrations/0001_foundation.sql
 │   │   ├── seed.js              idempotent loader
 │   │   ├── seed-data.js         the launch dataset (real PIN codes)
+│   │   ├── remote.js            PostgREST client over global fetch, zero deps
 │   │   └── values.js            pure helpers: slugs, PIN/phone, LIKE patterns
 │   ├── models/                  location, category, provider, service, user, lead
 │   ├── http/
@@ -72,12 +134,22 @@ seva-market-india/
 │   │   ├── pages.js             server-rendered HTML pages
 │   │   ├── search-context.js    query string -> typed search filters
 │   │   └── api/                 health, locations, categories, services, providers
+│   ├── store/
+│   │   ├── index.js             one factory, two backends, one async interface
+│   │   ├── guard.js             fail-closed boot checks (the data-loss net)
+│   │   ├── sqlite-store.js      local file backend (dev, tests, real disks)
+│   │   └── supabase-store.js    write-through Postgres backend (production)
 │   └── views/                   layout, homepage, HTML escaping
 ├── public/assets/               CSS (mobile-first), JS enhancement, logo
 ├── scripts/                     migrate, seed, syntax check, Supabase setup
 │   ├── supabase-init.sql        paste-once bootstrap SQL (5 statements)
-│   └── supabase-setup.mjs       --sql printer + PostgREST mirror sync
-└── tests/                       144 tests over schema, models, search, HTTP, pages, Supabase
+│   ├── supabase-setup.mjs       --sql printer + PostgREST mirror sync
+│   ├── supabase-storage.sql     accounts + enquiries + audit schema (paste once)
+│   ├── storage-doctor.mjs       "is this host durable?" — config, tables, canary write
+│   └── prove-durability.mjs     wipes the disk in a sandbox and proves survival
+├── DEPLOY.md                    click-by-click Render deployment guide
+├── render.yaml                  Render blueprint (fail-closed env baked in)
+└── tests/                       175 tests over schema, models, search, HTTP, pages, Supabase, durability
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -117,6 +189,11 @@ free-text search need no recursive joins.
 | `service_areas` | Extra PIN codes a provider covers | this is what makes "near me" search work |
 | `leads` | Customer → provider enquiries | IP stored as a salted HMAC, never raw |
 | `audit_logs` | Who changed what | reserved for the admin milestone |
+
+`users`, `leads` and `audit_logs` exist in SQLite for local development. In
+production they are backed by `seva_users`, `seva_leads` and `seva_audit_logs`
+in Supabase Postgres (see **Durability** above); the SQLite copies stay empty
+because nothing regenerable ever depends on them.
 | `schema_migrations` | Applied migration versions | forward-only, tracked per boot |
 
 The two hottest read paths each have a covering composite index:
@@ -140,8 +217,8 @@ Envelope everywhere: `{"ok": true, "data": ...}` or `{"ok": false, "error": {...
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/v1/health` | Liveness + DB probe |
-| `GET` | `/api/v1/health/deep` | Readiness + table list |
+| `GET` | `/api/v1/health` | Liveness + DB probe + storage driver/durability |
+| `GET` | `/api/v1/health/deep` | Readiness, catalog state, live Supabase probe, table list |
 | `GET` | `/api/v1/locations` | `?pin=` resolve a PIN · `?q=` search · `?parent=&kind=` drill down |
 | `GET` | `/api/v1/locations/:id` | One node with breadcrumb + children |
 | `GET` | `/api/v1/locations/stats` | Count per hierarchy level |
@@ -184,9 +261,10 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test          # 144 tests
-npm run test:unit # schema, models, search
-npm run test:http # HTTP layer + rendered pages
+npm test             # 175 tests (3 gated on a real Postgres)
+npm run test:unit    # schema, models, search
+npm run test:http    # HTTP layer + rendered pages
+npm run test:storage # durability: boot guard, write-through, schema lockdown
 ```
 
 The suite runs against real SQLite (in-memory, plus a real temporary file for the
@@ -201,6 +279,7 @@ persistence tests) and drives the actual router and handlers in-process.
 | `http.test.mjs` | Routes, envelope, status codes, 404/405/500, static files, security headers |
 | `pages.test.mjs` | Header/nav, search form, data-driven content, escaping, mobile-first CSS |
 | `supabase-setup.test.mjs` | SQL-file hygiene, row mapping, batching, PostgREST upsert, error text |
+| `storage.test.mjs` | Fail-closed boot, anon-key rejection, write-through to Postgres, throttle counts, health durability flags, schema lockdown (RLS + revokes + no DROP) |
 
 `supabase-setup.test.mjs` also contains one test that runs `scripts/supabase-init.sql`
 against a **real PostgreSQL server**. It is skipped unless `SEVA_PSQL` points at a
@@ -213,6 +292,13 @@ SEVA_PSQL=$(command -v psql) PGDATABASE=postgres npm test
 Verified against PostgreSQL 16.2: the file applies cleanly, applies cleanly a second
 time (`NOTICE: relation "seva_mirror" already exists, skipping`), leaves RLS on and
 zero grants for `anon`/`authenticated`.
+
+`storage.test.mjs` gates the same way and does the same to
+`scripts/supabase-storage.sql`: applies it twice, then asserts RLS is on for all
+three durable tables, that no policy exists, that `anon`/`authenticated` hold
+zero grants, and that the defaults and constraints the app relies on really fire
+(`status='new'`, `role='customer'`, case-insensitive email uniqueness, the role
+CHECK). Verified on PostgreSQL 16.2: **175 tests, 175 passing**.
 
 ---
 

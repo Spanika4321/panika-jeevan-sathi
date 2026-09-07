@@ -12,8 +12,28 @@ const http = require('node:http');
 
 const config = require('./src/config');
 const { createApp } = require('./src/app');
+const { StorageConfigError } = require('./src/store');
 
-const { handle, close } = createApp({ config });
+/**
+ * Boot the app, turning a storage misconfiguration into a short, readable
+ * failure instead of a stack trace. Exit code 1 so the host marks the deploy
+ * as failed — a crashed deploy is visible, silent data loss is not.
+ */
+function boot() {
+  try {
+    return createApp({ config });
+  } catch (err) {
+    if (err instanceof StorageConfigError) {
+      console.error(`\n${config.site.name} refused to start — storage is not safe.\n`);
+      console.error(err.message);
+      console.error('\nSee seva-market-india/DEPLOY.md, or run: npm run storage:doctor\n');
+      process.exit(1);
+    }
+    throw err;
+  }
+}
+
+const { handle, close } = boot();
 
 const server = http.createServer((req, res) => {
   handle(req, res).catch((err) => {

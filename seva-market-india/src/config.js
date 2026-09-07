@@ -10,6 +10,9 @@
 
 const path = require('node:path');
 
+const { resolveDriver, flag } = require('./store/guard');
+const { readEnvConfig } = require('./db/remote');
+
 const ROOT = __dirname === undefined ? process.cwd() : path.resolve(__dirname, '..');
 
 /** Coerce an env var to a positive integer, falling back to `fallback`. */
@@ -18,10 +21,13 @@ function intFromEnv(name, fallback) {
   return Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : fallback;
 }
 
+const isProduction = process.env.NODE_ENV === 'production';
+const supabase = readEnvConfig(process.env);
+
 const config = {
   root: ROOT,
   env: process.env.NODE_ENV || 'development',
-  isProduction: process.env.NODE_ENV === 'production',
+  isProduction,
 
   site: {
     name: 'SEVA MARKET INDIA',
@@ -44,6 +50,38 @@ const config = {
     // ':memory:' keeps the whole suite hermetic; a file path gives persistence.
     file: process.env.SEVA_DB_FILE || path.join(ROOT, 'data', 'seva-market.db'),
     migrationsDir: path.join(ROOT, 'src', 'db', 'migrations'),
+    // The catalog is deterministic seed data. On an ephemeral host the file
+    // is empty after every deploy, so rebuild it at boot (idempotent, ~190
+    // rows, well under a second). SEVA_SEED_ON_BOOT=0 turns it off.
+    seedOnBoot: String(process.env.SEVA_SEED_ON_BOOT ?? '1') !== '0',
+  },
+
+  /**
+   * Where user-generated rows live.
+   *
+   *   driver 'sqlite'    accounts + enquiries in the local file (dev, tests,
+   *                      or a host with a real persistent disk)
+   *   driver 'supabase'  accounts + enquiries written through to Postgres
+   *
+   * See src/store/guard.js for the boot checks that stop a misconfigured
+   * production host from quietly storing customer data on a disk that gets
+   * wiped on the next deploy.
+   */
+  storage: {
+    driver: resolveDriver(process.env, { isProduction }),
+    requireRemote: flag(process.env, 'SEVA_REQUIRE_REMOTE'),
+    allowEphemeral: flag(process.env, 'SEVA_ALLOW_EPHEMERAL'),
+    supabase: {
+      url: supabase.url,
+      key: supabase.key,
+    },
+    // Prefixed: one Supabase project may also host Panika Jeevan Sathi,
+    // which already owns public.users and public.audit_logs.
+    tables: {
+      users: process.env.SEVA_TABLE_USERS || 'seva_users',
+      leads: process.env.SEVA_TABLE_LEADS || 'seva_leads',
+      audit: process.env.SEVA_TABLE_AUDIT || 'seva_audit_logs',
+    },
   },
 
   security: {

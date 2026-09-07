@@ -1,0 +1,70 @@
+# SEVA MARKET INDIA — Render Blueprint (Free plan)
+#
+# Deploy: Render dashboard -> New + -> Blueprint -> pick this repository ->
+# Render finds this file at seva-market-india/render.yaml.
+#
+# WHY THERE IS NO DISK HERE
+# Render's Free plan has an ephemeral filesystem and cannot attach a
+# persistent disk: anything written under ./data is deleted on every deploy
+# and every wake-from-sleep (the free plan sleeps after 15 idle minutes).
+#
+# So the data is split by whether it can be regenerated:
+#
+#   catalog  (locations, categories, providers, services)
+#            -> local SQLite, rebuilt from src/db/seed-data.js at boot.
+#               Losing it costs one second of startup time.
+#
+#   accounts + enquiries + audit trail
+#            -> Supabase Postgres over HTTPS, write-through, awaited.
+#               Losing it is unacceptable, so it never touches this disk.
+#
+# SEVA_REQUIRE_REMOTE=1 makes that split enforceable: if SUPABASE_URL or
+# SUPABASE_SERVICE_ROLE_KEY is missing, the service refuses to start instead
+# of quietly storing customer enquiries on a disk that is about to vanish.
+# A crashed deploy is visible; silent data loss is not.
+#
+# BEFORE THE FIRST DEPLOY
+#   1. Supabase -> SQL Editor -> paste seva-market-india/scripts/supabase-storage.sql -> Run
+#   2. Fill SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY below (Render dashboard)
+# See seva-market-india/DEPLOY.md for the click-by-click version.
+
+services:
+  - type: web
+    name: seva-market-india
+    runtime: node
+    plan: free
+    region: singapore # closest Render region to India
+    rootDir: seva-market-india
+    buildCommand: npm ci --omit=dev --ignore-scripts || npm install --omit=dev --ignore-scripts
+    startCommand: node server.js
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.22.3 # built-in node:sqlite + global fetch
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY_HOPS
+        value: '1' # Render's edge appends the client address
+
+      # ---- durability ----
+      - key: SEVA_STORAGE
+        value: supabase # accounts + enquiries go to Postgres, never to this disk
+      - key: SEVA_REQUIRE_REMOTE
+        value: '1' # fail closed: no Supabase config -> no boot
+      - key: SEVA_SEED_ON_BOOT
+        value: '1' # rebuild the catalog after the filesystem is wiped
+
+      # ---- Supabase: set these two in the dashboard, they are secrets ----
+      - key: SUPABASE_URL
+        sync: false # https://<ref>.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Project Settings -> API -> service_role (NOT anon)
+
+      # ---- app ----
+      - key: SITE_URL
+        value: https://seva-market-india.onrender.com
+      - key: SESSION_SECRET
+        generateValue: true # also salts the IP hash used by the enquiry throttle

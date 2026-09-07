@@ -1,0 +1,80 @@
+'use strict';
+/**
+ * SEVA MARKET INDIA — SQLite storage backend.
+ *
+ * The original behaviour, wrapped in the async store interface so that
+ * call sites do not care which backend they are talking to. Suitable for
+ * local development, tests, and any host with a genuinely persistent disk.
+ */
+
+const userModel = require('../models/user');
+const leadModel = require('../models/lead');
+
+function createSqliteStore({ db, config }) {
+  const secret = config?.security?.sessionSecret || '';
+
+  return {
+    backend: 'sqlite',
+    durable: false, // "durable" here means "survives this container" — a file does not
+    location: db.file,
+
+    users: {
+      async create(input) {
+        return userModel.createUser(db, input);
+      },
+      async findByEmail(email) {
+        return userModel.findByEmail(db, email);
+      },
+      async findById(id) {
+        return userModel.findById(db, id);
+      },
+      async setStatus(id, status) {
+        userModel.setStatus(db, id, status);
+        return userModel.findById(db, id);
+      },
+      async count() {
+        return userModel.count(db);
+      },
+    },
+
+    leads: {
+      async create(input) {
+        return leadModel.createLead(db, { ...input, secret });
+      },
+      async byProvider(providerId, options) {
+        return leadModel.byProvider(db, providerId, options);
+      },
+      async recentCountFromIp(ip, options = {}) {
+        return leadModel.recentCountFromIp(db, ip, { secret, ...options });
+      },
+      async count() {
+        return leadModel.count(db);
+      },
+    },
+
+    audit: {
+      async log({ actor = 'system', action, entity = null, entityId = null, detail = null }) {
+        db.run(
+          'INSERT INTO audit_logs (actor, action, entity, entity_id, detail) VALUES (?, ?, ?, ?, ?)',
+          [actor, action, entity, entityId, detail],
+        );
+        return true;
+      },
+    },
+
+    /** Shape matches the Supabase backend so /health/deep is backend-agnostic. */
+    async health() {
+      const probe = db.scalar('SELECT 1');
+      return {
+        backend: 'sqlite',
+        durable: false,
+        ok: probe === 1,
+        location: db.file === ':memory:' ? 'memory' : db.file,
+      };
+    },
+
+    async close() {},
+  };
+}
+
+module.exports = { createSqliteStore };
