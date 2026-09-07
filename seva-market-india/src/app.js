@@ -79,6 +79,13 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
   // has been seeded, no port is open, and the deploy log shows exactly why.
   const store = injectedStore || createStore({ config, db, fetchImpl });
 
+  // Origin guard: a stale or missing SITE_URL makes canonical links point at
+  // the wrong host (e.g. when Render suffixes a taken service name). Warn
+  // loudly at boot rather than serve dead absolute links — see src/site-url.js.
+  for (const warning of config.siteWarnings || []) {
+    console.warn(`[site] WARNING: ${warning}`);
+  }
+
   if (!injectedDb && config.db.seedOnBoot) {
     // Ephemeral hosts boot with an empty file; the catalog is seed data, so
     // rebuild it rather than serving an empty site. Idempotent by slug.

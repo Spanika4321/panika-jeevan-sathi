@@ -12,6 +12,7 @@ const path = require('node:path');
 
 const { resolveDriver, flag } = require('./store/guard');
 const { readEnvConfig } = require('./db/remote');
+const { resolveSiteUrl } = require('./site-url');
 
 const ROOT = __dirname === undefined ? process.cwd() : path.resolve(__dirname, '..');
 
@@ -23,16 +24,22 @@ function intFromEnv(name, fallback) {
 
 const isProduction = process.env.NODE_ENV === 'production';
 const supabase = readEnvConfig(process.env);
+const site = resolveSiteUrl(process.env);
 
 const config = {
   root: ROOT,
   env: process.env.NODE_ENV || 'development',
   isProduction,
 
+  // Boot-time notes about the configured origin (see src/site-url.js). app.js
+  // logs these next to the storage warnings; empty in tests/dev, where no host
+  // URL is present.
+  siteWarnings: site.warnings,
+
   site: {
     name: 'SEVA MARKET INDIA',
     tagline: 'Local services, verified providers — anywhere in India.',
-    url: process.env.SITE_URL || '',
+    url: site.url,
     locale: 'en-IN',
     currency: 'INR',
   },

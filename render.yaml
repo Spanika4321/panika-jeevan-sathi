@@ -144,6 +144,12 @@ services:
 
       # ---- app ----
       - key: SITE_URL
-        value: https://seva-market-india.onrender.com
+        # Not pinned on purpose: if the service name was taken Render suffixes
+        # the public URL (seva-market-india -> seva-market-india-tast), and a
+        # committed value would keep pointing at the wrong host after every
+        # blueprint sync. Set the URL Render actually gave you in the dashboard
+        # (Settings -> Environment); sync:false keeps that value from ever being
+        # overwritten, and the boot guard warns if it disagrees with the host.
+        sync: false
       - key: SESSION_SECRET
         generateValue: true # also salts the IP hash used by the enquiry throttle
