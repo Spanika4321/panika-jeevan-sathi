@@ -25,10 +25,12 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (114 tests)
+npm test           # full suite (137 tests)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
+npm run supabase:sql    # print the Supabase bootstrap SQL (paste into the SQL editor)
+npm run supabase:setup  # mirror local rows into public.seva_mirror
 ```
 
 | Variable | Default | Purpose |
@@ -39,6 +41,8 @@ npm run seed       # load seed data
 | `SEVA_DB_FILE` | `./data/seva-market.db` | SQLite path (`:memory:` for tests) |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
 | `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
+| `SUPABASE_URL` | — | Project URL for the Supabase mirror (`npm run supabase:setup`) |
+| `SUPABASE_SERVICE_ROLE_KEY` | — | Service-role key for the mirror; never the `anon` key |
 
 ---
 
@@ -70,8 +74,10 @@ seva-market-india/
 │   │   └── api/                 health, locations, categories, services, providers
 │   └── views/                   layout, homepage, HTML escaping
 ├── public/assets/               CSS (mobile-first), JS enhancement, logo
-├── scripts/                     migrate, seed, syntax check
-└── tests/                       114 tests over schema, models, search, HTTP, pages
+├── scripts/                     migrate, seed, syntax check, Supabase setup
+│   ├── supabase-init.sql        paste-once bootstrap SQL (5 statements)
+│   └── supabase-setup.mjs       --sql printer + PostgREST mirror sync
+└── tests/                       137 tests over schema, models, search, HTTP, pages, Supabase
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -178,7 +184,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test          # 114 tests
+npm test          # 137 tests
 npm run test:unit # schema, models, search
 npm run test:http # HTTP layer + rendered pages
 ```
@@ -194,6 +200,81 @@ persistence tests) and drives the actual router and handlers in-process.
 | `search.test.mjs` | Every filter combination, coverage PINs, pagination, wildcard escaping |
 | `http.test.mjs` | Routes, envelope, status codes, 404/405/500, static files, security headers |
 | `pages.test.mjs` | Header/nav, search form, data-driven content, escaping, mobile-first CSS |
+| `supabase-setup.test.mjs` | SQL-file hygiene, row mapping, batching, PostgREST upsert, error text |
+
+`supabase-setup.test.mjs` also contains one test that runs `scripts/supabase-init.sql`
+against a **real PostgreSQL server**. It is skipped unless `SEVA_PSQL` points at a
+`psql` binary, so the suite stays runnable anywhere:
+
+```bash
+SEVA_PSQL=$(command -v psql) PGDATABASE=postgres npm test
+```
+
+Verified against PostgreSQL 16.2: the file applies cleanly, applies cleanly a second
+time (`NOTICE: relation "seva_mirror" already exists, skipping`), leaves RLS on and
+zero grants for `anon`/`authenticated`.
+
+---
+
+## Supabase mirror
+
+Reference data (locations, categories, providers, services, service areas) can be
+mirrored into Supabase as a single server-only table. **190 rows** at launch.
+
+**1. Create the table.** Run this, copy the output, paste it into the Supabase SQL
+editor, press Run:
+
+```bash
+npm run supabase:sql
+```
+
+```sql
+CREATE TABLE IF NOT EXISTS public.seva_mirror (
+  tbl       text NOT NULL,
+  id        text NOT NULL,
+  doc       jsonb NOT NULL DEFAULT '{}'::jsonb,
+  synced_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (tbl, id)
+);
+
+ALTER TABLE public.seva_mirror ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON TABLE public.seva_mirror FROM anon;
+REVOKE ALL ON TABLE public.seva_mirror FROM authenticated;
+
+NOTIFY pgrst, 'reload schema';
+```
+
+Expected result: `Success. No rows returned`. Check it with
+`select to_regclass('public.seva_mirror');` → `seva_mirror`.
+
+`--sql` echoes `scripts/supabase-init.sql` byte for byte and refuses to print if the
+file has picked up anything that is not SQL (a path, a fence, a comment) — the exact
+class of paste error that produces `syntax error at or near ")"`.
+
+**2. Sync.** Then push the local rows:
+
+```bash
+SUPABASE_URL=https://<ref>.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key> \
+npm run supabase:setup
+```
+
+| Flag | Effect |
+| --- | --- |
+| `--sql` | print the bootstrap SQL and exit (no database, no credentials) |
+| `--dry-run` | count what would be sent; sends nothing |
+| `--tables=a,b` | limit the sync, e.g. `--tables=providers,services` |
+| `--batch=N` | rows per request (default 200) |
+
+Syncing is idempotent — `Prefer: resolution=merge-duplicates` upserts on
+`(tbl, id)`, so re-running updates rather than duplicates. If the table does not
+exist yet the script says so and points at `npm run supabase:sql` instead of
+dumping a raw PostgREST error.
+
+Why one `jsonb` table rather than mirroring the schema 1:1: a new local column needs
+no DDL on Supabase, and RLS with zero `anon`/`authenticated` grants keeps the data
+reachable only through the service-role key.
 
 ---
 
