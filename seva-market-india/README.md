@@ -10,7 +10,10 @@ hierarchy.
 
 > **Zero npm dependencies.** The app is built entirely on Node.js built-ins
 > (`node:http`, `node:sqlite`, `node:crypto`, `node:test`) and requires **Node.js 22.5+**.
-> `npm install` is not needed to run, test or seed the site.
+> `npm install` is not needed to run, test or seed the site. The committed
+> `package-lock.json` contains nothing on purpose: Render's `npm ci` fails
+> without a lockfile, and an empty one makes the build step a no-op instead of
+> a download.
 
 ---
 
@@ -25,7 +28,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (179 tests; 4 need a real Postgres)
+npm test           # full suite (182 tests; 4 need a real Postgres)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -113,6 +116,7 @@ project may also host Panika Jeevan Sathi, which owns `public.users`.
 seva-market-india/
 ├── server.js                    HTTP entry point (20 lines — no logic lives here)
 ├── package.json                 scripts; zero dependencies
+├── package-lock.json            *intentionally empty* — makes Render's `npm ci` reproducible
 ├── src/
 │   ├── app.js                   wires config + db + routes into handle(req, res)
 │   ├── config.js                every environment value, read exactly once
@@ -149,8 +153,8 @@ seva-market-india/
 │   ├── storage-doctor.mjs       "is this host durable?" — config, tables, canary write
 │   └── prove-durability.mjs     wipes the disk in a sandbox and proves survival
 ├── DEPLOY.md                    click-by-click Render deployment guide
-├── render.yaml                  Render blueprint (fail-closed env baked in)
-└── tests/                       179 tests over schema, models, search, HTTP, pages, Supabase, durability
+├── render.yaml                  Render blueprint (fail-closed env baked in; mirrored into the repo root)
+└── tests/                       182 tests over schema, models, search, HTTP, pages, Supabase, durability, blueprints
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -262,7 +266,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test             # 179 tests (4 gated on a real Postgres)
+npm test             # 182 tests (4 gated on a real Postgres)
 npm run test:unit    # schema, models, search
 npm run test:http    # HTTP layer + rendered pages
 npm run test:storage # durability: boot guard, write-through, schema lockdown
@@ -281,6 +285,7 @@ persistence tests) and drives the actual router and handlers in-process.
 | `pages.test.mjs` | Header/nav, search form, data-driven content, escaping, mobile-first CSS |
 | `supabase-setup.test.mjs` | SQL-file hygiene, the verify script, row mapping, batching, PostgREST upsert, error text |
 | `storage.test.mjs` | Fail-closed boot, anon-key rejection, write-through to Postgres, throttle counts, health durability flags, schema lockdown (RLS + revokes + no DROP) |
+| `blueprint.test.mjs` | The repo-root `render.yaml` mirrors this app's service byte for byte, the fail-closed env vars are present, `sync: false` keeps secrets out of git, and the lockfile stays dependency-free |
 
 `supabase-setup.test.mjs` also contains one test that runs `scripts/supabase-init.sql`
 against a **real PostgreSQL server**. It is skipped unless `SEVA_PSQL` points at a
@@ -299,7 +304,7 @@ zero grants for `anon`/`authenticated`.
 three durable tables, that no policy exists, that `anon`/`authenticated` hold
 zero grants, and that the defaults and constraints the app relies on really fire
 (`status='new'`, `role='customer'`, case-insensitive email uniqueness, the role
-CHECK). Offline the suite is **179 tests, 175 passing** — the other 4 are the
+CHECK). Offline the suite is **182 tests, 178 passing** — the other 4 are the
 PostgreSQL-gated ones, and they cover `scripts/supabase-verify.sql` too: both
 paste scripts are applied, the verify file is pasted as a whole, and each of its
 checks is asserted against the state the scripts actually leave behind.

@@ -74,17 +74,54 @@ In the same project: **Project Settings** → **API**.
 
 ## Step 3 — Create the Render service
 
-1. Open <https://dashboard.render.com> → **New +** → **Blueprint**.
-2. Pick the repository `Spanika4321/panika-jeevan-sathi`.
-3. Render reads `seva-market-india/render.yaml` and proposes a service named
-   **seva-market-india**. Approve it.
-4. It will ask for the two values marked `sync: false`. Paste:
+Render drives a workspace from **one** blueprint file: `render.yaml` at the
+repository root. This app's service is declared there, and `render.yaml` in
+this folder carries a byte-identical copy so the directory still deploys if it
+ever becomes its own repository — `tests/blueprint.test.mjs` fails the build if
+the two drift apart.
+
+### If a Blueprint already exists for this repo (usual case)
+
+The repo already runs `panikajeevansathi` from a blueprint, so this is a
+*change*, not a new resource:
+
+1. Get the change onto the blueprint's branch (`main`). Render starts a **Sync**
+   and lists a diff.
+2. Expect **Create web service seva-market-india** in that list. Anything else
+   in the list refers to the matrimonial service — e.g. *"Update web service
+   … build command to `npm ci --omit=dev --ignore-scripts`"* or *"Create
+   environment variable `NODE_ENV`"*. Those are the blueprint catching the
+   dashboard up with `render.yaml`; read them, then approve. Leaving them
+   unapproved just means the file and the dashboard disagree until the next
+   sync.
+3. Edit (the pencil / **Edit** link) the two `sync: false` rows on the new
+   service and paste Step 2's values:
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
-5. **Apply** / **Create resources**.
+   They have no value in git on purpose; a blueprint cannot invent secrets.
+4. **Approve**. Render creates and deploys the service.
+
+*No "Create web service" row?* Then the blueprint is not looking at this file.
+**Blueprints → `render.yaml` → Settings → Blueprint file path** can be pointed
+at `seva-market-india/render.yaml` to give this app its own, independent
+blueprint; otherwise confirm the root `render.yaml` on `main` declares the
+service.
+
+### Starting from scratch
+
+1. Open <https://dashboard.render.com> → **New +** → **Blueprint**.
+2. Pick the repository `Spanika4321/panika-jeevan-sathi`.
+3. Render reads the root `render.yaml` and proposes both services. Approve, and
+   fill the two secrets on `seva-market-india`.
 
 Everything else (`NODE_ENV`, `SEVA_STORAGE=supabase`,
 `SEVA_REQUIRE_REMOTE=1`, `SESSION_SECRET`, …) is set by the blueprint.
+
+> **Check `SITE_URL` once, after creation.** The blueprint sets
+> `https://seva-market-india.onrender.com`. If that name was taken Render
+> suffixes the service URL (`seva-market-india-abcd1234`), and canonical links
+> would then point at somebody else's domain. Settings → Environment →
+> `SITE_URL` → the URL Render actually gave you.
 
 > Deploying without a blueprint? Create a Web Service by hand with
 > **Root Directory** `seva-market-india`, **Build** `npm install --omit=dev`,
