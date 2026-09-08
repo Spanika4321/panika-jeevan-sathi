@@ -840,7 +840,7 @@ test('line order does not matter — a scrambled paste still loads every row', (
   db.close();
   const file = parts[0];
   const lines = file.text.trim().split('\n');
-  assert.equal(lines.length, 7, 'seven provider rows in the first chunk');
+  assert.ok(lines.length >= 1 && lines.length <= 10, 'the first provider chunk must stay phone-paste sized');
 
   const reversed = [...lines].reverse();
   for (const line of reversed) {

@@ -16,6 +16,7 @@ const { createRemoteClient, readEnvConfig } = require('../db/remote');
 const { assertStorageSafe, StorageConfigError } = require('./guard');
 const { createSqliteStore } = require('./sqlite-store');
 const { createSupabaseStore } = require('./supabase-store');
+const { createMediaStore } = require('./media');
 
 /**
  * Build the store described by `config.storage`, refusing to boot on a
@@ -36,7 +37,13 @@ function createStore({ config, db, fetchImpl, log = console.warn } = {}) {
   for (const warning of warnings) log(`[storage] WARNING: ${warning}`);
 
   if (driver === 'sqlite') {
-    return { ...createSqliteStore({ db, config }), warnings, driver, durable };
+    return {
+      ...createSqliteStore({ db, config }),
+      media: createMediaStore({ config, driver, fetchImpl }),
+      warnings,
+      driver,
+      durable,
+    };
   }
 
   const remote = createRemoteClient({
@@ -44,7 +51,14 @@ function createStore({ config, db, fetchImpl, log = console.warn } = {}) {
     key: config.storage.supabase.key,
     fetchImpl,
   });
-  return { ...createSupabaseStore({ db, remote, config }), warnings, driver, durable, remote };
+  return {
+    ...createSupabaseStore({ db, remote, config }),
+    media: createMediaStore({ config, driver, fetchImpl }),
+    warnings,
+    driver,
+    durable,
+    remote,
+  };
 }
 
 module.exports = { createStore, readEnvConfig, StorageConfigError };

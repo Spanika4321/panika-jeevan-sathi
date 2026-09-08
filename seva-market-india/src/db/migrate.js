@@ -46,13 +46,26 @@ function migrate(db, dir) {
       continue;
     }
     const sql = fs.readFileSync(migration.file, 'utf8');
-    db.transaction(() => {
-      db.exec(sql);
-      db.run('INSERT INTO schema_migrations (version, filename) VALUES (?, ?)', [
-        migration.version,
-        migration.filename,
-      ]);
-    });
+    // Rebuilding a parent table that has live child rows is safe only with
+    // SQLite FK enforcement paused. A named marker keeps that exceptional,
+    // audited path out of ordinary migrations — it is needed for the legacy
+    // provider-owner FK upgrade, where account ids now come from Supabase.
+    const pauseForeignKeys = /^\s*--\s*@requires-foreign-keys-off\b/m.test(sql);
+    if (pauseForeignKeys) db.exec('PRAGMA foreign_keys = OFF;');
+    try {
+      db.transaction(() => {
+        db.exec(sql);
+        db.run('INSERT INTO schema_migrations (version, filename) VALUES (?, ?)', [
+          migration.version,
+          migration.filename,
+        ]);
+      });
+    } finally {
+      if (pauseForeignKeys) db.exec('PRAGMA foreign_keys = ON;');
+    }
+    if (pauseForeignKeys && db.scalar('PRAGMA foreign_keys') !== 1) {
+      throw new Error(`Migration ${migration.filename} did not restore SQLite foreign-key enforcement.`);
+    }
     applied.push(migration.version);
   }
 

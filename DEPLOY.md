@@ -62,10 +62,13 @@ The Blueprint `render.yaml` creates the service **`panikajeevansathi`**, so the 
 2. Open: `https://dashboard.render.com/blueprint/new?repo=https://github.com/Spanika4321/panika-jeevan-sathi`
 3. Render reads `render.yaml`, creates the **Free** web service (Singapore region,
    `node server.js`, health check `/api/health`) and asks you to fill in
-   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from step A. `SESSION_SECRET`
-   and `ADMIN_PASSWORD` are generated for you; `SITE_URL` is pre-set to
-   `https://panikajeevansathi.onrender.com`. Without those two values the
-   service **will not start** (`PJS_REQUIRE_REMOTE=1`).
+   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from step A, plus SMTP
+   settings (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and, for
+   SMTPS/465, `SMTP_SECURE=true`). `SESSION_SECRET` and `ADMIN_PASSWORD` are
+   generated for you; `SITE_URL` is pre-set to
+   `https://panikajeevansathi.onrender.com`. Without the Supabase values the
+   service **will not start** (`PJS_REQUIRE_REMOTE=1`); without SMTP the
+   production safety monitor correctly remains red.
 4. Click **Apply**. Deployment takes ~2 minutes.
 
 **Option 2 — guarded API deployment:** configure `RENDER_API_KEY` as a protected GitHub
@@ -159,7 +162,8 @@ no PostgreSQL, no extra costs.
    - `SESSION_SECRET=` a long random string
    - `ADMIN_EMAIL=sukulpanika939@gmail.com`, `ADMIN_PASSWORD=` a strong password
    - optional: `SMTP_HOST=mail.panikajeevansathi.coolstore.in`, `SMTP_PORT=465`,
-     `SMTP_USER=contact@panikajeevansathi.coolstore.in`, `SMTP_PASS=…`
+     `SMTP_USER=contact@panikajeevansathi.coolstore.in`, `SMTP_PASS=…`,
+     `SMTP_SECURE=true`
 4. **Start / Restart** the app. All data lives in `data/` in the app root —
    back it up with the rest of the account. Log in at `/admin.html`.
 
@@ -268,7 +272,7 @@ suspended account is never automatically activated by owner promotion.
 | `SESSION_SECRET` | local development: generated in `data/` | Production requires a persistent value of at least 32 characters |
 | `TRUST_PROXY_HOPS` | `1` on Render, `0` otherwise | Configure the exact trusted reverse-proxy count; protect direct backend access |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | first administrator only |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | SMTP credentials; Nodemailer is installed by `npm ci` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_SECURE`, `MAIL_FROM` | — | SMTP credentials; host, user and password are required by guarded Render releases. Use `SMTP_SECURE=true` for SMTPS/465. |
 | `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else SQLite; `supabase` / `d1` / `sqlite` / `json` force one |
 | `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (set on Render) |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production database + photos (required on Render Free) |

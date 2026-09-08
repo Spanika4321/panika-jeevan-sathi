@@ -55,6 +55,105 @@ function readBody(req, maxBytes = 32 * 1024) {
   });
 }
 
+/**
+ * Parse a small multipart/form-data submission for the business-photo form.
+ * No third-party parser is needed here: the route accepts ordinary text fields
+ * plus a bounded number of image buffers, and validates image magic bytes
+ * before anything is stored. Other forms remain urlencoded/JSON via readBody.
+ *
+ * @returns {Promise<{fields: object, files: Record<string, object[]>}>}
+ */
+function readMultipart(req, maxBytes = 11 * 1024 * 1024) {
+  const contentType = String(req.headers['content-type'] || '');
+  const match = /multipart\/form-data\s*;\s*boundary=(?:"([^"]+)"|([^;\s]+))/i.exec(contentType);
+  const boundary = match && (match[1] || match[2]);
+  if (!boundary || boundary.length > 200) {
+    return Promise.reject(HttpError.badRequest('Malformed photo upload. Please choose the images again.'));
+  }
+
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    let settled = false;
+    const finish = (error, value) => {
+      if (settled) return;
+      settled = true;
+      if (error) reject(error);
+      else resolve(value);
+    };
+
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > maxBytes) {
+        finish(HttpError.badRequest(`Photo upload exceeds ${Math.floor(maxBytes / 1024 / 1024)} MB.`));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      if (settled) return;
+      try {
+        const source = Buffer.concat(chunks);
+        const delimiter = Buffer.from(`--${boundary}`);
+        const beforeDelimiter = Buffer.concat([Buffer.from('\r\n'), delimiter]);
+        const fields = {};
+        const files = {};
+        let cursor = 0;
+        let complete = false;
+
+        while (cursor < source.length) {
+          if (!source.subarray(cursor, cursor + delimiter.length).equals(delimiter)) {
+            throw HttpError.badRequest('Malformed photo upload. Please choose the images again.');
+          }
+          cursor += delimiter.length;
+          // The final delimiter is followed by "--" (and optionally CRLF).
+          if (source.subarray(cursor, cursor + 2).toString('ascii') === '--') {
+            complete = true;
+            break;
+          }
+          if (source.subarray(cursor, cursor + 2).toString('ascii') !== '\r\n') {
+            throw HttpError.badRequest('Malformed photo upload. Please choose the images again.');
+          }
+          cursor += 2;
+
+          const headerEnd = source.indexOf(Buffer.from('\r\n\r\n'), cursor);
+          if (headerEnd < 0) throw HttpError.badRequest('Malformed photo upload. Please choose the images again.');
+          const headers = {};
+          for (const line of source.subarray(cursor, headerEnd).toString('utf8').split('\r\n')) {
+            const split = line.indexOf(':');
+            if (split > 0) headers[line.slice(0, split).trim().toLowerCase()] = line.slice(split + 1).trim();
+          }
+          cursor = headerEnd + 4;
+
+          const next = source.indexOf(beforeDelimiter, cursor);
+          if (next < 0) throw HttpError.badRequest('Malformed photo upload. Please choose the images again.');
+          const bytes = source.subarray(cursor, next);
+          cursor = next + 2; // leave cursor at the next --boundary marker
+
+          const disposition = headers['content-disposition'] || '';
+          const nameMatch = /(?:^|;)\s*name="([^"]*)"/i.exec(disposition);
+          if (!/^form-data/i.test(disposition) || !nameMatch || !nameMatch[1]) continue;
+          const name = nameMatch[1];
+          const filenameMatch = /(?:^|;)\s*filename="([^"]*)"/i.exec(disposition);
+          if (filenameMatch && filenameMatch[1]) {
+            const filename = filenameMatch[1].replace(/[\\/\0]/g, '_').slice(-180);
+            const file = { filename, contentType: headers['content-type'] || '', buffer: bytes };
+            (files[name] || (files[name] = [])).push(file);
+          } else if (!filenameMatch) {
+            fields[name] = bytes.toString('utf8');
+          }
+        }
+        if (!complete) throw HttpError.badRequest('Malformed photo upload. Please choose the images again.');
+        finish(null, { fields, files });
+      } catch (err) {
+        finish(err instanceof HttpError ? err : HttpError.badRequest('Malformed photo upload. Please choose the images again.'));
+      }
+    });
+    req.on('error', (error) => finish(error));
+  });
+}
+
 /** Field-level validators. Each returns a normalised value or throws. */
 const validators = {
   text(value, { field, required = true, min = 1, max = 500 } = {}) {
@@ -171,4 +270,4 @@ function clampInt(raw, fallback, min, max) {
   return Math.min(max, Math.max(min, Math.trunc(parsed)));
 }
 
-module.exports = { readBody, validators, validate, pagination, fieldError };
+module.exports = { readBody, readMultipart, validators, validate, pagination, fieldError };

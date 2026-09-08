@@ -48,6 +48,7 @@ const config = {
     host: process.env.HOST || '0.0.0.0',
     port: intFromEnv('PORT', 3000),
     maxBodyBytes: 32 * 1024,          // JSON/form bodies: leads + provider forms only
+    maxUploadBytes: 11 * 1024 * 1024, // five 2 MB business photos + multipart overhead
     defaultPageSize: 20,
     maxPageSize: 100,
     trustProxyHops: intFromEnv('TRUST_PROXY_HOPS', 0),
@@ -89,6 +90,15 @@ const config = {
       leads: process.env.SEVA_TABLE_LEADS || 'seva_leads',
       audit: process.env.SEVA_TABLE_AUDIT || 'seva_audit_logs',
     },
+  },
+
+  media: {
+    // Photos are assigned a server-side random filename and sent to this
+    // dedicated Supabase Storage bucket in production. The bucket is created
+    // on the first upload by the server's existing service-role credential.
+    bucket: process.env.SEVA_MEDIA_BUCKET || 'seva-business-photos',
+    maxPhotos: 5,
+    maxFileBytes: 2 * 1024 * 1024,
   },
 
   security: {

@@ -24,12 +24,15 @@ export function makeDb({ withSeed = true } = {}) {
 }
 
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true } = {}) {
+export function makeApp({ withSeed = true, siteUrl = config.site.url } = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
-  const app = createApp({ config, db });
-  return { ...app, config };
+  // Tests can give crawl documents a real canonical origin without mutating
+  // the process-wide configuration object imported by other test files.
+  const appConfig = siteUrl === config.site.url ? config : { ...config, site: { ...config.site, url: siteUrl } };
+  const app = createApp({ config: appConfig, db });
+  return { ...app, config: appConfig };
 }
 
 /** Minimal IncomingMessage stub, enough for the handlers that read it. */
@@ -48,7 +51,7 @@ export function fakeRequest({ method = 'GET', url = '/', body = null, headers = 
   };
   setImmediate(() => {
     if (body !== null) {
-      const chunk = Buffer.from(typeof body === 'string' ? body : JSON.stringify(body));
+      const chunk = Buffer.isBuffer(body) ? body : Buffer.from(typeof body === 'string' ? body : JSON.stringify(body));
       for (const handler of listeners.data) handler(chunk);
     }
     for (const handler of listeners.end) handler();
@@ -96,6 +99,32 @@ export async function request(app, options) {
   await res.finished;
   res.json = () => JSON.parse(res.body);
   return res;
+}
+
+/** Build a multipart body without a browser, for upload-route tests. */
+export function multipartBody(fields = {}, files = []) {
+  const boundary = '----seva-test-boundary-7MA4YWxkTrZu0gW';
+  const chunks = [];
+  const line = (text) => chunks.push(Buffer.from(`${text}\r\n`, 'utf8'));
+  for (const [name, value] of Object.entries(fields)) {
+    line(`--${boundary}`);
+    line(`Content-Disposition: form-data; name="${name}"`);
+    line('');
+    line(String(value ?? ''));
+  }
+  for (const file of files) {
+    line(`--${boundary}`);
+    line(`Content-Disposition: form-data; name="${file.name}"; filename="${file.filename || 'photo.jpg'}"`);
+    line(`Content-Type: ${file.contentType || 'image/jpeg'}`);
+    line('');
+    chunks.push(Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer || ''));
+    line('');
+  }
+  line(`--${boundary}--`);
+  return {
+    body: Buffer.concat(chunks),
+    contentType: `multipart/form-data; boundary=${boundary}`,
+  };
 }
 
 export { tableNames };

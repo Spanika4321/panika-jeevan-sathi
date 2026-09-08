@@ -36,7 +36,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (204 tests; 4 need a real Postgres)
+npm test           # full suite (213 tests; 4 need a real Postgres)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -146,13 +146,14 @@ seva-market-india/
 │   ├── models/                  location, category, provider, service, user, lead
 │   ├── http/
 │   │   ├── router.js            pattern router + accurate Allow headers
-│   │   ├── respond.js           one JSON envelope, HttpError, HTML sender
+│   │   ├── respond.js           JSON/HTML/text/XML response helpers, HttpError
 │   │   ├── request.js           body parsing (size-capped) + validators
 │   │   └── security.js          security headers, trusted client IP
 │   ├── auth/
 │   │   └── session.js           signed HttpOnly session cookies (zero-dep)
 │   ├── routes/
 │   │   ├── pages.js             core HTML pages (home, search, categories…)
+│   │   ├── seo.js               dynamic robots.txt + sitemap.xml for public URLs
 │   │   ├── auth-pages.js        register / login / logout
 │   │   ├── account.js           dashboards: business profile, services, leads
 │   │   ├── listings.js          public listing pages + enquiry forms
@@ -174,7 +175,7 @@ seva-market-india/
 │   └── prove-durability.mjs     wipes the disk in a sandbox and proves survival
 ├── DEPLOY.md                    click-by-click Render deployment guide
 ├── render.yaml                  Render blueprint (fail-closed env baked in; mirrored into the repo root)
-└── tests/                       204 tests over schema, models, search, HTTP, pages, Supabase, durability, blueprints
+└── tests/                       213 tests over schema, models, search, HTTP, SEO, media uploads, pages, Supabase, durability, blueprints
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -307,7 +308,7 @@ Pages (all server-rendered, all indexable):
 ## Testing
 
 ```bash
-npm test             # 204 tests (4 gated on a real Postgres)
+npm test             # 213 tests (4 gated on a real Postgres)
 npm run test:unit    # schema, models, search
 npm run test:http    # HTTP layer + rendered pages
 npm run test:storage # durability: boot guard, write-through, schema lockdown
@@ -345,7 +346,7 @@ zero grants for `anon`/`authenticated`.
 three durable tables, that no policy exists, that `anon`/`authenticated` hold
 zero grants, and that the defaults and constraints the app relies on really fire
 (`status='new'`, `role='customer'`, case-insensitive email uniqueness, the role
-CHECK). Offline the suite is **204 tests, 200 passing** — the other 4 are the
+CHECK). Offline the suite is **213 tests, 209 passing** — the other 4 are the
 PostgreSQL-gated ones, and they cover `scripts/supabase-verify.sql` too: both
 paste scripts are applied, the verify file is pasted as a whole, and each of its
 checks is asserted against the state the scripts actually leave behind.

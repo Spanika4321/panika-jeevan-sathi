@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 
 const { Router } = require('./http/router');
-const { ok, created, html, fail, redirect, HttpError } = require('./http/respond');
+const { ok, created, html, raw, fail, redirect, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
 const { sessionSecret, readSession } = require('./auth/session');
 const { Database } = require('./db/client');
@@ -30,6 +30,8 @@ const STATIC_TYPES = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.ico': 'image/x-icon',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain; charset=utf-8',
@@ -110,6 +112,7 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
   require('./routes/api/categories').register(router, context);
   require('./routes/api/services').register(router, context);
   require('./routes/api/providers').register(router, context);
+  require('./routes/seo').register(router, context);
   require('./routes/pages').register(router, context);
   require('./routes/auth-pages').register(router, context);
   require('./routes/account').register(router, context);
@@ -128,6 +131,9 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
           res.setHeader(name, value);
         } catch (_) { /* header already sent */ }
       }
+    }
+    if (typeof result === 'object' && result.raw && typeof result.raw.body === 'string') {
+      return raw(res, result.status || 200, result.raw.body, result.raw);
     }
     if (typeof result === 'object' && typeof result.html === 'string') {
       return html(res, result.status || 200, result.html);
@@ -155,7 +161,7 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
 
     // Static assets first: they are the cheapest response we can give.
     if (req.method === 'GET' || req.method === 'HEAD') {
-      if (pathname.startsWith('/assets/') || pathname === '/favicon.ico' || pathname === '/robots.txt') {
+      if (pathname.startsWith('/assets/') || pathname.startsWith('/uploads/') || pathname === '/favicon.ico') {
         if (serveStatic(req, res, pathname)) return undefined;
       }
     }

@@ -7,6 +7,9 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { createRequire } from 'node:module';
 import { makeDb } from './helpers.mjs';
 
@@ -20,7 +23,7 @@ function tableList(db) {
     .map((row) => row.name);
 }
 
-test('migration 0001 creates every foundation table', () => {
+test('migrations create every foundation table and the external-owner compatibility upgrade', () => {
   const { db, migrationResult } = makeDb({ withSeed: false });
   const tables = tableList(db);
 
@@ -30,7 +33,7 @@ test('migration 0001 creates every foundation table', () => {
   ]) {
     assert.ok(tables.includes(expected), `missing table: ${expected}`);
   }
-  assert.deepEqual(migrationResult.applied, ['0001']);
+  assert.deepEqual(migrationResult.applied, ['0001', '0002', '0003']);
   db.close();
 });
 
@@ -38,7 +41,7 @@ test('running migrations twice applies nothing the second time', () => {
   const { db } = makeDb({ withSeed: false });
   const second = migrate(db, config.db.migrationsDir);
   assert.deepEqual(second.applied, []);
-  assert.deepEqual(second.skipped, ['0001']);
+  assert.deepEqual(second.skipped, ['0001', '0002', '0003']);
   db.close();
 });
 
@@ -51,6 +54,61 @@ test('foreign keys are enforced', () => {
     ),
     /FOREIGN KEY/i,
   );
+  db.close();
+});
+
+test('the external-owner migration preserves providers, services and service areas', () => {
+  const legacyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'seva-legacy-schema-'));
+  const db = new (require('../src/db/client').Database)(':memory:');
+  try {
+    // Start from the exact old, 0001-only schema, seed real related rows, then
+    // make 0002 available. This guards against the classic SQLite DROP TABLE
+    // migration bug that silently cascades a provider's services away.
+    fs.copyFileSync(path.join(config.db.migrationsDir, '0001_foundation.sql'), path.join(legacyDir, '0001_foundation.sql'));
+    assert.deepEqual(migrate(db, legacyDir).applied, ['0001']);
+    // Current seed readers include the new photo_urls column. Add that column
+    // only to prepare realistic rows; the upgrade under test is still the
+    // legacy user_id FK removal in 0002.
+    db.exec("ALTER TABLE providers ADD COLUMN photo_urls TEXT NOT NULL DEFAULT '[]'");
+    require('../src/db/seed').seed(db);
+    const before = {
+      providers: db.scalar('SELECT COUNT(*) FROM providers'),
+      services: db.scalar('SELECT COUNT(*) FROM services'),
+      areas: db.scalar('SELECT COUNT(*) FROM service_areas'),
+    };
+
+    fs.copyFileSync(path.join(config.db.migrationsDir, '0002_provider_owner_external.sql'), path.join(legacyDir, '0002_provider_owner_external.sql'));
+    assert.deepEqual(migrate(db, legacyDir).applied, ['0002']);
+    assert.equal(db.scalar('SELECT COUNT(*) FROM providers'), before.providers);
+    assert.equal(db.scalar('SELECT COUNT(*) FROM services'), before.services);
+    assert.equal(db.scalar('SELECT COUNT(*) FROM service_areas'), before.areas);
+    assert.equal(db.scalar('PRAGMA foreign_keys'), 1, 'foreign key enforcement must be restored after the table rebuild');
+    assert.equal(db.scalar('PRAGMA foreign_key_check'), null, 'all provider child references must remain valid');
+  } finally {
+    db.close();
+    fs.rmSync(legacyDir, { recursive: true, force: true });
+  }
+});
+
+test('provider profiles accept a durable-store account id while retaining catalog foreign keys', () => {
+  const { db } = makeDb({ withSeed: true });
+  const providers = require('../src/models/provider');
+  const category = require('../src/models/category').findBySlug(db, 'electrician');
+  const locality = require('../src/models/location').findByPin(db, '781006').chain[4];
+
+  // In Render production this id belongs to public.seva_users in Supabase,
+  // not to the local, regenerable catalog SQLite file.
+  const provider = providers.createProvider(db, {
+    userId: 9_000_001,
+    businessName: 'External Account Electricals',
+    categoryId: category.id,
+    locationId: locality.id,
+    phone: '9864011111',
+    status: 'active',
+  });
+  assert.equal(db.scalar('SELECT user_id FROM providers WHERE id = ?', [provider.id]), 9_000_001);
+  assert.equal(db.scalar('SELECT COUNT(*) FROM users WHERE id = ?', [9_000_001]), 0);
+  assert.equal(db.scalar('PRAGMA foreign_key_check'), null, 'other catalog relationships must still be valid');
   db.close();
 });
 

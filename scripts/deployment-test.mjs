@@ -68,6 +68,33 @@ test('deploy: implicit database/bucket migrations and ephemeral storage are refu
   }
 });
 
+test('deploy: a guarded Render release requires valid SMTP settings before it can replace the environment', () => {
+  for (const patch of [
+    { SMTP_HOST: '' }, { SMTP_USER: '   ' }, { SMTP_PASS: '' },
+    { SMTP_PORT: '0' }, { SMTP_PORT: '65536' }, { SMTP_PORT: '587.5' },
+    { SMTP_SECURE: 'sometimes' }
+  ]) {
+    const altered = Object.entries({ ...environment, ...patch }).map(([key, value]) => ({ key, value }));
+    assert.throws(() => validateEnvironment(altered), /SMTP/);
+  }
+  for (const patch of [{ SMTP_PORT: '587', SMTP_SECURE: 'false' }, { SMTP_PORT: '465', SMTP_SECURE: 'true' }]) {
+    const altered = Object.entries({ ...environment, ...patch }).map(([key, value]) => ({ key, value }));
+    assert.doesNotThrow(() => validateEnvironment(altered));
+  }
+});
+
+test('deployment config: blueprint and guarded workflow carry all SMTP values without committing them', () => {
+  const blueprint = fs.readFileSync(new URL('../render.yaml', import.meta.url), 'utf8');
+  for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_SECURE', 'MAIL_FROM']) {
+    assert.match(blueprint, new RegExp(`^ {6}- key: ${key}\\n {8}sync: false$`, 'm'), `${key} must be a dashboard-owned secret/config value`);
+  }
+  const workflow = fs.readFileSync(new URL('../.github/workflows/deploy-render.yml', import.meta.url), 'utf8');
+  const template = fs.readFileSync(new URL('../ops/deploy-render.workflow.yml', import.meta.url), 'utf8');
+  for (const text of [workflow, template]) {
+    assert.match(text, /^ {10}SMTP_SECURE: \$\{\{ secrets\.SMTP_SECURE \}\}$/m, 'guarded releases must preserve SMTP TLS mode');
+  }
+});
+
 test('monitor: Supabase alone is not sufficient evidence of safety or durability', () => {
   assert.deepEqual(healthProblems(healthy()), []);
   for (const mutate of [

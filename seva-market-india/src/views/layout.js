@@ -92,11 +92,26 @@ function authMarkup(claims, currentPath) {
  * @param {string} [options.description]
  * @param {string} options.body        inner HTML for <main>
  * @param {string} [options.currentPath]
+ * @param {string} [options.robots]
  * @param {object|null} [options.user] verified session claims ({uid,nm,rl})
- * @param {{name: string, tagline: string}} options.site
+ * @param {{name: string, tagline: string, url?: string}} options.site
  */
-function layout({ title, description = '', body, currentPath = '/', user = null, site }) {
+function canonicalUrl(site, currentPath) {
+  const path = String(currentPath || '/');
+  try {
+    const origin = new URL(String(site?.url || '')).origin;
+    const target = new URL(path, `${origin}/`);
+    return target.origin === origin ? target.href : origin;
+  } catch (_) {
+    // Local development has no public SITE_URL. A relative canonical remains
+    // correct there; production always supplies its Render/custom-domain URL.
+    return path;
+  }
+}
+
+function layout({ title, description = '', body, currentPath = '/', robots = 'index,follow', user = null, site }) {
   const year = new Date().getFullYear();
+  const canonical = canonicalUrl(site, currentPath);
   return `<!DOCTYPE html>
 <html lang="en-IN">
 <head>
@@ -105,7 +120,8 @@ function layout({ title, description = '', body, currentPath = '/', user = null,
   <title>${esc(title)} | ${esc(site.name)}</title>
   <meta name="description" content="${esc(description || site.tagline)}">
   <meta name="theme-color" content="#2874f0">
-  <link rel="canonical" href="${esc(currentPath)}">
+  <meta name="robots" content="${esc(robots)}">
+  <link rel="canonical" href="${esc(canonical)}">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/main.css">
   <meta property="og:title" content="${esc(title)} | ${esc(site.name)}">
@@ -194,4 +210,4 @@ ${body}
 </html>`;
 }
 
-module.exports = { layout, navMarkup, NAV, esc };
+module.exports = { layout, canonicalUrl, navMarkup, NAV, esc };

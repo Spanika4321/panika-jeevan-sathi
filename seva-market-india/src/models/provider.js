@@ -12,7 +12,7 @@ const { slugify, cleanText, normalizePhone, isValidPin, likePattern } = require(
 
 const COLUMNS = `providers.id, providers.business_name, providers.slug, providers.contact_name,
   providers.phone, providers.alt_phone, providers.email, providers.category_id, providers.location_id,
-  providers.pin_code, providers.address_line, providers.about, providers.experience_years,
+  providers.pin_code, providers.address_line, providers.about, providers.experience_years, providers.photo_urls,
   providers.is_verified, providers.status, providers.rating_avg, providers.rating_count,
   providers.created_at`;
 
@@ -21,9 +21,28 @@ const CARD_COLUMNS = `${COLUMNS},
   categories.name AS category_name, categories.slug AS category_slug, categories.icon AS category_icon,
   locations.search_text AS location_label`;
 
+function publicPhotoUrls(value) {
+  const parsed = Array.isArray(value)
+    ? value
+    : (() => {
+      try { return JSON.parse(String(value || '[]')); } catch (_) { return []; }
+    })();
+  if (!Array.isArray(parsed)) return [];
+  return parsed.filter((url) => {
+    const text = String(url || '');
+    if (/^\/uploads\/businesses\/[a-z0-9-]+\.(?:jpg|png|webp)$/i.test(text)) return true;
+    try {
+      const parsedUrl = new URL(text);
+      return parsedUrl.protocol === 'https:' && !parsedUrl.username && !parsedUrl.password;
+    } catch (_) {
+      return false;
+    }
+  }).slice(0, 5);
+}
+
 function baseCard(row) {
   if (!row) return null;
-  return { ...row, is_verified: Boolean(row.is_verified) };
+  return { ...row, photo_urls: publicPhotoUrls(row.photo_urls), is_verified: Boolean(row.is_verified) };
 }
 
 /**
@@ -266,6 +285,18 @@ function serviceAreas(db, providerId) {
     .map((row) => row.pin_code);
 }
 
+/** Persist only server-produced HTTPS/local image URLs, never raw uploads. */
+function setPhotoUrls(db, providerId, urls) {
+  const provider = findById(db, providerId);
+  if (!provider) throw new Error(`Unknown provider: ${providerId}`);
+  const clean = publicPhotoUrls(urls);
+  db.run(
+    `UPDATE providers SET photo_urls = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
+    [JSON.stringify(clean), providerId],
+  );
+  return clean;
+}
+
 function setStatus(db, id, status) {
   if (!['pending', 'active', 'suspended'].includes(status)) throw new Error(`Unknown status: ${status}`);
   return db.run(`UPDATE providers SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [status, id]);
@@ -278,6 +309,7 @@ function count(db, { status = 'active' } = {}) {
 module.exports = {
   COLUMNS,
   CARD_COLUMNS,
+  publicPhotoUrls,
   createProvider,
   findById,
   findBySlug,
@@ -286,6 +318,7 @@ module.exports = {
   searchProviders,
   setServiceAreas,
   serviceAreas,
+  setPhotoUrls,
   setStatus,
   count,
 };

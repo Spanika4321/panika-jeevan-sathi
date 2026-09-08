@@ -115,8 +115,10 @@ function registerCardMarkup({ role, next, values = {}, errors = {} }) {
 /* ----------------------------------------------------- routes --- */
 
 function register(router, { store, config, session }) {
-  const page = (title, description, body) => ({
-    html: layout({ title, description, body, currentPath: '/', site: config.site }),
+  // Account entry pages are useful to people but should not compete with
+  // provider/service landing pages in search results.
+  const page = (title, description, body, currentPath) => ({
+    html: layout({ title, description, body, currentPath, robots: 'noindex,nofollow', site: config.site }),
   });
 
   /* ---------------------------------------------------- GET /register */
@@ -127,6 +129,7 @@ function register(router, { store, config, session }) {
       'Create a free account',
       'Register free on SEVA MARKET INDIA to hire local service providers or list your own service.',
       authShellMarkup(registerCardMarkup({ role, next })),
+      '/register',
     );
   });
 
@@ -156,6 +159,7 @@ function register(router, { store, config, session }) {
         'Create a free account',
         '',
         authShellMarkup(registerCardMarkup({ role, next, values: body, errors: fieldErrors })),
+        '/register',
       );
     }
 
@@ -190,6 +194,7 @@ function register(router, { store, config, session }) {
         'Create a free account',
         '',
         authShellMarkup(registerCardMarkup({ role, next, values: body, errors: errors2 })),
+        '/register',
       );
     }
   });
@@ -224,7 +229,7 @@ function register(router, { store, config, session }) {
         <p class="auth__switch">New to ${esc(config.site.name)}? <a href="/register">Create a free account</a></p>
       </div>
     </section>`;
-    return page('Log in', `Log in to ${config.site.name} — customers and service providers.`, body);
+    return page('Log in', `Log in to ${config.site.name} — customers and service providers.`, body, '/login');
   });
 
   /* ------------------------------------------------------- POST /login */
@@ -286,7 +291,7 @@ function register(router, { store, config, session }) {
       </div>
     </section>`;
     return {
-      html: layout({ title: 'Log in', description: '', body, currentPath: '/', site: config.site }),
+      html: layout({ title: 'Log in', description: '', body, currentPath: '/login', robots: 'noindex,nofollow', site: config.site }),
     };
   }
 
