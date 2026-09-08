@@ -5,7 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { readEnvironment, mergeEnvironment, validateEnvironment } from './lib/deploy-config.mjs';
-import { productionUrl, healthProblems, checkProduction } from './lib/production-check.mjs';
+import { productionUrl, healthProblems, checkProduction, formatReport } from './lib/production-check.mjs';
+import { waitForRelease } from './wait-for-release.mjs';
 import { testEnvironment } from './lib/test-app.mjs';
 import httpSecurity from '../lib/http-security.js';
 import db from '../lib/db.js';
@@ -208,4 +209,129 @@ test('automation: live write tests need explicit opt-in and deployment forms con
   const proof = fs.readFileSync(new URL('../.github/workflows/live-proof.yml', import.meta.url), 'utf8');
   assert.ok(!proof.includes('  schedule:'));
   assert.ok(proof.includes('if: inputs.allow_test_members'));
+});
+
+/* ------------------------------------------------- monitor failure policy */
+
+const MAIL_CHECK = 'SMTP is configured (not an inbox delivery test)';
+
+function siteFetch(health = healthy()) {
+  return async (url) => {
+    const pathname = new URL(url).pathname;
+    const body = pathname === '/api/health' ? health : pathname === '/api/site' ? { ok: true, site: { maintenance: '0' } } : { ok: false };
+    const status = pathname === '/' || pathname === '/api/health' || pathname === '/api/site' ? 200 : pathname.startsWith('/api/') ? 401 : 404;
+    return new Response(JSON.stringify(body), { status, headers: {
+      'Content-Type': 'application/json', 'Content-Security-Policy': "script-src 'self' 'sha256-test'; object-src 'none'; frame-ancestors 'self'",
+      'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff', 'Strict-Transport-Security': 'max-age=31536000'
+    } });
+  };
+}
+
+test('monitor: an owner-only SMTP gap is advisory, so a green watchdog still means durable storage', async () => {
+  const noMail = healthy();
+  noMail.mail = { configured: false, delivery_verified: false };
+  const report = await checkProduction('https://site.test', { attempts: 1, delayMs: 0, requireMail: false, fetchImpl: siteFetch(noMail) });
+  assert.equal(report.ok, false);
+  assert.equal(report.blocking_ok, true, JSON.stringify(report.blocking_failures));
+  assert.deepEqual(report.advisory_failures, [MAIL_CHECK]);
+  assert.equal(report.checks.find((check) => check.name === MAIL_CHECK).severity, 'advisory');
+  assert.match(report.checks.find((check) => check.name === MAIL_CHECK).detail, /SMTP_HOST/);
+  const text = formatReport(report);
+  assert.match(text, new RegExp(`^⚠️ ${MAIL_CHECK.replace(/[()]/g, '\\$&')}`, 'm'));
+  assert.match(text, /^Result: PASS — 1 advisory item\(s\) need owner action/m);
+  assert.ok(!text.includes('❌'), text);
+});
+
+test('monitor: SMTP configuration is still blocking when it is explicitly required', async () => {
+  const noMail = healthy();
+  noMail.mail = { configured: false };
+  const report = await checkProduction('https://site.test', { attempts: 1, delayMs: 0, fetchImpl: siteFetch(noMail) });
+  assert.equal(report.blocking_ok, false);
+  assert.deepEqual(report.blocking_failures, [MAIL_CHECK]);
+  assert.deepEqual(report.advisory_failures, []);
+  assert.match(formatReport(report), /^Result: NOT FULLY VERIFIED/m);
+});
+
+test('monitor: advisory handling can never hide a blocking regression', async () => {
+  const broken = healthy();
+  broken.mail = { configured: false };
+  broken.durable = false;
+  broken.data_loss_risk = true;
+  const report = await checkProduction('https://site.test', { attempts: 1, delayMs: 0, requireMail: false, fetchImpl: siteFetch(broken) });
+  assert.equal(report.blocking_ok, false);
+  assert.deepEqual(report.blocking_failures, ['Database and photos are durable']);
+  assert.deepEqual(report.advisory_failures, [MAIL_CHECK]);
+  assert.match(formatReport(report), /^❌ Database and photos are durable/m);
+  assert.match(formatReport(report), /^Result: NOT FULLY VERIFIED/m);
+});
+
+test('monitor: the watchdog command fails only on blocking checks and always writes the report', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-verify-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const noMail = healthy();
+  noMail.mail = { configured: false };
+  const undurable = healthy();
+  undurable.mail = { configured: false };
+  undurable.durable = false;
+  const stub = path.join(dir, 'fetch-stub.mjs');
+  const run = (payload, extraEnv = {}) => {
+    fs.writeFileSync(stub, `globalThis.fetch = (${siteFetch.toString()})(${JSON.stringify(payload)});`);
+    const output = path.join(dir, 'report.md');
+    const result = spawnSync(process.execPath, ['--import', stub, 'scripts/verify-production.mjs', '--url', 'https://site.test', '--output', output], {
+      cwd: new URL('../', import.meta.url), env: { ...testEnvironment(), ...extraEnv }, encoding: 'utf8'
+    });
+    return { ...result, report: fs.existsSync(output) ? fs.readFileSync(output, 'utf8') : '' };
+  };
+
+  const advisory = run(noMail);
+  assert.equal(advisory.status, 0, advisory.stderr || advisory.stdout);
+  assert.match(advisory.stdout, /ADVISORY \(owner action, not a job failure\)/);
+  assert.match(advisory.report, /^⚠️ SMTP is configured/m);
+
+  const required = run(noMail, { PJS_REQUIRE_MAIL: '1' });
+  assert.equal(required.status, 1);
+  assert.match(required.stdout, /FAILED: SMTP is configured/);
+  assert.match(required.report, /^Result: NOT FULLY VERIFIED/m);
+
+  const blocking = run(undurable);
+  assert.equal(blocking.status, 1);
+  assert.match(blocking.stdout, /FAILED: Database and photos are durable/);
+});
+
+test('automation: the watchdog waits for the live release instead of sleeping blindly', async () => {
+  const probes = [];
+  const result = await waitForRelease('https://site.test', {
+    expected: 'abcdef1234567890',
+    fetchImpl: async (url, options) => {
+      probes.push(options);
+      const release = probes.length < 3 ? 'old-commit-000' : 'abcdef1234567890';
+      return new Response(JSON.stringify({ release }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    },
+    sleep: async () => {},
+    now: (() => { let clock = 0; return () => (clock += 1000); })()
+  });
+  assert.equal(result.matched, true);
+  assert.equal(result.attempts, 3);
+  assert.ok(probes.every((request) => request.method === 'GET' && !request.body));
+
+  // A sleeping free-tier instance returns Render's HTML loading page: not an error.
+  const cold = await waitForRelease('https://site.test', {
+    expected: 'abcdef1234567890', maxAttempts: 2, sleep: async () => {},
+    fetchImpl: async () => new Response('<html>Application loading</html>', { status: 503, headers: { 'Content-Type': 'text/html' } })
+  });
+  assert.equal(cold.matched, false);
+  assert.equal(cold.attempts, 2);
+  assert.equal((await waitForRelease('https://site.test', { fetchImpl: async () => { throw new Error('must not be called'); } })).skipped, true);
+
+  const cli = spawnSync(process.execPath, ['scripts/wait-for-release.mjs', '--url', 'https://site.test', '--release', 'deadbeefdeadbeef', '--budget', '0'], {
+    cwd: new URL('../', import.meta.url), env: testEnvironment(), encoding: 'utf8'
+  });
+  assert.equal(cli.status, 0, cli.stderr);
+  assert.match(cli.stdout, /WAIT_RESULT: budget-exhausted/);
+
+  const workflow = fs.readFileSync(new URL('../.github/workflows/keep-alive.yml', import.meta.url), 'utf8');
+  assert.ok(!workflow.includes('sleep 300'), 'the watchdog must not wait blindly');
+  assert.match(workflow, /node scripts\/wait-for-release\.mjs --url "\$SITE_URL" --release "\$EXPECTED_RELEASE"/);
+  assert.match(workflow, /PJS_REQUIRE_MAIL: \$\{\{ vars\.PJS_REQUIRE_MAIL \}\}/);
+  assert.match(workflow, /::warning::/);
 });

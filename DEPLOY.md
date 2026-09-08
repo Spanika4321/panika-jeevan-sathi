@@ -97,9 +97,23 @@ npm run verify:production -- --url https://panikajeevansathi.onrender.com
 
 This uses GET requests only: health, a real database-backed `/api/site` read, remote database
 **and** photo status, error/pending-write flags, CSP/HSTS/privacy headers, private API denial,
-and server-file protection. It also checks that the security release is deployed and SMTP is
-configured. SMTP configuration does **not** establish inbox delivery. The check returns nonzero
-on failed or unknown requirements; a Render loading page is not healthy API JSON.
+and server-file protection. It also checks that the security release is deployed and reports the
+SMTP configuration. SMTP configuration does **not** establish inbox delivery.
+
+Checks carry a severity:
+
+- **Blocking** (❌) — availability, database/photo durability, deployed security release,
+  privacy and security headers, anonymous-access denial, exposed server files. Any failure or
+  unknown requirement returns nonzero; a Render loading page is not healthy API JSON.
+- **Advisory** (⚠️) — the SMTP configuration. Only the owner can set `SMTP_HOST`, `SMTP_PORT`,
+  `SMTP_USER`, `SMTP_PASS`, `SMTP_SECURE` and `MAIL_FROM` in the Render dashboard, so a CI job
+  cannot repair it. It is reported in the console, the report artifact and the job summary (and
+  as a `::warning::` annotation in the workflow) without failing the job — a permanently red
+  watchdog would hide real durability regressions. Set `PJS_REQUIRE_MAIL=1` in the environment
+  (or as a repository **Actions variable**) to make it blocking again once SMTP is configured.
+
+Until SMTP is set, member verification and password-reset email is **not delivered**; messages
+are kept in the private server outbox for administrator-assisted recovery only.
 
 Use the `ADMIN_PASSWORD` stored in Render's protected Environment settings for first login.
 Configured passwords are not printed in release logs. Change it after signing in.
@@ -133,7 +147,16 @@ Schedules become active only after the workflow reaches the repository's default
 GitHub schedules can be delayed or disabled and provider outages/quotas remain possible.
 The keep-alive job attempts an owner alert through the `RESEND_API_KEY` secret and
 `.report-recipient`; missing credentials or provider rejection mean **no confirmed alert**,
-while the failed check still turns the job red. Resend acceptance is not an inbox receipt.
+while a failed **blocking** check still turns the job red. Advisory items (currently only the
+SMTP configuration, which lives in the Render dashboard and nowhere in CI) are reported as `⚠️`
+lines in the job summary and as `::warning::` annotations instead — see §C. Resend acceptance is
+not an inbox receipt.
+
+After a merge to `main` the job first waits up to five minutes for `/api/health` to report the
+pushed commit as the live `release` (`scripts/wait-for-release.mjs`) instead of sleeping blindly,
+so the checks describe the deployment that was just made. A free-tier cold start or a slow deploy
+ends the wait without failing it.
+
 No one-day continuous monitoring result is implied by installing these workflows.
 
 ### D. Durable data without Cloudflare (optional)

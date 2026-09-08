@@ -1,5 +1,19 @@
 import { setTimeout as delay } from 'node:timers/promises';
 
+/*
+ * Every check carries a severity:
+ *   blocking — a regression the watchdog must fail on (availability, database
+ *              and photo durability, deployed security release, privacy and
+ *              security headers, anonymous access, exposed server files).
+ *   advisory — an owner configuration gap that CI cannot repair itself (SMTP
+ *              credentials live only in the Render dashboard). It is reported
+ *              loudly (⚠️ + `::warning::`) but must not turn the whole safety
+ *              monitor red, or a real durability regression hides behind it.
+ * Set PJS_REQUIRE_MAIL=1 to promote the mail check back to blocking.
+ */
+export const BLOCKING = 'blocking';
+export const ADVISORY = 'advisory';
+
 export function productionUrl(value) {
   const url = new URL(value);
   const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
@@ -20,6 +34,25 @@ export function healthProblems(body, expectedStorage = 'supabase') {
   if (body?.remote?.database?.lastError || body?.remote?.photos?.lastError) issues.push('Storage reports an error');
   if (body?.remote?.database?.pending > 0 || body?.remote?.photos?.pending > 0) issues.push('Storage has unacknowledged writes');
   return issues;
+}
+
+/** Human-readable report lines, identical in the console, artifact and job summary. */
+export function formatReport(report) {
+  const icon = (check) => (check.ok ? '✅' : check.severity === BLOCKING ? '❌' : '⚠️');
+  return [
+    '# Production safety check', '', `Checked: ${report.checked_at}`, `Site: ${report.site}`, '',
+    ...report.checks.map((check) => `${icon(check)} ${check.name}${check.detail ? ` — ${check.detail}` : ''}`), '',
+    `Result: ${resultSummary(report)}`, '',
+    ...report.limitations.map((text) => `- ${text}`), ''
+  ].join('\n');
+}
+
+export function resultSummary(report) {
+  if (!report.blocking_ok) return 'NOT FULLY VERIFIED — resolve failed checks';
+  if (report.advisory_failures.length) {
+    return `PASS — ${report.advisory_failures.length} advisory item(s) need owner action: ${report.advisory_failures.join('; ')}`;
+  }
+  return 'PASS';
 }
 
 /** Safe to schedule: GET requests only. No member creation, password changes or photo downloads. */
@@ -43,14 +76,25 @@ export async function checkProduction(value, { fetchImpl = fetch, attempts = 5, 
     }
     return { response: null, body: null };
   }
-  function record(name, ok, detail = '') { checks.push({ name, ok: Boolean(ok), detail }); }
+  function record(name, ok, detail = '', severity = BLOCKING) { checks.push({ name, ok: Boolean(ok), detail, severity }); }
 
   const health = await request('/api/health', true);
   record('Health endpoint responds', health.response?.status === 200 && health.body?.ok === true);
   const problems = healthProblems(health.body, expectedStorage);
   record('Database and photos are durable', problems.length === 0, problems.join('; '));
   record('Security release is deployed', health.body?.security_revision === '2026-09-05');
-  if (requireMail) record('SMTP is configured (not an inbox delivery test)', health.body?.mail?.configured === true);
+  if (requireMail) {
+    record('SMTP is configured (not an inbox delivery test)', health.body?.mail?.configured === true);
+  } else {
+    record(
+      'SMTP is configured (not an inbox delivery test)',
+      health.body?.mail?.configured === true,
+      health.body?.mail?.configured === true
+        ? ''
+        : 'Member verification and password-reset email cannot be delivered. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS (plus SMTP_SECURE=true for port 465) and MAIL_FROM in the Render dashboard. Set the repository variable PJS_REQUIRE_MAIL=1 to make this check fail the job.',
+      ADVISORY
+    );
+  }
 
   const site = await request('/api/site', true);
   record('Public site performs a database read', site.response?.status === 200 && site.body?.ok === true && Boolean(site.body?.site));
@@ -72,9 +116,15 @@ export async function checkProduction(value, { fetchImpl = fetch, attempts = 5, 
     const result = await request(path);
     record(`Server file is not public: ${path}`, [403, 404].includes(result.response?.status));
   }
+
+  const blocking = checks.filter((check) => check.severity === BLOCKING);
   return {
     checked_at: new Date().toISOString(), site: base,
-    ok: checks.every((check) => check.ok), checks,
+    checks,
+    ok: checks.every((check) => check.ok),
+    blocking_ok: blocking.every((check) => check.ok),
+    blocking_failures: blocking.filter((check) => !check.ok).map((check) => check.name),
+    advisory_failures: checks.filter((check) => !check.ok && check.severity === ADVISORY).map((check) => check.name),
     limitations: ['Read-only point-in-time check, not a penetration-test guarantee.', 'No inbox delivery, production backup restore, disk wipe or 24-hour soak was performed.']
   };
 }

@@ -2,6 +2,16 @@ name: Keep-alive (Supabase + storage watchdog)
 
 # Read-only production checks every six hours, plus post-merge checks.
 # Scheduled workflows become active only after this file reaches the default branch.
+#
+# Failure policy:
+#   • Blocking checks (availability, database/photo durability, deployed security
+#     release, privacy and security headers, anonymous access, exposed server
+#     files) fail this job. They are regressions the monitor exists to catch.
+#   • Advisory checks (SMTP credentials, which only the owner can set in the
+#     Render dashboard) are reported as ⚠️ in the summary and as `::warning::`
+#     annotations, but do not turn the job red — a permanently red watchdog
+#     hides real durability regressions. Set the repository variable
+#     PJS_REQUIRE_MAIL=1 to make the mail check blocking again.
 on:
   schedule:
     - cron: '17 */6 * * *'
@@ -29,18 +39,30 @@ jobs:
     timeout-minutes: 20
     env:
       SITE_URL: ${{ inputs.url || 'https://panikajeevansathi.onrender.com' }}
+      # Empty unless the owner sets this repository variable to '1'.
+      PJS_REQUIRE_MAIL: ${{ vars.PJS_REQUIRE_MAIL }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
         with:
           node-version-file: '.node-version'
-      - name: Allow Render auto-deploy to finish
+      - name: Wait for this commit to become the live release
         if: github.event_name == 'push'
-        run: sleep 300
+        env:
+          EXPECTED_RELEASE: ${{ github.sha }}
+        run: node scripts/wait-for-release.mjs --url "$SITE_URL" --release "$EXPECTED_RELEASE" --budget 300000 --poll 20000
       - name: Read-only production safety checks
         id: verify
         continue-on-error: true
         run: node scripts/verify-production.mjs --url "$SITE_URL" --output reports/production-safety-latest.md
+      - name: Surface advisory items that need owner action
+        if: steps.verify.outcome == 'success'
+        run: |
+          if [ -f reports/production-safety-latest.md ] && grep -q '^⚠️' reports/production-safety-latest.md; then
+            grep '^⚠️' reports/production-safety-latest.md | sed 's/^/::warning::/'
+          else
+            echo 'No advisory items: every reported check passed.'
+          fi
       - name: Attempt an owner alert if verification failed
         if: steps.verify.outcome == 'failure'
         env:
@@ -49,7 +71,7 @@ jobs:
           if [ -z "$RESEND_API_KEY" ]; then
             echo "::warning::Alert email was NOT sent: RESEND_API_KEY is not configured."
           else
-            node scripts/keepalive-alert.mjs --url "$SITE_URL" --status safety-check-failed --detail "Production safety checks failed. See this workflow's summary for the exact failed checks."
+            node scripts/keepalive-alert.mjs --url "$SITE_URL" --status safety-check-failed --detail "Blocking production safety checks failed. See this workflow's summary for the exact failed checks."
           fi
       - name: Preserve safe report (no credentials or member data)
         if: always()
@@ -59,7 +81,7 @@ jobs:
           path: reports/production-safety-latest.md
           if-no-files-found: ignore
           retention-days: 14
-      - name: Failed checks must never be green
+      - name: Failed blocking checks must never be green
         if: always() && steps.verify.outcome != 'success'
         run: |
           echo "::error::Production safety is NOT fully verified. Review the report; an alert email is not guaranteed."
