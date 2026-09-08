@@ -211,6 +211,45 @@ That is the data-loss question answered by evidence rather than by promise.
 
 ---
 
+## Step 7 — Enable Google discovery after the deploy
+
+Use the **actual live service URL**, currently
+`https://seva-market-india-tast.onrender.com`. The similarly named
+`https://seva-market-india.onrender.com` is not this service and may show
+Render's loading screen.
+
+1. Check these two URLs in a private browser window or with `curl -I`:
+
+   ```text
+   https://seva-market-india-tast.onrender.com/robots.txt
+   https://seva-market-india-tast.onrender.com/sitemap.xml
+   ```
+
+   Both must be `200`. `robots.txt` must name the same `-tast` sitemap URL,
+   and `sitemap.xml` must be XML (not the site's 404 page). The sitemap
+   contains only public marketplace, provider, service, category and state
+   landing pages; account, login, API and enquiry URLs are intentionally not
+   submitted to Google.
+
+2. Sign in to the Google account that owns the site, then open
+   <https://search.google.com/search-console/>. Add the exact **URL-prefix**
+   property `https://seva-market-india-tast.onrender.com/` (or the custom
+   domain once one is connected) and complete Google's ownership verification.
+3. In **Sitemaps**, submit `/sitemap.xml`. In **URL inspection**, inspect the
+   home page and use **Request indexing** once it is eligible. Google controls
+   crawl and indexing timing, so a successful submission is not an immediate
+   guarantee that a `site:` search will show a result.
+4. Prefer a verified custom domain for long-term SEO. A Render-generated
+   hostname can change when a service is recreated; if it changes, update
+   `SITE_URL` in Render's Environment screen, wait for redeploy, then repeat
+   the two checks above and submit the new sitemap property.
+
+No source-code change can perform Search Console ownership verification or
+request indexing on an owner's behalf; those actions require the authorized
+Google account.
+
+---
+
 ## Checking from a computer, before deploying
 
 ```bash

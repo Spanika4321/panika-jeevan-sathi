@@ -24,12 +24,15 @@ export function makeDb({ withSeed = true } = {}) {
 }
 
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true } = {}) {
+export function makeApp({ withSeed = true, siteUrl = config.site.url } = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
-  const app = createApp({ config, db });
-  return { ...app, config };
+  // Tests can give crawl documents a real canonical origin without mutating
+  // the process-wide configuration object imported by other test files.
+  const appConfig = siteUrl === config.site.url ? config : { ...config, site: { ...config.site, url: siteUrl } };
+  const app = createApp({ config: appConfig, db });
+  return { ...app, config: appConfig };
 }
 
 /** Minimal IncomingMessage stub, enough for the handlers that read it. */

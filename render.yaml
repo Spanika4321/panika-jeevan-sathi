@@ -4,7 +4,7 @@
 # This one file creates and manages BOTH services:
 #
 #     panikajeevansathi    https://panikajeevansathi.onrender.com
-#     seva-market-india    https://seva-market-india.onrender.com
+#     seva-market-india    https://seva-market-india-tast.onrender.com (current Render URL; suffixes can differ)
 #
 # Render reads exactly one blueprint file per repository, so a subfolder's
 # render.yaml is only a copy. The SEVA block at the bottom is kept byte

@@ -73,10 +73,25 @@ function html(res, status, markup) {
   res.end(body);
 }
 
+/**
+ * Send a small public text/XML document without wrapping it in the JSON API
+ * envelope. Used for crawl-control documents such as robots.txt and sitemap.xml.
+ */
+function raw(res, status, source, { contentType = 'text/plain; charset=utf-8', cacheControl = 'public, max-age=3600' } = {}) {
+  const body = Buffer.isBuffer(source) ? source : Buffer.from(String(source), 'utf8');
+  applySecurityHeaders(res);
+  res.writeHead(status, {
+    'Content-Type': contentType,
+    'Content-Length': body.length,
+    'Cache-Control': cacheControl,
+  });
+  res.end(body);
+}
+
 function redirect(res, location, status = 302) {
   applySecurityHeaders(res);
   res.writeHead(status, { Location: location, 'Content-Length': 0 });
   res.end();
 }
 
-module.exports = { HttpError, json, ok, created, fail, html, redirect, STATUSES };
+module.exports = { HttpError, json, ok, created, fail, html, raw, redirect, STATUSES };

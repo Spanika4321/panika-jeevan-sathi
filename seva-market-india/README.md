@@ -146,13 +146,14 @@ seva-market-india/
 │   ├── models/                  location, category, provider, service, user, lead
 │   ├── http/
 │   │   ├── router.js            pattern router + accurate Allow headers
-│   │   ├── respond.js           one JSON envelope, HttpError, HTML sender
+│   │   ├── respond.js           JSON/HTML/text/XML response helpers, HttpError
 │   │   ├── request.js           body parsing (size-capped) + validators
 │   │   └── security.js          security headers, trusted client IP
 │   ├── auth/
 │   │   └── session.js           signed HttpOnly session cookies (zero-dep)
 │   ├── routes/
 │   │   ├── pages.js             core HTML pages (home, search, categories…)
+│   │   ├── seo.js               dynamic robots.txt + sitemap.xml for public URLs
 │   │   ├── auth-pages.js        register / login / logout
 │   │   ├── account.js           dashboards: business profile, services, leads
 │   │   ├── listings.js          public listing pages + enquiry forms
@@ -174,7 +175,7 @@ seva-market-india/
 │   └── prove-durability.mjs     wipes the disk in a sandbox and proves survival
 ├── DEPLOY.md                    click-by-click Render deployment guide
 ├── render.yaml                  Render blueprint (fail-closed env baked in; mirrored into the repo root)
-└── tests/                       204 tests over schema, models, search, HTTP, pages, Supabase, durability, blueprints
+└── tests/                       207 tests over schema, models, search, HTTP, SEO, pages, Supabase, durability, blueprints
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views

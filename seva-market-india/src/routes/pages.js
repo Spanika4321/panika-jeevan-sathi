@@ -20,11 +20,12 @@ const { resolveSearchFilters, describeFilters } = require('./search-context');
 const { HttpError } = require('../http/respond');
 
 function register(router, { db, config }) {
-  const render = (ctx, { title, description = '', body, currentPath = null }) => layout({
+  const render = (ctx, { title, description = '', body, currentPath = null, robots = 'index,follow' }) => layout({
     title,
     description,
     body,
     currentPath: currentPath || ctx.pathname,
+    robots,
     user: ctx.auth,
     site: config.site,
   });
@@ -88,11 +89,22 @@ function register(router, { db, config }) {
       </div>
     </section>`;
 
+    // Only curated category/state landing pages are indexable. Free-text and
+    // arbitrary PIN result pages are useful to visitors but create duplicate
+    // or empty pages for crawlers, so they deliberately stay out of the index.
+    const canonicalParams = new URLSearchParams();
+    if (filters.category?.is_active) canonicalParams.set('category', filters.category.slug);
+    if (filters.location?.kind === 'state' && filters.location.is_active) canonicalParams.set('state', filters.location.slug);
+    const canonicalQuery = canonicalParams.toString();
+    const indexableSearch = Boolean(canonicalQuery) && !filters.query && !filters.pin;
+
     return {
       html: render(ctx, {
         title: `${heading} — Services`,
         description: `${total} local services for ${heading}. Contact providers directly.`,
         body,
+        currentPath: `/search${canonicalQuery ? `?${canonicalQuery}` : ''}`,
+        robots: indexableSearch ? 'index,follow' : 'noindex,follow',
       }),
     };
   });
