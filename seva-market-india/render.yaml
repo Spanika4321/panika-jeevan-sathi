@@ -80,3 +80,28 @@ services:
         sync: false
       - key: SESSION_SECRET
         generateValue: true # also salts the IP hash used by the enquiry throttle
+
+      # ---- account email: verification + password reset ----
+      # The app boots and serves every page without these; it simply cannot
+      # mail a link, and the signup / reset pages say so instead of pretending.
+      # All six are provider credentials, so `sync: false` keeps them out of
+      # git: enter them in the dashboard (Settings -> Environment).
+      # Indian hosts offer two shapes — STARTTLS on 587, or implicit TLS on
+      # 465 with SMTP_SECURE=true. Leave SMTP_SECURE unset for the first.
+      - key: SMTP_HOST
+        sync: false # e.g. smtp.resend.com, smtp.zeptomail.in, smtp.gmail.com
+      - key: SMTP_PORT
+        sync: false # 587 (STARTTLS) or 465 (with SMTP_SECURE=true)
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_SECURE
+        sync: false # 'true' only for implicit TLS on 465
+      - key: MAIL_FROM
+        sync: false # SEVA MARKET INDIA <no-reply@your-domain> — the domain must be one the provider lets you send from
+      # Render's disk is ephemeral, so a mail outbox here would be a queue the
+      # next deploy deletes. SEVA_MAIL_OUTBOX=1 exists for a debugging session
+      # only; leave it unset and let undelivered mail be reported, not stored.
+      - key: SEVA_MAIL_OUTBOX
+        sync: false

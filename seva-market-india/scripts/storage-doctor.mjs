@@ -98,6 +98,9 @@ export async function main(argv = process.argv.slice(2), deps = {}) {
     users: env.SEVA_TABLE_USERS || 'seva_users',
     leads: env.SEVA_TABLE_LEADS || 'seva_leads',
     audit: env.SEVA_TABLE_AUDIT || 'seva_audit_logs',
+    // Verification and reset links: a deploy that is missing this table can
+    // still log people in, so it fails quietly unless the doctor names it.
+    tokens: env.SEVA_TABLE_TOKENS || 'seva_account_tokens',
   };
 
   if (!args.json) log('SEVA MARKET INDIA — storage doctor\n');
@@ -191,8 +194,8 @@ export async function main(argv = process.argv.slice(2), deps = {}) {
   if (args.json) {
     log(JSON.stringify(report, null, 2));
   } else {
-    log('\nVerdict: durable. Accounts and enquiries are written through to Postgres,');
-    log('so a redeploy or a wake-from-sleep cannot lose them.');
+    log('\nVerdict: durable. Accounts, enquiries and account-email links are written');
+    log('through to Postgres, so a redeploy or a wake-from-sleep cannot lose them.');
   }
   return 0;
 }

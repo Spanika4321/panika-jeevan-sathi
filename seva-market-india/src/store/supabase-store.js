@@ -20,6 +20,7 @@
 
 const userModel = require('../models/user');
 const leadModel = require('../models/lead');
+const tokenModel = require('../models/account-token');
 
 /** Postgres returns timestamptz; the API contract is a plain ISO string. */
 function isoOrNull(value) {
@@ -41,6 +42,21 @@ function publicUser(row) {
     email_verified_at: isoOrNull(row.email_verified_at),
     created_at: isoOrNull(row.created_at),
     updated_at: isoOrNull(row.updated_at),
+  };
+}
+
+/** A token row as the routes see it: hashes and ISO dates, never the secret. */
+function publicToken(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    user_id: Number(row.user_id),
+    purpose: row.purpose,
+    token_hash: row.token_hash,
+    ip_hash: row.ip_hash ?? null,
+    expires_at: isoOrNull(row.expires_at),
+    consumed_at: isoOrNull(row.consumed_at),
+    created_at: isoOrNull(row.created_at),
   };
 }
 
@@ -69,6 +85,9 @@ function publicLead(row) {
 function createSupabaseStore({ db, remote, config }) {
   const secret = config?.security?.sessionSecret || '';
   const tables = config.storage.tables;
+  // Test doubles and older configs predate the token table; the name is a
+  // constant here so a missing key cannot turn into a query against "undefined".
+  const tokensTable = tables.tokens || 'seva_account_tokens';
 
   return {
     backend: 'supabase',
@@ -117,6 +136,30 @@ function createSupabaseStore({ db, remote, config }) {
 
       async findById(id) {
         const row = await remote.first(tables.users, { where: { id } });
+        return publicUser(row);
+      },
+
+      async setEmailVerified(id, at = new Date().toISOString()) {
+        const [row] = await remote.update(
+          tables.users,
+          { email_verified_at: at, updated_at: new Date().toISOString() },
+          { id },
+        );
+        return publicUser(row);
+      },
+
+      /**
+       * The new hash is computed by the shared model, so a password set
+       * through Postgres is byte-identical to one set through SQLite.
+       */
+      async setPassword(id, password) {
+        const passwordHash = userModel.hashPassword(password);
+        const [row] = await remote.update(
+          tables.users,
+          { password_hash: passwordHash, updated_at: new Date().toISOString() },
+          { id },
+        );
+        if (!row) throw new Error('That account no longer exists.');
         return publicUser(row);
       },
 
@@ -205,6 +248,72 @@ function createSupabaseStore({ db, remote, config }) {
       },
     },
 
+    /**
+     * One-time links, written through to Postgres for the same reason
+     * accounts are: a reset link that dies with an ephemeral disk is a
+     * customer locked out of their own business profile.
+     */
+    tokens: {
+      async create(input) {
+        const row = tokenModel.prepareToken(input);
+        const [inserted] = await remote.insert(tokensTable, row);
+        return publicToken(inserted);
+      },
+
+      /**
+       * Expiry and single-use are enforced by the filter, not by the caller:
+       * `consumed_at is null AND expires_at >= now`. A spent or stale link
+       * simply does not match, which is the answer the route needs.
+       */
+      async findValid({ purpose, token }, at = Date.now()) {
+        if (!tokenModel.PURPOSES.includes(purpose) || !tokenModel.isTokenShape(token)) return null;
+        const row = await remote.first(tokensTable, {
+          columns: 'id,user_id,purpose,token_hash,ip_hash,expires_at,consumed_at,created_at',
+          where: {
+            purpose,
+            token_hash: tokenModel.hashToken(token),
+            consumed_at: null,
+            expires_at: { gte: tokenModel.nowIso(at) },
+          },
+        });
+        return publicToken(row);
+      },
+
+      async consume(id, at = Date.now()) {
+        const rows = await remote.update(
+          tokensTable,
+          { consumed_at: tokenModel.nowIso(at) },
+          { id, consumed_at: null },
+        );
+        return rows.length;
+      },
+
+      async revokeForUser(userId, purpose, at = Date.now()) {
+        if (!tokenModel.PURPOSES.includes(purpose)) throw new Error(`Unknown token purpose: ${purpose}`);
+        const rows = await remote.update(
+          tokensTable,
+          { consumed_at: tokenModel.nowIso(at) },
+          { user_id: Number(userId), purpose, consumed_at: null },
+        );
+        return rows.length;
+      },
+
+      async recentCount({ purpose, userId = null, ipHash = null, minutes = 60 }, at = Date.now()) {
+        if (!tokenModel.PURPOSES.includes(purpose)) throw new Error(`Unknown token purpose: ${purpose}`);
+        const since = tokenModel.nowIso(at - Math.trunc(minutes) * 60_000);
+        const where = { purpose, created_at: { gte: since } };
+        if (userId) where.user_id = Number(userId);
+        else if (ipHash) where.ip_hash = String(ipHash);
+        else return 0;
+        return remote.count(tokensTable, where);
+      },
+
+      async purgeExpired(at = Date.now()) {
+        const rows = await remote.remove(tokensTable, { expires_at: { lt: tokenModel.nowIso(at) } });
+        return Array.isArray(rows) ? rows.length : 0;
+      },
+    },
+
     audit: {
       async log({ actor = 'system', action, entity = null, entityId = null, detail = null }) {
         await remote.insert(
@@ -241,4 +350,4 @@ function createSupabaseStore({ db, remote, config }) {
   };
 }
 
-module.exports = { createSupabaseStore, publicUser, publicLead, isoOrNull };
+module.exports = { createSupabaseStore, publicUser, publicLead, publicToken, isoOrNull };

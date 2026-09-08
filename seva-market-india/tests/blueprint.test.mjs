@@ -79,6 +79,20 @@ test('the SEVA service is deployed the only safe way on a free ephemeral host', 
   }
   assert.ok(!/^ {6}- key: SEVA_ALLOW_EPHEMERAL/m.test(block), 'SEVA_ALLOW_EPHEMERAL must not appear: it silences the very warning this service exists to honour');
 
+  // Account email: the keys are declared so a fresh deploy prompts for them,
+  // but the values belong to the dashboard — a blueprint sync must never
+  // overwrite (or commit) an SMTP credential.
+  for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_SECURE', 'MAIL_FROM']) {
+    assert.ok(
+      new RegExp(`^ {6}- key: ${key}\\n(?:^ {8}#.*\\n)*^ {8}sync: false`, 'm').test(block),
+      `${key} must be declared with sync:false so a blueprint sync cannot overwrite the dashboard value`,
+    );
+    assert.ok(
+      !new RegExp(`^ {6}- key: ${key}\\n(?:^ {8}#.*\\n)*^ {8}value:`, 'm').test(block),
+      `${key} must never carry a committed value`,
+    );
+  }
+
   // SITE_URL must be dashboard-owned, never committed. A pinned value pointed
   // at seva-market-india.onrender.com even after Render suffixed the live
   // service to seva-market-india-tast — and every blueprint sync reverted the

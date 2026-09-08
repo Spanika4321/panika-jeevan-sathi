@@ -15,6 +15,7 @@ const { Router } = require('./http/router');
 const { ok, created, html, raw, fail, redirect, HttpError } = require('./http/respond');
 const { applySecurityHeaders, clientIp } = require('./http/security');
 const { sessionSecret, readSession } = require('./auth/session');
+const { createMailer } = require('./mail/mailer');
 const { Database } = require('./db/client');
 const { migrate } = require('./db/migrate');
 const { createStore } = require('./store');
@@ -68,10 +69,11 @@ function serveStatic(req, res, pathname) {
  * @param {import('./config')} options.config
  * @param {Database} [options.db]  supply one to reuse a connection (tests)
  * @param {object} [options.store] supply one to bypass storage wiring (tests)
+ * @param {object} [options.mailer] supply one to capture email instead of sending it (tests)
  * @param {Function} [options.fetchImpl] injected into the Supabase store (tests)
- * @returns {{handle: Function, router: Router, db: Database, store: object, close: Function}}
+ * @returns {{handle: Function, router: Router, db: Database, store: object, mailer: object, close: Function}}
  */
-function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } = {}) {
+function createApp({ config, db: injectedDb, store: injectedStore, mailer: injectedMailer, fetchImpl } = {}) {
   if (!config) throw new Error('createApp requires config.');
 
   const db = injectedDb || new Database(config.db.file);
@@ -104,8 +106,17 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
   };
   const site = config.site;
 
+  // Account email: verification and password reset. In production without
+  // SMTP the flows still work end to end — the link is issued and stored —
+  // but nothing reaches an inbox, which is exactly the kind of half-working
+  // feature that deserves a line in the deploy log rather than silence.
+  const mailer = injectedMailer || createMailer({ config: config.mail, log: console.warn });
+  for (const warning of mailWarnings(config, mailer)) {
+    console.warn(`[mail] WARNING: ${warning}`);
+  }
+
   const router = new Router();
-  const context = { db, store, config, session, site };
+  const context = { db, store, config, session, site, mailer };
 
   require('./routes/api/health').register(router, context);
   require('./routes/api/locations').register(router, context);
@@ -115,6 +126,7 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
   require('./routes/seo').register(router, context);
   require('./routes/pages').register(router, context);
   require('./routes/auth-pages').register(router, context);
+  require('./routes/account-security').register(router, context);
   require('./routes/account').register(router, context);
   require('./routes/listings').register(router, context);
 
@@ -233,7 +245,29 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
     if (!injectedDb) db.close();
   }
 
-  return { handle, router, db, store, close };
+  return { handle, router, db, store, mailer, close };
+}
+
+/**
+ * Boot-time notes about account email. Empty in development, where the outbox
+ * is the intended behaviour and saying so on every boot would be noise.
+ *
+ * The same process can build several apps (the test suite does), and the
+ * warning is about configuration rather than about one app, so it is printed
+ * once per process instead of once per createApp().
+ */
+let mailWarningPrinted = false;
+
+function mailWarnings(config, mailer, once = true) {
+  if (once && mailWarningPrinted) return [];
+  if (!config.isProduction) return [];
+  if (mailer.configured) return [];
+  mailWarningPrinted = true;
+  return [
+    'SMTP is not configured, so email verification and password reset cannot reach an inbox. '
+    + 'Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS and MAIL_FROM (see DEPLOY.md). '
+    + 'Signups and logins keep working; only the two email flows are disabled.',
+  ];
 }
 
 /**
@@ -269,4 +303,4 @@ function notFoundPage(res) {
   return html(res, 404, body);
 }
 
-module.exports = { createApp, ensureCatalog, serveStatic, resolveStatic, STATIC_TYPES };
+module.exports = { createApp, ensureCatalog, mailWarnings, serveStatic, resolveStatic, STATIC_TYPES };

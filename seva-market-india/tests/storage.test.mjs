@@ -27,13 +27,18 @@ const { createStore } = require('../src/store');
 const { assertStorageSafe, resolveDriver, StorageConfigError } = require('../src/store/guard');
 const { buildQuery, describeKey, isPublicKey, parseContentRange, createRemoteClient } = require('../src/db/remote');
 const baseConfig = require('../src/config');
+const tokenModel = require('../src/models/account-token');
+const userModel = require('../src/models/user');
 
 const SCHEMA_FILE = path.join(ROOT, 'scripts', 'supabase-storage.sql');
 
 /* ------------------------------------------------------------------ *
  * A tiny in-memory PostgREST. Enough to be a fair test double.        *
  * ------------------------------------------------------------------ */
-function fakeSupabase({ tables = ['seva_users', 'seva_leads', 'seva_audit_logs'], failWith = null } = {}) {
+function fakeSupabase({
+  tables = ['seva_users', 'seva_leads', 'seva_audit_logs', 'seva_account_tokens'],
+  failWith = null,
+} = {}) {
   const store = new Map(tables.map((name) => [name, []]));
   const calls = [];
   let nextId = 1;
@@ -53,7 +58,9 @@ function fakeSupabase({ tables = ['seva_users', 'seva_leads', 'seva_audit_logs']
       const cell = row[key];
       if (op === 'eq' && String(cell) !== value) return false;
       if (op === 'ne' && String(cell) === value) return false;
+      if (op === 'gt' && !(String(cell) > value)) return false;
       if (op === 'gte' && !(String(cell) >= value)) return false;
+      if (op === 'lt' && !(String(cell) < value)) return false;
       if (op === 'lte' && !(String(cell) <= value)) return false;
       if (op === 'is' && value === 'null' && cell !== null && cell !== undefined) return false;
     }
@@ -94,6 +101,13 @@ function fakeSupabase({ tables = ['seva_users', 'seva_leads', 'seva_audit_logs']
       return response(200, hit);
     }
 
+    if ((init.method || 'GET') === 'DELETE') {
+      const hit = rows.filter((row) => matches(row, params));
+      hit.forEach((row) => rows.splice(rows.indexOf(row), 1));
+      const minimal = String(init.headers?.prefer || '').includes('return=minimal');
+      return response(200, minimal ? '' : hit);
+    }
+
     const found = rows.filter((row) => matches(row, params));
     const limit = Number(params.get('limit') || 0);
     const sliced = limit > 0 ? found.slice(0, limit) : found;
@@ -115,7 +129,12 @@ function supabaseConfig(overrides = {}) {
       requireRemote: true,
       allowEphemeral: false,
       supabase: { url: 'https://project.supabase.co', key: 'sb_secret_testkey_1234567890' },
-      tables: { users: 'seva_users', leads: 'seva_leads', audit: 'seva_audit_logs' },
+      tables: {
+        users: 'seva_users',
+        leads: 'seva_leads',
+        audit: 'seva_audit_logs',
+        tokens: 'seva_account_tokens',
+      },
       ...overrides,
     },
   };
@@ -395,9 +414,9 @@ test('/api/v1/health/deep degrades when Supabase cannot be reached', async () =>
  * 5. The Postgres schema itself                                        *
  * ------------------------------------------------------------------ */
 
-test('the schema creates exactly the three non-regenerable tables', () => {
+test('the schema creates exactly the four non-regenerable tables', () => {
   const sql = fs.readFileSync(SCHEMA_FILE, 'utf8');
-  for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs']) {
+  for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs', 'seva_account_tokens']) {
     assert.match(sql, new RegExp(`CREATE TABLE IF NOT EXISTS public\\.${table}\\b`));
   }
   // Catalog tables must NOT be created here: they are seed data.
@@ -416,7 +435,7 @@ test('the schema is idempotent — safe to paste twice', () => {
 
 test('the schema locks every table down: RLS on, anon and authenticated revoked', () => {
   const sql = fs.readFileSync(SCHEMA_FILE, 'utf8');
-  for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs']) {
+  for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs', 'seva_account_tokens']) {
     assert.match(sql, new RegExp(`ALTER TABLE public\\.${table}\\s+ENABLE ROW LEVEL SECURITY`));
     assert.match(sql, new RegExp(`REVOKE ALL ON TABLE public\\.${table}\\s+FROM anon`));
     assert.match(sql, new RegExp(`REVOKE ALL ON TABLE public\\.${table}\\s+FROM authenticated`));
@@ -497,6 +516,11 @@ test('storage doctor passes and verifies a real write when configured', async ()
   });
   assert.equal(code, 0, lines.join('\n'));
   assert.match(lines.join('\n'), /Verdict: durable/);
+  assert.match(
+    lines.join('\n'),
+    /table seva_account_tokens/,
+    'the doctor checks the token table too — a missing one breaks password reset, not login',
+  );
   assert.equal(remoteRows.get('seva_audit_logs').length, 1, 'the canary row really was written');
 });
 
@@ -510,6 +534,171 @@ test('storage doctor --sql prints the pasteable schema without touching the netw
   });
   assert.equal(code, 0);
   assert.match(printed, /CREATE TABLE IF NOT EXISTS public\.seva_leads/);
+});
+
+/* ------------------------------------------------------------------ *
+ * 7b. Account tokens — the durable half of email verification          *
+ *                                                                      *
+ * A reset link that dies with an ephemeral disk is a customer locked    *
+ * out of their own account, so tokens live in Postgres and must behave  *
+ * there exactly as they do on SQLite: stored as a hash, single use,     *
+ * newest wins, throttled by rows rather than by memory.                 *
+ * ------------------------------------------------------------------ */
+
+/** A store on the fake PostgREST plus one verified-shape account. */
+async function tokenFixture() {
+  const { db } = makeDb();
+  const fake = fakeSupabase();
+  const config = supabaseConfig();
+  const store = createStore({ config, db, fetchImpl: fake.fetchImpl, log: () => {} });
+  const { user, passwordHash } = await store.users.create({
+    email: 'Asha@Example.com',
+    fullName: 'Asha Devi',
+    password: 'correct horse battery',
+    phone: '9864012345',
+  });
+  return { db, store, rows: fake.store, calls: fake.calls, user, passwordHash };
+}
+
+test('a verification token is stored hashed in Postgres and can be spent exactly once', async () => {
+  const { store, rows, user } = await tokenFixture();
+
+  const token = tokenModel.newToken();
+  const created = await store.tokens.create({
+    userId: user.id, purpose: 'verify_email', token, ipHash: 'hmac-of-ip',
+  });
+
+  const stored = rows.get('seva_account_tokens');
+  assert.equal(stored.length, 1, 'the row is in Postgres, not in the local file');
+  assert.equal(stored[0].token_hash, tokenModel.hashToken(token));
+  assert.ok(!JSON.stringify(stored[0]).includes(token), 'the raw token is never written down');
+  assert.equal(stored[0].user_id, user.id);
+  assert.equal(created.consumed_at, null, 'a fresh link is unspent');
+  assert.ok(
+    Date.parse(created.expires_at) - Date.now() > 47 * 60 * 60 * 1000,
+    'a verify link lives for about 48 hours',
+  );
+
+  const found = await store.tokens.findValid({ purpose: 'verify_email', token });
+  assert.equal(found.id, created.id);
+  assert.equal(found.user_id, user.id);
+
+  assert.equal(await store.tokens.consume(found.id), 1, 'spending stamps the row');
+  assert.equal(await store.tokens.findValid({ purpose: 'verify_email', token }), null, 'a spent link is dead');
+  assert.equal(await store.tokens.consume(found.id), 0, 'and cannot be spent twice');
+});
+
+test('an expired, superseded or wrong-purpose token never validates', async () => {
+  const { store, calls, user } = await tokenFixture();
+
+  // Expired: minted three hours ago with a one-hour lifetime.
+  const stale = tokenModel.newToken();
+  await store.tokens.create({
+    userId: user.id, purpose: 'reset_password', token: stale, at: Date.now() - 3 * 60 * 60 * 1000,
+  });
+  assert.equal(
+    await store.tokens.findValid({ purpose: 'reset_password', token: stale }),
+    null,
+    'expiry is enforced by the query, not by the route',
+  );
+
+  // Superseded: asking for a new link revokes the outstanding ones.
+  const first = tokenModel.newToken();
+  await store.tokens.create({ userId: user.id, purpose: 'verify_email', token: first });
+  assert.equal(await store.tokens.revokeForUser(user.id, 'verify_email'), 1);
+  assert.equal(
+    await store.tokens.findValid({ purpose: 'verify_email', token: first }),
+    null,
+    'an email that arrives late cannot resurrect an old link',
+  );
+
+  const second = tokenModel.newToken();
+  await store.tokens.create({ userId: user.id, purpose: 'verify_email', token: second });
+  assert.ok(await store.tokens.findValid({ purpose: 'verify_email', token: second }));
+  assert.equal(
+    await store.tokens.findValid({ purpose: 'reset_password', token: second }),
+    null,
+    'a verify link is not a reset link',
+  );
+
+  // A malformed token is rejected before any request leaves the process.
+  const before = calls.length;
+  assert.equal(await store.tokens.findValid({ purpose: 'verify_email', token: 'not a token!' }), null);
+  assert.equal(await store.tokens.findValid({ purpose: 'drop_tables', token: second }), null);
+  assert.equal(calls.length, before, 'no query is issued for a token that cannot be valid');
+
+  await assert.rejects(() => store.tokens.revokeForUser(user.id, 'drop_tables'), /Unknown token purpose/);
+});
+
+test('the token throttle counts Postgres rows, per account and per IP', async () => {
+  const { store, user } = await tokenFixture();
+
+  for (let i = 0; i < 2; i += 1) {
+    await store.tokens.create({
+      userId: user.id, purpose: 'reset_password', token: tokenModel.newToken(), ipHash: 'hmac-of-ip',
+    });
+  }
+  assert.equal(await store.tokens.recentCount({ purpose: 'reset_password', userId: user.id }), 2);
+  assert.equal(await store.tokens.recentCount({ purpose: 'reset_password', ipHash: 'hmac-of-ip' }), 2);
+  assert.equal(await store.tokens.recentCount({ purpose: 'reset_password' }), 0, 'with neither key there is nothing to count');
+  assert.equal(
+    await store.tokens.recentCount({ purpose: 'verify_email', userId: user.id }),
+    0,
+    'the two purposes do not share one budget',
+  );
+
+  // A link from three hours ago is outside the hourly window.
+  await store.tokens.create({
+    userId: user.id, purpose: 'reset_password', token: tokenModel.newToken(), at: Date.now() - 3 * 60 * 60 * 1000,
+  });
+  assert.equal(await store.tokens.recentCount({ purpose: 'reset_password', userId: user.id, minutes: 60 }), 2);
+  assert.equal(await store.tokens.recentCount({ purpose: 'reset_password', userId: user.id, minutes: 240 }), 3);
+});
+
+test('purgeExpired deletes only links that can never be used again', async () => {
+  const { store, rows, user } = await tokenFixture();
+
+  await store.tokens.create({
+    userId: user.id, purpose: 'verify_email', token: tokenModel.newToken(), at: Date.now() - 49 * 60 * 60 * 1000,
+  });
+  const fresh = tokenModel.newToken();
+  await store.tokens.create({ userId: user.id, purpose: 'verify_email', token: fresh });
+  assert.equal(rows.get('seva_account_tokens').length, 2);
+
+  assert.equal(await store.tokens.purgeExpired(), 1);
+  const left = rows.get('seva_account_tokens');
+  assert.equal(left.length, 1);
+  assert.equal(left[0].token_hash, tokenModel.hashToken(fresh), 'the still-usable link survives the sweep');
+  assert.equal(await store.tokens.purgeExpired(), 0, 'a second sweep finds nothing');
+});
+
+test('a reset in Postgres replaces the password hash and verification stamps the address', async () => {
+  const { store, rows, user, passwordHash } = await tokenFixture();
+  assert.equal(user.email_verified_at, null, 'a new account starts unverified');
+
+  const verified = await store.users.setEmailVerified(user.id);
+  assert.ok(verified.email_verified_at, 'the stamp is returned to the caller');
+  assert.equal(rows.get('seva_users')[0].email_verified_at, verified.email_verified_at, 'and it is in Postgres');
+  assert.equal(verified.password_hash, undefined, 'the hash never leaves the store');
+
+  const updated = await store.users.setPassword(user.id, 'a different horse');
+  const stored = rows.get('seva_users')[0];
+  assert.notEqual(stored.password_hash, passwordHash, 'the old hash is gone');
+  assert.match(stored.password_hash, /^scrypt\$/);
+  assert.ok(userModel.verifyPassword('a different horse', stored.password_hash), 'the new password verifies');
+  assert.ok(!userModel.verifyPassword('correct horse battery', stored.password_hash), 'the old one does not');
+  assert.equal(updated.password_hash, undefined);
+
+  await assert.rejects(
+    () => store.users.setPassword(999999, 'a valid length password'),
+    /no longer exists/,
+    'resetting an account that is not there says so',
+  );
+  await assert.rejects(
+    () => store.users.setPassword(user.id, 'short'),
+    /at least 8 characters/,
+    'a weak password is refused before it is ever hashed',
+  );
 });
 
 /* ------------------------------------------------------------------ *
@@ -541,7 +730,7 @@ test(
         /* already present */
       }
     }
-    for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs']) {
+    for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs', 'seva_account_tokens']) {
       run(`DROP TABLE IF EXISTS public.${table}`);
     }
 
@@ -550,7 +739,7 @@ test(
       execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-f', SCHEMA_FILE], { encoding: 'utf8' });
     }
 
-    for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs']) {
+    for (const table of ['seva_users', 'seva_leads', 'seva_audit_logs', 'seva_account_tokens']) {
       assert.equal(one(`select to_regclass('public.${table}')`), table);
       assert.equal(one(`select rowsecurity from pg_tables where tablename = '${table}'`), 't');
     }
@@ -579,5 +768,60 @@ test(
       () => run("insert into public.seva_users (email, full_name, password_hash, role) values ('x@y.com','X','h','superadmin')"),
       /role_check/,
     );
+  },
+);
+
+test(
+  'seva_account_tokens enforces single use, purpose and expiry in real PostgreSQL',
+  { skip: PSQL ? false : 'set SEVA_PSQL to a psql binary to run against real PostgreSQL' },
+  async () => {
+    const { execFileSync } = await import('node:child_process');
+    const run = (sql) =>
+      execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-c', sql], { encoding: 'utf8' });
+    const one = (sql) =>
+      execFileSync(PSQL, ['-X', '-q', '-t', '-A', '-c', sql], { encoding: 'utf8' }).trim();
+
+    execFileSync(PSQL, ['-X', '-q', '-v', 'ON_ERROR_STOP=1', '-f', SCHEMA_FILE], { encoding: 'utf8' });
+    run("delete from public.seva_account_tokens where token_hash like 'probe-%'");
+    run("delete from public.seva_users where email = 'token-probe@example.com'");
+
+    const userId = Number(one(
+      "insert into public.seva_users (email, full_name, password_hash) values ('token-probe@example.com','Token Probe','scrypt$x') returning id",
+    ));
+    const insert = (purpose, hash, expiry) =>
+      `insert into public.seva_account_tokens (user_id, purpose, token_hash, expires_at) values (${userId},'${purpose}','${hash}', ${expiry})`;
+
+    try {
+      // Defaults: a new link is unspent, and the three time columns are timestamptz.
+      assert.equal(one(`${insert('verify_email', 'probe-a', "now() + interval '48 hours'")} returning consumed_at is null`), 't');
+      assert.equal(
+        one("select count(*) from information_schema.columns where table_name = 'seva_account_tokens' and column_name in ('expires_at','created_at','consumed_at') and data_type = 'timestamp with time zone'"),
+        '3',
+      );
+
+      // The lookup a clicked link performs: unspent and unexpired, nothing else.
+      one(insert('verify_email', 'probe-spent', "now() + interval '48 hours'"));
+      run("update public.seva_account_tokens set consumed_at = now() where token_hash = 'probe-spent'");
+      one(insert('verify_email', 'probe-stale', "now() - interval '1 hour'"));
+      assert.equal(
+        one("select count(*) from public.seva_account_tokens where purpose = 'verify_email' and token_hash in ('probe-a','probe-spent','probe-stale') and consumed_at is null and expires_at >= now()"),
+        '1',
+        'only the live link matches the query the store runs',
+      );
+
+      // A repeated hash cannot activate somebody else's link …
+      assert.throws(
+        () => run(insert('verify_email', 'probe-a', "now() + interval '1 hour'")),
+        /seva_account_tokens_lookup_idx/,
+      );
+      // … but the same hash under another purpose is a different link.
+      assert.equal(one(`${insert('reset_password', 'probe-a', "now() + interval '1 hour'")} returning purpose`), 'reset_password');
+
+      // An unknown purpose is refused by the table, not only by the model.
+      assert.throws(() => run(insert('drop_tables', 'probe-b', 'now()')), /purpose_check|check constraint/i);
+    } finally {
+      run(`delete from public.seva_account_tokens where user_id = ${userId}`);
+      run(`delete from public.seva_users where id = ${userId}`);
+    }
   },
 );

@@ -36,7 +36,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (213 tests; 4 need a real Postgres)
+npm test           # full suite (260 tests; 5 need a real Postgres)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -61,6 +61,10 @@ npm run storage:prove   # wipe the disk in a sandbox and show the data survives
 | `SESSION_SECRET` | dev-only fixed value | Signs the session cookie (set 32+ random chars in production; without it every restart signs everyone out). Also the salt for lead IP hashing |
 | `SUPABASE_URL` | — | Project URL for durable storage and the mirror |
 | `SUPABASE_SERVICE_ROLE_KEY` | — | Service-role key; never the `anon` key |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | — | Account email (verification + password reset). Unset = no mail is sent and the pages say so |
+| `SMTP_SECURE` | `0` | `true` for implicit TLS on `465`; unset means STARTTLS on `587` |
+| `MAIL_FROM` | from `SMTP_USER` | `SEVA MARKET INDIA <no-reply@yourdomain>` |
+| `SEVA_MAIL_OUTBOX` | `0` | Development only: write undelivered mail to `data/outbox` |
 
 ---
 
@@ -76,6 +80,7 @@ wake-from-sleep. So the data is split by whether it can be regenerated.
 | **Accounts** (`seva_users`) | **Supabase Postgres** | untouched |
 | **Enquiries** (`seva_leads`) | **Supabase Postgres** | untouched |
 | **Audit trail** (`seva_audit_logs`) | **Supabase Postgres** | untouched |
+| **Account links** (`seva_account_tokens`) | **Supabase Postgres** | untouched — a reset link that dies with the disk is a locked-out customer |
 
 **Provider-created rows today.** Accounts and enquiries are durable; the business
 profiles and services that providers create from their dashboard still live in the
@@ -159,6 +164,8 @@ seva-market-india/
 │   │   ├── listings.js          public listing pages + enquiry forms
 │   │   ├── search-context.js    query string -> typed search filters
 │   │   └── api/                 health, locations, categories, services, providers
+│   ├── mail/                    zero-dependency SMTP client + the two account-email templates
+│   ├── auth/                    account-mail, session
 │   ├── store/
 │   │   ├── index.js             one factory, two backends, one async interface
 │   │   ├── guard.js             fail-closed boot checks (the data-loss net)
@@ -175,7 +182,7 @@ seva-market-india/
 │   └── prove-durability.mjs     wipes the disk in a sandbox and proves survival
 ├── DEPLOY.md                    click-by-click Render deployment guide
 ├── render.yaml                  Render blueprint (fail-closed env baked in; mirrored into the repo root)
-└── tests/                       213 tests over schema, models, search, HTTP, SEO, media uploads, pages, Supabase, durability, blueprints
+└── tests/                       260 tests over schema, models, search, HTTP, SEO, media, mail, account security, pages, Supabase, durability, blueprints
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views

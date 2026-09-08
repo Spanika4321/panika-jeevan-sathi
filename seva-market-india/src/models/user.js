@@ -112,6 +112,32 @@ function findByEmail(db, email) {
   return db.get(`SELECT id, email, full_name, role, status, password_hash FROM users WHERE lower(email) = ?`, [cleanEmail]);
 }
 
+/**
+ * Stamp the address as confirmed. Called by the verify-email route and by a
+ * successful password reset (spending a reset link proves inbox control just
+ * as convincingly as clicking the verification link did).
+ */
+function setEmailVerified(db, id, at = new Date().toISOString()) {
+  return db.run(
+    `UPDATE users SET email_verified_at = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
+    [at, id],
+  );
+}
+
+/**
+ * Replace the password hash. The caller must already have proven the right to
+ * do it (a valid reset token, or an authenticated session); this function only
+ * hashes and writes, so both stores share one scrypt configuration.
+ */
+function setPassword(db, id, password) {
+  const hash = hashPassword(password);
+  db.run(
+    `UPDATE users SET password_hash = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
+    [hash, id],
+  );
+  return findById(db, id);
+}
+
 function setStatus(db, id, status) {
   if (!['pending', 'active', 'suspended'].includes(status)) throw new Error(`Unknown status: ${status}`);
   return db.run(`UPDATE users SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [status, id]);
@@ -161,6 +187,8 @@ module.exports = {
   createUser,
   findById,
   findByEmail,
+  setEmailVerified,
+  setPassword,
   setStatus,
   setRole,
   updateProfile,

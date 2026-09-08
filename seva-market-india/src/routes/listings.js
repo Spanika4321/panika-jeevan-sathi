@@ -367,8 +367,10 @@ function register(router, { db, store, config }) {
       phone: () => validators.phone(body.phone, { field: 'phone' }),
       email: () => validators.email(body.email, { field: 'email' }),
       message: () => validators.text(body.message, { field: 'message', required: false, max: 1000 }),
-      providerId: () => validators.int(body.provider_id ?? body.providerId, { field: 'provider_id', required: true, min: 1 }),
-      serviceId: () => validators.int(body.service_id ?? body.serviceId, { field: 'service_id', min: 1 }),
+      // Keys match the form's own input names so a field error lands next to
+      // the field it belongs to (see validate() in http/request.js).
+      provider_id: () => validators.int(body.provider_id ?? body.providerId, { field: 'provider id', required: true, min: 1 }),
+      service_id: () => validators.int(body.service_id ?? body.serviceId, { field: 'service id', min: 1 }),
     });
     const back = safeBackPath(body.back);
 
@@ -384,8 +386,8 @@ function register(router, { db, store, config }) {
 
     try {
       await store.leads.create({
-        providerId: value.providerId,
-        serviceId: value.serviceId,
+        providerId: value.provider_id,
+        serviceId: value.service_id,
         name: value.name,
         phone: value.phone,
         email: value.email,

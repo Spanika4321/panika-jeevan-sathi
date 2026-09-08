@@ -9,6 +9,7 @@
 
 const userModel = require('../models/user');
 const leadModel = require('../models/lead');
+const tokenModel = require('../models/account-token');
 
 function createSqliteStore({ db, config }) {
   const secret = config?.security?.sessionSecret || '';
@@ -27,6 +28,13 @@ function createSqliteStore({ db, config }) {
       },
       async findById(id) {
         return userModel.findById(db, id);
+      },
+      async setEmailVerified(id, at = new Date().toISOString()) {
+        userModel.setEmailVerified(db, id, at);
+        return userModel.findById(db, id);
+      },
+      async setPassword(id, password) {
+        return userModel.setPassword(db, id, password);
       },
       async setStatus(id, status) {
         userModel.setStatus(db, id, status);
@@ -59,6 +67,31 @@ function createSqliteStore({ db, config }) {
       },
       async count() {
         return leadModel.count(db);
+      },
+    },
+
+    /**
+     * One-time links (verify_email / reset_password). Only the hash is ever
+     * written; the raw token goes into the email and nowhere else.
+     */
+    tokens: {
+      async create(input) {
+        return tokenModel.create(db, input);
+      },
+      async findValid({ purpose, token }, at = Date.now()) {
+        return tokenModel.findValid(db, { purpose, token }, at);
+      },
+      async consume(id, at = Date.now()) {
+        return tokenModel.consume(db, id, at);
+      },
+      async revokeForUser(userId, purpose, at = Date.now()) {
+        return tokenModel.revokeForUser(db, userId, purpose, at);
+      },
+      async recentCount(query, at = Date.now()) {
+        return tokenModel.recentCount(db, query, at);
+      },
+      async purgeExpired(at = Date.now()) {
+        return tokenModel.purgeExpired(db, at);
       },
     },
 

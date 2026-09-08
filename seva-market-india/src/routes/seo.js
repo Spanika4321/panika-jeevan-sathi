@@ -125,6 +125,11 @@ function robotsText(site) {
     'Disallow: /login',
     'Disallow: /register',
     'Disallow: /providers/new',
+    // Token-carrying and credential pages: indexing one would put a
+    // single-use link (or a login form) in a search result.
+    'Disallow: /verify-email',
+    'Disallow: /forgot-password',
+    'Disallow: /reset-password',
     '',
     `Sitemap: ${urlFor(origin, '/sitemap.xml')}`,
     '',

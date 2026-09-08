@@ -81,6 +81,34 @@ function register(router, { db, store, config, session }) {
     return { html: page(ctx, { title, description, body: inner }) };
   }
 
+  /**
+   * One reminder on the dashboard until the address is confirmed.
+   *
+   * It sits above the metrics rather than in a modal on purpose: an unconfirmed
+   * account is fully usable, and the one thing it cannot do — recover its own
+   * password — is worth a permanent, dismissible-by-action nudge instead of an
+   * interruption. The button posts to the throttled resend route, so clicking
+   * it ten times mails at most the hourly limit.
+   */
+  function verifyBanner(user) {
+    if (!user || user.email_verified_at) return '';
+    return `
+        <div class="panel panel--warn verify-banner">
+          <div>
+            <h2 class="panel__title">Confirm your email address ✉️</h2>
+            <p class="prose">We sent a confirmation link to <strong>${esc(user.email)}</strong>.
+              Until it is clicked, a forgotten password cannot be recovered — the reset link has
+              nowhere to go.</p>
+          </div>
+          <div class="cta-card__actions">
+            <form method="post" action="/verify-email/resend">
+              <button class="btn btn--orange" type="submit">Resend the email</button>
+            </form>
+            <a class="btn btn--ghost" href="/verify-email">More options</a>
+          </div>
+        </div>`;
+  }
+
   function alertFromOk(query, map) {
     const code = query.get('ok');
     return code && map[code] ? alertMarkup(map[code], { tone: 'ok' }) : '';
@@ -173,7 +201,9 @@ function register(router, { db, store, config, session }) {
         ${alertFromOk(ctx.query, {
           created: 'Business profile created — you are now listed on the marketplace!',
           saved: 'Business profile updated.',
+          'email-verified': 'Email address confirmed ✓ Your account can now be recovered.',
         })}
+        ${verifyBanner(user)}
         <h1 class="acct-title">Namaste, ${esc(user.full_name.split(' ')[0])} 👋</h1>
         <p class="acct-lede">Here is how your business is doing on ${esc(config.site.name)}.</p>
         <div class="metrics">
@@ -238,7 +268,11 @@ function register(router, { db, store, config, session }) {
 
     /* customer dashboard */
     const body = `
-      ${alertFromOk(ctx.query, { switched: 'Account switched to provider mode — set up your business below.' })}
+      ${alertFromOk(ctx.query, {
+        switched: 'Account switched to provider mode — set up your business below.',
+        'email-verified': 'Email address confirmed ✓ Your account can now be recovered.',
+      })}
+      ${verifyBanner(user)}
       <h1 class="acct-title">Namaste, ${esc(user.full_name.split(' ')[0])} 👋</h1>
       <p class="acct-lede">Your ${esc(config.site.name)} customer account is ready.</p>
 
@@ -246,7 +280,9 @@ function register(router, { db, store, config, session }) {
         <h2 class="panel__title">Account details</h2>
         <dl class="acct-details">
           <div><dt>Name</dt><dd>${esc(user.full_name)}</dd></div>
-          <div><dt>Email</dt><dd>${esc(user.email)}</dd></div>
+          <div><dt>Email</dt><dd>${esc(user.email)} ${user.email_verified_at
+    ? '<span class="badge badge--verified">✓ Confirmed</span>'
+    : '<a class="badge badge--pending" href="/verify-email">Not confirmed</a>'}</dd></div>
           <div><dt>Mobile</dt><dd>${esc(user.phone || '—')}</dd></div>
           <div><dt>Role</dt><dd><span class="badge badge--customer">Customer</span></dd></div>
         </dl>
