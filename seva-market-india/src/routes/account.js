@@ -24,7 +24,8 @@ const {
 } = require('../views/ui');
 const { sessionCookie, claimsFor } = require('../auth/session');
 const { assertSameOrigin } = require('../http/security');
-const { readBody, validators, validate } = require('../http/request');
+const { readBody, readMultipart, validators, validate } = require('../http/request');
+const { validatePhoto } = require('../store/media');
 
 function register(router, { db, store, config, session }) {
   /* -------------------------------------------------- tiny helpers --- */
@@ -307,6 +308,7 @@ function register(router, { db, store, config, session }) {
     const selectedCategory = values.category_id || data.category_id || '';
     const selectedLocality = values.locality_id || data.location_id || '';
     const areas = values.areas ?? (provider ? modelProvider.serviceAreas(db, provider.id).join(', ') : '');
+    const photoUrls = modelProvider.publicPhotoUrls(data.photo_urls);
     const formValues = {
       business_name: values.business_name ?? data.business_name ?? '',
       contact_name: values.contact_name ?? data.contact_name ?? '',
@@ -318,7 +320,7 @@ function register(router, { db, store, config, session }) {
       about: values.about ?? data.about ?? '',
     };
     return `
-    <form class="panel form-stack" action="/account/provider" method="post" data-provider-form>
+    <form class="panel form-stack" action="/account/provider" method="post" enctype="multipart/form-data" data-provider-form>
       <div class="acct-panel-head">
         <h2 class="panel__title">${existing ? 'Edit your business profile' : 'Create your business profile'}</h2>
         <span class="hint-pill">${existing ? 'Profile ID ' + esc(data.slug) : 'One per account'}</span>
@@ -358,6 +360,25 @@ function register(router, { db, store, config, session }) {
         ${errors.areas ? `<p class="field__error" role="alert">${esc(errors.areas)}</p>` : ''}
         <p class="field__hint">Comma-separated 6-digit PIN codes around you. Leave empty to serve only your own area.</p>
       </div>
+      <section class="photo-field${errors.photos ? ' photo-field--invalid' : ''}" aria-labelledby="business-photos-label" data-photo-picker>
+        <div class="photo-field__head">
+          <div>
+            <h3 id="business-photos-label">Business photos <span class="hint-pill">Optional</span></h3>
+            <p>Add up to ${esc(config.media.maxPhotos)} photos of your shop, team or completed work. Clear photos help customers trust you.</p>
+          </div>
+          <span class="photo-field__count">${esc(photoUrls.length)}/${esc(config.media.maxPhotos)} saved</span>
+        </div>
+        ${photoUrls.length ? `<div class="business-photo-grid" aria-label="Saved business photos">${photoUrls.map((url, index) => `<img src="${esc(url)}" alt="${esc(data.business_name || 'Business')} photo ${index + 1}" loading="lazy">`).join('')}</div>` : ''}
+        <label class="photo-dropzone" for="photos">
+          <span aria-hidden="true">📷</span>
+          <strong>Choose business photos</strong>
+          <small>JPG, PNG or WebP · max 2 MB each</small>
+        </label>
+        <input class="photo-input" id="photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="photos-help${errors.photos ? ' photos-err' : ''}">
+        <p class="field__hint" id="photos-help">You can select several photos at once. Uploaded images appear on your public business profile.</p>
+        <output class="photo-selection" data-photo-selection aria-live="polite"></output>
+        ${errors.photos ? `<p class="field__error" id="photos-err" role="alert">${esc(errors.photos)}</p>` : ''}
+      </section>
       ${textareaField({ id: 'about', label: 'About your business', value: formValues.about, rows: 4, maxlength: 2000, placeholder: 'What you do best, your team, tools, response time…', error: errors.about })}
       ${field({ id: 'address_line', label: 'Street address (optional, shown only to you)', value: formValues.address_line, error: errors.address_line, placeholder: 'Shop 12, Main Market…' })}
       <input type="hidden" name="existing_id" value="${esc(data.id || '')}">
@@ -425,7 +446,12 @@ function register(router, { db, store, config, session }) {
     if (!user) return { redirect: '/login?next=/account/provider' };
     if (user.role !== 'provider') return { redirect: '/login?next=/account/provider' };
 
-    const body = await readBody(ctx.req, config.http.maxBodyBytes);
+    const isMultipart = String(ctx.req.headers['content-type'] || '').toLowerCase().startsWith('multipart/form-data');
+    const submission = isMultipart
+      ? await readMultipart(ctx.req, config.http.maxUploadBytes)
+      : { fields: await readBody(ctx.req, config.http.maxBodyBytes), files: {} };
+    const body = submission.fields;
+    const photoFiles = submission.files.photos || [];
     const errors = {};
     const clean = (name, max) => validators.text(body[name], { field: name, required: false, max });
 
@@ -460,6 +486,17 @@ function register(router, { db, store, config, session }) {
     }
 
     const pin = db.scalar(`SELECT pin_code FROM locations WHERE parent_id = ? AND kind = 'pincode' AND is_active = 1 LIMIT 1`, [localityId]);
+    const existingProvider = ownedProvider(user);
+    const existingPhotos = existingProvider ? modelProvider.publicPhotoUrls(existingProvider.photo_urls) : [];
+    if (photoFiles.length + existingPhotos.length > config.media.maxPhotos) {
+      errors.photos = `You can keep up to ${config.media.maxPhotos} business photos. You already have ${existingPhotos.length}.`;
+    } else {
+      try {
+        for (const photo of photoFiles) validatePhoto(photo, config.media);
+      } catch (err) {
+        errors.photos = String(err && err.message ? err.message : 'Choose a valid business photo.');
+      }
+    }
 
     if (Object.keys(errors).length) {
       const bodyValues = { ...body, category_id: categoryId, locality_id: localityId, experience_years: body.experience_years || 0, areas: String(body.areas || '') };
@@ -471,27 +508,49 @@ function register(router, { db, store, config, session }) {
     }
 
     try {
-      const existing = ownedProvider(user);
       let provider;
-      if (existing) {
-        provider = modelProvider.updateProvider(db, existing.id, {
+      const wasExisting = Boolean(existingProvider);
+      if (existingProvider) {
+        provider = modelProvider.updateProvider(db, existingProvider.id, {
           businessName, contactName, phone, altPhone, email, categoryId,
           locationId: localityId, pinCode: pin || null, addressLine, about, experienceYears,
         });
-        modelProvider.setServiceAreas(db, existing.id, areaPins);
-        logAudit(store, user.id, 'provider.update', 'provider', provider.id, {});
-        return redirect('/account/provider', 'saved');
+      } else {
+        // user.id belongs to the durable Supabase account store in production.
+        // Migration 0002 intentionally makes this an application-owned id,
+        // while category/location still retain their local catalog FK checks.
+        provider = modelProvider.createProvider(db, {
+          userId: user.id, businessName, contactName, phone, altPhone, email, categoryId,
+          locationId: localityId, pinCode: pin || null, addressLine, about, experienceYears,
+          status: 'active',
+        });
       }
-      provider = modelProvider.createProvider(db, {
-        userId: user.id, businessName, contactName, phone, altPhone, email, categoryId,
-        locationId: localityId, pinCode: pin || null, addressLine, about, experienceYears,
-        status: 'active',
-      });
       modelProvider.setServiceAreas(db, provider.id, areaPins);
-      logAudit(store, user.id, 'provider.create', 'provider', provider.id, {});
-      return redirect('/account/provider', 'created');
+
+      if (photoFiles.length) {
+        if (!store.media || typeof store.media.uploadProviderPhoto !== 'function') {
+          throw new Error('Business photo storage is unavailable. Please try again later.');
+        }
+        const savedUrls = [...existingPhotos];
+        // Store each acknowledged URL straight away. If the network drops on
+        // photo 3, the business and photos 1–2 are still safely visible and
+        // the owner can retry the remaining selection without losing work.
+        for (const photo of photoFiles) {
+          const url = await store.media.uploadProviderPhoto({ providerId: provider.id, file: photo });
+          savedUrls.push(url);
+          modelProvider.setPhotoUrls(db, provider.id, savedUrls);
+        }
+      }
+
+      logAudit(store, user.id, wasExisting ? 'provider.update' : 'provider.create', 'provider', provider.id, {
+        uploaded_photos: photoFiles.length,
+      });
+      return redirect('/account/provider', wasExisting ? 'saved' : 'created');
     } catch (err) {
-      const errors2 = { form: String(err && err.message ? err.message : 'Could not save the profile.') };
+      const message = String(err && err.message ? err.message : 'Could not save the profile.');
+      const errors2 = err && err.name === 'MediaError'
+        ? { photos: `Business details were saved, but ${message}` }
+        : { form: message };
       return shell(ctx, {
         title: 'My business', active: 'provider',
         body: `<h1 class="acct-title">My business</h1>${providerFormMarkup({ provider: ownedProvider(user), values: body, errors: errors2, ctxPath: '/account' })}`,
@@ -596,7 +655,7 @@ function register(router, { db, store, config, session }) {
       </div>
       ${services.length
         ? `<ul class="panel svc-list">${rows}</ul>
-           <p class="acct-note">💡 Tip: services with a photo and a clear price get more enquiries — photos arrive in the next build.</p>`
+           <p class="acct-note">💡 Tip: add clear business photos and a price — profiles with both get more enquiries.</p>`
         : `<div class="panel"><div class="empty">
             <span class="empty__icon" aria-hidden="true">🛠️</span>
             <h2>No services yet</h2>

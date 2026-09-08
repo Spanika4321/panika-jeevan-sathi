@@ -51,7 +51,7 @@ export function fakeRequest({ method = 'GET', url = '/', body = null, headers = 
   };
   setImmediate(() => {
     if (body !== null) {
-      const chunk = Buffer.from(typeof body === 'string' ? body : JSON.stringify(body));
+      const chunk = Buffer.isBuffer(body) ? body : Buffer.from(typeof body === 'string' ? body : JSON.stringify(body));
       for (const handler of listeners.data) handler(chunk);
     }
     for (const handler of listeners.end) handler();
@@ -99,6 +99,32 @@ export async function request(app, options) {
   await res.finished;
   res.json = () => JSON.parse(res.body);
   return res;
+}
+
+/** Build a multipart body without a browser, for upload-route tests. */
+export function multipartBody(fields = {}, files = []) {
+  const boundary = '----seva-test-boundary-7MA4YWxkTrZu0gW';
+  const chunks = [];
+  const line = (text) => chunks.push(Buffer.from(`${text}\r\n`, 'utf8'));
+  for (const [name, value] of Object.entries(fields)) {
+    line(`--${boundary}`);
+    line(`Content-Disposition: form-data; name="${name}"`);
+    line('');
+    line(String(value ?? ''));
+  }
+  for (const file of files) {
+    line(`--${boundary}`);
+    line(`Content-Disposition: form-data; name="${file.name}"; filename="${file.filename || 'photo.jpg'}"`);
+    line(`Content-Type: ${file.contentType || 'image/jpeg'}`);
+    line('');
+    chunks.push(Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer || ''));
+    line('');
+  }
+  line(`--${boundary}--`);
+  return {
+    body: Buffer.concat(chunks),
+    contentType: `multipart/form-data; boundary=${boundary}`,
+  };
 }
 
 export { tableNames };

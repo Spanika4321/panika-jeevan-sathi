@@ -30,6 +30,8 @@ const STATIC_TYPES = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.ico': 'image/x-icon',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain; charset=utf-8',
@@ -159,7 +161,7 @@ function createApp({ config, db: injectedDb, store: injectedStore, fetchImpl } =
 
     // Static assets first: they are the cheapest response we can give.
     if (req.method === 'GET' || req.method === 'HEAD') {
-      if (pathname.startsWith('/assets/') || pathname === '/favicon.ico') {
+      if (pathname.startsWith('/assets/') || pathname.startsWith('/uploads/') || pathname === '/favicon.ico') {
         if (serveStatic(req, res, pathname)) return undefined;
       }
     }

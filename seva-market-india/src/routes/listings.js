@@ -301,6 +301,17 @@ function register(router, { db, store, config }) {
             ${ratingMarkup(provider)}
           </article>
 
+          ${provider.photo_urls?.length ? `
+          <section class="business-gallery" aria-labelledby="business-gallery-title">
+            <div class="business-gallery__head">
+              <h2 class="section__title" id="business-gallery-title">Business photos</h2>
+              <p>Shop, team and recent work from ${esc(provider.business_name)}.</p>
+            </div>
+            <div class="business-photo-grid business-photo-grid--public">
+              ${provider.photo_urls.map((url, index) => `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(url)}" alt="${esc(provider.business_name)} photo ${index + 1}" loading="lazy"></a>`).join('')}
+            </div>
+          </section>` : ''}
+
           ${provider.about ? `
           <article class="panel detail-card">
             <h2 class="panel__title">About us</h2>

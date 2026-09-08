@@ -211,6 +211,29 @@ That is the data-loss question answered by evidence rather than by promise.
 
 ---
 
+## Business photos
+
+Provider accounts can add up to **five** business photos from **My business**
+on phone, tablet or desktop. Each image must be a real JPG, PNG or WebP and
+no larger than 2 MB. Image bytes are checked on the server, so renaming a
+non-image file to `.jpg` is refused.
+
+On a production Supabase-backed service, the server uses the already required
+server-only `SUPABASE_SERVICE_ROLE_KEY` to create the dedicated public
+`seva-business-photos` Storage bucket on the first upload, then uploads there
+without ever exposing the key to a browser. A listing photo needs to be public
+so marketplace visitors can see it; object names are generated server-side and
+never use a visitor's filename. Set `SEVA_MEDIA_BUCKET` in Render only if a
+different, lowercase-hyphenated bucket name is required.
+
+For local development, images are instead saved beneath ignored
+`public/uploads/businesses/`; they are never committed. Provider profile data
+is currently part of the regenerable catalog, so use a persistent catalog host
+before treating provider-created profiles as long-term records; accounts,
+enquiries and production image bytes remain in Supabase.
+
+---
+
 ## Step 7 — Enable Google discovery after the deploy
 
 Use the **actual live service URL**, currently

@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { makeApp, request } from './helpers.mjs';
+import { makeApp, request, multipartBody } from './helpers.mjs';
 
 const require = createRequire(import.meta.url);
 const services = require('../src/models/service');
@@ -28,6 +28,18 @@ async function post(app, url, fields, cookie = '') {
 }
 
 const cookieOf = (res) => String(res.setCookie).split(';')[0];
+
+async function postMultipart(app, url, fields, files, cookie = '') {
+  const multipart = multipartBody(fields, files);
+  const headers = { 'content-type': multipart.contentType };
+  if (cookie) headers.cookie = cookie;
+  return request(app, { method: 'POST', url, body: multipart.body, headers });
+}
+
+const tinyJpeg = Buffer.from([
+  0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
+  0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01,
+]);
 
 /* ----------------------------------------------------------- register */
 
@@ -156,6 +168,62 @@ test('a fresh provider is guided to create a business profile', async () => {
   assert.equal(again.statusCode, 200);
   assert.match(again.body, /Sunita Electricals/);
   assert.match(again.body, /Live on marketplace/);
+});
+
+test('business profile accepts safe multipart photos and renders them publicly', async () => {
+  const uploadApp = makeApp();
+  const registration = await post(uploadApp, '/register', {
+    role: 'provider', full_name: 'Photo Owner', email: 'photos@example.com',
+    phone: '9876543255', password: 'secret-pass-123',
+  });
+  const cookie = cookieOf(registration);
+  const category = require('../src/models/category').findBySlug(uploadApp.db, 'plumber');
+  const locality = require('../src/models/location').findByPin(uploadApp.db, '781001').chain[4];
+  const uploaded = [];
+  uploadApp.store.media = {
+    async uploadProviderPhoto({ providerId, file }) {
+      uploaded.push({ providerId, file });
+      return `https://images.example.test/providers/${providerId}/shop.jpg`;
+    },
+  };
+
+  const created = await postMultipart(uploadApp, '/account/provider', {
+    business_name: 'Photo Plumbing Works', contact_name: 'Photo Owner', phone: '9876543255',
+    alt_phone: '', email: 'photos@example.com', experience_years: '4', category_id: String(category.id),
+    locality_id: String(locality.id), areas: '781001', about: 'Clean plumbing work.', address_line: '',
+  }, [{ name: 'photos', filename: 'shop-front.jpg', contentType: 'image/jpeg', buffer: tinyJpeg }], cookie);
+
+  assert.equal(created.statusCode, 303);
+  assert.equal(uploaded.length, 1);
+  const provider = providers.findBySlug(uploadApp.db, 'photo-plumbing-works');
+  assert.deepEqual(provider.photo_urls, [`https://images.example.test/providers/${provider.id}/shop.jpg`]);
+
+  const publicPage = await request(uploadApp, { url: `/providers/${provider.slug}` });
+  assert.match(publicPage.body, /Business photos/);
+  assert.match(publicPage.body, /images\.example\.test\/providers/);
+  const editor = await request(uploadApp, { url: '/account/provider', headers: { cookie } });
+  assert.match(editor.body, /enctype="multipart\/form-data"/);
+  assert.match(editor.body, /accept="image\/jpeg,image\/png,image\/webp"/);
+  assert.match(editor.body, /1\/5 saved/);
+});
+
+test('business profile rejects non-image uploads before a profile is created', async () => {
+  const uploadApp = makeApp();
+  const registration = await post(uploadApp, '/register', {
+    role: 'provider', full_name: 'Safe Owner', email: 'safe-upload@example.com',
+    phone: '9876543256', password: 'secret-pass-123',
+  });
+  const cookie = cookieOf(registration);
+  const category = require('../src/models/category').findBySlug(uploadApp.db, 'plumber');
+  const locality = require('../src/models/location').findByPin(uploadApp.db, '781001').chain[4];
+  const failed = await postMultipart(uploadApp, '/account/provider', {
+    business_name: 'Unsafe Upload Works', contact_name: 'Safe Owner', phone: '9876543256',
+    category_id: String(category.id), locality_id: String(locality.id), areas: '', about: '', address_line: '',
+  }, [{ name: 'photos', filename: 'not-an-image.jpg', contentType: 'image/jpeg', buffer: Buffer.from('<script>alert(1)</script>') }], cookie);
+
+  assert.equal(failed.statusCode, 200);
+  assert.match(failed.body, /Only real JPG, PNG, or WebP images can be uploaded/);
+  assert.equal(providers.findBySlug(uploadApp.db, 'unsafe-upload-works'), null);
 });
 
 test('provider dashboard metrics count live services', async () => {

@@ -144,6 +144,25 @@
     });
   }
 
+  /** Show the selected business-photo count before a normal form submit. */
+  function initPhotoPicker() {
+    document.querySelectorAll('[data-photo-picker]').forEach(function (picker) {
+      var input = picker.querySelector('input[type="file"]');
+      var output = picker.querySelector('[data-photo-selection]');
+      if (!input || !output) return;
+      input.addEventListener('change', function () {
+        var files = input.files ? input.files.length : 0;
+        if (!files) {
+          output.textContent = '';
+          return;
+        }
+        output.textContent = files === 1
+          ? '1 new photo selected. Save your business to upload it.'
+          : files + ' new photos selected. Save your business to upload them.';
+      });
+    });
+  }
+
   function init() {
     initNav();
     initNumericFields();
@@ -151,6 +170,7 @@
     initConfirmForms();
     initRoleCards();
     initLocalityFilter();
+    initPhotoPicker();
   }
 
   if (document.readyState === 'loading') {
