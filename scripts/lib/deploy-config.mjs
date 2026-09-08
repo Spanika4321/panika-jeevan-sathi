@@ -54,6 +54,17 @@ export function validateEnvironment(rows) {
   if (!database || !(supabase || r2) || env.PJS_ALLOW_LOCAL === '1') {
     throw new Error('Refusing Render deployment without durable database AND remote photo configuration. Existing data was not changed.');
   }
+  const missingSmtp = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS'].filter((key) => !String(env[key] || '').trim());
+  if (missingSmtp.length) {
+    throw new Error(`Refusing Render deployment without required SMTP configuration (${missingSmtp.join(', ')}). Existing data was not changed.`);
+  }
+  if (String(env.SMTP_PORT || '').trim() && (!/^\d+$/.test(String(env.SMTP_PORT).trim()) || Number(env.SMTP_PORT) < 1 || Number(env.SMTP_PORT) > 65535)) {
+    throw new Error('SMTP_PORT must be an integer from 1 to 65535. Existing data was not changed.');
+  }
+  const smtpSecure = String(env.SMTP_SECURE || '').trim().toLowerCase();
+  if (smtpSecure && !['true', 'false'].includes(smtpSecure)) {
+    throw new Error('SMTP_SECURE must be true or false when set. Existing data was not changed.');
+  }
   let site;
   try { site = new URL(env.SITE_URL); } catch (_) { /* reported below */ }
   if (!site || site.protocol !== 'https:' || site.username || site.password) throw new Error('A trusted HTTPS SITE_URL is required.');

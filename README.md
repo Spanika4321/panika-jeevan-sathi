@@ -54,7 +54,7 @@ npm run verify:cloud   # check real D1/R2 credentials and a deployed site
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | generated | First administrator (password never hardcoded) |
 | `OWNER_EMAILS` | — | Additional owners; only active, independently verified accounts are promoted |
 | `TRUST_PROXY_HOPS` | `1` on Render, `0` otherwise | Exact trusted proxy count; never trust arbitrary forwarded IPs |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | — | SMTP support is installed by `npm ci`; delivery credentials still required |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_SECURE`, `MAIL_FROM` | — | SMTP support is installed by `npm ci`; account-email delivery requires host, user and password. Use `SMTP_SECURE=true` for SMTPS/465. |
 | `PJS_STORAGE` | `auto` | `auto` = Supabase when `SUPABASE_*` is set, else D1, else local SQLite; `supabase`/`d1`/`sqlite`/`json` force one |
 | `PJS_REQUIRE_REMOTE` | unset | `1` = refuse local sqlite (required on Render Free) |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | — | Production Postgres + Storage (see `supabase/schema.sql`) |

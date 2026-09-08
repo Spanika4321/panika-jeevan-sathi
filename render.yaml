@@ -70,6 +70,23 @@ services:
       - key: SUPABASE_STORAGE_BUCKET
         value: uploads
 
+      # ---- Transactional email — set these protected values in Render ---------
+      # The safety monitor requires SMTP for account verification and recovery.
+      # `sync: false` keeps all provider details and credentials out of Git.
+      # Use either STARTTLS on 587 or SMTPS on 465 with SMTP_SECURE=true.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
       # ---- Cloudflare D1 (optional fallback) ----------------------------------
       - key: CF_ACCOUNT_ID
         sync: false
