@@ -24,13 +24,23 @@ export function makeDb({ withSeed = true } = {}) {
 }
 
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true, siteUrl = config.site.url } = {}) {
+export function makeApp({ withSeed = true, siteUrl = config.site.url, trustProxyHops } = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
-  // Tests can give crawl documents a real canonical origin without mutating
-  // the process-wide configuration object imported by other test files.
-  const appConfig = siteUrl === config.site.url ? config : { ...config, site: { ...config.site, url: siteUrl } };
+  // Tests can give crawl documents a real canonical origin (or a proxy-hop
+  // trust setting) without mutating the process-wide configuration object
+  // imported by other test files.
+  const unchanged = siteUrl === config.site.url && trustProxyHops === undefined;
+  const appConfig = unchanged
+    ? config
+    : {
+        ...config,
+        ...(siteUrl !== config.site.url ? { site: { ...config.site, url: siteUrl } } : {}),
+        ...(trustProxyHops !== undefined
+          ? { http: { ...config.http, trustProxyHops } }
+          : {}),
+      };
   const app = createApp({ config: appConfig, db });
   return { ...app, config: appConfig };
 }

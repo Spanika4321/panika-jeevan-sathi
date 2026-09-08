@@ -195,6 +195,29 @@ test('GET /api/v1/providers/:slug returns the profile with services', async () =
   assert.ok(body.data.services.length >= 1);
 });
 
+test('the public provider API never returns dashboard-private fields', async () => {
+  // Real providers fill these in; the dashboard form labels the street
+  // address "shown only to you", and the HTML pages never print them.
+  const { items } = (await request(app, { url: '/api/v1/providers?limit=1' })).json().data;
+  const providerId = items[0].id;
+  app.db.run(
+    `UPDATE providers SET email = ?, address_line = ?, contact_name = ? WHERE id = ?`,
+    ['owner@example.com', 'Flat 9, Secret Lane, Guwahati', 'Hidden Contact Person', providerId],
+  );
+
+  const detail = (await request(app, { url: `/api/v1/providers/${items[0].slug}` })).json().data;
+  for (const secret of ['email', 'address_line', 'contact_name']) {
+    assert.ok(!(secret in detail), `detail must not expose ${secret}`);
+  }
+  assert.ok(detail.business_name, 'public identity fields survive');
+  assert.ok(detail.phone, 'the call number stays public (product choice)');
+
+  const listAgain = (await request(app, { url: '/api/v1/providers?limit=1' })).json().data;
+  for (const secret of ['email', 'address_line', 'contact_name']) {
+    assert.ok(!(secret in listAgain.items[0]), `list items must not expose ${secret}`);
+  }
+});
+
 /* -------------------------------------------------------------- leads */
 
 test('POST /api/v1/leads creates an enquiry and returns 201', async () => {
@@ -266,6 +289,32 @@ test('POST /api/v1/leads rate-limits a single IP', async () => {
   }
   assert.equal(statuses.filter((code) => code === 201).length, 5, 'the first five go through');
   assert.ok(statuses.includes(429), 'the sixth must be throttled');
+});
+
+test('POST /api/v1/leads throttles per client IP behind a trusted proxy', async () => {
+  // On Render (TRUST_PROXY_HOPS=1) every request arrives from the edge's
+  // address; the throttle and stored ip_hash must key on the X-Forwarded-For
+  // client, otherwise one visitor's burst blocks the whole API for an hour.
+  const proxied = makeApp({ trustProxyHops: 1 });
+  const providerId = (await request(proxied, { url: '/api/v1/providers?limit=1' })).json().data.items[0].id;
+  const payload = { provider_id: providerId, name: 'Amit', phone: '9000011223' };
+  const common = { method: 'POST', url: '/api/v1/leads', headers: { 'content-type': 'application/json' }, ip: '203.0.113.9' };
+  const fromClient = (xff) => request(proxied, { ...common, headers: { ...common.headers, 'x-forwarded-for': xff }, body: payload });
+
+  const first = [];
+  for (let i = 0; i < 6; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    first.push((await fromClient('198.51.100.7')).statusCode);
+  }
+  assert.equal(first.filter((code) => code === 201).length, 5, 'client A gets five enquiries');
+  assert.equal(first.at(-1), 429, 'client A is throttled on the sixth');
+
+  const otherClient = await fromClient('198.51.100.8');
+  assert.equal(otherClient.statusCode, 201, 'client B behind the same edge is not throttled');
+
+  // The stored hashes must also differ per client, not per edge.
+  const hashes = proxied.db.all('SELECT DISTINCT ip_hash FROM leads').map((row) => row.ip_hash);
+  assert.equal(hashes.length, 2, 'one hash per client IP, not one for the whole edge');
 });
 
 /* ------------------------------------------------------ error surface */
