@@ -3,10 +3,18 @@
 India-wide **local services marketplace**. Customers find and contact local service
 providers by **service + location + PIN code**.
 
-This repository holds the **starting foundation** (milestone 1): project structure, a
-professional mobile-first UI, server-rendered pages, a JSON API, and the database
+This repository holds a **working two-sided marketplace** (milestone 2): customers
+register free, search by service + location + PIN code and send enquiries; providers
+register, build a business profile, list priced services from a dashboard and manage
+the enquiries they receive. The UI is a professional, colourful mobile-first design;
+everything is server-rendered, dependency-free and covered by a 204-test suite.
+
+Milestone 1 left the structure: server-rendered pages, a JSON API, the database
 architecture for users, providers, categories, services and the full Indian location
-hierarchy.
+hierarchy. Milestone 2 turned the placeholder pages into real flows:
+**accounts (register / login / logout with signed session cookies), role switching,
+the provider business setup, service CRUD with live/draft/paused states, a customer
+enquiry form on every listing page, and enquiry management for providers.**
 
 > **Zero npm dependencies.** The app is built entirely on Node.js built-ins
 > (`node:http`, `node:sqlite`, `node:crypto`, `node:test`) and requires **Node.js 22.5+**.
@@ -28,7 +36,7 @@ node server.js             # http://localhost:3000
 ```bash
 npm start          # run the site
 npm run dev        # run with auto-reload
-npm test           # full suite (182 tests; 4 need a real Postgres)
+npm test           # full suite (204 tests; 4 need a real Postgres)
 npm run check      # syntax check every source file
 npm run migrate    # apply migrations
 npm run seed       # load seed data
@@ -50,7 +58,7 @@ npm run storage:prove   # wipe the disk in a sandbox and show the data survives
 | `SEVA_ALLOW_EPHEMERAL` | `0` | `1` = silence the SQLite-in-production warning |
 | `SEVA_SEED_ON_BOOT` | `1` | Rebuild the catalog at startup when it is empty |
 | `TRUST_PROXY_HOPS` | `0` | How many proxy hops to trust in `X-Forwarded-For` |
-| `SESSION_SECRET` | — | Reserved for the auth milestone; already salt for lead IP hashing |
+| `SESSION_SECRET` | dev-only fixed value | Signs the session cookie (set 32+ random chars in production; without it every restart signs everyone out). Also the salt for lead IP hashing |
 | `SUPABASE_URL` | — | Project URL for durable storage and the mirror |
 | `SUPABASE_SERVICE_ROLE_KEY` | — | Service-role key; never the `anon` key |
 
@@ -68,6 +76,13 @@ wake-from-sleep. So the data is split by whether it can be regenerated.
 | **Accounts** (`seva_users`) | **Supabase Postgres** | untouched |
 | **Enquiries** (`seva_leads`) | **Supabase Postgres** | untouched |
 | **Audit trail** (`seva_audit_logs`) | **Supabase Postgres** | untouched |
+
+**Provider-created rows today.** Accounts and enquiries are durable; the business
+profiles and services that providers create from their dashboard still live in the
+local catalog (like seed rows — one account owns one profile). On a host with a
+persistent disk, or in local development, they survive normally; on an ephemeral
+host they are lost on redeploy along with the seed catalog. Moving provider-generated
+rows into the durable store is the first item of the next milestone.
 
 Three properties make this safe rather than hopeful:
 
@@ -134,8 +149,13 @@ seva-market-india/
 │   │   ├── respond.js           one JSON envelope, HttpError, HTML sender
 │   │   ├── request.js           body parsing (size-capped) + validators
 │   │   └── security.js          security headers, trusted client IP
+│   ├── auth/
+│   │   └── session.js           signed HttpOnly session cookies (zero-dep)
 │   ├── routes/
-│   │   ├── pages.js             server-rendered HTML pages
+│   │   ├── pages.js             core HTML pages (home, search, categories…)
+│   │   ├── auth-pages.js        register / login / logout
+│   │   ├── account.js           dashboards: business profile, services, leads
+│   │   ├── listings.js          public listing pages + enquiry forms
 │   │   ├── search-context.js    query string -> typed search filters
 │   │   └── api/                 health, locations, categories, services, providers
 │   ├── store/
@@ -154,7 +174,7 @@ seva-market-india/
 │   └── prove-durability.mjs     wipes the disk in a sandbox and proves survival
 ├── DEPLOY.md                    click-by-click Render deployment guide
 ├── render.yaml                  Render blueprint (fail-closed env baked in; mirrored into the repo root)
-└── tests/                       182 tests over schema, models, search, HTTP, pages, Supabase, durability, blueprints
+└── tests/                       204 tests over schema, models, search, HTTP, pages, Supabase, durability, blueprints
 ```
 
 **Layering rule:** routes never write SQL, models never touch `req`/`res`, and views
@@ -236,8 +256,22 @@ Envelope everywhere: `{"ok": true, "data": ...}` or `{"ok": false, "error": {...
 | `GET` | `/api/v1/providers/:slug` | Public profile with services + coverage |
 | `POST` | `/api/v1/leads` | Customer enquiry → `201` (rate-limited per IP) |
 
-Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
-`/contact`, `/privacy`, `/terms`. All server-rendered, all indexable.
+Pages (all server-rendered, all indexable):
+
+| Route | What it is |
+| --- | --- |
+| `/` | Homepage: hero search, trust strip, coverage stats, colourful category grid, live services |
+| `/search` | Results — filters: `?q=&category=&place=&state=&pin=` |
+| `/categories`, `/locations` | Browsable taxonomy and coverage |
+| `/services/:slug` | One service with price row + enquiry card + similar services |
+| `/providers/:slug` | Provider profile, coverage PINs, active services + enquiry |
+| `/providers/new` | “List your service” landing, tailored to logged-in role |
+| `/register`, `/login` | Free role-aware accounts (customer/provider) |
+| `/account` | Dashboard: provider metrics + recent leads/services, or customer hub |
+| `/account/provider` | Create/edit the business profile (category + locality + area PINs) |
+| `/account/services…` | List, add, edit, publish/pause/archive services |
+| `/account/leads` | Enquiries received; mark contacted / closed / spam |
+| `/about`, `/contact`, `/privacy`, `/terms` | Static pages |
 
 ---
 
@@ -246,6 +280,13 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 - **Strict CSP** on every HTML response (`script-src 'self'`, `frame-ancestors 'none'`,
   no `unsafe-eval`). The templates emit no inline script and no inline event handler —
   `tests/pages.test.mjs` fails the build if one appears.
+- **Sessions** are stateless signed cookies (`HttpOnly`, `SameSite=Lax`, `Secure` in
+  production) carrying only display claims; account routes re-read the user from the
+  store every request. Logout clears the cookie.
+- **CSRF defence**: every state-changing POST is origin-checked server-side, so a
+  cross-site form gets `403` even where the Lax cookie would not have been sent.
+- **Login throttling**: 8 failed attempts per IP → 15 minute cooldown; enquiry capture
+  stays rate-limited at 5/hour/IP.
 - **Output escaping** through a single `esc()` gate; `& < > " ' \`` are all covered, and a
   test injects `<script>` and attribute-breakout payloads through a provider name to prove it.
 - **SQL injection**: every query is parameterised. `LIKE` patterns escape `%`, `_` and `\`
@@ -266,7 +307,7 @@ Pages: `/`, `/search`, `/categories`, `/locations`, `/providers/new`, `/about`,
 ## Testing
 
 ```bash
-npm test             # 182 tests (4 gated on a real Postgres)
+npm test             # 204 tests (4 gated on a real Postgres)
 npm run test:unit    # schema, models, search
 npm run test:http    # HTTP layer + rendered pages
 npm run test:storage # durability: boot guard, write-through, schema lockdown
@@ -304,7 +345,7 @@ zero grants for `anon`/`authenticated`.
 three durable tables, that no policy exists, that `anon`/`authenticated` hold
 zero grants, and that the defaults and constraints the app relies on really fire
 (`status='new'`, `role='customer'`, case-insensitive email uniqueness, the role
-CHECK). Offline the suite is **182 tests, 178 passing** — the other 4 are the
+CHECK). Offline the suite is **204 tests, 200 passing** — the other 4 are the
 PostgreSQL-gated ones, and they cover `scripts/supabase-verify.sql` too: both
 paste scripts are applied, the verify file is pasted as a whole, and each of its
 checks is asserted against the state the scripts actually leave behind.
@@ -451,17 +492,19 @@ reachable only through the service-role key.
 
 ---
 
-## Deliberately not in this milestone
+## Deliberately not in this build
 
-Payment gateway, UPI/QR, AdSense, Render deployment, provider onboarding and
-verification, reviews and ratings write-path, messaging, admin panel, email, sessions
-and auth. The schema already reserves space for them (`audit_logs`, `is_verified`,
-`rating_avg`, `SESSION_SECRET`) so they can be added without a destructive migration.
+Payment gateway, UPI/QR, AdSense, provider *verification* (the badge is a seeded
+flag — the checking workflow is an admin task), reviews & ratings write-path,
+messaging, email, admin panel, and durable storage for provider-created rows (see
+**Durability** above). The schema already reserves space for them (`audit_logs`,
+`is_verified`, `rating_avg`) so they can be added without a destructive migration.
 
 ## Next milestones
 
-1. **Auth + provider onboarding** — sessions, provider registration, verification flow.
-2. **Provider dashboard** — manage services, coverage PINs, incoming enquiries.
+1. **Durable provider registry** — write provider profiles/services to the remote
+   store exactly like leads, so ephemeral hosts keep them.
+2. **Verification flow** — email verification, then the Verified badge workflow.
 3. **Reviews & ratings** — the write path behind `rating_avg` / `rating_count`.
 4. **Full location master** — bulk import of all Indian districts and PIN codes.
 5. **SEO surface** — `sitemap.xml`, `robots.txt`, canonical city/category landing pages.

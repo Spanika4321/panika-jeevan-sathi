@@ -14,7 +14,7 @@ const CARD_COLUMNS = `services.id, services.title, services.slug, services.descr
   services.category_id, services.location_id, services.created_at,
   providers.id AS provider_id, providers.business_name, providers.slug AS provider_slug,
   providers.phone, providers.is_verified, providers.rating_avg, providers.rating_count,
-  categories.name AS category_name, categories.slug AS category_slug,
+  categories.name AS category_name, categories.slug AS category_slug, categories.icon AS category_icon,
   locations.search_text AS location_label`;
 
 const CARD_JOINS = `FROM services
@@ -116,6 +116,92 @@ function byProvider(db, providerId, { status = 'active' } = {}) {
 }
 
 /**
+ * Every service a provider owns except archived ones — the rows the
+ * dashboard "My services" list shows (draft / active / paused).
+ */
+function byProviderAll(db, providerId) {
+  return db
+    .all(
+      `SELECT ${CARD_COLUMNS} ${CARD_JOINS}
+       WHERE services.provider_id = ? AND services.status != 'archived'
+       ORDER BY services.created_at DESC, services.id DESC`,
+      [providerId],
+    )
+    .map(card);
+}
+
+/**
+ * Update the editable fields of one service. `locationId`/`pinCode` stay
+ * with the provider's business profile by default: a marketplace listing is
+ * tied to where the provider works, not to a free-text box.
+ */
+function updateService(db, id, {
+  title = null,
+  description = null,
+  categoryId = null,
+  priceMin = null,
+  priceMax = null,
+  priceUnit = null,
+  status = null,
+} = {}) {
+  const existing = findById(db, id);
+  if (!existing) throw new Error(`Unknown service: ${id}`);
+
+  const patch = { updated_at: new Date().toISOString() };
+
+  if (title !== null) {
+    const name = cleanText(title, 140);
+    if (!name) throw new Error('Service title is required.');
+    patch.title = name;
+  }
+  if (description !== null) patch.description = cleanText(description, 2000);
+  if (categoryId !== null) {
+    const category = db.get('SELECT id FROM categories WHERE id = ? AND is_active = 1', [categoryId]);
+    if (!category) throw new Error(`Unknown category: ${categoryId}`);
+    patch.category_id = categoryId;
+  }
+  if (priceUnit !== null) {
+    if (!['visit', 'hour', 'day', 'sqft', 'job', 'month'].includes(priceUnit)) {
+      throw new Error(`Unknown price unit: ${priceUnit}`);
+    }
+    patch.price_unit = priceUnit;
+  }
+  if (status !== null) {
+    if (!['draft', 'active', 'paused', 'archived'].includes(status)) {
+      throw new Error(`Unknown service status: ${status}`);
+    }
+    patch.status = status;
+  }
+
+  const min = priceMin === null || priceMin === undefined || priceMin === ''
+    ? null : Math.trunc(Number(priceMin));
+  const max = priceMax === null || priceMax === undefined || priceMax === ''
+    ? null : Math.trunc(Number(priceMax));
+  if (min !== null && (!Number.isFinite(min) || min < 0)) throw new Error('price_min must be >= 0.');
+  if (max !== null && (!Number.isFinite(max) || max < 0)) throw new Error('price_max must be >= 0.');
+  if (min !== null && max !== null && max < min) throw new Error('price_max cannot be below price_min.');
+  patch.price_min = min;
+  patch.price_max = max;
+
+  const sets = Object.keys(patch).map((column) => `${column} = ?`);
+  db.run(`UPDATE services SET ${sets.join(', ')} WHERE id = ?`, [...Object.values(patch), id]);
+  return findById(db, id);
+}
+
+/**
+ * Move a service between draft / active / paused / archived. No hard delete:
+ * old leads keep pointing at a row that still exists (archive is the "remove
+ * from site" action).
+ */
+function setStatus(db, id, status) {
+  if (!['draft', 'active', 'paused', 'archived'].includes(status)) {
+    throw new Error(`Unknown service status: ${status}`);
+  }
+  db.run(`UPDATE services SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`, [status, id]);
+  return findById(db, id);
+}
+
+/**
  * Marketplace search: service + category + place + PIN, in any combination.
  * Only ACTIVE services from ACTIVE providers are ever returned — the WHERE
  * clause is built first and reused for the count so both agree.
@@ -124,6 +210,7 @@ function searchServices(db, {
   query = null,
   categoryIds = null,
   locationId = null,
+  locationIds = null,
   pin = null,
   limit = 20,
   offset = 0,
@@ -145,7 +232,10 @@ function searchServices(db, {
     where.push(`services.category_id IN (${categoryIds.map(() => '?').join(',')})`);
     params.push(...categoryIds);
   }
-  if (locationId) {
+  if (locationIds && locationIds.length) {
+    where.push(`services.location_id IN (${locationIds.map(() => '?').join(',')})`);
+    params.push(...locationIds);
+  } else if (locationId) {
     where.push('services.location_id = ?');
     params.push(locationId);
   }
@@ -180,6 +270,19 @@ function searchServices(db, {
   return { items, total };
 }
 
+/** Top-level category groups with their live-service subtotals (homepage tiles). */
+function parentTiles(db) {
+  return db.all(
+    `SELECT c.id, c.name, c.slug, c.icon, COUNT(s.id) AS service_count
+     FROM categories c
+     LEFT JOIN categories child ON child.parent_id = c.id
+     LEFT JOIN services s ON s.category_id = child.id AND s.status = 'active'
+     WHERE c.parent_id IS NULL AND c.is_active = 1
+     GROUP BY c.id
+     ORDER BY c.sort_order, c.name`,
+  );
+}
+
 /** Top categories by live service count — homepage "popular" strip. */
 function popularCategories(db, limit = 8) {
   return db.all(
@@ -207,7 +310,11 @@ module.exports = {
   findById,
   findBySlug,
   byProvider,
+  byProviderAll,
+  updateService,
+  setStatus,
   searchServices,
   popularCategories,
+  parentTiles,
   count,
 };

@@ -32,6 +32,13 @@ function createSqliteStore({ db, config }) {
         userModel.setStatus(db, id, status);
         return userModel.findById(db, id);
       },
+      async setRole(id, role) {
+        userModel.setRole(db, id, role);
+        return userModel.findById(db, id);
+      },
+      async updateProfile(id, patch) {
+        return userModel.updateProfile(db, id, patch);
+      },
       async count() {
         return userModel.count(db);
       },
@@ -43,6 +50,9 @@ function createSqliteStore({ db, config }) {
       },
       async byProvider(providerId, options) {
         return leadModel.byProvider(db, providerId, options);
+      },
+      async setStatus(id, status) {
+        return leadModel.setStatus(db, id, status);
       },
       async recentCountFromIp(ip, options = {}) {
         return leadModel.recentCountFromIp(db, ip, { secret, ...options });

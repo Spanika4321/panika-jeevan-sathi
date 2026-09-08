@@ -132,6 +132,30 @@ function createSupabaseStore({ db, remote, config }) {
         return publicUser(row);
       },
 
+      async setRole(id, role) {
+        if (!['customer', 'provider', 'admin'].includes(role)) {
+          throw new Error(`Unknown role: ${role}`);
+        }
+        const [row] = await remote.update(
+          tables.users,
+          { role, updated_at: new Date().toISOString() },
+          { id },
+        );
+        return publicUser(row);
+      },
+
+      async updateProfile(id, patch) {
+        const clean = {};
+        if (patch.fullName !== undefined && patch.fullName !== null) clean.full_name = String(patch.fullName).trim();
+        if (patch.phone !== undefined && patch.phone !== null) clean.phone = String(patch.phone).trim();
+        const [row] = await remote.update(
+          tables.users,
+          { ...clean, updated_at: new Date().toISOString() },
+          { id },
+        );
+        return publicUser(row);
+      },
+
       async count() {
         return remote.count(tables.users, { status: { ne: 'suspended' } });
       },
@@ -159,6 +183,14 @@ function createSupabaseStore({ db, remote, config }) {
           limit,
         });
         return rows.map(publicLead);
+      },
+
+      async setStatus(id, status) {
+        if (!['new', 'contacted', 'closed', 'spam'].includes(status)) {
+          throw new Error(`Unknown lead status: ${status}`);
+        }
+        const [row] = await remote.update(tables.leads, { status }, { id });
+        return publicLead(row);
       },
 
       async recentCountFromIp(ip, { minutes = 60 } = {}) {
