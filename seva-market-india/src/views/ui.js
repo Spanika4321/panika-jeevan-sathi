@@ -154,6 +154,27 @@ function selectField({
 }
 
 /** Dismissible status banner (success after a redirect, errors, info). */
+/**
+ * The split-panel wrapper every account page wears: a brand panel on the
+ * left (hidden on phones) and the form card on the right.
+ *
+ * `lines` are literal marketing copy owned by the caller, not user data, so
+ * they are inserted as markup; every dynamic value still goes through esc().
+ */
+function authShellMarkup(card, { title = 'One account for the whole neighbourhood.', lines = [] } = {}) {
+  return `
+    <section class="auth">
+      <div class="auth__panel" aria-hidden="true">
+        <p class="auth__panel-brand">से Seva Market <em>India</em></p>
+        <p class="auth__panel-title">${esc(title)}</p>
+        <ul>
+          ${lines.map((line) => `<li>${line}</li>`).join('\n          ')}
+        </ul>
+      </div>
+      ${card}
+    </section>`;
+}
+
 function alertMarkup(message, { tone = 'ok' } = {}) {
   if (!message) return '';
   return `<p class="alert alert--${esc(tone)}" role="${tone === 'ok' ? 'status' : 'alert'}">${esc(message)}</p>`;
@@ -242,6 +263,7 @@ module.exports = {
   textareaField,
   selectField,
   alertMarkup,
+  authShellMarkup,
   avatarMarkup,
   serviceCardMarkup,
   providerCardMarkup,

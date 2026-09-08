@@ -279,6 +279,24 @@ function createRemoteClient({
       return Array.isArray(data) ? data : [];
     },
 
+    /**
+     * DELETE ... WHERE. Returns the deleted rows.
+     *
+     * A filter is mandatory: PostgREST refuses a filter-less DELETE, and so
+     * does this client, because "purge the token table" and "purge every
+     * durable row" are one typo apart.
+     */
+    async remove(table, where, { returning = 'representation' } = {}) {
+      const keys = Object.keys(where || {}).filter((key) => where[key] !== undefined);
+      if (!keys.length) throw new RemoteError(`Refusing to DELETE from "${table}" without a filter.`);
+      const response = await send(table, endpoint(table, buildQuery({ where })), {
+        method: 'DELETE',
+        headers: headers({ prefer: `return=${returning}` }),
+      });
+      const data = await json(response);
+      return Array.isArray(data) ? data : [];
+    },
+
     /** Exact COUNT(*) via the Content-Range header — no rows transferred. */
     async count(table, where = {}) {
       const query = buildQuery({ columns: 'id', where, limit: 1 });

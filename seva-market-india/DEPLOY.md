@@ -211,6 +211,50 @@ That is the data-loss question answered by evidence rather than by promise.
 
 ---
 
+## Step 6b — Turn on account email (SMTP)
+
+Signup sends a **verification link** and `/forgot-password` sends a **reset
+link**. Both are one-time tokens, stored *hashed* in `seva_account_tokens`
+(48 hours to verify, 1 hour to reset, and a newer link always revokes the
+older one). Without SMTP the site still serves every page — it just cannot
+mail a link, and the signup / reset pages say so instead of pretending.
+
+1. Pick a provider that sends transactional mail from your own domain
+   (Resend, Zoho ZeptoMail, Amazon SES, Brevo, Mailgun; Gmail SMTP is fine for
+   a trial only). **Verify the sending domain first** — an unverified
+   `MAIL_FROM` is the most common reason mail is accepted and then dropped.
+2. Render → your service → **Environment** → add:
+
+   | Key | Example | Note |
+   |---|---|---|
+   | `SMTP_HOST` | `smtp.resend.com` | |
+   | `SMTP_PORT` | `587` | `465` only together with `SMTP_SECURE=true` |
+   | `SMTP_USER` | `resend` | provider-specific |
+   | `SMTP_PASS` | `re_…` | the API key / app password |
+   | `MAIL_FROM` | `SEVA MARKET INDIA <no-reply@yourdomain.in>` | a domain the provider lets you send from |
+
+3. **Save changes** → Render redeploys.
+4. Prove it: open `/register`, sign up with an address you own, click the link
+   in the mail; then do the same through `/forgot-password`.
+5. Read **Logs** on failure. A delivery problem appears as a `[mail] …` line
+   with the reason — never with a token, a password or a full recipient
+   address (`a***a@example.com` is the most a log line shows).
+
+Two things not to do:
+
+* **Do not set `SEVA_MAIL_OUTBOX` in production.** It writes `.eml` files to
+  this disk, and Render's free disk is wiped on every deploy: a mail queue
+  that deletes itself is worse than no queue. It exists for local debugging.
+* **Do not reuse the Supabase key or `SESSION_SECRET` as an SMTP password.**
+  They are unrelated secrets; a leaked SMTP password should not cost you the
+  database.
+
+If a link expires, the page offers **Resend**, which mints a new token and
+revokes the outstanding ones — a mail that arrives late cannot resurrect an
+old link.
+
+---
+
 ## Business photos
 
 Provider accounts can add up to **five** business photos from **My business**
@@ -303,6 +347,12 @@ npm run storage:verify     # config + tables + a real write, exit 0 = durable
 | `SEVA_DB_FILE` | no | path to the local catalog file |
 | `SESSION_SECRET` | recommended | salts the HMAC used by the per-IP enquiry throttle |
 | `TRUST_PROXY_HOPS` | on Render: `1` | how many proxy hops to trust for the client IP |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | for account email | SMTP server for verification + password-reset mail. Unset = no mail is sent and the pages say so |
+| `SMTP_SECURE` | no | `true` for implicit TLS on `465`; unset means STARTTLS on `587` |
+| `MAIL_FROM` | with SMTP | `SEVA MARKET INDIA <no-reply@yourdomain>`; defaults to the `SMTP_USER` address |
+| `SMTP_TIMEOUT_MS` | no | per-step SMTP timeout, default `15000` |
+| `SEVA_MAIL_OUTBOX`, `SEVA_MAIL_OUTBOX_DIR` | no | development only: write undelivered mail to `data/outbox` instead of dropping it. Never on an ephemeral host |
+| `SEVA_TABLE_TOKENS` | no | verification / reset token table, default `seva_account_tokens` |
 | `SITE_URL` | set in dashboard | canonical origin; `sync: false` so the blueprint never overwrites it. Paste the exact URL Render gave, including any suffix (e.g. `-tast`), no trailing slash. A boot `[site] WARNING` means it disagrees with the host's real URL |
 
 ---
@@ -313,7 +363,7 @@ npm run storage:verify     # config + tables + a real write, exit 0 = durable
 npm install
 npm run seed
 npm start          # storage driver: sqlite, everything in ./data
-npm test           # 179 tests (175 offline, 4 gated on real Postgres)
+npm test           # 260 tests (255 offline, 5 gated on real Postgres)
 ```
 
 The Supabase path only switches on in production or when you set

@@ -23,15 +23,47 @@ export function makeDb({ withSeed = true } = {}) {
   return { db, migrationResult: result };
 }
 
+/**
+ * An email sink.
+ *
+ * Tests must never depend on SMTP being reachable, and must never write into
+ * the development outbox: this records what would have been sent so a flow can
+ * assert on the recipient, the subject and the link — then click that link.
+ */
+export function memoryMailer({ delivered = true, mode = 'memory', failWith = null } = {}) {
+  const sent = [];
+  return {
+    configured: true,
+    mode,
+    sent,
+    async send(message) {
+      sent.push(message);
+      if (failWith) return { delivered: false, mode: 'error', error: failWith };
+      return { delivered, mode };
+    },
+    /** The most recent link mailed to `to`, or null. */
+    linkFor(to, path) {
+      const message = [...sent].reverse().find((item) => item.to === to);
+      if (!message) return null;
+      const match = new RegExp(`https?://[^\\s]+${path}\\?token=[A-Za-z0-9_-]+`).exec(`${message.text}\n${message.html || ''}`);
+      return match ? match[0] : null;
+    },
+    tokenFor(to, path) {
+      const link = this.linkFor(to, path);
+      return link ? new URL(link).searchParams.get('token') : null;
+    },
+  };
+}
+
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true, siteUrl = config.site.url } = {}) {
+export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = memoryMailer() } = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
   // Tests can give crawl documents a real canonical origin without mutating
   // the process-wide configuration object imported by other test files.
   const appConfig = siteUrl === config.site.url ? config : { ...config, site: { ...config.site, url: siteUrl } };
-  const app = createApp({ config: appConfig, db });
+  const app = createApp({ config: appConfig, db, mailer });
   return { ...app, config: appConfig };
 }
 

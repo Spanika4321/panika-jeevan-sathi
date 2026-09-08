@@ -194,7 +194,10 @@ test('supabase-verify.sql checks every table the two paste scripts create', () =
       created.add(match[1]);
     }
   }
-  assert.deepEqual([...created].sort(), ['seva_audit_logs', 'seva_leads', 'seva_mirror', 'seva_users']);
+  assert.deepEqual(
+    [...created].sort(),
+    ['seva_account_tokens', 'seva_audit_logs', 'seva_leads', 'seva_mirror', 'seva_users'],
+  );
 
   const statements = pasteStatements(VERIFY_FILE);
   for (const table of created) {

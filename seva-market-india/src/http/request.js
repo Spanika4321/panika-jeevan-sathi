@@ -228,7 +228,16 @@ const validators = {
   },
 };
 
-/** Collect every validation error instead of failing on the first one. */
+/**
+ * Collect every validation error instead of failing on the first one.
+ *
+ * Errors are keyed by the *shape key* — the name the calling route uses in its
+ * template (`errors.password`), not the human label the validator was given
+ * (`'New password'`). Keying by the label silently produced an errors object
+ * no template could read, so every field error fell back to one generic
+ * "please correct the highlighted fields" banner. The label still appears in
+ * the message, which is where a human reads it.
+ */
 function validate(shape) {
   const errors = {};
   const value = {};
@@ -236,7 +245,7 @@ function validate(shape) {
     try {
       value[key] = run();
     } catch (err) {
-      if (err && err.name === 'ValidationError') errors[err.field || key] = err.message;
+      if (err && err.name === 'ValidationError') errors[key] = err.message;
       else throw err;
     }
   }

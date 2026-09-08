@@ -43,14 +43,17 @@ function register(router, { db, store, config }) {
    */
   router.post('/api/v1/leads', async ({ req }) => {
     const body = await readBody(req, config.http.maxBodyBytes);
+    // Shape keys are the API's own field names: `validate()` keys the error
+    // map by them, and `error.details` is part of the public contract, so a
+    // client reads details.provider_id — never details.providerId.
     const { value, errors, valid } = validate({
       name: () => validators.text(body.name, { field: 'name', max: 120 }),
       phone: () => validators.phone(body.phone, { field: 'phone' }),
       email: () => validators.email(body.email, { field: 'email' }),
-      pin: () => validators.pin(body.pin_code ?? body.pin, { field: 'pin_code' }),
+      pin_code: () => validators.pin(body.pin_code ?? body.pin, { field: 'PIN code' }),
       message: () => validators.text(body.message, { field: 'message', required: false, max: 1000 }),
-      providerId: () => validators.int(body.provider_id ?? body.providerId, { field: 'provider_id', required: true, min: 1 }),
-      serviceId: () => validators.int(body.service_id ?? body.serviceId, { field: 'service_id', min: 1 }),
+      provider_id: () => validators.int(body.provider_id ?? body.providerId, { field: 'provider id', required: true, min: 1 }),
+      service_id: () => validators.int(body.service_id ?? body.serviceId, { field: 'service id', min: 1 }),
     });
     if (!valid) throw HttpError.badRequest('Please correct the highlighted fields.', errors);
 
@@ -60,12 +63,12 @@ function register(router, { db, store, config }) {
     // Awaited write-through: on the Supabase backend this only resolves once
     // Postgres has the row, so a 201 can never be a lie.
     const lead = await store.leads.create({
-      providerId: value.providerId,
-      serviceId: value.serviceId,
+      providerId: value.provider_id,
+      serviceId: value.service_id,
       name: value.name,
       phone: value.phone,
       email: value.email,
-      pinCode: value.pin,
+      pinCode: value.pin_code,
       message: value.message,
       ip: req.socket?.remoteAddress,
     });

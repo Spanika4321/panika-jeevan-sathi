@@ -13,6 +13,8 @@ const path = require('node:path');
 const { resolveDriver, flag } = require('./store/guard');
 const { readEnvConfig } = require('./db/remote');
 const { resolveSiteUrl } = require('./site-url');
+const { readMailConfig } = require('./mail/mailer');
+const accountTokens = require('./models/account-token');
 
 const ROOT = __dirname === undefined ? process.cwd() : path.resolve(__dirname, '..');
 
@@ -25,6 +27,7 @@ function intFromEnv(name, fallback) {
 const isProduction = process.env.NODE_ENV === 'production';
 const supabase = readEnvConfig(process.env);
 const site = resolveSiteUrl(process.env);
+const mail = readMailConfig(process.env, { isProduction, root: ROOT });
 
 const config = {
   root: ROOT,
@@ -89,7 +92,36 @@ const config = {
       users: process.env.SEVA_TABLE_USERS || 'seva_users',
       leads: process.env.SEVA_TABLE_LEADS || 'seva_leads',
       audit: process.env.SEVA_TABLE_AUDIT || 'seva_audit_logs',
+      // Email-verification and password-reset links. Durable for the same
+      // reason accounts are: a reset link written to a disk that is wiped
+      // before the visitor clicks it is a locked-out customer.
+      tokens: process.env.SEVA_TABLE_TOKENS || 'seva_account_tokens',
     },
+  },
+
+  /**
+   * Account email (verification + password reset). See src/mail/mailer.js:
+   * real SMTP when SMTP_HOST/SMTP_USER/SMTP_PASS are set, otherwise a private
+   * outbox file in development and nothing at all in production.
+   */
+  mail,
+
+  /**
+   * One-time account tokens. Lifetimes and the hourly per-account limit live
+   * in the model so both storage backends enforce the same numbers.
+   */
+  tokens: {
+    ttl: accountTokens.TTL_MS,
+    hourlyLimit: accountTokens.HOURLY_LIMIT,
+    // The link must be absolute to survive an email client, so it is built
+    // from the canonical origin; local development has none, hence this.
+    linkOrigin: (() => {
+      try {
+        return new URL(site.url).origin;
+      } catch (_) {
+        return `http://localhost:${intFromEnv('PORT', 3000)}`;
+      }
+    })(),
   },
 
   media: {

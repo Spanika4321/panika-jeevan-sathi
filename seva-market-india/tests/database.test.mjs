@@ -28,12 +28,12 @@ test('migrations create every foundation table and the external-owner compatibil
   const tables = tableList(db);
 
   for (const expected of [
-    'audit_logs', 'categories', 'leads', 'locations', 'providers',
+    'account_tokens', 'audit_logs', 'categories', 'leads', 'locations', 'providers',
     'schema_migrations', 'service_areas', 'services', 'users',
   ]) {
     assert.ok(tables.includes(expected), `missing table: ${expected}`);
   }
-  assert.deepEqual(migrationResult.applied, ['0001', '0002', '0003']);
+  assert.deepEqual(migrationResult.applied, ['0001', '0002', '0003', '0004']);
   db.close();
 });
 
@@ -41,7 +41,7 @@ test('running migrations twice applies nothing the second time', () => {
   const { db } = makeDb({ withSeed: false });
   const second = migrate(db, config.db.migrationsDir);
   assert.deepEqual(second.applied, []);
-  assert.deepEqual(second.skipped, ['0001', '0002', '0003']);
+  assert.deepEqual(second.skipped, ['0001', '0002', '0003', '0004']);
   db.close();
 });
 

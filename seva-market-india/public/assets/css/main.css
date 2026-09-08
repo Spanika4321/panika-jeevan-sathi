@@ -208,6 +208,16 @@ code {
 .panel__summary { cursor: pointer; font-weight: 700; font-size: var(--text-base); }
 .panel--edit[open] { padding-bottom: var(--space-4); }
 
+/* The unconfirmed-email reminder on the dashboard: text left, actions right,
+   wrapping to one column on a phone without a breakpoint of its own. */
+.panel--warn { background: var(--amber-soft); border-color: #f2d68a; }
+.panel--warn .panel__title { color: #7a4e00; margin-bottom: var(--space-1); }
+.panel--warn .prose { color: #6d4a10; }
+.verify-banner { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.verify-banner > div:first-child { flex: 1 1 16rem; }
+.verify-banner .cta-card__actions { margin-top: 0; }
+.verify-banner .btn--ghost { background: #fff; }
+
 /* ---------------------------------------------------------- 3. buttons */
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
@@ -562,6 +572,8 @@ code {
 }
 .alert--ok { background: var(--green-soft); color: #1d6b20; border: 1px solid #bfe3c0; }
 .alert--err { background: var(--red-soft); color: #9c1f30; border: 1px solid #f4c3ca; }
+/* "Nothing is broken, but something is still outstanding" — email not yet confirmed. */
+.alert--warn { background: var(--amber-soft); color: #8a5a00; border: 1px solid #f2d68a; }
 
 .empty {
   padding: var(--space-7) var(--space-4);
