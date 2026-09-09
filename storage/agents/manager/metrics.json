@@ -1,8 +1,8 @@
 {
   "agent": "manager",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 2,
+    "status_ok": 2
   },
   "history": [
     {
@@ -10,7 +10,13 @@
       "status": "OK",
       "duration_ms": 396,
       "summary": "manager cycle — pooja=PASS priya=PASS guardian=PASS"
+    },
+    {
+      "at": "2026-09-09T06:25:29.438Z",
+      "status": "OK",
+      "duration_ms": 0,
+      "summary": "pooja=PASS priya=PASS guardian=PASS"
     }
   ],
-  "updated_at": "2026-08-31T00:29:34.026Z"
+  "updated_at": "2026-09-09T06:25:29.438Z"
 }

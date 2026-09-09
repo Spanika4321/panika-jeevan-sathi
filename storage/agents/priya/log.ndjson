@@ -1,1 +1,2 @@
 {"ts":"2026-08-31T00:29:18.212Z","event":"run","status":"BLOCKED","duration_ms":36,"summary":"BLOCKED","details":{"command":"agents/priya.mjs","workflow":"priya.yml"}}
+{"ts":"2026-09-09T06:25:28.980Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"Meta publishing credentials are not configured. Campaign drafting remains available.","details":{"external":{"meta":{"META_ACCESS_TOKEN":false,"META_PAGE_ID":false},"gemini":{"GEMINI_API_KEY":false}},"tasks":7}}
