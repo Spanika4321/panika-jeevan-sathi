@@ -127,6 +127,8 @@
           <a href="/privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</span>
       </label>
 
+      <p class="hint hide" id="inviteNote"></p>
+
       <button class="btn block lg mt-2" type="submit" id="registerBtn">Create my free account</button>
       <p class="center small mt-2 muted">Already registered? <a href="#" id="goLogin">Log in</a></p>
     </form>
@@ -288,7 +290,10 @@
       community: document.getElementById('regCommunity').value,
       religion: document.getElementById('regReligion').value,
       city: document.getElementById('regCity').value.trim(),
-      state: document.getElementById('regState').value.trim()
+      state: document.getElementById('regState').value.trim(),
+      // Who sent this person here. The server validates the code and decides
+      // whether it credits anybody; the client cannot force an attribution.
+      ref: PJS.inviteCode() || PJS.qs('ref') || ''
     });
     busy(btn, false);
     if (!res.ok) {
@@ -355,8 +360,19 @@
       .map(function (r) { return '<option>' + PJS.esc(r) + '</option>'; })
       .join('');
 
+    /* Arrived through a member's invite link? Say so, and start on the
+       registration form — that is the whole point of the link. */
+    const invitedBy = PJS.inviteCode();
+    const inviteNote = document.getElementById('inviteNote');
+    if (invitedBy && inviteNote) {
+      inviteNote.classList.remove('hide');
+      inviteNote.textContent =
+        '🙏 Aap humare ek member ke invite link se aaye hain. Registration free hai, aur judne par unhe khushi ka sandesh mil jayega.';
+    }
+
     const tab = PJS.qs('tab');
-    show(tab === 'register' || tab === 'forgot' ? tab : 'login');
+    const invited = Boolean(invitedBy) && !PJS.me && tab !== 'forgot';
+    show(invited ? 'register' : (tab === 'register' || tab === 'forgot' ? tab : 'login'));
     if (PJS.me) {
       const dest = PJS.me.role === 'admin' ? '/admin.html' : '/dashboard.html';
       const label = PJS.me.role === 'admin' ? 'Open admin panel' : 'Go to your dashboard';

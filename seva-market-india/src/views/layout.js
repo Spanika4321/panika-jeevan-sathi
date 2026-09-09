@@ -12,7 +12,7 @@
  */
 
 const { esc } = require('./escape');
-const { avatarMarkup } = require('./ui');
+const { avatarMarkup, shareMarkup } = require('./ui');
 
 const NAV = [
   { href: '/', label: 'Home' },
@@ -215,6 +215,14 @@ ${body}
           <li><a href="/terms">Terms</a></li>
         </ul>
       </nav>
+    </div>
+    <div class="container site-footer__share">
+      ${shareMarkup({
+        url: canonical,
+        heading: 'Apne ilaake tak Seva Market pahunchaiye',
+        note: 'Accha plumber, electrician ya tutor milne par us page ko apne WhatsApp group mein bhejein — providers ko bina commission kaam milta hai.',
+        text: 'Seva Market India — apne shehar ke verified plumbers, electricians, tutors aur photographers dhundhein aur seedha contact karein (koi commission nahi):',
+      })}
     </div>
     <div class="container site-footer__base">
       <p>&copy; ${year} ${esc(site.name)}. Built for every PIN code in India.</p>

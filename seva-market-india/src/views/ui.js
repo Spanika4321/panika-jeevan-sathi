@@ -250,9 +250,37 @@ function avatarMarkup(name, extraClass = '') {
   return `<span class="avatar${extraClass ? ` ${extraClass}` : ''}" aria-hidden="true">${esc(initials(name))}</span>`;
 }
 
+/**
+ * Share row — how this marketplace actually grows.
+ *
+ * Local services get recommended in family and neighbourhood WhatsApp groups,
+ * so WhatsApp comes first, then Facebook, then a plain copy-link for anybody
+ * who wants to paste it somewhere else. Server-rendered: the WhatsApp and
+ * Facebook links work with JavaScript disabled; only the copy button needs
+ * /assets/js/main.js, and it degrades to a selectable link when JS is off.
+ */
+function shareMarkup(options) {
+  const opts = options || {};
+  const url = String(opts.url || '/');
+  const text = String(opts.text || '');
+  const message = text ? `${text}\n${url}` : url;
+  return `
+    <div class="share">
+      <p class="share__heading">${esc(opts.heading || 'Share this')}</p>
+      ${opts.note ? `<p class="share__note">${esc(opts.note)}</p>` : ''}
+      <div class="share__row">
+        <a class="btn btn--ghost btn--sm" href="https://wa.me/?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">📱 WhatsApp</a>
+        <a class="btn btn--ghost btn--sm" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <button type="button" class="btn btn--ghost btn--sm" data-share-copy="${esc(message)}">Copy link</button>
+      </div>
+      <noscript><p class="share__note">Direct link: <a href="${esc(url)}">${esc(url)}</a></p></noscript>
+    </div>`;
+}
+
 module.exports = {
   esc,
   priceLabel,
+  shareMarkup,
   ratingMarkup,
   verifiedMarkup,
   serviceStatusMarkup,

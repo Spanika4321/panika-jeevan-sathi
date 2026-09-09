@@ -55,6 +55,11 @@
           <div id="recentLogins"></div>
         </div>
       </div>
+      <div class="card mt-3">
+        <h3>Invite growth</h3>
+        <p class="small muted">Kaun se members apna invite link bhejkar nayi families laa rahe hain. In members ko dhanyavaad dein — yahi sabse sasta growth channel hai.</p>
+        <div id="inviteStats"></div>
+      </div>
     </section>
 
     <!-- members -->
@@ -209,6 +214,28 @@
     }
     personList($('recentUsers'), res.recent_users, 'No users yet');
     personList($('recentLogins'), res.recent_logins, 'No logins recorded yet');
+
+    /* Invite-link growth: who is actually bringing new families. */
+    const inviteBox = $('inviteStats');
+    const invites = res.invites;
+    if (!invites) {
+      inviteBox.innerHTML = '<p class="muted small mb-0">referrals table is installation par available nahi hai — <code>supabase/schema.sql</code> ek baar Supabase SQL editor mein chalao (SQLite / D1 par table apne aap ban jaata hai). Tab tak invite links kaam karte hain, sirf ginati record nahi hoti.</p>';
+    } else if (!invites.total) {
+      inviteBox.innerHTML = '<p class="muted small mb-0">Ab tak koi member kisi invite link se nahi juda. Members ko dashboard ke "Apne parivaar ko bulaiye" card se apna link WhatsApp par bhejne ke liye kahein.</p>';
+    } else {
+      inviteBox.innerHTML =
+        `<div class="stats mb-2">` +
+        [['Members joined via invites', invites.total], ['Members who invited', invites.inviters]]
+          .map((x) => `<div class="stat"><b>${esc(x[1])}</b><span>${esc(x[0])}</span></div>`).join('') +
+        `</div>` +
+        invites.top.map((row) => `
+          <div class="list-row">
+            ${PJS.avatar(row.name, null, 'sm')}
+            <div><b>${esc(row.name || 'Member #' + row.inviter_id)}</b>
+              <div class="tiny muted">${esc(row.email || '')}</div></div>
+            <span class="chip gold">${esc(row.invites)} joined</span>
+          </div>`).join('');
+    }
   }
 
   /* ----------------------------------------------------------- members */

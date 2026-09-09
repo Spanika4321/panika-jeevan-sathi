@@ -56,6 +56,8 @@
             <a class="btn lg" href="/login.html?tab=register">Create your free profile</a>
             <a class="btn lg ghost" href="#how">How it works</a>
           </div>
+
+          <div class="mt-3" id="heroShare"></div>
         </div>
 
         <div>
@@ -197,6 +199,24 @@
     </div>
   </section>
 
+  <!-- ===================================================== share -->
+  <section class="section" style="background:linear-gradient(160deg,#124734,#1c6b4d);color:#fff">
+    <div class="container center">
+      <span class="eyebrow" style="color:#c9ecd9">Sabse bada yogdaan</span>
+      <h2 style="color:#fff">Is website ko apne samaj tak pahunchaiye</h2>
+      <p style="color:#e6f5ee;max-width:62ch;margin:0 auto 18px">
+        Ek rishta tabhi banta hai jab sahi log judte hain. Ye link apne parivaar, rishtedaar aur
+        samaj ke WhatsApp group mein bhejein — registration, search aur messaging sab kuch
+        hamesha ke liye free hai.
+      </p>
+      <div id="shareBandButtons"></div>
+      <p class="tiny mt-2" style="color:#dff0e8">
+        Login karke <a href="/dashboard.html#invite" style="color:#fff;text-decoration:underline">apna personal invite link</a>
+        bhi bhej sakte hain, taaki naye members aapke naam se judein.
+      </p>
+    </div>
+  </section>
+
   <!-- ===================================================== notice -->
   <section class="section-sm">
     <div class="container container-narrow">
@@ -257,6 +277,17 @@
 
     const share = document.getElementById('shareStoryBtn');
     share.href = PJS.whatsAppLink('Hello! We would like to share our success story from PANIKA JEEVAN SATHI.');
+
+    /* Sharing is how this free site grows. A logged-in member shares their own
+       invite link (so new families are credited to them); a visitor shares the
+       plain site URL. */
+    const shareTarget = (PJS.me && PJS.invite && PJS.invite.code)
+      ? window.location.origin + (PJS.invite.path || '/')
+      : window.location.origin + '/';
+    document.getElementById('heroShare').innerHTML =
+      '<p class="tiny muted mb-1">Pasand aaya? Apne parivaar aur samaj group ko bhejein:</p>' +
+      PJS.shareButtons({ url: shareTarget, size: 'sm' });
+    document.getElementById('shareBandButtons').innerHTML = PJS.shareButtons({ url: shareTarget });
 
     document.getElementById('noticeCommunities').textContent =
       (site.communities_list || []).length ? ' Listed communities: ' + site.communities_list.join(', ') + '.' : '';

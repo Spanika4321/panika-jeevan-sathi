@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { startTestApp, register, adminClient, PNG, ADMIN_EMAIL } from './lib/test-app.mjs';
 
 async function appFor(t, env) {
@@ -274,4 +275,105 @@ test('syntax checker covers server, backend, agents and automation, not just HTM
     assert.ok(result.stdout.includes(file), file);
   }
   assert.match(result.stdout, /6 checked, 4 with syntax errors/);
+});
+
+/* ------------------------------------------------------- invite / growth */
+
+test('invite codes are derived from the member id and reject tampering', (t) => {
+  const require = createRequire(import.meta.url);
+  const referral = require('../lib/referral.js');
+
+  for (const id of [1, 2, 7, 31, 32, 33, 999, 123456]) {
+    const code = referral.codeFor(id);
+    assert.ok(/^[2-9A-HJ-NP-Z]{2,14}$/.test(code), `code shape for id ${id}: ${code}`);
+    assert.equal(referral.userIdFromCode(code), id, `round trip for id ${id}`);
+    assert.equal(referral.userIdFromCode(code.toLowerCase()), id, 'codes are case-insensitive');
+    assert.equal(referral.codeFor(id), code, 'the code is stable across calls');
+    // Flipping the check character must never resolve to another member.
+    const flipped = code.slice(0, -1) + (code.slice(-1) === 'A' ? 'B' : 'A');
+    assert.equal(referral.userIdFromCode(flipped), null, `tampered code for id ${id}`);
+  }
+  assert.equal(referral.codeFor(0), null);
+  assert.equal(referral.codeFor(-4), null);
+  assert.equal(referral.codeFor('abc'), null);
+  for (const junk of ['', ' ', '1', 'O0O0', 'HELLO1', 'A'.repeat(40), null, undefined, {}, 'DROP TABLE users']) {
+    assert.equal(referral.userIdFromCode(junk), null, `rejected input: ${JSON.stringify(junk)}`);
+  }
+});
+
+test('invite attribution survives a missing referrals table', async (t) => {
+  const require = createRequire(import.meta.url);
+  const referral = require('../lib/referral.js');
+  const lines = [];
+  // What a Supabase project looks like before schema.sql has been re-run.
+  const unmigrated = {
+    one: async () => { throw new Error('relation "public.referrals" does not exist'); },
+    insert: async () => { throw new Error('relation "public.referrals" does not exist'); },
+    count: async () => { throw new Error('relation "public.referrals" does not exist'); },
+    all: async () => { throw new Error('relation "public.referrals" does not exist'); }
+  };
+  assert.equal(
+    await referral.record(unmigrated, { inviterId: 1, inviteeId: 2, code: 'ABC', log: (l) => lines.push(l) }),
+    false
+  );
+  assert.equal(lines.length, 1, 'the storage failure is logged once');
+  assert.equal(await referral.countFor(unmigrated, 1), null, 'count degrades to null, not 0');
+  assert.equal(await referral.summary(unmigrated), null, 'summary degrades to null');
+  // Self-referral is refused before any storage call.
+  assert.equal(await referral.record(unmigrated, { inviterId: 5, inviteeId: 5 }), false);
+  assert.equal(await referral.record(unmigrated, { inviterId: 0, inviteeId: 5 }), false);
+});
+
+test('invite links credit the sharer, notify them, and ignore forged codes', async (t) => {
+  const app = await appFor(t);
+  const inviter = app.client();
+  const inviterUser = await register(inviter, 'inviter@test.example');
+
+  const me = await inviter.get('/api/me');
+  assert.equal(me.status, 200);
+  assert.ok(me.body.invite && me.body.invite.code, 'every member gets an invite code');
+  assert.equal(me.body.invite.path, '/?ref=' + me.body.invite.code);
+  assert.equal(me.body.invite.invited, 0);
+
+  const admin = await adminClient(app);
+  assert.equal((await admin.get('/api/admin/stats')).body.invites.total, 0);
+
+  // A family arrives through the shared link.
+  const invitee = app.client();
+  const joined = await invitee.post('/api/auth/register', {
+    name: 'Invited Member',
+    email: 'invitee@test.example',
+    password: 'MemberPass123',
+    ref: me.body.invite.code
+  });
+  assert.equal(joined.status, 200);
+
+  const after = (await admin.get('/api/admin/stats')).body.invites;
+  assert.equal(after.total, 1);
+  assert.equal(after.inviters, 1);
+  assert.equal(after.top[0].inviter_id, inviterUser.id);
+  assert.equal(after.top[0].invites, 1);
+  assert.equal((await inviter.get('/api/me')).body.invite.invited, 1);
+
+  // The inviter is told somebody joined — without learning who.
+  const notes = (await inviter.get('/api/notifications')).body.notifications;
+  const note = notes.find((n) => n.type === 'referral');
+  assert.ok(note, 'the inviter receives a referral notification');
+  assert.ok(!JSON.stringify(note).includes('invitee@test.example'), 'no invitee identity leaks');
+
+  // Forged or unknown codes credit nobody, and never block the sign-up.
+  const code = me.body.invite.code;
+  const tampered = code.slice(0, -1) + (code.slice(-1) === 'A' ? 'B' : 'A');
+  for (const [email, bad] of [['forged@test.example', tampered], ['junk@test.example', 'HELLO1']]) {
+    const res = await app.client().post('/api/auth/register', {
+      name: 'Bad Referral',
+      email,
+      password: 'MemberPass123',
+      ref: bad
+    });
+    assert.equal(res.status, 200, email);
+  }
+  const final = (await admin.get('/api/admin/stats')).body.invites;
+  assert.equal(final.total, 1, 'forged codes added no attribution');
+  assert.equal(final.inviters, 1);
 });

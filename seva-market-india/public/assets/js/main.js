@@ -163,8 +163,48 @@
     });
   }
 
+  /**
+   * Copy-to-clipboard for the share rows.
+   * Uses the async Clipboard API where available and falls back to a hidden
+   * textarea, so the button still works on older Android browsers. Feedback
+   * is the button label itself — no inline handlers (strict CSP).
+   */
+  function initShareCopy() {
+    document.querySelectorAll('[data-share-copy]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var value = button.getAttribute('data-share-copy') || '';
+        var original = button.textContent;
+
+        function done(ok) {
+          button.textContent = ok ? 'Copied ✓' : 'Select and copy';
+          setTimeout(function () { button.textContent = original; }, 2200);
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(value).then(function () { done(true); }, function () { done(false); });
+          return;
+        }
+        try {
+          var area = document.createElement('textarea');
+          area.value = value;
+          area.setAttribute('readonly', '');
+          area.style.position = 'fixed';
+          area.style.opacity = '0';
+          document.body.appendChild(area);
+          area.select();
+          var copied = document.execCommand('copy');
+          document.body.removeChild(area);
+          done(copied);
+        } catch (err) {
+          done(false);
+        }
+      });
+    });
+  }
+
   function init() {
     initNav();
+    initShareCopy();
     initNumericFields();
     initSearchForm();
     initConfirmForms();

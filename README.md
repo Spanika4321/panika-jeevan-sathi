@@ -9,6 +9,8 @@ no locked profiles, no paid messaging.
 
 **Product Hunt:** this GitHub repo is the product source. Connect it under [Ship → GitHub](https://www.producthunt.com/ship) and use the copy in **[PRODUCTHUNT.md](PRODUCTHUNT.md)**.
 
+**Getting members:** invite links + WhatsApp share buttons are built in; the outreach plan, ready-to-paste Hindi messages and the 30-day checklist are in **[GROWTH.md](GROWTH.md)**.
+
 Built as a single Node.js application. The core uses built-in modules; the locked Nodemailer dependency handles SMTP. Playwright is used only for browser tests.
 
 ---
@@ -116,6 +118,21 @@ Notifications · Account settings · Delete account
 **Contact**
 WhatsApp button and floating chat bubble that open a chat with **+91 80998 34725**
 (`https://wa.me/918099834725`), plus a contact form that lands in the admin inbox.
+
+**Growth & sharing** (see [GROWTH.md](GROWTH.md) for the outreach playbook)
+- Every member has a permanent **invite link** (`/?ref=CODE`, derived from the member id —
+  no extra column, nothing to migrate) shown on the dashboard with its own share buttons
+- Members who join through that link are attributed to the sharer in the optional
+  `referrals` table; the inviter gets a notification that never reveals the new member's
+  identity. Forged, tampered and self-referral codes credit nobody, and attribution is
+  best-effort: a missing table or storage error can never fail a registration
+- WhatsApp-first share buttons (WhatsApp / Facebook / copy link / native share sheet) on the
+  home page, in the footer and on the member dashboard; shared links keep the address bar
+  canonical because the code is stored, not kept in the URL
+- Admin → Overview shows **Invite growth**: total invites, how many members invite, and the
+  top inviters
+- The bundled `seva-market-india` marketplace gets the same share row on every page plus a
+  "Recommend this business" card on each provider profile
 
 **Admin panel** (`/admin.html`, administrator role required, server-side checks on every API)
 - Live dashboard: accounts, active/suspended, new members, reports, contact queue, recent activity

@@ -184,6 +184,30 @@ button, input, select, textarea { font: inherit; color: inherit; }
   padding: 5px 12px; font-size: 12px; font-weight: 700; letter-spacing: .04em;
 }
 
+/* ------------------------------------------------- share row + invite card */
+
+.footer-share {
+  margin-top: 30px; padding-top: 22px; border-top: 1px solid rgba(255, 255, 255, .12);
+  display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;
+}
+.footer-share .btn.ghost {
+  background: rgba(255, 255, 255, .1); color: #fff; border-color: rgba(255, 255, 255, .28);
+}
+.footer-share .btn.ghost:hover { background: rgba(255, 255, 255, .18); }
+.share-row { align-items: center; }
+.share-row .btn { white-space: normal; }
+
+.invite-box {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 12px;
+  background: rgba(255, 255, 255, .12); border: 1px dashed rgba(255, 255, 255, .4);
+  border-radius: 10px; padding: 9px 11px; font-size: 12.5px; word-break: break-all;
+}
+.invite-count {
+  display: inline-flex; align-items: center; gap: 6px; background: rgba(193, 151, 63, .22);
+  border: 1px solid rgba(193, 151, 63, .55); color: #f6e6bd; border-radius: 999px;
+  padding: 3px 10px; font-size: 12px; font-weight: 700;
+}
+
 /* ------------------------------------------------------------------ bottom nav */
 
 .bottom-nav {

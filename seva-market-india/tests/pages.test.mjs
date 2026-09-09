@@ -247,3 +247,32 @@ test('the layout switches to a horizontal nav only at 900px and up', async () =>
   assert.match(desktopBlock, /\.nav-toggle \{ display: none; \}/);
   assert.match(desktopBlock, /\.nav \{[^}]*position: static/s);
 });
+
+/* -------------------------------------------------- share row (growth) */
+
+test('every page offers a WhatsApp-first share row with no inline handlers', async () => {
+  const home = await request(app, { url: '/' });
+  assert.equal(home.statusCode, 200);
+  assert.match(home.body, /class="share"/, 'the footer carries a share row');
+  assert.match(home.body, /https:\/\/wa\.me\/\?text=/, 'WhatsApp is the first share channel');
+  assert.match(home.body, /facebook\.com\/sharer\/sharer\.php\?u=/);
+  assert.match(home.body, /data-share-copy="/, 'copy-link is wired through /assets/js/main.js');
+  assert.match(home.body, /<noscript>/, 'the link is still reachable without JavaScript');
+
+  const search = await request(app, { url: '/search' });
+  const link = /href="(\/providers\/(?!new)[a-z0-9-]+)"/.exec(search.body);
+  assert.ok(link, 'the seeded marketplace lists at least one provider');
+
+  const provider = await request(app, { url: link[1] });
+  assert.equal(provider.statusCode, 200);
+  assert.match(provider.body, /Recommend this business/);
+  const shared = /data-share-copy="([^"]*)"/.exec(provider.body);
+  assert.ok(shared, 'the provider page has a share row');
+  assert.ok(
+    decodeURIComponent(shared[1]).includes(link[1]),
+    'the shared message carries that provider page, not the homepage'
+  );
+  for (const handler of ['onclick=', 'onsubmit=', 'onload=', 'onerror=']) {
+    assert.ok(!provider.body.includes(handler), `inline handler ${handler} must not be emitted`);
+  }
+});

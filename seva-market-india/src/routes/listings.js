@@ -15,7 +15,7 @@
 const { layout, esc, canonicalUrl } = require('../views/layout');
 const {
   priceLabel, ratingMarkup, verifiedMarkup, tintIndex, field,
-  textareaField, alertMarkup, serviceCardMarkup,
+  textareaField, alertMarkup, serviceCardMarkup, shareMarkup,
 } = require('../views/ui');
 const serviceModel = require('../models/service');
 const providerModel = require('../models/provider');
@@ -442,6 +442,15 @@ function register(router, { db, store, config }) {
               providerId: provider.id,
               back: `/providers/${esc(provider.slug)}`,
               sent: ctx.query.get('sent') === '1',
+            })}
+          </div>
+
+          <div class="panel">
+            ${shareMarkup({
+              url: canonicalUrl(config.site, `/providers/${provider.slug}`),
+              heading: 'Recommend this business',
+              note: 'Neighbours and family find good workers by word of mouth — send this page to your WhatsApp group.',
+              text: `${provider.business_name} — ${provider.category_name} in ${places || 'India'}. Seva Market India par directly contact karein, koi commission nahi:`,
             })}
           </div>
         </aside>

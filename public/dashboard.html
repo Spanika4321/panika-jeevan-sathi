@@ -78,6 +78,8 @@
     <aside>
       <section class="card mb-3" id="myCard"></section>
 
+      <section class="card mb-3" id="inviteCard" style="background:linear-gradient(160deg,#124734,#1c6b4d);color:#fff;border:0"></section>
+
       <section class="card mb-3">
         <div class="card-title"><h3>Notifications</h3>
           <a class="small" href="/notifications.html">All →</a></div>
@@ -206,6 +208,30 @@
         <a class="btn ghost sm" href="/profile.html?id=${me.user.id}">View my profile</a>
         <a class="btn sm" href="/edit-profile.html">Edit</a>
       </div>`;
+
+    /* invite link — the growth loop: members bring their own families */
+    const inviteCard = $('inviteCard');
+    if (inviteCard) {
+      const invite = me.invite || {};
+      const inviteUrl = invite.code ? (window.location.origin + (invite.path || '/?ref=' + invite.code)) : window.location.origin + '/';
+      const invited = Number.isFinite(Number(invite.invited)) && invite.invited !== null
+        ? Number(invite.invited)
+        : null;
+      const inviteMessage =
+        '🙏 Maine PANIKA JEEVAN SATHI par apna free matrimonial profile banaya hai — ' +
+        'humari community ke liye 100% free (koi payment nahi, koi subscription nahi).\n' +
+        'Aap bhi free profile banaiye: ';
+      inviteCard.innerHTML = `
+        <h3 id="invite" style="color:#fff">Apne parivaar ko bulaiye 🙏</h3>
+        <p style="font-size:13.5px;color:#e6f5ee">Ye link apne relatives aur samaj ke WhatsApp group mein bhejein.
+        Jitne zyada profile, utne zyada rishte — sab kuch free.</p>
+        ${invited !== null
+          ? `<p class="mb-1"><span class="invite-count">✓ ${invited} member${invited === 1 ? '' : 's'} aapke link se jude</span></p>`
+          : ''}
+        <div class="invite-box"><code>${PJS.esc(inviteUrl)}</code></div>
+        ${PJS.shareButtons({ url: inviteUrl, message: inviteMessage, size: 'sm' })}
+        <p class="tiny mt-2" style="color:#dff0e8">Aapka code: <b>${PJS.esc(invite.code || '—')}</b> · ye link hamesha aapka rahega.</p>`;
+    }
 
     /* matches */
     const matches = await PJS.get('/api/matches?limit=8');

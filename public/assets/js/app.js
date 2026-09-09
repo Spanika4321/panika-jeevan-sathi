@@ -390,6 +390,13 @@
           <a href="https://github.com/Spanika4321/panika-jeevan-sathi" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
+      <div class="footer-share">
+        <div>
+          <b style="color:#fff">Is website ko apne parivaar aur samaj group mein share karein</b>
+          <p style="color:#dcc6d0;font-size:13.5px;margin:4px 0 10px">Jitne zyada log judenge, utne zyada rishte banenge. Sharing bilkul free hai.</p>
+        </div>
+        ${PJS.shareButtons({ url: window.location.origin + '/', size: 'sm' })}
+      </div>
       <div class="footer-bottom">
         <span>© ${new Date().getFullYear()} ${PJS.esc(s.site_name || 'PANIKA JEEVAN SATHI')}. ${PJS.esc(s.footer_note || '')}</span>
         <span>Support: ${PJS.esc(s.whatsapp_display || '+91 80998 34725')}</span>
@@ -412,6 +419,148 @@
     a.innerHTML = I.whatsapp;
     document.body.appendChild(a);
   }
+
+  /* -------------------------------------------------- invite links (growth) */
+
+  /*
+   * Every member has a permanent invite code (derived from their member id by
+   * the server). Visitors who arrive on /?ref=CODE keep that code locally, so
+   * when they finally register the inviter is credited.
+   * The code is stored, then removed from the address bar — shared URLs stay
+   * canonical for Google, and the invite still survives.
+   */
+
+  const INVITE_KEY = 'pjs_invite';
+  const INVITE_RE = /^[2-9A-HJ-NP-Z]{2,14}$/;
+
+  function captureInvite() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const raw = String(params.get('ref') || params.get('invite') || '').trim().toUpperCase();
+      if (!raw) return;
+      if (INVITE_RE.test(raw)) window.localStorage.setItem(INVITE_KEY, raw);
+      params.delete('ref');
+      params.delete('invite');
+      const qs = params.toString();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.pathname + (qs ? '?' + qs : '') + window.location.hash
+      );
+    } catch (err) {
+      /* private mode or blocked storage: sharing still works without it */
+    }
+  }
+
+  PJS.inviteCode = function () {
+    try {
+      return window.localStorage.getItem(INVITE_KEY);
+    } catch (err) {
+      return null;
+    }
+  };
+
+  PJS.invitePath = function () {
+    const code = PJS.inviteCode();
+    return code ? '/?ref=' + code : '/';
+  };
+
+  /* --------------------------------------------------------------- sharing */
+
+  /**
+   * The message that travels with every share. Written to be forwarded as-is
+   * in a family or samaj WhatsApp group: what it is, that it is free, and what
+   * to do next. Community names come from the editable site settings.
+   */
+  PJS.shareText = function () {
+    const s = PJS.site || {};
+    const who = (s.communities_list && s.communities_list.length)
+      ? s.communities_list.join(', ')
+      : 'Panika, Manikpuri, Kabirpanthi and Adivasi';
+    return `🙏 ${s.site_name || 'PANIKA JEEVAN SATHI'} — ${who} communities ke liye 100% FREE matrimonial website.\n` +
+      'Free registration, free search, free messaging. Koi payment nahi, koi subscription nahi, koi locked profile nahi.\n' +
+      'Apna free profile banaiye: ';
+  };
+
+  PJS.shareLinks = function (url, message) {
+    const target = url || (window.location.origin + '/');
+    const text = message || PJS.shareText();
+    return {
+      url: target,
+      text,
+      whatsapp: 'https://wa.me/?text=' + encodeURIComponent(text + target),
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(target),
+      native: Boolean(navigator.share)
+    };
+  };
+
+  PJS.copyText = async function (value) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+    } catch (err) {
+      /* fall through to the legacy path */
+    }
+    try {
+      const area = document.createElement('textarea');
+      area.value = value;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const done = document.execCommand('copy');
+      document.body.removeChild(area);
+      return done;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  /**
+   * Share button row: WhatsApp (the channel our families actually use),
+   * Facebook, native share sheet where available, and copy-link.
+   * Returns HTML — the delegated click handler below wires the copy button.
+   */
+  PJS.shareButtons = function (options) {
+    const opts = options || {};
+    const links = PJS.shareLinks(opts.url, opts.message);
+    const size = opts.size === 'sm' ? ' sm' : '';
+    const buttons = [
+      `<a class="btn green${size}" href="${PJS.esc(links.whatsapp)}" target="_blank" rel="noopener">${I.whatsapp} WhatsApp par bhejein</a>`,
+      `<a class="btn ghost${size}" href="${PJS.esc(links.facebook)}" target="_blank" rel="noopener">Facebook</a>`,
+      `<button type="button" class="btn ghost${size}" data-share-copy="${PJS.esc(links.text + links.url)}">Link copy karein</button>`
+    ];
+    if (links.native) {
+      buttons.push(
+        `<button type="button" class="btn ghost${size}" data-share-native="${PJS.esc(links.url)}" data-share-native-text="${PJS.esc(links.text)}">Share…</button>`
+      );
+    }
+    return `<div class="btn-row share-row">${buttons.join('')}</div>`;
+  };
+
+  document.addEventListener('click', async function (event) {
+    const copy = event.target.closest && event.target.closest('[data-share-copy]');
+    if (copy) {
+      const done = await PJS.copyText(copy.getAttribute('data-share-copy'));
+      PJS.toast(done ? 'Link copy ho gaya — ab WhatsApp par paste karein.' : 'Copy nahi ho paaya, link select karke copy karein.', done ? 'success' : 'error');
+      return;
+    }
+    const native = event.target.closest && event.target.closest('[data-share-native]');
+    if (native && navigator.share) {
+      try {
+        await navigator.share({
+          title: (PJS.site && PJS.site.site_name) || 'PANIKA JEEVAN SATHI',
+          text: native.getAttribute('data-share-native-text') || PJS.shareText(),
+          url: native.getAttribute('data-share-native')
+        });
+      } catch (err) {
+        /* the member closed the share sheet — nothing to report */
+      }
+    }
+  });
 
   /* ----------------------------------------------------------------- boot */
 
@@ -460,6 +609,7 @@
 
   async function boot() {
     document.documentElement.style.scrollBehavior = 'smooth';
+    captureInvite();
     const [siteRes, meRes] = await Promise.all([PJS.get('/api/site'), PJS.get('/api/me')]);
     if (siteRes && siteRes.ok) {
       PJS.site = siteRes.site;
@@ -470,6 +620,7 @@
       PJS.me.profile = meRes.profile;
       PJS.completeness = meRes.completeness;
       PJS.counts = meRes.counts || PJS.counts;
+      PJS.invite = meRes.invite || null;
     } else {
       PJS.me = null;
     }

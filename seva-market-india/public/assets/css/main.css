@@ -1249,6 +1249,25 @@ code {
 .site-footer ul { display: grid; gap: var(--space-2); }
 .site-footer a { color: #dfe7f1; font-size: var(--text-sm); display: inline-block; min-height: 28px; }
 .site-footer a:hover { color: var(--yellow); text-decoration: none; }
+/* Share row: WhatsApp-first word-of-mouth growth (see views/ui.js shareMarkup). */
+.share { display: block; }
+.share__heading { font-weight: 800; font-size: var(--text-sm); margin: 0 0 var(--space-1); color: inherit; }
+.share__note { font-size: var(--text-xs); margin: 0 0 var(--space-2); color: inherit; opacity: 0.82; }
+.share__row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.share__row .btn { white-space: normal; }
+
+.site-footer__share {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-block: var(--space-4);
+  color: #b7c2d1;
+}
+.site-footer__share .share__heading { color: #fff; }
+.site-footer__share .btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
 .site-footer__base {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
