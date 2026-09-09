@@ -47,6 +47,18 @@ test('searching by free text matches title, description and business name', () =
   db.close();
 });
 
+test('searching by free text also matches the category name', () => {
+  const { db } = makeDb();
+  // The homepage placeholder invites exactly these words: "Plumber,
+  // electrician, tutor..." — they must find that category's services.
+  assert.ok(services.searchServices(db, { query: 'plumber' }).total >= 1, 'category word "plumber" finds plumber services');
+  assert.ok(services.searchServices(db, { query: 'Plumber' }).total >= 1, 'category match is case-insensitive');
+  for (const item of services.searchServices(db, { query: 'plumber' }).items) {
+    assert.equal(item.category_slug, 'plumber', 'matched service belongs to the searched category');
+  }
+  db.close();
+});
+
 test('service and PIN filters combine with AND, not OR', () => {
   const { db } = makeDb();
   const plumber = categories.findBySlug(db, 'plumber');
@@ -113,12 +125,24 @@ test('an invalid PIN is flagged but does not throw during resolution', () => {
   db.close();
 });
 
-test('an unknown category or place degrades to an unfiltered search', () => {
+test('an unknown place yields an honest empty page, not every listing in India', () => {
   const { db } = makeDb();
-  const filters = resolveSearchFilters(db, new URLSearchParams('category=astrologer&place=Atlantis'));
-  assert.equal(filters.category, null);
+  const filters = resolveSearchFilters(db, new URLSearchParams('place=Atlantis'));
   assert.equal(filters.location, null);
   assert.equal(filters.locationId, null);
+  assert.deepEqual(filters.locationIds, [], 'unresolved place must not silently widen the search');
+  const result = services.searchServices(db, filters);
+  assert.equal(result.total, 0, 'an unknown place must not show services from other cities');
+  // The heading still names the place the customer typed.
+  assert.match(describeFilters(filters), /Atlantis/);
+  db.close();
+});
+
+test('an unknown category slug degrades to an unfiltered category', () => {
+  const { db } = makeDb();
+  const filters = resolveSearchFilters(db, new URLSearchParams('category=astrologer'));
+  assert.equal(filters.category, null);
+  assert.equal(filters.categoryIds, null);
   const result = services.searchServices(db, filters);
   assert.ok(result.total > 0, 'an unknown filter must not return a hard failure');
   db.close();

@@ -38,11 +38,18 @@ function resolveSearchFilters(db, params, options = {}) {
   // A service hangs off its locality row. When the filter names a state,
   // district or city, expand to every descendant so the whole area matches.
   const locationId = location ? location.id : null;
-  const locationIds = locationId
-    ? (location.kind === 'locality' || location.kind === 'pincode'
+  let locationIds = null;
+  if (locationId) {
+    locationIds = location.kind === 'locality' || location.kind === 'pincode'
       ? [locationId]
-      : locationModel.descendantIds(db, locationId))
-    : null;
+      : locationModel.descendantIds(db, locationId);
+  } else if (place || stateSlug) {
+    // A place (or state) was typed but no location matched. Returning every
+    // listing in India under a *local* search would send customers to
+    // providers thousands of km away — an honest empty page is the useful
+    // answer, and the empty state already invites providers to list there.
+    locationIds = [];
+  }
 
   const rawPin = cleanText(params.get('pin'), 6);
   const pin = rawPin && isValidPin(rawPin) ? rawPin : null;
@@ -74,6 +81,7 @@ function describeFilters(filters) {
   const parts = [];
   if (filters.category) parts.push(filters.category.name);
   if (filters.location) parts.push(`in ${filters.location.name}`);
+  else if (filters.place) parts.push(`in ${filters.place}`);
   if (filters.pin) parts.push(`near ${filters.pin}`);
   if (!parts.length && filters.query) parts.push(`"${filters.query}"`);
   if (!parts.length) return 'All services across India';
