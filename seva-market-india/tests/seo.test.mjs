@@ -63,3 +63,80 @@ test('canonical links are absolute and only curated search landing pages are ind
   assert.match(login.body, new RegExp(`<link rel="canonical" href="${ORIGIN}/login">`));
   assert.match(login.body, /<meta name="robots" content="noindex,nofollow">/);
 });
+
+test('the sitemap uses lastmod for listings and omits tags Google ignores', async () => {
+  const res = await request(app, { url: '/sitemap.xml' });
+  assert.doesNotMatch(res.body, /<changefreq>/, 'Google ignores changefreq; do not send it');
+  assert.doesNotMatch(res.body, /<priority>/, 'Google ignores priority; do not send it');
+  const lastmods = [...res.body.matchAll(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g)];
+  assert.ok(lastmods.length >= 10, 'listing URLs should carry a lastmod date');
+  const serviceEntry = res.body.match(/<url>\s*<loc>[^<]*\/services\/bathroom-tap-shower-repair-1<\/loc>\s*<lastmod>[^<]+<\/lastmod>/s);
+  assert.ok(serviceEntry, 'a service URL must appear together with its lastmod');
+});
+
+test('the homepage carries WebSite + Organization JSON-LD with a SearchAction', async () => {
+  const res = await request(app, { url: '/' });
+  const blocks = [...res.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const website = blocks.find((node) => node['@type'] === 'WebSite');
+  assert.ok(website, 'WebSite JSON-LD must be present');
+  assert.equal(website.url, `${ORIGIN}/`);
+  assert.equal(website.potentialAction['@type'], 'SearchAction');
+  assert.match(website.potentialAction.target.urlTemplate, /\/search\?q=\{search_term_string\}$/);
+  const organization = blocks.find((node) => node['@type'] === 'Organization');
+  assert.ok(organization, 'Organization JSON-LD must be present');
+  // Open Graph completeness for social sharing.
+  assert.match(res.body, new RegExp(`<meta property="og:url" content="${ORIGIN}/">`));
+  assert.match(res.body, /<meta property="og:site_name" content="SEVA MARKET INDIA">/);
+  assert.match(res.body, /<meta property="og:locale" content="en_IN">/);
+  assert.match(res.body, /<meta name="twitter:card" content="summary">/);
+});
+
+/** The visible rating the page renders, e.g. "4.7 ★ (12)" → 4.7. */
+function providerRating(body) {
+  const shown = body.match(/class="rating"[^>]*>([\d.]+) ★ \((\d+)\)</);
+  assert.ok(shown, 'the page must visibly show the rating being marked up');
+  return shown[1];
+}
+
+test('provider pages carry LocalBusiness JSON-LD with the details the page shows', async () => {
+  const res = await request(app, { url: '/providers/borah-plumbing-works' });
+  const blocks = [...res.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const business = blocks.find((node) => node['@type'] === 'LocalBusiness');
+  assert.ok(business, 'LocalBusiness JSON-LD must be present');
+  assert.equal(business.name, 'Borah Plumbing Works');
+  assert.equal(business.telephone, '+919000000001');
+  assert.equal(business.address['@type'], 'PostalAddress');
+  assert.equal(business.address.addressCountry, 'IN');
+  assert.equal(business.url, `${ORIGIN}/providers/borah-plumbing-works`);
+  const crumbs = blocks.find((node) => node['@type'] === 'BreadcrumbList');
+  assert.ok(crumbs, 'BreadcrumbList JSON-LD must be present');
+  assert.equal(crumbs.itemListElement[0].name, 'Home');
+  // Ratings are marked up only when the page shows one, and must match it
+  // (Google: structured data is a true representation of page content).
+  assert.ok(business.aggregateRating, 'seeded provider shows a rating, so it must be marked up');
+  assert.equal(business.aggregateRating['@type'], 'AggregateRating');
+  assert.equal(Number(business.aggregateRating.ratingValue), Number(providerRating(res.body)));
+  assert.ok(Number(business.aggregateRating.reviewCount) >= 1);
+});
+
+test('service pages carry Service and BreadcrumbList JSON-LD', async () => {
+  const res = await request(app, { url: '/services/bathroom-tap-shower-repair-1' });
+  const blocks = [...res.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const service = blocks.find((node) => node['@type'] === 'Service');
+  assert.ok(service, 'Service JSON-LD must be present');
+  assert.equal(service.name, 'Bathroom tap & shower repair');
+  assert.equal(service.serviceType, 'Plumber');
+  assert.equal(service.provider.name, 'Borah Plumbing Works');
+  assert.equal(service.offers.priceCurrency, 'INR');
+  const crumbs = blocks.find((node) => node['@type'] === 'BreadcrumbList');
+  assert.ok(crumbs, 'BreadcrumbList JSON-LD must be present');
+  assert.equal(crumbs.itemListElement.length, 3);
+});
+
+test('a configured Search Console token renders; no token, no tag', async () => {
+  const verifiedApp = makeApp({ siteUrl: ORIGIN, googleSiteVerification: 'abc123-token' });
+  const withToken = await request(verifiedApp, { url: '/' });
+  assert.match(withToken.body, /<meta name="google-site-verification" content="abc123-token">/);
+  const withoutToken = await request(app, { url: '/' });
+  assert.doesNotMatch(withoutToken.body, /google-site-verification/);
+});

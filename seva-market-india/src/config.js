@@ -47,6 +47,12 @@ const config = {
     currency: 'INR',
   },
 
+  // Google Search Console ownership token (the content value of the
+  // <meta name="google-site-verification"> tag). Set GOOGLE_SITE_VERIFICATION
+  // in the host's environment; when empty the tag is not rendered at all —
+  // a placeholder token would fail verification and leak nothing useful.
+  googleSiteVerification: (process.env.GOOGLE_SITE_VERIFICATION || '').trim(),
+
   http: {
     host: process.env.HOST || '0.0.0.0',
     port: intFromEnv('PORT', 3000),

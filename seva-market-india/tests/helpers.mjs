@@ -56,13 +56,15 @@ export function memoryMailer({ delivered = true, mode = 'memory', failWith = nul
 }
 
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = memoryMailer() } = {}) {
+export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = memoryMailer(), googleSiteVerification = '' } = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
   // Tests can give crawl documents a real canonical origin without mutating
   // the process-wide configuration object imported by other test files.
-  const appConfig = siteUrl === config.site.url ? config : { ...config, site: { ...config.site, url: siteUrl } };
+  const appConfig = siteUrl === config.site.url && !googleSiteVerification
+    ? config
+    : { ...config, site: { ...config.site, url: siteUrl }, googleSiteVerification };
   const app = createApp({ config: appConfig, db, mailer });
   return { ...app, config: appConfig };
 }

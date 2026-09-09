@@ -111,6 +111,7 @@ three are the whole manual job; everything else comes from the blueprint:
 | `SUPABASE_URL` | `https://<your-ref>.supabase.co` | Supabase → **Project Settings → API → Project URL** — no trailing `/` |
 | `SUPABASE_SERVICE_ROLE_KEY` | the long `eyJhbGciOi…` token | same page → **API Keys → `service_role` → Reveal**. **Never the `anon` key** |
 | `SITE_URL` | `https://seva-market-india-tast.onrender.com` | the URL Render shows at the top of the service page — **with the `-tast` suffix**, no trailing `/` |
+| `GOOGLE_SITE_VERIFICATION` | *(optional)* Search Console token | Google Search Console → Add property → HTML tag method → the token from `content="…"`. Renders the `<meta name="google-site-verification">` tag so ownership can be verified. See GOOGLE-INDEXING.md |
 
 The "Secret" toggle is optional for each. **Save Changes** redeploys
 automatically on Render.

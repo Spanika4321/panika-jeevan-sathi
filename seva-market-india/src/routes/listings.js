@@ -12,7 +12,7 @@
  * phone call. Server-rendered (indexable, fast on 2G), plain-HTML POSTs.
  */
 
-const { layout, esc } = require('../views/layout');
+const { layout, esc, canonicalUrl } = require('../views/layout');
 const {
   priceLabel, ratingMarkup, verifiedMarkup, tintIndex, field,
   textareaField, alertMarkup, serviceCardMarkup,
@@ -23,14 +23,107 @@ const { HttpError } = require('../http/respond');
 const { assertSameOrigin } = require('../http/security');
 
 function register(router, { db, store, config }) {
-  const render = (ctx, { title, description = '', body }) => layout({
+  const render = (ctx, { title, description = '', body, jsonLd = [] }) => layout({
     title,
     description,
     body,
     currentPath: ctx.pathname,
     user: ctx.auth,
     site: config.site,
+    jsonLd,
+    googleSiteVerification: config.googleSiteVerification,
   });
+
+  /* ------------------------------------------- structured data (JSON-LD) */
+
+  /** Breadcrumb trail matching the visible .crumbs nav (Home / Category / …). */
+  function breadcrumbJsonLd(items) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    };
+  }
+
+  /**
+   * LocalBusiness for a provider page. Google's LocalBusiness rules: mark up
+   * only what the page itself shows, name + address are required, telephone
+   * in international format. Providers are service-area businesses, so the
+   * address is the locality they registered plus areaServed PINs — exactly
+   * the "Areas we serve" list rendered on the page.
+   */
+  function localBusinessJsonLd(provider, areas) {
+    const origin = canonicalUrl(config.site, '/');
+    const locality = String(provider.location_label || '').split(',')[0].trim();
+    const node = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: provider.business_name,
+      url: `${origin}providers/${provider.slug}`,
+      telephone: `+91${provider.phone}`,
+      image: provider.photo_urls?.length ? `${origin.replace(/\/$/, '')}${provider.photo_urls[0]}` : undefined,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: locality || undefined,
+        addressRegion: provider.location_label?.split(',').slice(-2)[0]?.trim() || undefined,
+        postalCode: provider.pin_code || undefined,
+        addressCountry: 'IN',
+      },
+      areaServed: areas.length
+        ? areas.map((pin) => ({ '@type': 'Place', name: `PIN ${pin}` }))
+        : undefined,
+    };
+    // A rating is only marked up when the page actually shows one — Google
+    // rejects invisible rating markup.
+    if (Number(provider.rating_count) > 0) {
+      node.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: Number(provider.rating_avg).toFixed(1),
+        reviewCount: Number(provider.rating_count),
+      };
+    }
+    return node;
+  }
+
+  /** Service node for a service detail page; provider referenced by URL. */
+  function serviceJsonLd(service, provider) {
+    const origin = canonicalUrl(config.site, '/');
+    const locality = String(service.location_label || '').split(',')[0].trim();
+    const offers = {
+      '@type': 'Offer',
+      priceCurrency: 'INR',
+      url: `${origin}services/${service.slug}`,
+    };
+    if (service.price_min !== null && service.price_min !== undefined) {
+      offers.priceSpecification = {
+        '@type': 'PriceSpecification',
+        price: String(service.price_min),
+        priceCurrency: 'INR',
+      };
+      if (service.price_max !== null && service.price_max !== undefined && service.price_max !== service.price_min) {
+        offers.priceSpecification.maxPrice = String(service.price_max);
+      }
+    }
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: service.title,
+      description: service.description || `${service.title} by ${service.business_name}`,
+      serviceType: service.category_name,
+      provider: {
+        '@type': 'LocalBusiness',
+        name: service.business_name,
+        url: `${origin}providers/${service.provider_slug}`,
+      },
+      areaServed: locality ? { '@type': 'Place', name: locality } : undefined,
+      offers,
+    };
+  }
 
   /* ------------------------------------------------ enquiry form ---- */
 
@@ -257,13 +350,21 @@ function register(router, { db, store, config }) {
     if (!provider || provider.status !== 'active') {
       throw HttpError.notFound('Provider not found.');
     }
-    const places = (service.location_label || '').split(',').slice(0, 3).join(',');
+    const places = (service.location_label || '').split(',').slice(0, 3).join(', ');
     const body = servicePageBody(ctx, service, provider, { sent: ctx.query.get('sent') === '1' });
     return {
       html: render(ctx, {
         title: `${service.title} — ${service.business_name}`,
-        description: `${service.title} in ${places} for ${priceLabel(service)}. Contact ${service.business_name} directly.`,
+        description: `${service.title} in ${places} for ${priceLabel(service)}. Contact ${service.business_name} directly — free, no middleman.`,
         body,
+        jsonLd: [
+          serviceJsonLd(service, provider),
+          breadcrumbJsonLd([
+            { name: 'Home', url: canonicalUrl(config.site, '/') },
+            { name: service.category_name, url: `${canonicalUrl(config.site, '/')}search?category=${service.category_slug}` },
+            { name: service.title, url: canonicalUrl(config.site, `/services/${service.slug}`) },
+          ]),
+        ],
       }),
     };
   });
@@ -277,7 +378,7 @@ function register(router, { db, store, config }) {
     }
     const services = serviceModel.byProvider(db, provider.id);
     const areas = providerModel.serviceAreas(db, provider.id);
-    const places = (provider.location_label || '').split(',').slice(0, 3).join(',');
+    const places = (provider.location_label || '').split(',').slice(0, 3).join(', ');
 
     const body = `
     <section class="section section--top">
@@ -349,8 +450,16 @@ function register(router, { db, store, config }) {
     return {
       html: render(ctx, {
         title: `${provider.business_name} — ${provider.category_name}`,
-        description: `${provider.business_name}: ${provider.category_name} in ${places}${areas.length ? `, serving PINs ${areas.slice(0, 3).join(', ')}` : ''}. Contact directly.`,
+        description: `${provider.business_name}: ${provider.category_name} in ${places}${areas.length ? `, serving PINs ${areas.slice(0, 3).join(', ')}` : ''}. Contact directly — free, no commission.`,
         body,
+        jsonLd: [
+          localBusinessJsonLd(provider, areas),
+          breadcrumbJsonLd([
+            { name: 'Home', url: canonicalUrl(config.site, '/') },
+            { name: provider.category_name, url: `${canonicalUrl(config.site, '/')}search?category=${provider.category_slug}` },
+            { name: provider.business_name, url: canonicalUrl(config.site, `/providers/${provider.slug}`) },
+          ]),
+        ],
       }),
     };
   });

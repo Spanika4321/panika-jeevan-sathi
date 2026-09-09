@@ -19,8 +19,10 @@ const serviceModel = require('../models/service');
 const { resolveSearchFilters, describeFilters } = require('./search-context');
 const { HttpError } = require('../http/respond');
 
+const { canonicalUrl } = require('../views/layout');
+
 function register(router, { db, config }) {
-  const render = (ctx, { title, description = '', body, currentPath = null, robots = 'index,follow' }) => layout({
+  const render = (ctx, { title, description = '', body, currentPath = null, robots = 'index,follow', jsonLd = [] }) => layout({
     title,
     description,
     body,
@@ -28,6 +30,8 @@ function register(router, { db, config }) {
     robots,
     user: ctx.auth,
     site: config.site,
+    jsonLd,
+    googleSiteVerification: config.googleSiteVerification,
   });
 
   /* ------------------------------------------------------------- home */
@@ -48,12 +52,43 @@ function register(router, { db, config }) {
       featured,
       site: config.site,
     });
+    // Google's own guidance: one WebSite node (with a SearchAction for the
+    // sitelinks search box) plus an Organization node, in the JSON-LD format
+    // Google recommends. Only facts visible on the page — counts come from
+    // the same database the hero stats are rendered from.
+    const origin = canonicalUrl(config.site, '/');
+    const homeJsonLd = [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: config.site.name,
+        url: origin,
+        inLanguage: 'en-IN',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${origin}search?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: config.site.name,
+        url: origin,
+        description: config.site.tagline,
+        areaServed: { '@type': 'Country', name: 'India' },
+      },
+    ];
     return {
       html: render(ctx, {
-        title: 'Find local service providers by service, city and PIN code',
-        description: `${config.site.name} — search plumbers, electricians, tutors and more across every state, district, city, locality and PIN code in India.`,
+        title: 'Find local service providers by city & PIN code',
+        description: 'Search verified plumbers, electricians, tutors, carpenters and more across India. Filter by city, locality and PIN code and contact providers directly — free.',
         body: markup,
         currentPath: '/',
+        jsonLd: homeJsonLd,
       }),
     };
   });

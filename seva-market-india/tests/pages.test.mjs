@@ -105,8 +105,13 @@ test('the footer links to legal and marketplace pages', async () => {
 
 test('no inline script or inline event handler survives into the HTML', async () => {
   const res = await request(app, { url: '/' });
-  const inlineScripts = res.body.match(/<script(?![^>]*\ssrc=)[^>]*>/g) || [];
+  // Inert data blocks are allowed: JSON-LD (type="application/ld+json") is
+  // structured data Google parses from the raw HTML — browsers never execute
+  // it, so the strict CSP is untouched. Anything else without src= is not.
+  const inlineScripts = res.body.match(/<script(?![^>]*\ssrc=)(?![^>]*\stype="application\/ld\+json")[^>]*>/g) || [];
   assert.deepEqual(inlineScripts, [], 'CSP forbids inline <script>; use /assets/js/main.js');
+  const jsonLdBlocks = res.body.match(/<script type="application\/ld\+json">/g) || [];
+  assert.ok(jsonLdBlocks.length >= 1, 'the homepage is expected to carry JSON-LD structured data');
   for (const handler of ['onclick=', 'onsubmit=', 'onload=', 'onerror=']) {
     assert.ok(!res.body.includes(handler), `inline handler ${handler} must not be emitted`);
   }

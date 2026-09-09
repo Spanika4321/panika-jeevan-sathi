@@ -95,6 +95,10 @@ function authMarkup(claims, currentPath) {
  * @param {string} [options.robots]
  * @param {object|null} [options.user] verified session claims ({uid,nm,rl})
  * @param {{name: string, tagline: string, url?: string}} options.site
+ * @param {Array<object>} [options.jsonLd] schema.org objects (Google's
+ *   recommended structured-data format) rendered as JSON-LD script tags
+ * @param {string} [options.googleSiteVerification] Search Console ownership
+ *   token; rendered only when configured, never a placeholder
  */
 function canonicalUrl(site, currentPath) {
   const path = String(currentPath || '/');
@@ -109,9 +113,17 @@ function canonicalUrl(site, currentPath) {
   }
 }
 
-function layout({ title, description = '', body, currentPath = '/', robots = 'index,follow', user = null, site }) {
+function layout({
+  title, description = '', body, currentPath = '/', robots = 'index,follow',
+  user = null, site, jsonLd = [], googleSiteVerification = '',
+}) {
   const year = new Date().getFullYear();
   const canonical = canonicalUrl(site, currentPath);
+  // JSON-LD must be raw JSON, not HTML-escaped. Escaping "<" as \u003C keeps
+  // the JSON valid while preventing a "</script>" breakout from page data.
+  const jsonLdTags = jsonLd.length
+    ? `\n  <script type="application/ld+json">${jsonLd.map((node) => JSON.stringify(node).replace(/</g, '\\u003C')).join('</script>\n  <script type="application/ld+json">')}</script>`
+    : '';
   return `<!DOCTYPE html>
 <html lang="en-IN">
 <head>
@@ -120,13 +132,18 @@ function layout({ title, description = '', body, currentPath = '/', robots = 'in
   <title>${esc(title)} | ${esc(site.name)}</title>
   <meta name="description" content="${esc(description || site.tagline)}">
   <meta name="theme-color" content="#2874f0">
-  <meta name="robots" content="${esc(robots)}">
+  <meta name="robots" content="${esc(robots)}">${googleSiteVerification ? `
+  <meta name="google-site-verification" content="${esc(googleSiteVerification)}">` : ''}
   <link rel="canonical" href="${esc(canonical)}">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/main.css">
   <meta property="og:title" content="${esc(title)} | ${esc(site.name)}">
   <meta property="og:description" content="${esc(description || site.tagline)}">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="${esc(canonical)}">
+  <meta property="og:site_name" content="${esc(site.name)}">
+  <meta property="og:locale" content="en_IN">
+  <meta name="twitter:card" content="summary">${jsonLdTags}
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
