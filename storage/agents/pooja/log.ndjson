@@ -1,1 +1,2 @@
 {"ts":"2026-08-31T00:29:18.171Z","event":"run","status":"BLOCKED","duration_ms":36,"summary":"BLOCKED","details":{"command":"agents/pooja.mjs","workflow":"pooja.yml"}}
+{"ts":"2026-09-09T06:25:28.917Z","event":"run","status":"BLOCKED","duration_ms":0,"summary":"External Google/Gemini credentials are not configured. Local analysis remains available.","details":{"external":{"google":{"GOOGLE_SEARCH_CONSOLE_TOKEN":false},"gemini":{"GEMINI_API_KEY":false}},"tasks":7}}

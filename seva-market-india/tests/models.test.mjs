@@ -109,6 +109,22 @@ test('location search matches on the breadcrumb, not just the name', () => {
   db.close();
 });
 
+test('location search prefers exact names and broader areas', () => {
+  const { db } = makeDb();
+  // "Delhi" is a state whose name is exactly "Delhi"; Dwarka and New Delhi
+  // merely mention Delhi in their breadcrumb. The state must come first so a
+  // customer's "Delhi" search covers the whole city, not one suburb.
+  const delhi = locations.search(db, 'Delhi');
+  assert.ok(delhi.length >= 1);
+  assert.equal(delhi[0].name, 'Delhi', 'exact name match ranks first');
+  assert.equal(delhi[0].kind, 'state', 'the broader area wins among exact matches');
+
+  // "Guwahati" resolves to the city, whose descendants carry the services.
+  const guwahati = locations.search(db, 'Guwahati');
+  assert.equal(guwahati[0].kind, 'city');
+  db.close();
+});
+
 test('stats reports a count for all six levels', () => {
   const { db } = makeDb();
   const totals = locations.stats(db);
@@ -228,6 +244,13 @@ test('provider search filters by category, PIN and verification', () => {
 
   // An unknown PIN returns an empty page, not an error.
   assert.equal(providers.searchProviders(db, { pin: '111111' }).total, 0);
+
+  // A category word in the free-text query finds that trade's providers,
+  // and the total agrees with the rows (count query must join categories).
+  const byWord = providers.searchProviders(db, { query: 'plumber' });
+  assert.ok(byWord.total >= 1, 'category word "plumber" finds plumber providers');
+  assert.ok(byWord.items.every((item) => item.category_slug === 'plumber'));
+  assert.ok(byWord.items.length <= byWord.total, 'row count never exceeds the total');
   db.close();
 });
 

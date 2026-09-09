@@ -13,6 +13,16 @@ const path = require('node:path');
 const { resolveDriver, flag } = require('./store/guard');
 const { readEnvConfig } = require('./db/remote');
 const { resolveSiteUrl } = require('./site-url');
+
+/**
+ * Google Search Console ownership token (HTML-tag verification method).
+ * The token is public by design — Google reads it straight from the served
+ * HTML of every page — so a committed value is safe. Paste the content value
+ * Google shows (see seva-market-india/GOOGLE-INDEXING.md §3) into
+ * DEFAULT_GOOGLE_SITE_VERIFICATION below, or set the GOOGLE_SITE_VERIFICATION
+ * environment variable in the host to override it without a code change.
+ */
+const DEFAULT_GOOGLE_SITE_VERIFICATION = 'KUEY7AjRRY6ZhMJhPx1otFcfCkDxVrARnY1syD3rR-o';
 const { readMailConfig } = require('./mail/mailer');
 const accountTokens = require('./models/account-token');
 
@@ -46,6 +56,12 @@ const config = {
     locale: 'en-IN',
     currency: 'INR',
   },
+
+  // Google Search Console ownership token (the content value of the
+  // <meta name="google-site-verification"> tag). GOOGLE_SITE_VERIFICATION
+  // (host env) wins over the committed default; when both are empty the tag
+  // is not rendered at all — a placeholder token would fail verification.
+  googleSiteVerification: (process.env.GOOGLE_SITE_VERIFICATION || DEFAULT_GOOGLE_SITE_VERIFICATION).trim(),
 
   http: {
     host: process.env.HOST || '0.0.0.0',

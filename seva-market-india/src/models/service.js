@@ -220,13 +220,17 @@ function searchServices(db, {
 
   const text = cleanText(query, 80);
   if (text) {
+    // The homepage search box invites category words ("Plumber, electrician,
+    // tutor..."), so the category name has to match too — otherwise the most
+    // natural first search a customer makes returns nothing.
     where.push(
       `(services.title LIKE ? ESCAPE '\\'
         OR services.description LIKE ? ESCAPE '\\'
-        OR providers.business_name LIKE ? ESCAPE '\\')`,
+        OR providers.business_name LIKE ? ESCAPE '\\'
+        OR categories.name LIKE ? ESCAPE '\\')`,
     );
     const like = likePattern(text);
-    params.push(like, like, like);
+    params.push(like, like, like, like);
   }
   if (categoryIds && categoryIds.length) {
     where.push(`services.category_id IN (${categoryIds.map(() => '?').join(',')})`);
@@ -235,6 +239,10 @@ function searchServices(db, {
   if (locationIds && locationIds.length) {
     where.push(`services.location_id IN (${locationIds.map(() => '?').join(',')})`);
     params.push(...locationIds);
+  } else if (locationIds) {
+    // The place filter named a location we do not know — match nothing
+    // rather than silently showing every listing in India.
+    where.push('0 = 1');
   } else if (locationId) {
     where.push('services.location_id = ?');
     params.push(locationId);

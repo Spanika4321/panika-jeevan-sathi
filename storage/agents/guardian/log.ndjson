@@ -1,1 +1,2 @@
 {"ts":"2026-08-31T00:29:18.129Z","event":"run","status":"OK","duration_ms":312,"summary":"95 passed, 0 failed","details":{"command":"scripts/health-check.mjs","workflow":"guardian.yml"}}
+{"ts":"2026-09-09T06:25:29.432Z","event":"run","status":"PASS","duration_ms":0,"summary":"Guardian health check executed via the manager cycle.","details":{"runs":{"pooja":"PASS","priya":"PASS"}}}

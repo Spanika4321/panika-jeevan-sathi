@@ -1,8 +1,8 @@
 {
   "agent": "pooja",
   "counters": {
-    "runs": 1,
-    "status_blocked": 1
+    "runs": 2,
+    "status_blocked": 2
   },
   "history": [
     {
@@ -10,7 +10,13 @@
       "status": "BLOCKED",
       "duration_ms": 36,
       "summary": "BLOCKED"
+    },
+    {
+      "at": "2026-09-09T06:25:28.916Z",
+      "status": "BLOCKED",
+      "duration_ms": 0,
+      "summary": "External Google/Gemini credentials are not configured. Local analysis remains available."
     }
   ],
-  "updated_at": "2026-08-31T00:29:18.170Z"
+  "updated_at": "2026-09-09T06:25:28.916Z"
 }

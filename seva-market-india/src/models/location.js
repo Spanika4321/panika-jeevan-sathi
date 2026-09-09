@@ -126,17 +126,27 @@ function search(db, query, { kind = null, limit = 20 } = {}) {
   const text = cleanText(query, 80);
   if (!text) return [];
   const like = likePattern(text);
-  const params = [like];
+  const params = [like, text.toLowerCase()];
   let kindClause = '';
   if (kind) {
     kindClause = 'AND kind = ?';
     params.push(kind);
   }
   params.push(limit);
+  // Ordering that matches how a customer thinks: an exact name wins over a
+  // breadcrumb hit ("Delhi" is the state Delhi, not the first street that
+  // happens to mention Delhi), and among equals the broader area wins (state
+  // before district before city) so a city-wide search is never narrowed to
+  // one locality by accident.
   return db.all(
     `SELECT ${COLUMNS} FROM locations
      WHERE is_active = 1 AND search_text LIKE ? ESCAPE '\\' ${kindClause}
-     ORDER BY kind, name LIMIT ?`,
+     ORDER BY
+       CASE WHEN lower(name) = ? THEN 0 ELSE 1 END,
+       CASE kind WHEN 'state' THEN 1 WHEN 'district' THEN 2 WHEN 'city' THEN 3
+                 WHEN 'locality' THEN 4 WHEN 'pincode' THEN 5 ELSE 6 END,
+       name
+     LIMIT ?`,
     params,
   );
 }

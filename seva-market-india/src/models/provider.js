@@ -228,6 +228,10 @@ function searchProviders(db, {
   if (locationIds && locationIds.length) {
     where.push(`providers.location_id IN (${locationIds.map(() => '?').join(',')})`);
     params.push(...locationIds);
+  } else if (locationIds) {
+    // The place filter named a location we do not know — match nothing
+    // rather than silently showing every provider in India.
+    where.push('0 = 1');
   } else if (locationId) {
     where.push('providers.location_id = ?');
     params.push(locationId);
@@ -240,11 +244,14 @@ function searchProviders(db, {
 
   const text = cleanText(query, 80);
   if (text) {
+    // Category word ("plumber") finds that trade's providers, matching the
+    // service search semantics — /api/v1/providers?q= stays consistent with
+    // /api/v1/services?q=.
     where.push(
-      `(providers.business_name LIKE ? ESCAPE '\\' OR providers.about LIKE ? ESCAPE '\\')`,
+      `(providers.business_name LIKE ? ESCAPE '\\' OR providers.about LIKE ? ESCAPE '\\' OR categories.name LIKE ? ESCAPE '\\')`,
     );
     const like = likePattern(text);
-    params.push(like, like);
+    params.push(like, like, like);
   }
 
   const clause = where.join(' AND ');
@@ -258,7 +265,15 @@ function searchProviders(db, {
     [...params, limit, offset],
   );
   const total = Number(
-    db.scalar(`SELECT COUNT(*) FROM providers WHERE ${clause}`, params) ?? 0,
+    // Same joins as the row query: the text filter can reference
+    // categories.name, so the count must see that table too.
+    db.scalar(
+      `SELECT COUNT(*) FROM providers
+       LEFT JOIN categories ON categories.id = providers.category_id
+       LEFT JOIN locations  ON locations.id  = providers.location_id
+       WHERE ${clause}`,
+      params,
+    ) ?? 0,
   );
   return { items: rows.map(baseCard), total };
 }

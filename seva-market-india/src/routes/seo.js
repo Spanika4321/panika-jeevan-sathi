@@ -47,12 +47,16 @@ function urlFor(origin, pathname, query = null) {
   return url.href;
 }
 
-function entry(loc, { changefreq, priority } = {}) {
+/**
+ * One <url> entry. Google documents that it ignores changefreq and priority;
+ * it does use lastmod when present and accurate, so listings carry the row's
+ * own updated_at and static pages carry no date rather than a fabricated one.
+ */
+function entry(loc, { lastmod } = {}) {
   return [
     '  <url>',
     `    <loc>${escapeXml(loc)}</loc>`,
-    changefreq ? `    <changefreq>${changefreq}</changefreq>` : '',
-    priority ? `    <priority>${priority}</priority>` : '',
+    lastmod ? `    <lastmod>${escapeXml(lastmod)}</lastmod>` : '',
     '  </url>',
   ].filter(Boolean).join('\n');
 }
@@ -70,18 +74,18 @@ function sitemapUrls(db, site) {
     }
   };
 
-  add('/', { changefreq: 'weekly', priority: '1.0' });
-  add('/categories', { changefreq: 'weekly', priority: '0.9' });
-  add('/locations', { changefreq: 'monthly', priority: '0.8' });
-  add('/about', { changefreq: 'monthly', priority: '0.5' });
-  add('/contact', { changefreq: 'monthly', priority: '0.4' });
-  add('/privacy', { changefreq: 'yearly', priority: '0.2' });
-  add('/terms', { changefreq: 'yearly', priority: '0.2' });
+  add('/');
+  add('/categories');
+  add('/locations');
+  add('/about');
+  add('/contact');
+  add('/privacy');
+  add('/terms');
 
   // Category and state searches are curated, meaningful landing pages. Do not
   // include arbitrary text, PIN, page, or sort queries supplied by visitors.
   for (const category of categoryModel.findAll(db)) {
-    add('/search', { changefreq: 'weekly', priority: '0.7' }, { category: category.slug });
+    add('/search', {}, { category: category.slug });
   }
   // Generating a sitemap must remain read-only. The ordinary boot seed creates
   // this root; if an unseeded development database has none, simply omit state
@@ -89,29 +93,41 @@ function sitemapUrls(db, site) {
   const india = locationModel.findBySlug(db, 'country', 'india');
   if (india?.is_active) {
     for (const state of locationModel.findChildren(db, india.id, 'state')) {
-      add('/search', { changefreq: 'weekly', priority: '0.7' }, { state: state.slug });
+      add('/search', {}, { state: state.slug });
     }
   }
 
   // The detailed pages contain real provider/service content. Active status is
   // required twice for service pages so suspended providers are never indexed.
+  // lastmod comes from each row's own updated_at, so recrawls track edits.
   const services = db.all(
-    `SELECT services.slug FROM services
+    `SELECT services.slug, services.updated_at, services.created_at FROM services
      INNER JOIN providers ON providers.id = services.provider_id
      WHERE services.status = 'active' AND providers.status = 'active'
      ORDER BY services.id LIMIT ?`,
     [MAX_LISTING_URLS],
   );
-  for (const service of services) add(`/services/${encodeURIComponent(service.slug)}`, { changefreq: 'weekly', priority: '0.8' });
+  for (const service of services) {
+    add(`/services/${encodeURIComponent(service.slug)}`, { lastmod: isoDate(service.updated_at ?? service.created_at) });
+  }
 
   const remaining = Math.max(0, MAX_LISTING_URLS - services.length);
   const providers = remaining ? db.all(
-    `SELECT slug FROM providers WHERE status = 'active' ORDER BY id LIMIT ?`,
+    `SELECT slug, updated_at, created_at FROM providers WHERE status = 'active' ORDER BY id LIMIT ?`,
     [remaining],
   ) : [];
-  for (const provider of providers) add(`/providers/${encodeURIComponent(provider.slug)}`, { changefreq: 'weekly', priority: '0.7' });
+  for (const provider of providers) {
+    add(`/providers/${encodeURIComponent(provider.slug)}`, { lastmod: isoDate(provider.updated_at ?? provider.created_at) });
+  }
 
   return urls;
+}
+
+/** Normalise a stored timestamp (epoch ms or ISO string) to YYYY-MM-DD. */
+function isoDate(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const date = typeof value === 'number' ? new Date(value) : new Date(String(value));
+  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
 }
 
 function robotsText(site) {

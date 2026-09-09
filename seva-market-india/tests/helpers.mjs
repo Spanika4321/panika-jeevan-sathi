@@ -56,13 +56,18 @@ export function memoryMailer({ delivered = true, mode = 'memory', failWith = nul
 }
 
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = memoryMailer() } = {}) {
+export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = memoryMailer(), googleSiteVerification = null } = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
-  // Tests can give crawl documents a real canonical origin without mutating
-  // the process-wide configuration object imported by other test files.
-  const appConfig = siteUrl === config.site.url ? config : { ...config, site: { ...config.site, url: siteUrl } };
+  // Tests can give crawl documents a real canonical origin (and override or
+  // clear the Search Console token) without mutating the process-wide
+  // configuration object imported by other test files. googleSiteVerification
+  // null means "whatever config says"; '' means "no tag".
+  const overrides = {};
+  if (siteUrl !== config.site.url) overrides.site = { ...config.site, url: siteUrl };
+  if (googleSiteVerification !== null) overrides.googleSiteVerification = googleSiteVerification;
+  const appConfig = Object.keys(overrides).length ? { ...config, ...overrides } : config;
   const app = createApp({ config: appConfig, db, mailer });
   return { ...app, config: appConfig };
 }

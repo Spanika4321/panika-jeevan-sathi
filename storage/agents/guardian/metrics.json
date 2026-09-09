@@ -1,8 +1,9 @@
 {
   "agent": "guardian",
   "counters": {
-    "runs": 1,
-    "status_ok": 1
+    "runs": 2,
+    "status_ok": 1,
+    "status_pass": 1
   },
   "history": [
     {
@@ -10,7 +11,13 @@
       "status": "OK",
       "duration_ms": 312,
       "summary": "95 passed, 0 failed"
+    },
+    {
+      "at": "2026-09-09T06:25:29.431Z",
+      "status": "PASS",
+      "duration_ms": 0,
+      "summary": "Guardian health check executed via the manager cycle."
     }
   ],
-  "updated_at": "2026-08-31T00:29:18.128Z"
+  "updated_at": "2026-09-09T06:25:29.431Z"
 }
