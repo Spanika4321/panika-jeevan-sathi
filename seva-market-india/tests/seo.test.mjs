@@ -137,6 +137,11 @@ test('a configured Search Console token renders; no token, no tag', async () => 
   const verifiedApp = makeApp({ siteUrl: ORIGIN, googleSiteVerification: 'abc123-token' });
   const withToken = await request(verifiedApp, { url: '/' });
   assert.match(withToken.body, /<meta name="google-site-verification" content="abc123-token">/);
-  const withoutToken = await request(app, { url: '/' });
+  // Explicitly empty — the committed default token must still be overridable.
+  const bareApp = makeApp({ siteUrl: ORIGIN, googleSiteVerification: '' });
+  const withoutToken = await request(bareApp, { url: '/' });
   assert.doesNotMatch(withoutToken.body, /google-site-verification/);
+  // The committed default (the real Search Console token) renders as-is.
+  const live = await request(app, { url: '/' });
+  assert.match(live.body, /<meta name="google-site-verification" content="[A-Za-z0-9_-]+">/);
 });

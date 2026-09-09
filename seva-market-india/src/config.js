@@ -22,7 +22,7 @@ const { resolveSiteUrl } = require('./site-url');
  * DEFAULT_GOOGLE_SITE_VERIFICATION below, or set the GOOGLE_SITE_VERIFICATION
  * environment variable in the host to override it without a code change.
  */
-const DEFAULT_GOOGLE_SITE_VERIFICATION = '';
+const DEFAULT_GOOGLE_SITE_VERIFICATION = 'KUEY7AjRRY6ZhMJhPx1otFcfCkDxVrARnY1syD3rR-o';
 const { readMailConfig } = require('./mail/mailer');
 const accountTokens = require('./models/account-token');
 

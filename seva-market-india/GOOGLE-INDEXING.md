@@ -59,13 +59,12 @@ Ek baar site deploy hone ke baad:
 1. **https://search.google.com/search-console** kholo (wahi account jisse PJS verified hai).
 2. **Add property** → `https://seva-market-india-tast.onrender.com`
    (agar Render ne URL ka suffix badla ho to Render dashboard ka exact URL lo).
-3. Verification method: **HTML tag** choose karo. Google ek token dega jaise
-   `content="google-site-verification: AbCdEf…"`.
-4. Wo token Render me daalo:
-   - Render dashboard → seva-market-india service → **Environment**
-   - Key: `GOOGLE_SITE_VERIFICATION` — Value: Google ka **pura token** (jaisa Google ne diya)
-   - **Save & Deploy** (auto-redeploy ho jayega)
-5. Wapas Search Console me **Verify** dabao.
+3. Verification method: **HTML tag** choose karo. Google ek token dega.
+   **✅ Ye step ho gaya** — token `src/config.js` me committed hai
+   (`DEFAULT_GOOGLE_SITE_VERIFICATION`), meta tag ab har public page par
+   render hota hai. `GOOGLE_SITE_VERIFICATION` env var se override bhi ho
+   sakta hai (Render me), lekin zaroori nahi.
+4. Deploy hone ke baad Search Console me **Verify** dabao — **Verified** ✅
 6. **Sitemaps** → `sitemap.xml` submit karo (poora path aise hi milega:
    `https://seva-market-india-tast.onrender.com/sitemap.xml`).
 7. **URL Inspection** → `https://seva-market-india-tast.onrender.com/` → **Request Indexing**.
