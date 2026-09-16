@@ -11,16 +11,25 @@
  *      wrong host — and because the value was committed, every blueprint sync
  *      reverted the dashboard fix back to the file's stale value.
  *
- * SITE_URL is now `sync: false` in both blueprints (dashboard-owned, never
- * overwritten by a sync). This module is the second half of that fix: at boot
- * it compares the configured SITE_URL with the URL the host itself reports
- * (RENDER_EXTERNAL_URL on Render) and, when they disagree, prints a loud,
- * actionable warning instead of letting the site advertise a dead origin.
+ * SITE_URL is `sync: false` in both blueprints (dashboard-owned, never
+ * overwritten by a sync). A warning in the deploy log turned out not to be
+ * enough on its own: the stale pin survived for days and the live site kept
+ * advertising a sitemap, canonical links and JSON-LD for a host that does not
+ * serve it, which is exactly what makes Google drop every page.
  *
- * An explicitly configured SITE_URL always wins (it may be a real custom
- * domain the platform does not know about); the warning only asks a human to
- * confirm. When SITE_URL is unset on a host that provides its own URL, we use
- * that URL rather than serving empty absolute links.
+ * So this module now distinguishes two kinds of disagreement:
+ *
+ *   • SITE_URL is a Render free hostname (*.onrender.com) and the host reports
+ *     a *different* Render free hostname. Only one of them can be this
+ *     instance, and it is the one the host reports — a free hostname cannot be
+ *     a custom domain parked elsewhere. The host URL wins, loudly.
+ *
+ *   • SITE_URL is anything else (a real custom domain, a different origin on
+ *     purpose). The explicit pin wins, because only the operator knows about a
+ *     domain the platform has never seen; the warning asks a human to confirm.
+ *
+ * Set SEVA_TRUST_SITE_URL=1 to restore "the pin always wins" while debugging
+ * a hostname change.
  *
  * Pure function: reads only the env object it is given, so tests cover every
  * branch without a server or network.
@@ -29,6 +38,21 @@
 /** Trim a trailing slash (and whitespace) from a configured origin. */
 function normalizeOrigin(raw) {
   return String(raw || '').trim().replace(/\/+$/, '');
+}
+
+/** True for a Render-generated free hostname (never a custom domain). */
+function isRenderFreeHost(origin) {
+  try {
+    return new URL(origin).hostname.endsWith('.onrender.com');
+  } catch (_) {
+    return false;
+  }
+}
+
+/** True for `1/true/yes/on`, matching src/store/guard.js flag(). */
+function flag(env, name) {
+  const raw = String(env[name] ?? '').trim().toLowerCase();
+  return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
 }
 
 /**
@@ -42,10 +66,23 @@ function resolveSiteUrl(env = process.env) {
   const hostProvided = normalizeOrigin(env.RENDER_EXTERNAL_URL);
   const warnings = [];
 
-  // Host knows where it is reachable (Render sets this on every boot) but the
-  // operator pinned a different origin. Respect the pin — custom domains live
-  // here — but make the disagreement impossible to miss in the deploy log.
   if (configured && hostProvided && configured !== hostProvided) {
+    // Two Render free hostnames that disagree: the host knows where this
+    // instance is actually reachable, so the stale pin is simply wrong.
+    if (isRenderFreeHost(configured) && isRenderFreeHost(hostProvided) && !flag(env, 'SEVA_TRUST_SITE_URL')) {
+      warnings.push(
+        `SITE_URL is "${configured}" but this instance is served at "${hostProvided}". `
+        + `Both are Render-generated hostnames, and only one can be this service, so the `
+        + `host-provided origin is used for canonical links, robots.txt, sitemap.xml and `
+        + `JSON-LD. Set Settings -> Environment -> SITE_URL to "${hostProvided}" to silence `
+        + `this (the blueprint does not pin SITE_URL, so the dashboard value survives a `
+        + `sync). SEVA_TRUST_SITE_URL=1 keeps the pinned value instead.`,
+      );
+      return { url: hostProvided, warnings };
+    }
+
+    // A custom domain (or any deliberate pin) is respected: the platform does
+    // not know about it, the operator does.
     warnings.push(
       `SITE_URL is "${configured}" but this instance is served at `
       + `"${hostProvided}". Canonical/absolute links point at SITE_URL. If that `
@@ -70,4 +107,4 @@ function resolveSiteUrl(env = process.env) {
   return { url: configured, warnings };
 }
 
-module.exports = { resolveSiteUrl, normalizeOrigin };
+module.exports = { resolveSiteUrl, normalizeOrigin, isRenderFreeHost };

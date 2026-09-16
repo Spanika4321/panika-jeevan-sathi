@@ -45,8 +45,15 @@ function resolveStatic(pathname) {
   const target = path.normalize(path.join(PUBLIC_DIR, decoded));
   const root = path.resolve(PUBLIC_DIR);
   if (!target.startsWith(root + path.sep) && target !== root) return null;
-  if (!fs.existsSync(target) || !fs.statSync(target).isFile()) return null;
-  return target;
+  if (fs.existsSync(target) && fs.statSync(target).isFile()) return target;
+  // Browsers and crawlers ask for /favicon.ico by convention even though the
+  // page links the SVG icon; answering with a styled HTML 404 put a 404 in
+  // every access log and an error page in the tab-icon request.
+  if (pathname === '/favicon.ico') {
+    const alias = path.join(PUBLIC_DIR, 'assets', 'img', 'favicon.svg');
+    if (fs.existsSync(alias) && fs.statSync(alias).isFile()) return alias;
+  }
+  return null;
 }
 
 function serveStatic(req, res, pathname) {
@@ -170,6 +177,10 @@ function createApp({ config, db: injectedDb, store: injectedStore, mailer: injec
     }
 
     const pathname = url.pathname.replace(/\/{2,}/g, '/');
+    // One definition of "is this an API call": the 404 below and the error
+    // handler further down must agree, or a browser gets a JSON body for a
+    // page URL (and a crawler sees raw JSON where it expected HTML).
+    const isApiPath = pathname.startsWith('/api/') || wantsJsonError(req, pathname);
 
     // Static assets first: they are the cheapest response we can give.
     if (req.method === 'GET' || req.method === 'HEAD') {
@@ -182,9 +193,9 @@ function createApp({ config, db: injectedDb, store: injectedStore, mailer: injec
     const isHead = req.method === 'HEAD';
     const match = router.match(isHead ? 'GET' : req.method, pathname);
     if (!match) {
-      return pathname.startsWith('/api/')
+      return isApiPath
         ? fail(res, 404, `No API route for ${pathname}.`)
-        : notFoundPage(res);
+        : errorPage(res, 404);
     }
     if (match.methodMismatch) {
       applySecurityHeaders(res);
@@ -220,20 +231,29 @@ function createApp({ config, db: injectedDb, store: injectedStore, mailer: injec
       const result = await match.handler(ctx);
       sendResult(req, res, result);
     } catch (err) {
+      // A page URL answers with the site's own styled error page: /services/x
+      // and /providers/x throw HttpError.notFound for a stale or mistyped
+      // slug, and a human clicking such a link (or a crawler following one)
+      // must not be handed a raw JSON envelope. Anything that asked for JSON
+      // — an /api/ path or an explicit Accept header — still gets one.
+      const asJson = (status, message, details) => (isApiPath
+        ? fail(res, status, message, details)
+        : errorPage(res, status));
+
       if (err instanceof HttpError) {
-        return fail(res, err.status, err.message, err.details);
+        return asJson(err.status, err.message, err.details);
       }
       if (err && err.name === 'ValidationError') {
-        return fail(res, 400, err.message, { [err.field || 'field']: err.message });
+        return asJson(400, err.message, { [err.field || 'field']: err.message });
       }
       // Cross-origin POSTs are refused explicitly (403), never as a 500.
       if (err && err.name === 'OriginError' && err.status === 403) {
-        return fail(res, 403, err.message);
+        return asJson(403, err.message);
       }
       // Never leak internals to the client; keep the detail server-side.
       const ref = crypto.randomBytes(6).toString('hex');
       console.error(`[${ref}] ${req.method} ${pathname} failed:`, err && err.stack ? err.stack : err);
-      return fail(res, 500, `Something went wrong. Reference ${ref}.`);
+      return asJson(500, `Something went wrong. Reference ${ref}.`);
     } finally {
       const ms = Number(process.hrtime.bigint() - started) / 1e6;
       res.setHeader && !res.headersSent && res.setHeader('X-Response-Time', `${ms.toFixed(2)}ms`);
@@ -289,18 +309,62 @@ function ensureCatalog(db) {
   return { seeded: true, ...result };
 }
 
-function notFoundPage(res) {
+/**
+ * Decide whether an error should be answered with the JSON envelope instead of
+ * the styled HTML error page. `/api/*` always does; elsewhere only a client
+ * that explicitly asked for JSON and did not also accept HTML (browsers send
+ * `text/html` first in every navigation, so a browser never lands here).
+ */
+function wantsJsonError(req, pathname) {
+  if (pathname.startsWith('/api/')) return true;
+  const accept = String(req.headers?.accept || '');
+  if (!accept || accept === '*/*') return false;
+  return accept.includes('application/json') && !accept.includes('text/html');
+}
+
+/** Status-specific copy for the HTML error page (never echoes user input). */
+const ERROR_PAGES = {
+  404: {
+    title: 'Page not found',
+    heading: '404 — page not found',
+    text: 'That page does not exist, or the listing was removed.',
+  },
+  default: {
+    title: 'Something went wrong',
+    heading: 'Sorry — that request could not be completed',
+    text: 'Nothing was saved. Please try again in a moment.',
+  },
+};
+
+/**
+ * The site's own error page for a page URL: styled, self-contained, and marked
+ * `noindex` so a stale slug can never enter the index. Error messages are
+ * deliberately not echoed — a slug arrives from the visitor, and the JSON
+ * envelope already carries the detail for API clients.
+ */
+function errorPage(res, status, { text = null } = {}) {
+  const copy = ERROR_PAGES[status] || ERROR_PAGES.default;
   const body = `<!DOCTYPE html>
 <html lang="en-IN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found | SEVA MARKET INDIA</title>
+<meta name="robots" content="noindex,follow">
+<title>${copy.title} | SEVA MARKET INDIA</title>
 <link rel="stylesheet" href="/assets/css/main.css"></head>
 <body><main class="section"><div class="container container--narrow">
-<h1 class="page-head__title">404 — page not found</h1>
-<p class="prose">That page does not exist. Try the <a href="/search">service search</a> or go
+<h1 class="page-head__title">${copy.heading}</h1>
+<p class="prose">${copy.text} Try the <a href="/search">service search</a> or go
 <a href="/">home</a>.</p>
 </div></main></body></html>`;
-  return html(res, 404, body);
+  return html(res, status, body);
 }
 
-module.exports = { createApp, ensureCatalog, mailWarnings, serveStatic, resolveStatic, STATIC_TYPES };
+module.exports = {
+  createApp,
+  ensureCatalog,
+  mailWarnings,
+  serveStatic,
+  resolveStatic,
+  errorPage,
+  wantsJsonError,
+  STATIC_TYPES,
+};

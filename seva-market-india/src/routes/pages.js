@@ -17,7 +17,6 @@ const locationModel = require('../models/location');
 const providerModel = require('../models/provider');
 const serviceModel = require('../models/service');
 const { resolveSearchFilters, describeFilters } = require('./search-context');
-const { HttpError } = require('../http/respond');
 
 const { canonicalUrl } = require('../views/layout');
 
@@ -97,7 +96,33 @@ function register(router, { db, config }) {
   router.get('/search', (ctx) => {
     const filters = resolveSearchFilters(db, ctx.query);
     if (!filters.pinValid) {
-      throw HttpError.badRequest('PIN code must be 6 digits and cannot start with 0.');
+      // A visitor typed the PIN wrong. Answer with the site's own page and a
+      // readable banner (status 400 so the mistake is not cached or indexed)
+      // instead of a JSON envelope or a bare "page not found".
+      return {
+        status: 400,
+        html: render(ctx, {
+          title: 'Check the PIN code',
+          description: 'The PIN code entered is not valid.',
+          currentPath: '/search',
+          robots: 'noindex,follow',
+          body: `
+    <section class="page-head">
+      <div class="container">
+        <p class="hero__eyebrow">Search results</p>
+        <h1 class="page-head__title">That PIN code is not valid</h1>
+        <p class="page-head__lede">Indian PIN codes are six digits and never start with 0.</p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container container--narrow">
+        ${alertMarkup('PIN code must be 6 digits and cannot start with 0.', { tone: 'err' })}
+        <p class="prose">Fix the PIN code and search again, or browse
+          <a href="/categories">categories</a> and <a href="/locations">locations</a>.</p>
+      </div>
+    </section>`,
+        }),
+      };
     }
     const { items, total } = serviceModel.searchServices(db, filters);
     const heading = describeFilters(filters);

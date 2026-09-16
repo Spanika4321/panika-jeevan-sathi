@@ -52,6 +52,25 @@ test('GET /api/v1/health reports ok and proves the DB is reachable', async () =>
   assert.match(res.headers['content-type'], /application\/json/);
 });
 
+test('GET /api/v1/health/deep reports the canonical origin it is serving', async () => {
+  // A stale SITE_URL is invisible on the rendered site (every page still
+  // answers 200) while robots.txt, sitemap.xml and every canonical link
+  // advertise a host that does not serve it. Reporting the origin here makes
+  // that checkable from a browser, not only from the deploy log.
+  const origin = 'https://seva-market-india-tast.onrender.com';
+  const withOrigin = makeApp({ siteUrl: origin });
+  const res = await request(withOrigin, { url: '/api/v1/health/deep' });
+  assert.equal(res.json().data.site.url, origin);
+  assert.deepEqual(res.json().data.site.warnings, []);
+
+  // A disagreeing pin is surfaced, and still surfaced after self-correction.
+  const stale = makeApp({ siteUrl: origin, siteWarnings: ['SITE_URL is "https://seva-market-india.onrender.com" …'] });
+  const staleBody = (await request(stale, { url: '/api/v1/health/deep' })).json().data;
+  assert.equal(staleBody.site.url, origin);
+  assert.equal(staleBody.site.warnings.length, 1);
+  assert.ok(staleBody.warnings.some((line) => /SITE_URL/.test(line)), 'origin warnings join the top-level list');
+});
+
 test('GET /api/v1/health/deep lists the schema tables', async () => {
   const res = await request(app, { url: '/api/v1/health/deep' });
   const body = res.json();
@@ -284,6 +303,49 @@ test('unknown pages return an HTML 404', async () => {
   assert.match(res.body, /404/);
 });
 
+test('an unknown listing slug answers a browser with the styled HTML 404, not JSON', async () => {
+  // /services/:slug and /providers/:slug throw HttpError.notFound for a stale
+  // or mistyped slug. The visitor clicked a link, so the answer must be a
+  // page — a JSON envelope in a browser tab is a dead end, and a crawler that
+  // follows such a link would index raw JSON.
+  for (const url of ['/services/plumber', '/providers/no-such-business']) {
+    // eslint-disable-next-line no-await-in-loop
+    const res = await request(app, { url });
+    assert.equal(res.statusCode, 404, `${url}: status`);
+    assert.match(res.headers['content-type'], /text\/html/, `${url}: content type`);
+    assert.match(res.body, /404 — page not found/, `${url}: heading`);
+    assert.match(res.body, /<meta name="robots" content="noindex,follow">/, `${url}: never index an error page`);
+    assert.match(res.body, /href="\/search"/, `${url}: offers a way back`);
+    assert.ok(!res.body.includes('no-such-business'), 'the visitor-supplied slug is not echoed back');
+  }
+});
+
+test('the same listing 404 stays JSON for a client that asked for JSON', async () => {
+  const res = await request(app, { url: '/services/plumber', headers: { accept: 'application/json' } });
+  assert.equal(res.statusCode, 404);
+  assert.match(res.headers['content-type'], /application\/json/);
+  assert.equal(res.json().ok, false);
+  assert.match(res.json().error.message, /Service "plumber" not found/);
+});
+
+test('a browser Accept header never downgrades a page error to JSON', async () => {
+  const res = await request(app, {
+    url: '/providers/no-such-business',
+    headers: { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,application/json;q=0.8,*/*;q=0.7' },
+  });
+  assert.equal(res.statusCode, 404);
+  assert.match(res.headers['content-type'], /text\/html/);
+});
+
+test('wantsJsonError only treats explicit JSON-only clients as API calls', () => {
+  const { wantsJsonError } = require('../src/app');
+  assert.equal(wantsJsonError({ headers: {} }, '/api/v1/nope'), true, 'API paths always take JSON');
+  assert.equal(wantsJsonError({ headers: { accept: 'application/json' } }, '/services/x'), true);
+  assert.equal(wantsJsonError({ headers: { accept: 'text/html,application/json' } }, '/services/x'), false);
+  assert.equal(wantsJsonError({ headers: { accept: '*/*' } }, '/services/x'), false, 'curl and friends still get a page');
+  assert.equal(wantsJsonError({ headers: {} }, '/services/x'), false);
+});
+
 test('a wrong method returns 405 with an accurate Allow header', async () => {
   const res = await request(app, { method: 'DELETE', url: '/api/v1/health' });
   assert.equal(res.statusCode, 405);
@@ -336,6 +398,20 @@ test('the enhancement script is served as JavaScript', async () => {
   const res = await request(app, { url: '/assets/js/main.js' });
   assert.equal(res.statusCode, 200);
   assert.match(res.headers['content-type'], /javascript/);
+});
+
+test('/favicon.ico serves the SVG icon instead of a 404 page', async () => {
+  // Browsers and crawlers request /favicon.ico by convention even though the
+  // layout links /assets/img/favicon.svg. An HTML 404 there is an error in
+  // every access log and a broken tab icon.
+  const res = await request(app, { url: '/favicon.ico' });
+  assert.equal(res.statusCode, 200);
+  assert.match(res.headers['content-type'], /image\/svg\+xml/);
+  assert.match(res.body, /<svg/);
+
+  const head = await request(app, { method: 'HEAD', url: '/favicon.ico' });
+  assert.equal(head.statusCode, 200);
+  assert.equal(head.body, '');
 });
 
 test('path traversal outside public/ is refused', async () => {

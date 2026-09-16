@@ -145,9 +145,24 @@ Everything else (`NODE_ENV`, `SEVA_STORAGE=supabase`,
 > **Settings → Environment → Add/Edit `SITE_URL`** → paste the exact URL Render
 > shows at the top of the service page, **including any suffix, with no
 > trailing slash** (e.g. `https://seva-market-india-tast.onrender.com`).
-> A boot guard compares it with the URL the host reports and prints a loud
-> `[site] WARNING` in **Logs** if they disagree — fix the env var and the
-> warning clears on the next deploy.
+>
+> A boot guard compares that value with the URL the host reports
+> (`RENDER_EXTERNAL_URL`) and acts on the result:
+>
+> * **Both are `*.onrender.com` hostnames and they disagree** — the stale pin
+>   cannot be this instance, so the host-reported origin **wins**: canonical
+>   links, `robots.txt`, `sitemap.xml` and JSON-LD use the URL that actually
+>   serves the site. A loud `[site] WARNING` in **Logs** says it happened;
+>   correcting the env var clears it. (`SEVA_TRUST_SITE_URL=1` restores
+>   pin-wins behaviour for debugging a hostname change — leave it unset.)
+> * **The pin is a custom domain** (anything not `*.onrender.com`) — the pin
+>   wins, because only the operator knows about a domain Render has not seen,
+>   and the warning asks a human to confirm it.
+>
+> Either way the disagreement is no longer log-only:
+> `/api/v1/health/deep` reports `site.url` (the origin in use) and
+> `site.warnings`, so "is the live site advertising itself correctly?" is a
+> browser check.
 
 > Deploying without a blueprint? Create a Web Service by hand with
 > **Root Directory** `seva-market-india`, **Build** `npm install --omit=dev`,
@@ -198,8 +213,18 @@ https://<your-service>.onrender.com/api/v1/health/deep
 ```
 
 ```json
-{ "status": "ok", "catalog": { "ready": true }, "storage": { "ok": true, "latency_ms": 120 } }
+{
+  "status": "ok",
+  "catalog": { "ready": true },
+  "site": { "url": "https://seva-market-india-tast.onrender.com", "warnings": [] },
+  "storage": { "ok": true, "latency_ms": 120 }
+}
 ```
+
+`site.url` is the origin every canonical link, `robots.txt` entry and sitemap
+URL is built from — it must be the URL you are looking at. A non-empty
+`site.warnings` means `SITE_URL` disagrees with the host (see Step 4); a stale
+`*.onrender.com` pin is corrected automatically, a custom-domain pin is not.
 
 ## Step 6 — Prove it with a real round trip
 
@@ -295,9 +320,22 @@ Render's loading screen.
 
    Both must be `200`. `robots.txt` must name the same `-tast` sitemap URL,
    and `sitemap.xml` must be XML (not the site's 404 page). The sitemap
-   contains only public marketplace, provider, service, category and state
-   landing pages; account, login, API and enquiry URLs are intentionally not
-   submitted to Google.
+   contains only public marketplace, provider, service, category, state and
+   `providers/new` landing pages; account, login, API and enquiry URLs are
+   intentionally not submitted to Google.
+
+   `robots.txt` disallows exactly three things — `/api/`, `/uploads/` and
+   `/account`. Everything else stays crawlable, because a `Disallow` hides the
+   page's own `noindex` from Google: the private pages (`/login`, `/register`,
+   `/verify-email`, `/forgot-password`, `/reset-password`) are excluded by
+   their meta tag, which Google can only honour if it is allowed to read it.
+
+   If instead you see exactly `User-agent: *` / `Disallow: /`, that is **not
+   this app** — the free-plan instance was asleep and Render's loading page
+   answered. Google then treats the whole site as blocked. Re-check after the
+   service wakes, and keep it awake (external pinger every ≤10 minutes) or move
+   it off the free plan. `node scripts/crawl-watchdog.mjs` from the repository
+   root tells the two apart.
 
 2. Sign in to the Google account that owns the site, then open
    <https://search.google.com/search-console/>. Add the exact **URL-prefix**

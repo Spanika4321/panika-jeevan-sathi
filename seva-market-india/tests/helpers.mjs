@@ -56,7 +56,13 @@ export function memoryMailer({ delivered = true, mode = 'memory', failWith = nul
 }
 
 /** A full app (router + handlers) bound to a fresh in-memory database. */
-export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = memoryMailer(), googleSiteVerification = null } = {}) {
+export function makeApp({
+  withSeed = true,
+  siteUrl = config.site.url,
+  siteWarnings = config.siteWarnings,
+  mailer = memoryMailer(),
+  googleSiteVerification = null,
+} = {}) {
   const db = new Database(':memory:');
   migrate(db, config.db.migrationsDir);
   if (withSeed) seed(db);
@@ -66,6 +72,7 @@ export function makeApp({ withSeed = true, siteUrl = config.site.url, mailer = m
   // null means "whatever config says"; '' means "no tag".
   const overrides = {};
   if (siteUrl !== config.site.url) overrides.site = { ...config.site, url: siteUrl };
+  if (siteWarnings !== config.siteWarnings) overrides.siteWarnings = siteWarnings;
   if (googleSiteVerification !== null) overrides.googleSiteVerification = googleSiteVerification;
   const appConfig = Object.keys(overrides).length ? { ...config, ...overrides } : config;
   const app = createApp({ config: appConfig, db, mailer });

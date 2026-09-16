@@ -78,6 +78,13 @@ services:
         # (Settings -> Environment); sync:false keeps that value from ever being
         # overwritten, and the boot guard warns if it disagrees with the host.
         sync: false
+      - key: SEVA_TRUST_SITE_URL
+        # Leave unset. Set to '1' in the dashboard only while debugging a
+        # hostname change: it forces a stale *.onrender.com SITE_URL to win
+        # over the URL Render reports for this instance, which makes
+        # robots.txt, sitemap.xml and every canonical link point at a host
+        # that does not serve this site (src/site-url.js).
+        sync: false
       - key: SESSION_SECRET
         generateValue: true # also salts the IP hash used by the enquiry throttle
 

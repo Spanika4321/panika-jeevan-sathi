@@ -430,9 +430,14 @@ test('security pages are never indexable and never leak a token', async () => {
   const raw = mailedToken(app, 'leak@example.com', '/verify-email');
 
   const robots = await request(app, { url: '/robots.txt' });
+  // Deliberately NOT disallowed: a Disallow hides the page's own noindex from
+  // Google, which is how Search Console ends up reporting "Blocked by
+  // robots.txt" as a new exclusion reason. Crawlable + noindex is the
+  // combination Google asks for, and the token itself is never published.
   for (const path of ['/verify-email', '/forgot-password', '/reset-password']) {
-    assert.match(robots.body, new RegExp(`^Disallow: ${path}`, 'm'), `${path} must be disallowed`);
+    assert.doesNotMatch(robots.body, new RegExp(`^Disallow: ${path}`, 'm'), `${path} must stay crawlable so its noindex is readable`);
   }
+  assert.match(robots.body, /^Disallow: \/account$/m, 'the session-only dashboard stays blocked');
 
   const sitemap = await request(app, { url: '/sitemap.xml' });
   assert.doesNotMatch(sitemap.body, /verify-email|forgot-password|reset-password/);

@@ -12,17 +12,75 @@ import { makeApp, request } from './helpers.mjs';
 const ORIGIN = 'https://seva-market-india-tast.onrender.com';
 const app = makeApp({ siteUrl: ORIGIN });
 
-test('robots.txt allows public marketplace crawl, blocks private routes, and advertises the canonical sitemap', async () => {
+test('robots.txt blocks only what has no readable page, and advertises the canonical sitemap', async () => {
   const res = await request(app, { url: '/robots.txt' });
   assert.equal(res.statusCode, 200);
   assert.match(res.headers['content-type'], /^text\/plain; charset=utf-8$/);
   assert.match(res.body, /^User-agent: \*$/m);
   assert.match(res.body, /^Allow: \/$/m);
-  for (const path of ['/account', '/api/', '/login', '/register', '/providers/new']) {
-    assert.match(res.body, new RegExp(`^Disallow: ${path.replace('/', '\\/')}`, 'm'));
+
+  // Only three things are disallowed: the JSON API, uploaded files, and the
+  // session-only dashboard (which is a 302 to /login for any crawler).
+  for (const path of ['/api/', '/uploads/', '/account']) {
+    assert.match(res.body, new RegExp(`^Disallow: ${path.replace(/\//g, '\\/')}$`, 'm'), `${path} must be disallowed`);
   }
   assert.match(res.body, new RegExp(`^Sitemap: ${ORIGIN}/sitemap\\.xml$`, 'm'));
   assert.equal(res.headers['cache-control'], 'public, max-age=3600');
+  assert.match(res.body, /^# /m, 'the file says why it looks like this, for the next reader');
+});
+
+/**
+ * The regression Google Search Console reported as "New reason preventing your
+ * pages from being indexed → Blocked by robots.txt".
+ *
+ * A `Disallow` hides the page's own `noindex` from Google, so every URL that
+ * is linked from a crawlable page but blocked comes back as a *new* exclusion
+ * reason in the Pages report — and Google may index the bare URL with no
+ * snippet. So: anything that renders HTML and asks not to be indexed must be
+ * crawlable, and anything public must not be blocked at all.
+ */
+test('no page that renders HTML is blocked from reading its own robots meta tag', async () => {
+  const robots = (await request(app, { url: '/robots.txt' })).body;
+  const disallowed = [...robots.matchAll(/^Disallow:\s*(\S+)\s*$/gm)].map((match) => match[1]);
+  const blocked = (path) => disallowed.some((prefix) => path.startsWith(prefix));
+
+  // Private pages: crawlable, and carrying noindex themselves.
+  for (const path of ['/login', '/register', '/register?role=provider', '/verify-email', '/forgot-password', '/reset-password']) {
+    assert.ok(!blocked(path.split('?')[0]), `${path} must not be Disallow-ed — Google could not read its noindex`);
+    // eslint-disable-next-line no-await-in-loop
+    const res = await request(app, { url: path });
+    assert.equal(res.statusCode, 200, `${path} renders`);
+    assert.match(res.body, /<meta name="robots" content="noindex,nofollow">/, `${path} excludes itself`);
+  }
+
+  // Public pages linked from the header/homepage: must be indexable, i.e.
+  // neither Disallow-ed nor noindex.
+  for (const path of ['/', '/providers/new', '/categories', '/locations', '/about', '/contact', '/privacy', '/terms', '/search?category=plumber']) {
+    assert.ok(!blocked(path.split('?')[0]), `${path} is public — it must not be Disallow-ed`);
+    // eslint-disable-next-line no-await-in-loop
+    const res = await request(app, { url: path });
+    assert.equal(res.statusCode, 200, `${path} renders`);
+    assert.match(res.body, /<meta name="robots" content="index,follow">/, `${path} must be indexable`);
+  }
+});
+
+test('every sitemap URL is crawlable and indexable — the sitemap never fights robots.txt', async () => {
+  const robots = (await request(app, { url: '/robots.txt' })).body;
+  const disallowed = [...robots.matchAll(/^Disallow:\s*(\S+)\s*$/gm)].map((match) => match[1]);
+  const locs = [...(await request(app, { url: '/sitemap.xml' })).body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+
+  assert.ok(locs.length > 50);
+  for (const loc of locs) {
+    const path = new URL(loc).pathname + new URL(loc).search;
+    assert.ok(
+      !disallowed.some((prefix) => new URL(loc).pathname.startsWith(prefix)),
+      `sitemap advertises ${path}, which robots.txt disallows`,
+    );
+    // eslint-disable-next-line no-await-in-loop
+    const res = await request(app, { url: path });
+    assert.equal(res.statusCode, 200, `${path} must be live`);
+    assert.match(res.body, /<meta name="robots" content="index,follow">/, `${path} is in the sitemap, so it must be indexable`);
+  }
 });
 
 test('sitemap.xml serves canonical public category, state, provider and service URLs only', async () => {

@@ -63,6 +63,37 @@ jobs:
           else
             echo 'No advisory items: every reported check passed.'
           fi
+      # Crawlability is a separate failure mode from data durability, and
+      # Search Console reports it as "Blocked by robots.txt". Two causes, two
+      # owners: our own robots.txt (a regression — blocking) and Render's
+      # free-plan sleep, where the platform answers /robots.txt with
+      # `Disallow: /` (an owner decision — advisory, because a permanently red
+      # watchdog hides real regressions).
+      - name: Crawlability of both public sites (robots.txt + sitemap.xml)
+        id: crawl
+        continue-on-error: true
+        run: node scripts/crawl-watchdog.mjs 2>&1 | tee crawl-watchdog.log
+      - name: Classify the crawlability result
+        if: always() && steps.crawl.outcome != 'skipped'
+        run: |
+          if grep -q '^CRAWL-VERDICT: PASS' crawl-watchdog.log; then
+            echo "Both origins serve their own robots.txt and every public path stays crawlable."
+          elif grep -q '^CRAWL-VERDICT: APP-BLOCKED' crawl-watchdog.log; then
+            grep '^CRAWL-VERDICT: APP-BLOCKED' crawl-watchdog.log | sed 's/^/::error::/'
+            grep '^  • ' crawl-watchdog.log | sed 's/^/::error::/' || true
+            echo "crawl_failed=1" >> "$GITHUB_ENV"
+          else
+            grep '^CRAWL-VERDICT' crawl-watchdog.log | sed 's/^/::warning::/'
+            echo "::warning::A service was asleep, so Render's loading page answered /robots.txt with 'Disallow: /'. Google sees the whole site as blocked while it sleeps. Keep the origin awake (external pinger every <=10 minutes) or move it off Render's free plan."
+          fi
+      - name: Preserve the crawlability log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-watchdog-log
+          path: crawl-watchdog.log
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Attempt an owner alert if verification failed
         if: steps.verify.outcome == 'failure'
         env:
@@ -82,7 +113,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: Failed blocking checks must never be green
-        if: always() && steps.verify.outcome != 'success'
+        if: always() && (steps.verify.outcome != 'success' || env.crawl_failed == '1')
         run: |
           echo "::error::Production safety is NOT fully verified. Review the report; an alert email is not guaranteed."
           exit 1
