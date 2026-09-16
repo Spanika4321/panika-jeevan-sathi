@@ -320,9 +320,15 @@ Render's loading screen.
 
    Both must be `200`. `robots.txt` must name the same `-tast` sitemap URL,
    and `sitemap.xml` must be XML (not the site's 404 page). The sitemap
-   contains only public marketplace, provider, service, category and state
-   landing pages; account, login, API and enquiry URLs are intentionally not
-   submitted to Google.
+   contains only public marketplace, provider, service, category, state and
+   `providers/new` landing pages; account, login, API and enquiry URLs are
+   intentionally not submitted to Google.
+
+   `robots.txt` disallows exactly three things — `/api/`, `/uploads/` and
+   `/account`. Everything else stays crawlable, because a `Disallow` hides the
+   page's own `noindex` from Google: the private pages (`/login`, `/register`,
+   `/verify-email`, `/forgot-password`, `/reset-password`) are excluded by
+   their meta tag, which Google can only honour if it is allowed to read it.
 
 2. Sign in to the Google account that owns the site, then open
    <https://search.google.com/search-console/>. Add the exact **URL-prefix**

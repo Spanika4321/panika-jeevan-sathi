@@ -4,7 +4,7 @@ Google Search Central ke official rules padh kar site par apply kiye gaye hain.
 Live URL: **https://seva-market-india-tast.onrender.com**
 (Panika Jeevan Sathi pehle se indexed hai — ye document sirf Seva Market India ke liye hai.)
 
-Verify: `cd seva-market-india && npm test` → **268 tests, 263 pass, 0 fail**
+Verify: `cd seva-market-india && npm test` → **278 tests, 273 pass, 0 fail**
 (5 skip sirf real-PostgreSQL wale hain)
 
 ---
@@ -14,7 +14,7 @@ Verify: `cd seva-market-india && npm test` → **268 tests, 263 pass, 0 fail**
 | # | Google ka rule | Status | Kahan |
 |---|---|---|---|
 | 1 | robots.txt root par ho, sirf Google-supported directives (`user-agent`, `allow`, `disallow`, `sitemap`) | ✅ | `/robots.txt` — `src/routes/seo.js` |
-| 2 | Jo page `Disallow` ho, uska `noindex` padha hi nahi ja sakta | ✅ sirf accounts/auth blocked; search/listing pages crawlable | `robotsText()` |
+| 2 | Jo page `Disallow` ho, uska `noindex` padha hi nahi ja sakta | ✅ **fix** — sirf `/api/`, `/uploads/`, `/account` blocked; baaki sab crawlable | `robotsText()` |
 | 3 | Sitemap me **absolute URL** | ✅ `SITE_URL` se banta hai | `canonicalOrigin()` |
 | 4 | Google `<changefreq>` / `<priority>` **ignore** karta hai | ✅ **hata diye** — ab sirf `<loc>` + `<lastmod>` | `entry()` |
 | 5 | `<lastmod>` sach ho, banaya hua nahi | ✅ har service/provider ke **apne `updated_at`** se | `isoDate()` |
@@ -22,7 +22,7 @@ Verify: `cd seva-market-india && npm test` → **268 tests, 263 pass, 0 fail**
 | 7 | Private/parameter pages sitemap me nahi | ✅ sirf curated pages — arbitrary `q=`/`pin=` URLs nahi | `sitemapUrls()` |
 | 8 | XML values entity-escaped | ✅ | `escapeXml()` |
 | 9 | Canonical absolute, har page par | ✅ | `views/layout.js` |
-| 10 | Private pages `noindex` (robots.txt se nahi) | ✅ `/account`, `/login`, `/register` etc. par `noindex,nofollow` | routes |
+| 10 | Private pages `noindex` (robots.txt se nahi) | ✅ `/login`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password` par `noindex,nofollow` **aur** crawlable | routes + `robotsText()` |
 | 11 | Unique `<title>` + meta description har page par | ✅ dynamic (service/provider/category/state) | routes |
 | 12 | Title ~50–60 chars, **keyword pehle** | ✅ **fix** — home: "Find local service providers by city & PIN code" | `pages.js` |
 | 13 | Meta description ~150–160 chars, unique, action word ke saath | ✅ har page par | routes |
@@ -102,3 +102,51 @@ Ek baar site deploy hone ke baad:
   landing pages + listing pages hain, aur free-text search results `noindex,follow`
   hain (canonical `/search` par). Yahi Google ka guidance hai.
 - **Fake `lastmod` nahi likha.** Sirf wahi date jo database me hai.
+
+---
+
+## 5. Search Console: "Blocked by robots.txt" (new reason) — kya tha, kya kiya
+
+**Alert:** *"New reason preventing your pages from being indexed → Blocked by
+robots.txt. If this reason is not intentional, we recommend that you fix it…"*
+
+**Wajah.** robots.txt me `/register`, `/providers/new`, `/login`,
+`/verify-email`, `/forgot-password`, `/reset-password` par `Disallow` tha.
+Google ka rule: **jis page par `Disallow` hai, Google uska HTML padh hi nahi
+sakta — matlab uska `noindex` meta tag bhi nahi padh sakta.** Wo URLs site ke
+header aur homepage CTA se link hote hain, isliye Google unhe discover karta
+hai, crawl karne jaata hai, robots.txt me block paata hai, aur Pages report me
+"Blocked by robots.txt" ek **naya reason** ban jaata hai. Bonus nuksan:
+`/providers/new` (provider signup landing page) Google me aane hi wala band
+tha — wo public marketing page hai, private page nahi.
+
+**Fix (code me, `src/routes/seo.js`).**
+
+| Pehle | Ab |
+|---|---|
+| `Disallow: /account`, `/api/`, `/login`, `/register`, `/providers/new`, `/verify-email`, `/forgot-password`, `/reset-password` | sirf `Disallow: /api/`, `/uploads/`, `/account` |
+| private pages block → noindex Google tak pahunchta hi nahi | private pages **crawlable** + apne HTML me `noindex,nofollow` |
+| `/providers/new` sitemap me nahi | `/providers/new` sitemap me (public, indexable) |
+
+Rule simple hai: **block sirf wahan jahan padhne layak HTML hai hi nahi**
+(JSON API, uploads) **ya jahan crawler pahunch hi nahi sakta** (`/account…`
+hamesha `/login` par 302). Baaki har private page crawlable rahega aur apna
+`noindex` khud bolega — tab report me reason badal kar *"Excluded by 'noindex'
+tag"* ho jaata hai, jo intentional hai aur alert nahi deta.
+
+**Deploy ke baad aapko kya karna hai:**
+
+1. `https://seva-market-india-tast.onrender.com/robots.txt` kholo — sirf teen
+   `Disallow` lines dikhni chahiye (`/api/`, `/uploads/`, `/account`).
+2. Search Console → **Indexing → Pages** → "Blocked by robots.txt" report
+   kholo → affected URLs par **Validate Fix** dabao. Google re-crawl karta hai;
+   report saaf hone me kuch din/hafta lag sakta hai.
+3. `/register` aur `/login` ab report me *"Excluded by 'noindex' tag"* me
+   dikhenge — ye sahi hai, alert nahi aayega.
+4. `/providers/new` ke liye **URL Inspection → Request Indexing** (ab wo
+   sitemap me bhi hai).
+
+> Regression guard: `tests/seo.test.mjs` me do tests hain jo ye invariant
+> pakadte hain — (a) koi bhi HTML render karne wala page `Disallow` me nahi
+> hona chahiye jab tak wo `/account`, `/api/`, `/uploads/` na ho, aur
+> (b) sitemap ka har URL crawlable **aur** `index,follow` hona chahiye.

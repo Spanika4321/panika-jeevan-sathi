@@ -81,6 +81,10 @@ function sitemapUrls(db, site) {
   add('/contact');
   add('/privacy');
   add('/terms');
+  // The provider-acquisition landing page: public, stable, unique content, and
+  // linked from the site header on every page. It was previously Disallow-ed,
+  // which is what made Google report it as "Blocked by robots.txt".
+  add('/providers/new');
 
   // Category and state searches are curated, meaningful landing pages. Do not
   // include arbitrary text, PIN, page, or sort queries supplied by visitors.
@@ -130,22 +134,45 @@ function isoDate(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
 }
 
+/**
+ * robots.txt.
+ *
+ * The rule that shapes this file: **Disallow hides the page's own `noindex`
+ * from Google.** A URL that is blocked but still linked from a crawlable page
+ * shows up in Search Console's Pages report as "Blocked by robots.txt" — a
+ * new-reason alert for the owner — and Google may index the bare URL with no
+ * snippet, because it was never allowed to read the page that says "don't".
+ *
+ * So only two kinds of path are disallowed here:
+ *
+ *   • paths with no rendered HTML worth reading (`/api/`, uploaded files);
+ *   • session-only paths that a crawler can never reach anyway, because they
+ *     302 to /login (`/account…`).
+ *
+ * Every other private page — /login, /register, /verify-email,
+ * /forgot-password, /reset-password — stays **crawlable** and carries
+ * `noindex,nofollow` in its own HTML. That is the combination Google asks for:
+ * the exclusion is visible, so the Pages report says "Excluded by 'noindex'
+ * tag" (intentional) instead of "Blocked by robots.txt" (a warning).
+ *
+ * `/providers/new` and `/register` are additionally *public marketing pages*
+ * linked from the site header and the homepage CTA; blocking those cost
+ * provider signups found through Google, not just a report entry.
+ */
 function robotsText(site) {
   const origin = canonicalOrigin(site);
   return [
     '# SEVA MARKET INDIA — public marketplace pages may be crawled.',
+    '# Private pages are crawlable on purpose: their own noindex meta tag is',
+    '# what keeps them out of search results, and a Disallow would hide it.',
     'User-agent: *',
     'Allow: /',
-    'Disallow: /account',
+    '# JSON API — no rendered page to index.',
     'Disallow: /api/',
-    'Disallow: /login',
-    'Disallow: /register',
-    'Disallow: /providers/new',
-    // Token-carrying and credential pages: indexing one would put a
-    // single-use link (or a login form) in a search result.
-    'Disallow: /verify-email',
-    'Disallow: /forgot-password',
-    'Disallow: /reset-password',
+    '# Provider/customer uploads.',
+    'Disallow: /uploads/',
+    '# Session-only dashboard: always a 302 to /login for a crawler.',
+    'Disallow: /account',
     '',
     `Sitemap: ${urlFor(origin, '/sitemap.xml')}`,
     '',
