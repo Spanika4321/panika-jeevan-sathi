@@ -330,6 +330,13 @@ Render's loading screen.
    `/verify-email`, `/forgot-password`, `/reset-password`) are excluded by
    their meta tag, which Google can only honour if it is allowed to read it.
 
+   If instead you see exactly `User-agent: *` / `Disallow: /`, that is **not
+   this app** — the free-plan instance was asleep and Render's loading page
+   answered. Google then treats the whole site as blocked. Re-check after the
+   service wakes, and keep it awake (external pinger every ≤10 minutes) or move
+   it off the free plan. `node scripts/crawl-watchdog.mjs` from the repository
+   root tells the two apart.
+
 2. Sign in to the Google account that owns the site, then open
    <https://search.google.com/search-console/>. Add the exact **URL-prefix**
    property `https://seva-market-india-tast.onrender.com/` (or the custom

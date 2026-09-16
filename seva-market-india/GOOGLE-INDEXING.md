@@ -150,3 +150,38 @@ tag"* ho jaata hai, jo intentional hai aur alert nahi deta.
 > pakadte hain — (a) koi bhi HTML render karne wala page `Disallow` me nahi
 > hona chahiye jab tak wo `/account`, `/api/`, `/uploads/` na ho, aur
 > (b) sitemap ka har URL crawlable **aur** `index,follow` hona chahiye.
+
+### Wajah #2 (zyada badi): Render free plan ka sleep
+
+Audit me live `https://seva-market-india-tast.onrender.com/robots.txt` ne ye
+diya:
+
+```
+User-agent: *
+Disallow: /
+```
+
+Ye hamara file **nahi** hai. Render free plan ~15 minute idle ke baad service
+sula deta hai, aur tab har path (including `/robots.txt`) ka jawab Render ka
+"Application loading" interstitial deta hai — jiska apna robots.txt **poori
+site block** karta hai. Googlebot us window me aaya to use laga poori site
+`Disallow: /` hai → Search Console me "Blocked by robots.txt".
+
+Iska matlab: alert ki wajah sirf hamare `Disallow` rules nahi, **host ka sona**
+bhi hai. Ye code se fix nahi hota:
+
+| Option | Kya karein |
+|---|---|
+| External pinger (free) | UptimeRobot / cron-job.org par `https://seva-market-india-tast.onrender.com/api/v1/health` ka monitor, **har 5–10 minute** (15 min se kam zaroori) |
+| Paid instance | Render par Starter plan — service soti hi nahi |
+| GitHub Actions | `keep-alive.yml` me `scripts/crawl-watchdog.mjs` hai, lekin uska schedule har 6 ghante hai — wo 15-minute sleep ko nahi rok sakta, sirf **detect** kar sakta hai |
+
+**Watchdog:** `node scripts/crawl-watchdog.mjs` (repo root) teen cheezein
+batata hai aur do me farq karta hai:
+
+- `CRAWL-VERDICT: PASS` — dono sites apna robots.txt serve kar rahi hain, koi
+  public path block nahi.
+- `CRAWL-VERDICT: APP-BLOCKED` — hamara apna file galat hai (regression) → CI
+  fail hota hai.
+- `CRAWL-VERDICT: HOST-ASLEEP` — platform jawab de raha tha → CI me warning,
+  kyunki ye owner decision hai, code bug nahi.
