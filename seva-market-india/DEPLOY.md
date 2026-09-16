@@ -145,9 +145,24 @@ Everything else (`NODE_ENV`, `SEVA_STORAGE=supabase`,
 > **Settings → Environment → Add/Edit `SITE_URL`** → paste the exact URL Render
 > shows at the top of the service page, **including any suffix, with no
 > trailing slash** (e.g. `https://seva-market-india-tast.onrender.com`).
-> A boot guard compares it with the URL the host reports and prints a loud
-> `[site] WARNING` in **Logs** if they disagree — fix the env var and the
-> warning clears on the next deploy.
+>
+> A boot guard compares that value with the URL the host reports
+> (`RENDER_EXTERNAL_URL`) and acts on the result:
+>
+> * **Both are `*.onrender.com` hostnames and they disagree** — the stale pin
+>   cannot be this instance, so the host-reported origin **wins**: canonical
+>   links, `robots.txt`, `sitemap.xml` and JSON-LD use the URL that actually
+>   serves the site. A loud `[site] WARNING` in **Logs** says it happened;
+>   correcting the env var clears it. (`SEVA_TRUST_SITE_URL=1` restores
+>   pin-wins behaviour for debugging a hostname change — leave it unset.)
+> * **The pin is a custom domain** (anything not `*.onrender.com`) — the pin
+>   wins, because only the operator knows about a domain Render has not seen,
+>   and the warning asks a human to confirm it.
+>
+> Either way the disagreement is no longer log-only:
+> `/api/v1/health/deep` reports `site.url` (the origin in use) and
+> `site.warnings`, so "is the live site advertising itself correctly?" is a
+> browser check.
 
 > Deploying without a blueprint? Create a Web Service by hand with
 > **Root Directory** `seva-market-india`, **Build** `npm install --omit=dev`,
@@ -198,8 +213,18 @@ https://<your-service>.onrender.com/api/v1/health/deep
 ```
 
 ```json
-{ "status": "ok", "catalog": { "ready": true }, "storage": { "ok": true, "latency_ms": 120 } }
+{
+  "status": "ok",
+  "catalog": { "ready": true },
+  "site": { "url": "https://seva-market-india-tast.onrender.com", "warnings": [] },
+  "storage": { "ok": true, "latency_ms": 120 }
+}
 ```
+
+`site.url` is the origin every canonical link, `robots.txt` entry and sitemap
+URL is built from — it must be the URL you are looking at. A non-empty
+`site.warnings` means `SITE_URL` disagrees with the host (see Step 4); a stale
+`*.onrender.com` pin is corrected automatically, a custom-domain pin is not.
 
 ## Step 6 — Prove it with a real round trip
 

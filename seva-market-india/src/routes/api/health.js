@@ -23,12 +23,18 @@ function register(router, { db, store, config }) {
     const tables = tableNames(db);
     const storage = await store.health();
     const catalogReady = Number(db.scalar('SELECT COUNT(*) FROM providers') ?? 0) > 0;
+    // The canonical origin is reported next to storage: a stale SITE_URL is
+    // invisible on the rendered site (every page still returns 200) while
+    // robots.txt, sitemap.xml and every canonical link quietly advertise a
+    // host that does not serve it. This makes that checkable from a browser.
+    const originWarnings = config.siteWarnings || [];
     return {
       status: tables.length > 0 && storage.ok && catalogReady ? 'ok' : 'degraded',
       database: db.file === ':memory:' ? 'memory' : 'sqlite',
       catalog: { ready: catalogReady, source: 'seed' },
+      site: { url: config.site.url || null, warnings: originWarnings },
       storage,
-      warnings: store.warnings || [],
+      warnings: [...originWarnings, ...(store.warnings || [])],
       tables,
     };
   });

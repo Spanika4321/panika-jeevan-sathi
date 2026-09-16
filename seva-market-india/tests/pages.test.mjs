@@ -150,11 +150,13 @@ test('a search with no results renders an empty state, not an error', async () =
   assert.match(res.body, /0 services available/);
 });
 
-test('an invalid PIN on the search page is rejected with 400', async () => {
+test('an invalid PIN on the search page is rejected with a styled 400 page, not JSON', async () => {
   const res = await request(app, { url: '/search?pin=000000' });
   assert.equal(res.statusCode, 400);
-  assert.equal(res.json().ok, false);
-  assert.match(res.json().error.message, /PIN code must be 6 digits/);
+  assert.match(res.headers['content-type'], /text\/html/, 'a browser typed the PIN; it must get a page back');
+  assert.match(res.body, /PIN code must be 6 digits/);
+  assert.match(res.body, /<meta name="robots" content="noindex,follow">/);
+  assert.ok(res.body.startsWith('<!DOCTYPE html>'));
 });
 
 test('prices render as a readable range in rupees', async () => {

@@ -251,7 +251,7 @@ Envelope everywhere: `{"ok": true, "data": ...}` or `{"ok": false, "error": {...
 | Method | Route | Purpose |
 | --- | --- | --- |
 | `GET` | `/api/v1/health` | Liveness + DB probe + storage driver/durability |
-| `GET` | `/api/v1/health/deep` | Readiness, catalog state, live Supabase probe, table list |
+| `GET` | `/api/v1/health/deep` | Readiness, catalog state, live Supabase probe, table list, canonical origin (`site.url`) + origin warnings |
 | `GET` | `/api/v1/locations` | `?pin=` resolve a PIN · `?q=` search · `?parent=&kind=` drill down |
 | `GET` | `/api/v1/locations/:id` | One node with breadcrumb + children |
 | `GET` | `/api/v1/locations/stats` | Count per hierarchy level |
@@ -308,14 +308,18 @@ Pages (all server-rendered, all indexable):
 - **Errors never leak internals** — a 500 returns a short reference id and logs server-side.
 - Baseline headers on every response: `X-Content-Type-Options`, `X-Frame-Options: DENY`,
   `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`.
-- Static file serving resolves inside `public/` and refuses path traversal.
+- Static file serving resolves inside `public/` and refuses path traversal; `/favicon.ico`
+  is aliased to the SVG icon instead of answering with a 404 page.
+- **Page URLs answer with pages.** A stale `/services/:slug` or `/providers/:slug` link renders the
+  styled, `noindex` HTML 404; only `/api/*` (or a client that explicitly accepts JSON and not HTML)
+  gets the JSON envelope. An invalid PIN on `/search` is a styled 400 page, never raw JSON.
 
 ---
 
 ## Testing
 
 ```bash
-npm test             # 213 tests (4 gated on a real Postgres)
+npm test             # 276 tests (5 gated on a real Postgres)
 npm run test:unit    # schema, models, search
 npm run test:http    # HTTP layer + rendered pages
 npm run test:storage # durability: boot guard, write-through, schema lockdown
@@ -330,7 +334,7 @@ persistence tests) and drives the actual router and handlers in-process.
 | `persistence.test.mjs` | WAL on a real file, data surviving reopen, no PRAGMAs in migrations |
 | `models.test.mjs` | Location tree, categories, providers, services, scrypt auth, leads |
 | `search.test.mjs` | Every filter combination, coverage PINs, pagination, wildcard escaping |
-| `http.test.mjs` | Routes, envelope, status codes, 404/405/500, static files, security headers |
+| `http.test.mjs` | Routes, envelope, status codes, 404/405/500, HTML-vs-JSON error surface, favicon, static files, security headers |
 | `pages.test.mjs` | Header/nav, search form, data-driven content, escaping, mobile-first CSS |
 | `supabase-setup.test.mjs` | SQL-file hygiene, the verify script, row mapping, batching, PostgREST upsert, error text |
 | `storage.test.mjs` | Fail-closed boot, anon-key rejection, write-through to Postgres, throttle counts, health durability flags, schema lockdown (RLS + revokes + no DROP) |

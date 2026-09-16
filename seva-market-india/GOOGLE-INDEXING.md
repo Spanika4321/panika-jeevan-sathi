@@ -75,6 +75,16 @@ Ek baar site deploy hone ke baad:
 | Variable | Value | Kyun |
 |---|---|---|
 | `SITE_URL` | `https://seva-market-india-tast.onrender.com` (trailing `/` nahi) | canonical, sitemap, JSON-LD URLs isi se bante hain |
+
+> **SITE_URL galat host par set hai to ab site khud sudhar leti hai.** Agar
+> `SITE_URL` aur Render ka apna reported URL (`RENDER_EXTERNAL_URL`) dono
+> `*.onrender.com` hain aur aapas me match nahi karte, to canonical/sitemap/
+> robots wahi host use karte hain jo actually site serve kar raha hai — pehle
+> sirf deploy log me warning aati thi aur live sitemap din tak galat host
+> advertise karta raha. Confirm karne ka tarika:
+> `https://seva-market-india-tast.onrender.com/api/v1/health/deep` →
+> `site.url` aur `site.warnings`. Custom domain (jo `*.onrender.com` nahi)
+> hamesha jeetta hai, kyunki wo sirf aapko pata hota hai.
 | `GOOGLE_SITE_VERIFICATION` | Search Console ka token | verification meta tag |
 | `NODE_ENV` | `production` | production mode |
 | `SEVA_STORAGE` / `SUPABASE_*` | pehle se set hain | data durability (DEPLOY.md dekho) |
