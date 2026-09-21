@@ -1,0 +1,18 @@
+{
+  "name": "sp-saarthi",
+  "version": "1.0.0",
+  "description": "SP SAARTHI - Master Agent Orchestration System with Control Panel Dashboard. PART 1 Core System.",
+  "main": "src/api/server.js",
+  "scripts": {
+    "start": "node src/api/server.js",
+    "dev": "SAARTHI_PORT=3100 node --watch src/api/server.js",
+    "test": "node tests/test-runner.js",
+    "inspect": "node -e \"const {saarthi}=require('./src/master/saarthi'); saarthi.receiveCommand('Inspect TalkoraA project and tell me what is wrong.').then(r=>{console.log(JSON.stringify(r,null,2))})\""
+  },
+  "keywords": ["ai", "orchestration", "master-agent", "sp-saarthi", "control-panel"],
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SP SAARTHI - Control Panel Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-text">
+        <h1>SP SAARTHI</h1>
+        <span>Master Agent v1.0</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard">📊 Dashboard</button>
+      <button class="nav-item" data-view="tasks">📋 Tasks</button>
+      <button class="nav-item" data-view="agents">🤖 Agents</button>
+      <button class="nav-item" data-view="logs">📝 Logs</button>
+      <button class="nav-item" data-view="communication">💬 Communication</button>
+      <button class="nav-item" data-view="settings">⚙️ Settings</button>
+    </nav>
+
+    <div class="safe-mode-card" id="safeModeCard">
+      <div class="safe-mode-header">
+        <span>🔒 Safe Mode</span>
+        <span class="badge" id="safeModeBadge">ON</span>
+      </div>
+      <p>Protects against destructive actions, credential exposure, production deletion</p>
+      <button class="btn btn-sm" id="toggleSafeMode">Toggle</button>
+    </div>
+
+    <div class="system-info">
+      <div>Architecture:</div>
+      <div class="arch">
+        USER → SAARTHI → RAKSHAK → NIYOJAK → SAMANVAYAK → VIKAS
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h2 id="viewTitle">Dashboard</h2>
+        <p id="viewSubtitle">Master Agent Orchestration System</p>
+      </div>
+      <div class="topbar-right">
+        <div class="status-indicators">
+          <div class="indicator" id="indicatorSaarthi"><span class="dot green"></span> SAARTHI</div>
+          <div class="indicator" id="indicatorRakshak"><span class="dot green"></span> RAKSHAK</div>
+          <div class="indicator" id="indicatorNiyojak"><span class="dot green"></span> NIYOJAK</div>
+          <div class="indicator" id="indicatorSamanvayak"><span class="dot green"></span> SAMANVAYAK</div>
+          <div class="indicator" id="indicatorVikas"><span class="dot green"></span> VIKAS</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Dashboard View -->
+      <div class="view active" id="view-dashboard">
+        <!-- Command Input -->
+        <div class="card command-card">
+          <div class="card-header">
+            <h3>💬 Send Command to SP Saarthi</h3>
+            <span class="card-subtitle">Master Agent will orchestrate the task</span>
+          </div>
+          <div class="command-input-area">
+            <textarea id="commandInput" placeholder="Example: Inspect TalkoraA project and tell me what is wrong.&#10;Example: TalkoraA ka memory problem check karo.&#10;Example: Check security vulnerabilities in project"></textarea>
+            <div class="command-actions">
+              <button class="btn btn-primary" id="sendCommand">🚀 Execute Command</button>
+              <button class="btn btn-secondary" id="sendCommandAsync">⚡ Async Execute</button>
+              <div class="quick-commands">
+                <button class="chip" data-cmd="Inspect TalkoraA project and tell me what is wrong.">Inspect Project</button>
+                <button class="chip" data-cmd="TalkoraA ka memory problem check karo.">Memory Check</button>
+                <button class="chip" data-cmd="Check security vulnerabilities and credential exposure">Security Audit</button>
+                <button class="chip" data-cmd="Analyze bugs in server.js and suggest fixes">Bug Analysis</button>
+              </div>
+            </div>
+          </div>
+          <div id="commandResult" class="command-result hidden"></div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-info"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Tasks</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info"><div class="stat-value" id="statPending">0</div><div class="stat-label">Pending</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info"><div class="stat-value" id="statCompleted">0</div><div class="stat-label">Completed</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">❌</div>
+            <div class="stat-info"><div class="stat-value" id="statFailed">0</div><div class="stat-label">Failed</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-info"><div class="stat-value" id="statBlocked">0</div><div class="stat-label">Blocked by Rakshak</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🤖</div>
+            <div class="stat-info"><div class="stat-value" id="statAgents">5</div><div class="stat-label">Active Agents</div></div>
+          </div>
+        </div>
+
+        <!-- Recent Tasks + System Status -->
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><h3>Recent Tasks</h3><button class="btn btn-sm" id="refreshTasks">Refresh</button></div>
+            <div class="task-list" id="recentTasks"><div class="empty">No tasks yet. Send a command above.</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>System Health</h3></div>
+            <div class="health-grid" id="healthGrid">
+              <div class="health-item"><span>Safe Mode</span><span class="health-value" id="healthSafeMode">ON</span></div>
+              <div class="health-item"><span>Task Engine</span><span class="health-value green">Running</span></div>
+              <div class="health-item"><span>Communication Bus</span><span class="health-value green">Active</span></div>
+              <div class="health-item"><span>Queue Length</span><span class="health-value" id="healthQueue">0</span></div>
+              <div class="health-item"><span>Last Task</span><span class="health-value" id="healthLastTask">None</span></div>
+            </div>
+            <div class="agent-flow">
+              <h4>Agent Flow</h4>
+              <div class="flow-diagram">
+                <div class="flow-step"><div class="flow-icon">👤</div><div>USER</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step active"><div class="flow-icon">🧠</div><div>SAARTHI<br><small>Master</small></div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-icon">🛡️</div><div>RAKSHAK<br><small>Guardian</small></div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-icon">📝</div><div>NIYOJAK<br><small>Planner</small></div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-icon">👔</div><div>SAMANVAYAK<br><small>Manager</small></div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="flow-icon">👷</div><div>VIKAS<br><small>Worker</small></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks View -->
+      <div class="view" id="view-tasks">
+        <div class="card">
+          <div class="card-header">
+            <h3>All Tasks</h3>
+            <div><button class="btn btn-sm" id="clearCompleted">Clear Completed</button><button class="btn btn-sm" id="refreshAllTasks">Refresh</button></div>
+          </div>
+          <div class="filters">
+            <button class="filter-btn active" data-filter="ALL">All</button>
+            <button class="filter-btn" data-filter="PENDING">Pending</button>
+            <button class="filter-btn" data-filter="PLANNING">Planning</button>
+            <button class="filter-btn" data-filter="RUNNING">Running</button>
+            <button class="filter-btn" data-filter="COMPLETED">Completed</button>
+            <button class="filter-btn" data-filter="FAILED">Failed</button>
+          </div>
+          <div class="task-table-wrapper"><div id="allTasksList" class="task-list"></div></div>
+        </div>
+        <div class="card hidden" id="taskDetailCard">
+          <div class="card-header"><h3 id="taskDetailTitle">Task Detail</h3><button class="btn btn-sm" id="closeTaskDetail">Close</button></div>
+          <div id="taskDetailContent"></div>
+        </div>
+      </div>
+
+      <!-- Agents View -->
+      <div class="view" id="view-agents">
+        <div class="agents-grid" id="agentsGrid"></div>
+      </div>
+
+      <!-- Logs View -->
+      <div class="view" id="view-logs">
+        <div class="card">
+          <div class="card-header"><h3>System Logs</h3><div><select id="logTaskFilter"><option value="">All Logs</option></select><button class="btn btn-sm" id="refreshLogs">Refresh</button></div></div>
+          <pre class="log-viewer" id="logViewer">Loading logs...</pre>
+        </div>
+      </div>
+
+      <!-- Communication View -->
+      <div class="view" id="view-communication">
+        <div class="card">
+          <div class="card-header"><h3>Agent Communication Bus</h3><button class="btn btn-sm" id="refreshComm">Refresh</button></div>
+          <div id="commStats" class="comm-stats"></div>
+          <div id="commMessages" class="comm-messages"></div>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div class="view" id="view-settings">
+        <div class="card">
+          <div class="card-header"><h3>System Settings</h3></div>
+          <div class="settings-grid">
+            <div class="setting-item">
+              <h4>🔒 Safe Mode</h4>
+              <p>When ON: blocks destructive commands, production deletion, credential exposure, unauthorized deployment</p>
+              <div class="setting-control"><span id="settingSafeMode">ON</span><button class="btn btn-sm" id="settingToggleSafe">Toggle Safe Mode</button></div>
+            </div>
+            <div class="setting-item">
+              <h4>📋 Task Engine</h4>
+              <p>Manages task lifecycle: PENDING → PLANNING → RUNNING → VERIFYING → COMPLETED</p>
+              <div class="setting-control"><button class="btn btn-sm" id="settingClearTasks">Clear Completed Tasks</button></div>
+            </div>
+            <div class="setting-item">
+              <h4>🤖 Agents</h4>
+              <p>5 Agents: SAARTHI (Master), RAKSHAK (Guardian), NIYOJAK (Planner), SAMANVAYAK (Manager), VIKAS (Worker)</p>
+              <div class="setting-control"><span>All agents active</span></div>
+            </div>
+            <div class="setting-item">
+              <h4>ℹ️ About SP SAARTHI</h4>
+              <p><strong>Version:</strong> 1.0.0 - PART 1<br><strong>Architecture:</strong> Master Agent Orchestration<br><strong>Purpose:</strong> AI task planning, guarded execution, code inspection<br><strong>Safe Mode Default:</strong> true</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
