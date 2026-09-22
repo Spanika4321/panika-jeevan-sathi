@@ -155,7 +155,22 @@ try {
     const r = await get('/sitemap.xml');
     check('sitemap.xml → 200', r.status === 200, `got ${r.status}`);
     check('sitemap is valid XML urlset', r.text.includes('<urlset') && r.text.includes('</urlset>'));
-    for (const p of PUBLIC_PAGES) {
+    const SITEMAP_CORE = ['/', '/about.html', '/contact.html'];
+    for (const p of SITEMAP_CORE) {
+      check(`sitemap lists ${p}`, r.text.includes(`${p}</loc>`));
+    }
+    // Login, privacy and terms stay on the site, but they are utility pages.
+    // Submitting them is what made Search Console look like "6 sent, 1 indexed".
+    for (const p of ['/login.html', '/privacy.html', '/terms.html']) {
+      check(`sitemap omits utility page ${p}`, !r.text.includes(`${p}</loc>`));
+    }
+    const landing = [
+      '/communities', '/communities/panika', '/communities/kabirpanthi',
+      '/locations', '/locations/chhattisgarh', '/locations/chhattisgarh/raipur',
+      '/locations/assam', '/locations/assam/guwahati',
+      '/guides/how-to-create-a-profile', '/guides/family-gotra-and-introductions'
+    ];
+    for (const p of landing) {
       check(`sitemap lists ${p}`, r.text.includes(`${p}</loc>`));
     }
     check('sitemap does NOT list private pages', !r.text.includes('dashboard.html') && !r.text.includes('admin.html'));
@@ -166,6 +181,42 @@ try {
     check('sitemap is served as XML',
       (r.headers.get('content-type') || '').includes('xml'),
       r.headers.get('content-type') || 'no content-type');
+
+    const locs = [...r.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    check('sitemap has the new indexable inventory', locs.length >= 25, String(locs.length));
+    const titles = new Set();
+    for (const loc of locs) {
+      let path = '';
+      try { path = new URL(loc).pathname; } catch (_) { path = ''; }
+      const page = await get(path || '/');
+      check(`${path} from sitemap → 200`, page.status === 200, `got ${page.status}`);
+      const generated = path.startsWith('/communities') || path.startsWith('/locations') || path.startsWith('/guides');
+      check(
+        generated ? `${path} canonical matches sitemap` : `${path} has an absolute canonical`,
+        generated
+          ? page.text.includes(`rel="canonical" href="${loc}"`)
+          : /rel="canonical" href="https?:\/\//.test(page.text)
+      );
+      check(`${path} is indexable`, !page.text.includes('noindex'));
+      const title = (page.text.match(/<title>([^<]+)<\/title>/) || [])[1] || '';
+      check(`${path} has a unique title`, title.length > 8 && !titles.has(title), title);
+      titles.add(title);
+    }
+    const raipur = await get('/locations/chhattisgarh/raipur');
+    const raipurWords = raipur.text.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+    check('Raipur page is long enough to be indexable', raipurWords >= 280, `${raipurWords} words`);
+    check('Raipur page names the dropdown spelling', raipur.text.includes('State “Chhattisgarh”') && raipur.text.includes('City “Raipur”'));
+    const slash = await get('/locations/chhattisgarh/');
+    check('trailing slash on a place page redirects', slash.status === 301, `got ${slash.status}`);
+    const alias = await get('/community/panika');
+    check('/community/panika redirects to /communities/panika', alias.status === 301 && (alias.headers.get('location') || '').endsWith('/communities/panika'));
+    const missing = await get('/locations/not-a-real-place');
+    check('unknown place returns 404', missing.status === 404, `got ${missing.status}`);
+    const site = await get('/api/site');
+    let tree = [];
+    try { tree = JSON.parse(site.text).options.locations; } catch (_) { tree = []; }
+    const cg = Array.isArray(tree) && tree.find((state) => state.name === 'Chhattisgarh');
+    check('/api/site serves the location tree', Boolean(cg) && cg.cities.includes('Raipur') && cg.cities.includes('Bilaspur'));
   }
 
   section('5b. Canonical URLs & duplicate consolidation');

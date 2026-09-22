@@ -114,8 +114,8 @@
     {
       id: 'location', title: 'Location & contact', icon: 'pin',
       fields: [
-        { k: 'city', label: 'City', type: 'text' },
-        { k: 'state', label: 'State', type: 'text' },
+        { k: 'state', label: 'State', type: 'state' },
+        { k: 'city', label: 'City / town', type: 'city' },
         { k: 'country', label: 'Country', type: 'text', placeholder: 'India' },
         { k: 'phone', label: 'Phone / WhatsApp (optional)', type: 'tel', placeholder: '+91 …' }
       ]
@@ -166,7 +166,7 @@
         { k: 'pref_marital_status', label: 'Preferred marital status', type: 'select', options: 'marital' },
         { k: 'pref_community', label: 'Preferred community', type: 'select', options: 'communities' },
         { k: 'pref_religion', label: 'Preferred religion / panth', type: 'select', options: 'religions' },
-        { k: 'pref_location', label: 'Preferred location', type: 'text', placeholder: 'e.g. Chhattisgarh' },
+        { k: 'pref_location', label: 'Preferred state', type: 'pref-state' },
         { k: 'pref_education', label: 'Preferred education', type: 'select', options: 'education' },
         { k: 'pref_occupation', label: 'Preferred occupation', type: 'select', options: 'occupations' },
         { k: 'pref_message', label: 'Message to prospective families', type: 'textarea', span: 2, max: 500 }
@@ -199,6 +199,8 @@
       control = `<select ${common}>` + optionList(field)
         .map((o) => `<option value="${PJS.esc(o.value)}" ${String(val) === String(o.value) ? 'selected' : ''}>${PJS.esc(o.label)}</option>`)
         .join('') + '</select>';
+    } else if (field.type === 'state' || field.type === 'city' || field.type === 'pref-state') {
+      control = `<select ${common}><option value="">— Select —</option></select>`;
     } else if (field.type === 'textarea') {
       control = `<textarea ${common} maxlength="${field.max || 2000}" placeholder="${PJS.esc(field.placeholder || '')}">${PJS.esc(val)}</textarea>`;
     } else {
@@ -206,8 +208,15 @@
         ${field.min !== undefined ? `min="${field.min}"` : ''} ${field.max !== undefined ? `max="${field.max}"` : ''}
         placeholder="${PJS.esc(field.placeholder || '')}">`;
     }
+    const hint = field.type === 'state'
+      ? '<p class="hint">Community states are listed first. Choose Other if yours is missing.</p>'
+      : field.type === 'city'
+        ? '<p class="hint">Pick the town relatives will search. Other lets you type a village.</p>'
+        : field.type === 'pref-state'
+          ? '<p class="hint">Used for match suggestions. It does not change your own city.</p>'
+          : '';
     return `<div class="field" ${field.span === 2 ? 'style="grid-column:1/-1"' : ''}>
-      <label for="f_${field.k}">${PJS.esc(field.label)}</label>${control}</div>`;
+      <label for="f_${field.k}">${PJS.esc(field.label)}</label>${control}${hint}</div>`;
   }
 
   function renderSections() {

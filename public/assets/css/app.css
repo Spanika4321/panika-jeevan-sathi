@@ -466,6 +466,7 @@ table.data tr:hover td { background: var(--bg); }
 
 @media (min-width: 640px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
+  .place-grid { grid-template-columns: 1fr 1fr; }
   .form-grid { grid-template-columns: 1fr 1fr; }
   .stats { grid-template-columns: repeat(4, 1fr); }
   .footer-grid { grid-template-columns: 1.4fr 1fr 1fr; }
@@ -474,9 +475,27 @@ table.data tr:hover td { background: var(--bg); }
   .detail-grid { grid-template-columns: 1fr 1fr; }
 }
 
+.crumbs { font-size: 13px; color: var(--muted); margin: 8px 0 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+.crumbs a { color: var(--ink-2); }
+.hindi { color: var(--ink-2); font-size: 15.5px; margin-top: 6px; }
+.seo-prose p { margin: 0 0 12px; }
+.seo-prose h2 { font-size: clamp(20px, 3vw, 26px); margin-top: 0; }
+.seo-prose h3 { font-size: 18px; margin: 14px 0 6px; }
+.place-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+.place-card {
+  display: block; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px 16px 14px; text-decoration: none; color: inherit;
+  box-shadow: var(--shadow-sm);
+}
+.place-card:hover { text-decoration: none; border-color: #e7c3d0; box-shadow: var(--shadow); }
+.place-card b { display: block; font-family: var(--serif); font-size: 18px; color: var(--ink); }
+.place-card span { display: block; color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+
 @media (min-width: 900px) {
   .nav-desktop { display: flex; }
+  .nav-public { display: none; }
   .menu-btn, .bottom-nav { display: none; }
+  .menu-btn.keep-mobile { display: grid; }
   .whatsapp-float { bottom: 24px; }
   .cards { grid-template-columns: repeat(3, 1fr); }
   .hero { padding: 64px 0 40px; }
@@ -489,6 +508,11 @@ table.data tr:hover td { background: var(--bg); }
 
 @media (min-width: 1100px) {
   .cards { grid-template-columns: repeat(4, 1fr); }
+  .nav-public { display: flex; }
+  .menu-btn.keep-mobile { display: none; }
+  .site-header .bar .nav-public + .header-cta { margin-left: 10px; }
+  .place-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .footer-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
 }
 
 @media print {

@@ -21,6 +21,7 @@ const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
 const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
+const seoPages = require('./lib/seo-pages');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -267,6 +268,45 @@ const SECURITY_HEADERS = {
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
 };
 
+function allowInlineScripts(res, html) {
+  const extra = [];
+  for (const match of String(html).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    if (/\bsrc\s*=/i.test(match[1]) || !match[2].trim()) continue;
+    const hash = crypto.createHash('sha256').update(match[2].replace(/\r\n?/g, '\n')).digest('base64');
+    extra.push(`'sha256-${hash}'`);
+  }
+  if (!extra.length) return;
+  const current = String(res.getHeader('Content-Security-Policy') || '');
+  if (!current.includes('script-src')) return;
+  res.setHeader(
+    'Content-Security-Policy',
+    current.replace(/script-src ([^;]+)/, (_, src) => `script-src ${src} ${extra.join(' ')}`)
+  );
+}
+
+function sendStatusFile(res, status, filePath) {
+  fs.stat(filePath, (err, stat) => {
+    if (err || !stat.isFile()) {
+      res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(status === 404 ? 'Not found' : 'Error');
+      return;
+    }
+    res.writeHead(status, Object.assign({
+      'Content-Type': MIME['.html'],
+      'Content-Length': stat.size,
+      'Cache-Control': 'no-cache'
+    }, SECURITY_HEADERS));
+    streamFile(res, filePath);
+  });
+}
+
+function isTrackableDynamic(req) {
+  if (req.method !== 'GET') return false;
+  const ua = String(req.headers['user-agent'] || '');
+  if (ua && ANALYTICS_BOT_UA.test(ua)) return false;
+  return true;
+}
+
 function sendFile(res, filePath, { cache = false, privatePhoto = false } = {}) {
   fs.stat(filePath, (err, stat) => {
     if (err || !stat.isFile()) {
@@ -440,8 +480,11 @@ async function recordPageView(req) {
 
 /* ----------------------------------------------------------- robots/sitemap */
 
-// Pages meant for search engines (public marketing/legal pages only).
-const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html'];
+// Sitemap is a quality signal, not a dump of every public URL. Login, privacy
+// and terms stay crawlable (their own pages are fine) but they are utility
+// pages Google rarely indexes, so they are not submitted. Community, place
+// and guide pages come from the same location tree as the profile dropdown.
+const SITEMAP_STATIC = ['/', '/about.html', '/contact.html'];
 
 // Members-only or account pages — crawlers should stay out.
 const PRIVATE_PAGES = [
@@ -610,12 +653,16 @@ async function handleRequest(req, res) {
     const origin = publicOrigin(req);
     // Google explicitly ignores <changefreq> and <priority>, and only trusts
     // <lastmod> when it is verifiably accurate — so we emit just <loc> and a
-    // <lastmod> taken from the real file mtime. URLs are absolute and XML-escaped.
-    const urls = PUBLIC_PAGES.map(
-      (p) =>
+    // <lastmod> taken from the real file mtime (or the content module mtime
+    // for generated pages). URLs are absolute and XML-escaped.
+    const generatedMod = seoPages.contentLastMod();
+    const entries = SITEMAP_STATIC.map((p) => ({ path: p, lastmod: siteLastMod(p) }))
+      .concat(seoPages.indexablePaths().map((p) => ({ path: p, lastmod: generatedMod })));
+    const urls = entries.map(
+      (entry) =>
         `  <url>\n` +
-        `    <loc>${xmlEscape(origin + p)}</loc>\n` +
-        `    <lastmod>${siteLastMod(p)}</lastmod>\n` +
+        `    <loc>${xmlEscape(origin + entry.path)}</loc>\n` +
+        `    <lastmod>${entry.lastmod}</lastmod>\n` +
         `  </url>`
     ).join('\n');
     res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
@@ -643,6 +690,30 @@ async function handleRequest(req, res) {
     if (tab) url.searchParams.set('tab', tab);
     res.writeHead(301, { Location: destination + url.search });
     res.end();
+    return;
+  }
+
+  const seoHit = seoPages.lookup(url.pathname);
+  if (seoHit) {
+    if (seoHit.redirect) {
+      res.writeHead(301, Object.assign({ Location: seoHit.redirect + url.search }, SECURITY_HEADERS));
+      res.end();
+      return;
+    }
+    if (!seoHit.page) {
+      sendStatusFile(res, 404, path.join(PUBLIC_DIR, '404.html'));
+      return;
+    }
+    const html = seoPages.render(seoHit.page, publicOrigin(req));
+    allowInlineScripts(res, html);
+    const body = Buffer.from(html, 'utf8');
+    res.writeHead(200, {
+      'Content-Type': MIME['.html'],
+      'Content-Length': body.length,
+      'Cache-Control': 'no-cache'
+    });
+    if (isTrackableDynamic(req)) recordPageView(req).catch((err) => analyticsWarn(err.message));
+    res.end(req.method === 'HEAD' ? undefined : body);
     return;
   }
 

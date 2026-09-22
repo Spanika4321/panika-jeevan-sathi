@@ -68,6 +68,7 @@ test('registration, profile editing and all member pages work in the browser', a
   await page.waitForFunction(() => /saved/i.test(document.querySelector('#status')?.textContent || ''));
   await page.reload();
   await page.waitForFunction(() => document.querySelector('#f_age')?.value === '26');
+  assert.equal(await page.locator('#f_state').inputValue(), 'Chhattisgarh');
   assert.equal(await page.locator('#f_city').inputValue(), 'Bilaspur');
   const me = await (await page.request.get('/api/me')).json();
   for (const url of ['/dashboard.html', '/search.html', '/matches.html', '/interests.html', '/shortlist.html', '/messages.html', '/notifications.html', '/settings.html', `/profile.html?id=${me.user.id}`]) {
