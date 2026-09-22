@@ -9,7 +9,7 @@
     "dev": "node --watch server.js",
     "check": "node scripts/check-syntax.mjs",
     "health": "node scripts/health-check.mjs",
-    "test": "node scripts/check-syntax.mjs && node --test scripts/regression-test.mjs scripts/security-test.mjs scripts/deployment-test.mjs && node scripts/e2e-test.mjs",
+    "test": "node scripts/check-syntax.mjs && node --test scripts/seo-pages-test.mjs scripts/regression-test.mjs scripts/security-test.mjs scripts/deployment-test.mjs && node scripts/e2e-test.mjs",
     "test:json-store": "PJS_STORAGE=json node scripts/e2e-test.mjs && PJS_STORAGE=json node --test scripts/regression-test.mjs scripts/security-test.mjs",
     "test:cloud": "node scripts/e2e-cloud-test.mjs",
     "test:supabase-wipe": "node scripts/prove-supabase-wipe.mjs",

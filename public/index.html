@@ -85,12 +85,22 @@
                 <label for="qsCommunity">Community (optional)</label>
                 <select id="qsCommunity"><option value="">Any community</option></select>
               </div>
+              <div class="form-grid mt-2">
+                <div class="field mb-0">
+                  <label for="qsState">State</label>
+                  <select id="qsState"><option value="">Any state</option></select>
+                </div>
+                <div class="field mb-0">
+                  <label for="qsCity">City</label>
+                  <select id="qsCity"><option value="">Any city</option></select>
+                </div>
+              </div>
             </form>
           </div>
 
           <div class="stats mt-2">
             <div class="stat"><b id="statMembers">0</b><span>Registered profiles</span></div>
-            <div class="stat"><b id="statStories">0</b><span>Success stories</span></div>
+            <div class="stat"><b id="statStories">—</b><span id="statStoriesLabel">Success stories</span></div>
             <div class="stat"><b>100%</b><span>Free features</span></div>
             <div class="stat"><b>24×7</b><span>WhatsApp support</span></div>
           </div>
@@ -197,6 +207,40 @@
     </div>
   </section>
 
+  <!-- ===================================================== places -->
+  <section class="section" id="places">
+    <div class="container">
+      <div class="center mb-3">
+        <span class="eyebrow">Community and place</span>
+        <h2>Find a match by community and city</h2>
+        <p class="muted" style="max-width:68ch;margin:0 auto">
+          Families search by the name they use — Panika, Manikpuri, Kabirpanthi or Adivasi —
+          and by the city where the household can meet. The city names on these pages are the
+          same names in the profile dropdown. Registration stays free.
+        </p>
+      </div>
+      <div class="place-grid cols-4">
+        <a class="place-card" href="/communities/panika"><b>Panika</b><span>पनिका — also called Panka and Panikar</span></a>
+        <a class="place-card" href="/communities/manikpuri"><b>Manikpuri</b><span>माणिकपुरी — its own filter, not a spelling of Panika</span></a>
+        <a class="place-card" href="/communities/kabirpanthi"><b>Kabirpanthi</b><span>कबीरपंथी — community and panth are separate fields</span></a>
+        <a class="place-card" href="/communities/adivasi"><b>Adivasi</b><span>आदिवासी — add the specific name in sub-community</span></a>
+      </div>
+      <div class="place-grid mt-2">
+        <a class="place-card" href="/locations/chhattisgarh"><b>Chhattisgarh</b><span>Raipur, Bilaspur, Korba, Raigarh, Ambikapur, Jagdalpur</span></a>
+        <a class="place-card" href="/locations/madhya-pradesh"><b>Madhya Pradesh</b><span>Shahdol, Rewa, Jabalpur, Satna and the eastern districts</span></a>
+        <a class="place-card" href="/locations/odisha"><b>Odisha</b><span>Sambalpur, Balangir, Nuapada, Koraput — the form says Odisha</span></a>
+        <a class="place-card" href="/locations/assam"><b>Assam</b><span>Kabirpanthi families and households who have moved to Guwahati</span></a>
+        <a class="place-card" href="/locations/maharashtra"><b>Maharashtra</b><span>Nagpur and Vidarbha. Mumbai is a different filter</span></a>
+        <a class="place-card" href="/locations/uttar-pradesh"><b>Uttar Pradesh</b><span>Varanasi, Mirzapur and Sonbhadra — not a borrowed Raipur city</span></a>
+      </div>
+      <div class="center mt-3 btn-row" style="justify-content:center">
+        <a class="btn ghost" href="/locations">All places</a>
+        <a class="btn ghost" href="/guides/how-to-create-a-profile">How to write your profile</a>
+        <a class="btn ghost" href="/guides/family-gotra-and-introductions">Gotra and introductions</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================================================== notice -->
   <section class="section-sm">
     <div class="container container-narrow">
@@ -204,6 +248,7 @@
         <b>🙏 Community notice</b>
         This service is intended for the Panika, Manikpuri, Kabirpanthi and Adivasi communities.
         Members from other communities are requested not to register.
+        <a href="/communities">Read which name to select</a>.
         <span id="noticeCommunities"></span>
       </div>
     </div>
@@ -249,7 +294,10 @@
     document.getElementById('heroSubtitle').textContent = site.hero_subtitle || '';
     document.getElementById('safetyText').textContent = site.safety_text || '';
     document.getElementById('statMembers').textContent = (site.counts && site.counts.members) || 0;
-    document.getElementById('statStories').textContent = (site.counts && site.counts.stories) || 0;
+    const storyCount = (site.counts && site.counts.stories) || 0;
+    document.getElementById('statStories').textContent = storyCount > 0 ? storyCount : '—';
+    const storyLabel = document.getElementById('statStoriesLabel');
+    if (storyLabel) storyLabel.textContent = storyCount > 0 ? 'Success stories' : 'Be the first story';
     document.getElementById('waNumber').textContent = 'WhatsApp: ' + (site.whatsapp_display || '+91 80998 34725');
 
     const waHelp = document.getElementById('waHelp');
@@ -304,6 +352,15 @@
     }
 
     // quick search
+    const homeLocation = PJS.locations.mount({
+      mode: 'filter',
+      state: document.getElementById('qsState'),
+      city: document.getElementById('qsCity'),
+      includeAny: true,
+      anyLabel: 'Any',
+      otherLabel: 'Other — type it'
+    });
+
     document.getElementById('quickSearch').addEventListener('submit', function (e) {
       e.preventDefault();
       const params = new URLSearchParams();
@@ -312,6 +369,10 @@
       params.set('age_max', document.getElementById('qsAgeMax').value);
       const community = document.getElementById('qsCommunity').value;
       if (community) params.set('community', community);
+      const state = homeLocation.value(document.getElementById('qsState'));
+      const city = homeLocation.value(document.getElementById('qsCity'));
+      if (state) params.set('state', state);
+      if (city) params.set('city', city);
       const target = '/search.html?' + params.toString();
       if (PJS.me) window.location.href = target;
       else window.location.href = '/login.html?next=' + encodeURIComponent(target);

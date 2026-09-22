@@ -66,11 +66,12 @@
         <div class="form-grid">
           <div class="field">
             <label for="state">State</label>
-            <input id="state" type="text" placeholder="e.g. Chhattisgarh">
+            <select id="state"><option value="">Any</option></select>
           </div>
           <div class="field">
             <label for="city">City</label>
-            <input id="city" type="text" placeholder="e.g. Bilaspur">
+            <select id="city"><option value="">Any</option></select>
+            <p class="hint">Choose a state to see its cities. Other lets you type a town.</p>
           </div>
         </div>
 
@@ -149,11 +150,19 @@
       options.map((o) => `<option value="${PJS.esc(o.value)}">${PJS.esc(o.label)}</option>`).join('');
   }
 
+  let locationControl = null;
+
+  function fieldValue(key) {
+    const el = $(key);
+    if (locationControl && (key === 'state' || key === 'city')) return locationControl.value(el);
+    return el.value.trim();
+  }
+
   function currentParams() {
     const params = new URLSearchParams();
     FILTER_KEYS.forEach((key) => {
-      const value = $(key).value.trim();
-      if (value) params.set(key, value);
+      const value = fieldValue(key);
+      if (value && value !== '__other__') params.set(key, value);
     });
     if ($('with_photo').checked) params.set('with_photo', '1');
     params.set('sort', $('sort').value);
@@ -167,9 +176,11 @@
   function readUrlIntoForm() {
     const params = new URLSearchParams(window.location.search);
     FILTER_KEYS.forEach((key) => {
+      if (key === 'state' || key === 'city') return;
       const value = params.get(key);
       if (value) $(key).value = value;
     });
+    if (locationControl) locationControl.set(params.get('state') || '', params.get('city') || '');
     if (params.get('with_photo') === '1') $('with_photo').checked = true;
     if (params.get('sort')) $('sort').value = params.get('sort');
   }
@@ -227,7 +238,11 @@
       search(true);
     });
     $('resetBtn').addEventListener('click', function () {
-      FILTER_KEYS.forEach((key) => { $(key).value = ''; });
+      FILTER_KEYS.forEach((key) => {
+        if (key === 'state' || key === 'city') return;
+        $(key).value = '';
+      });
+      if (locationControl) locationControl.set('', '');
       $('with_photo').checked = false;
       $('sort').value = 'score';
       search(true);

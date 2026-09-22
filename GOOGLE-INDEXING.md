@@ -20,8 +20,8 @@ Verify: `node scripts/health-check.mjs` → **118 passed, 0 failed**
 | 6 | Google `<changefreq>` aur `<priority>` **ignore** karta hai | ✅ **hata diye** — sirf `<loc>` + `<lastmod>` | `server.js` |
 | 7 | `<lastmod>` tabhi use hota hai jab wo **sach me verify ho** | ✅ asli file mtime se, banaayi hui date nahi | `siteLastMod()` |
 | 8 | XML tag values **entity-escaped** hone chahiye | ✅ `xmlEscape()` | `server.js` |
-| 9 | Sitemap limit: 50MB / 50,000 URL | ✅ sirf 6 URL |
-| 10 | Sitemap mein **canonical URL hi** daalo | ✅ 6 public URL, sab canonical |
+| 9 | Sitemap limit: 50MB / 50,000 URL | ✅ index-worthy URLs only (home, about, contact, communities, places, guides) |
+| 10 | Sitemap mein **canonical URL hi** daalo | ✅ utility pages (login, privacy, terms) sitemap se hata diye — wo crawlable hain, submit nahi |
 | 11 | Canonical **absolute** ho, `<head>` ke andar ho | ✅ har public page par |
 | 12 | Duplicate URL consolidate karo | ✅ **naya** — `/index.html` → `301` → `/`, aur saare internal links bhi `/` par |
 | 13 | Private content ke liye `noindex` (robots.txt nahi) | ✅ 13 pages par `noindex,nofollow` |
@@ -67,7 +67,7 @@ aur `/api/` + `/uploads/` (member photos) dono blocked + `X-Robots-Tag: noindex`
 4. Deploy hone ke baad Search Console me **Verify** dabayein.
 5. **Sitemaps** → `sitemap.xml` type karein → **Submit** → "Success" dikhna chahiye
 6. **URL Inspection** → `https://panikajeevansathi.onrender.com/` → **Request Indexing**
-   (`/about.html`, `/contact.html`, `/login.html` ke liye bhi — roz 10 ki limit)
+   Phir `/about.html`, `/contact.html`, `/communities/panika`, `/locations/chhattisgarh`, `/locations/chhattisgarh/raipur`, `/locations/assam` (roz 10 ki limit). Login / privacy / terms par Request Indexing mat lagana — wo utility pages hain aur sitemap mein nahi hain.
 
 > ⚠️ **Render par ye env var zaroor set karein:**
 > `SITE_URL=https://panikajeevansathi.onrender.com`
@@ -80,7 +80,7 @@ aur `/api/` + `/uploads/` (member photos) dono blocked + `X-Robots-Tag: noindex`
 
 | Report | Kya theek hai |
 |---|---|
-| **Sitemaps** | Status "Success", Discovered URLs = **6** |
+| **Sitemaps** | Status "Success". Count ab home + about + contact + community/place/guide pages hai — login, privacy, terms sitemap mein nahi hone chahiye |
 | **Pages → Indexed** | Dheere-dheere 6 tak jaana chahiye |
 | **Pages → Not indexed** | "Excluded by noindex tag" me member pages dikhenge — **ye sahi hai**, ghabrayen nahi |
 | **Page indexing** | "Indexed, though blocked by robots.txt" **nahi** aana chahiye (yehi to fix kiya) |
@@ -96,9 +96,12 @@ Naya domain hai, sabr rakhein. Roz Request Indexing dabane se speed nahi badhti.
 
 1. **Asli backlinks** — community Facebook page/group, WhatsApp status, local news blog. 5–10 kaafi.
 2. **Google Business Profile** banayein (agar office/pata hai).
-3. **Content** — About page par community, service area (Chhattisgarh, MP, Assam), natural bhasha.
-4. **Site sote na rahe** — Render free plan sleep karta hai. Repo ka `keep-alive` workflow chalu rakhein,
-   warna Googlebot ko timeout milega aur crawl rate gir jaayega.
+3. **Content** — community, place aur guide pages ab live hain (`/communities`, `/locations`, `/guides`).
+   Unke titles wahi spelling use karte hain jo profile dropdown store karta hai.
+4. **Site sote na rahe** — Render free plan ~15 minute baad so jaata hai, aur sote waqt
+   `/robots.txt` par `Disallow: /` aa sakta hai. Repo ka `keep-alive` workflow har 6 ghante chalta hai,
+   isliye wo sleep nahi rokta. UptimeRobot ya cron-job.org par `https://panikajeevansathi.onrender.com/api/health`
+   har 5 minute ping karo. Bina iske Googlebot ko sleep window mein block milta rahega.
 
 **Kya NAHI karna:** paid/spam backlink, link farm, member profiles ko index karana,
 roz sitemap resubmit karna.

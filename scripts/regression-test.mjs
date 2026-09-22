@@ -259,6 +259,38 @@ test('outbox filenames support long emails and token files are private', async (
   assert.equal(fs.readdirSync(dir).length, 1);
 });
 
+test('sitemap submits indexable pages and omits login, privacy and terms', async (t) => {
+  const app = await appFor(t);
+  const sitemap = await fetch(app.base + '/sitemap.xml');
+  assert.equal(sitemap.status, 200);
+  const xml = await sitemap.text();
+  assert.match(xml, /<loc>[^<]+\/<\/loc>/);
+  assert.match(xml, /\/about\.html<\/loc>/);
+  assert.match(xml, /\/contact\.html<\/loc>/);
+  assert.match(xml, /\/locations\/chhattisgarh\/raipur<\/loc>/);
+  assert.match(xml, /\/locations\/assam\/guwahati<\/loc>/);
+  assert.match(xml, /\/communities\/kabirpanthi<\/loc>/);
+  assert.doesNotMatch(xml, /login\.html<\/loc>/);
+  assert.doesNotMatch(xml, /privacy\.html<\/loc>/);
+  assert.doesNotMatch(xml, /terms\.html<\/loc>/);
+  assert.doesNotMatch(xml, /dashboard\.html/);
+  const page = await fetch(app.base + '/locations/chhattisgarh/raipur');
+  assert.equal(page.status, 200);
+  const html = await page.text();
+  assert.match(html, /Panika matrimonial in Raipur/);
+  assert.match(html, new RegExp(`rel="canonical" href="${app.base}/locations/chhattisgarh/raipur"`));
+  assert.doesNotMatch(html, /noindex/);
+  const slash = await fetch(app.base + '/locations/chhattisgarh/', { redirect: 'manual' });
+  assert.equal(slash.status, 301);
+  assert.equal(slash.headers.get('location'), '/locations/chhattisgarh');
+  const missing = await fetch(app.base + '/locations/not-a-real-place');
+  assert.equal(missing.status, 404);
+  const site = await (await fetch(app.base + '/api/site')).json();
+  const cg = site.options.locations.find((state) => state.name === 'Chhattisgarh');
+  assert.ok(cg.cities.includes('Raipur'));
+  assert.equal(site.options.location_aliases.orissa, 'Odisha');
+});
+
 test('syntax checker covers server, backend, agents and automation, not just HTML', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-checker-test-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

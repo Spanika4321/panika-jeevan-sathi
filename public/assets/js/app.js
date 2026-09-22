@@ -118,6 +118,197 @@
     }
   };
 
+  /* ---------------------------------------------------- location dropdowns */
+
+  PJS.locations = {
+    states() {
+      const list = PJS.options && PJS.options.locations;
+      return Array.isArray(list) ? list : [];
+    },
+    aliases() {
+      return (PJS.options && PJS.options.location_aliases) || {};
+    },
+    cityAliases() {
+      return (PJS.options && PJS.options.city_aliases) || {};
+    },
+    canonicalState(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const alias = this.aliases()[raw.toLowerCase().replace(/\s+/g, ' ')];
+      if (alias) return alias;
+      const hit = this.states().find((state) => state.name.toLowerCase() === raw.toLowerCase());
+      return hit ? hit.name : raw;
+    },
+    canonicalCity(stateName, value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const state = this.states().find((item) => item.name === stateName);
+      const cities = (state && state.cities) || [];
+      const exact = cities.find((name) => name.toLowerCase() === raw.toLowerCase());
+      if (exact) return exact;
+      const alias = this.cityAliases()[raw.toLowerCase().replace(/\s+/g, ' ')];
+      if (alias && cities.some((name) => name.toLowerCase() === alias.toLowerCase())) {
+        return cities.find((name) => name.toLowerCase() === alias.toLowerCase());
+      }
+      return raw;
+    },
+    /**
+     * State select cascades into a city select.
+     * mode "profile" moves data-key onto a text box when the member types a
+     * town that is not listed, so a save cannot wipe an unknown village.
+     * mode "filter" keeps the select as the control and exposes .value() so
+     * a typed town is what search submits.
+     */
+    mount(opts) {
+      const stateEl = opts.state;
+      const cityEl = opts.city;
+      const mode = opts.mode || 'filter';
+      const anyLabel = opts.anyLabel || 'Any';
+      const includeAny = opts.includeAny !== false;
+      const otherLabel = opts.otherLabel || 'Other — type it';
+      const self = this;
+      if (!stateEl) return { set() {}, value() { return ''; } };
+
+      const stateOther = attachOther(stateEl, 'Type the state or country');
+      const cityOther = cityEl ? attachOther(cityEl, 'Type the city or town') : null;
+      let silent = false;
+
+      function attachOther(select, placeholder) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'hide';
+        input.placeholder = placeholder;
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('data-location-other', select.id || 'location');
+        select.insertAdjacentElement('afterend', input);
+        return input;
+      }
+
+      function showOther(input, on) {
+        if (!input) return;
+        input.classList.toggle('hide', !on);
+        input.hidden = !on;
+        if (!on) input.value = '';
+      }
+
+      function fillSelect(select, values, selected, placeholder) {
+        const options = [];
+        if (placeholder) options.push(`<option value="">${PJS.esc(placeholder)}</option>`);
+        values.forEach((name) => {
+          options.push(`<option value="${PJS.esc(name)}"${name === selected ? ' selected' : ''}>${PJS.esc(name)}</option>`);
+        });
+        if (selected && values.indexOf(selected) === -1 && selected !== '__other__') {
+          options.push(`<option value="${PJS.esc(selected)}" selected>${PJS.esc(selected)}</option>`);
+        }
+        options.push(`<option value="__other__">${PJS.esc(otherLabel)}</option>`);
+        select.innerHTML = options.join('');
+      }
+
+      function citiesFor(stateName) {
+        const state = self.states().find((item) => item.name === stateName);
+        return state ? state.cities.slice() : [];
+      }
+
+      function syncProfileKeys() {
+        if (mode !== 'profile') return;
+        assignKey(stateEl, stateOther, opts.stateKey || 'state');
+        if (cityEl) assignKey(cityEl, cityOther, opts.cityKey || 'city');
+      }
+
+      function assignKey(select, input, key) {
+        if (select.value === '__other__') {
+          select.removeAttribute('data-key');
+          input.setAttribute('data-key', key);
+        } else {
+          input.removeAttribute('data-key');
+          select.setAttribute('data-key', key);
+        }
+      }
+
+      function refillCities(selectedCity) {
+        if (!cityEl) return;
+        const stateName = stateEl.value;
+        const known = stateName && stateName !== '__other__';
+        const wanted = selectedCity || '';
+        cityEl.disabled = !known;
+        if (!known) {
+          fillSelect(cityEl, [], '', includeAny ? anyLabel : '— Select —');
+          cityEl.value = '';
+          showOther(cityOther, stateName === '__other__');
+          if (stateName === '__other__' && wanted) cityOther.value = wanted;
+          return;
+        }
+        const cities = citiesFor(stateName);
+        if (wanted && cities.indexOf(wanted) === -1) {
+          fillSelect(cityEl, cities, '', includeAny ? anyLabel : '— Select —');
+          cityEl.value = '__other__';
+          showOther(cityOther, true);
+          cityOther.value = wanted;
+          return;
+        }
+        fillSelect(cityEl, cities, wanted, includeAny ? anyLabel : '— Select —');
+        showOther(cityOther, false);
+      }
+
+      function paint(stateValue, cityValue) {
+        const stateName = self.canonicalState(stateValue);
+        const names = self.states().map((item) => item.name);
+        const stateKnown = names.indexOf(stateName) !== -1;
+        fillSelect(stateEl, names, stateKnown ? stateName : '', includeAny ? anyLabel : '— Select —');
+        if (stateValue && !stateKnown) {
+          stateEl.value = '__other__';
+          showOther(stateOther, true);
+          stateOther.value = stateValue;
+          refillCities(cityValue || '');
+        } else {
+          showOther(stateOther, false);
+          stateEl.value = stateKnown ? stateName : '';
+          const cityName = self.canonicalCity(stateEl.value, cityValue);
+          refillCities(cityName);
+        }
+        syncProfileKeys();
+      }
+
+      stateEl.addEventListener('change', () => {
+        showOther(stateOther, stateEl.value === '__other__');
+        if (!silent) refillCities('');
+        syncProfileKeys();
+      });
+      if (cityEl) {
+        cityEl.addEventListener('change', () => {
+          showOther(cityOther, cityEl.value === '__other__');
+          syncProfileKeys();
+        });
+      }
+      stateOther.addEventListener('input', syncProfileKeys);
+      if (cityOther) cityOther.addEventListener('input', syncProfileKeys);
+
+      paint(opts.stateValue || '', opts.cityValue || '');
+
+      function read(select, input) {
+        if (!select) return '';
+        if (select.value === '__other__' || (select === cityEl && stateEl.value === '__other__')) {
+          return input ? input.value.trim() : '';
+        }
+        return String(select.value || '').trim();
+      }
+
+      return {
+        set(stateValue, cityValue) {
+          silent = true;
+          paint(stateValue || '', cityValue || '');
+          silent = false;
+        },
+        value(el) {
+          if (el === stateEl) return read(stateEl, stateOther);
+          if (el === cityEl) return read(cityEl, cityOther);
+          if (!el) return '';
+          return String(el.value || '').trim();
+        }
+      };
+    }
+  };
+
   /* ------------------------------------------------------------ api client */
 
   PJS.api = async function (method, urlPath, body) {
@@ -273,16 +464,46 @@
     </a>`;
   }
 
+  function bindDrawer() {
+    const drawer = document.getElementById('drawer');
+    const btn = document.getElementById('menuBtn');
+    if (!drawer || !btn) return;
+    btn.onclick = () => drawer.classList.add('open');
+    drawer.onclick = (e) => {
+      if (e.target === drawer) drawer.classList.remove('open');
+    };
+  }
+
   function renderHeader() {
     const holder = document.getElementById('siteHeader');
     if (!holder) return;
     const current = window.location.pathname;
     if (!PJS.me) {
+      const on = (prefix) => (current === prefix || current.startsWith(prefix + '/')) ? ' active' : '';
       holder.innerHTML = `<header class="site-header"><div class="bar">${brandHtml()}
+        <nav class="nav-desktop nav-public" aria-label="Explore">
+          <a href="/communities" class="${on('/communities').trim()}">Communities</a>
+          <a href="/locations" class="${on('/locations').trim()}">Places</a>
+          <a href="/guides" class="${on('/guides').trim()}">Guides</a>
+          <a href="/about.html" class="${current === '/about.html' ? 'active' : ''}">About</a>
+        </nav>
         <div class="header-cta">
           <a class="btn ghost sm" href="/login.html">Log in</a>
           <a class="btn sm" href="/login.html?tab=register">Register free</a>
-        </div></div></header>`;
+          <button class="menu-btn keep-mobile" id="menuBtn" aria-label="Menu"><span></span></button>
+        </div></div></header>
+        <div class="drawer" id="drawer"><div class="drawer-panel">
+          <a href="/communities">${I.users} Communities</a>
+          <a href="/locations">${I.pin} Places</a>
+          <a href="/guides/how-to-create-a-profile">${I.edit} How to create a profile</a>
+          <a href="/guides/family-gotra-and-introductions">${I.shield} Gotra and introductions</a>
+          <a href="/about.html">${I.heart} About</a>
+          <a href="/contact.html">${I.whatsapp} Contact</a>
+          <div class="sep"></div>
+          <a href="/login.html">${I.user} Log in</a>
+          <a href="/login.html?tab=register">${I.check} Register free</a>
+        </div></div>`;
+      bindDrawer();
       return;
     }
     const links = NAV.map((item) => {
@@ -325,11 +546,7 @@
         <a href="#" id="drawerLogout">${I.logout} Log out</a>
       </div></div>`;
 
-    const drawer = document.getElementById('drawer');
-    document.getElementById('menuBtn').onclick = () => drawer.classList.add('open');
-    drawer.onclick = (e) => {
-      if (e.target === drawer) drawer.classList.remove('open');
-    };
+    bindDrawer();
     document.getElementById('drawerLogout').onclick = (e) => {
       e.preventDefault();
       PJS.logout();
@@ -378,6 +595,16 @@
           <a href="${PJS.me ? '/matches.html' : '/login.html?tab=register'}">Recommended matches</a>
           <a href="${PJS.me ? '/messages.html' : '/login.html'}">Messages</a>
           <a href="/login.html?tab=forgot">Forgot password</a>
+        </div>
+        <div>
+          <h4>Discover</h4>
+          <a href="/communities">Communities</a>
+          <a href="/locations">Places we serve</a>
+          <a href="/guides/how-to-create-a-profile">How to create a profile</a>
+          <a href="/guides/family-gotra-and-introductions">Gotra and introductions</a>
+          <a href="/communities/panika">Panika</a>
+          <a href="/locations/chhattisgarh">Chhattisgarh</a>
+          <a href="/locations/assam">Assam</a>
         </div>
         <div>
           <h4>Support</h4>
