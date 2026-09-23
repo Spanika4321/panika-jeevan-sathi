@@ -61,10 +61,17 @@ aur `/api/` + `/uploads/` (member photos) dono blocked + `X-Robots-Tag: noindex`
 
 1. https://search.google.com/search-console → is email se login
 2. **Add property** → **URL prefix** → `https://panikajeevansathi.onrender.com`
-3. Verification: **HTML tag** chunein. Google dega:
-   `<meta name="google-site-verification" content="XXXXXXXX">`
-   → **ye line mujhe bhej dein**, main `public/index.html` ke `<head>` me daal dunga.
+3. Verification: **HTML tag** chunein. Google jo token de, wahi line chahiye:
+   `<meta name="google-site-verification" content="…token…">`
+   → **✅ Ye step ho gaya.** Current token `2PZkVyqlnyR4goxIQUuALKvyUvBXBTN3Nzo9w7ITFY0`
+   hai aur `public/` ke **saare 20 HTML pages** ke `<head>` me (line 5, `<meta charset>`
+   ke turant baad) committed hai — isliye har page par tag serve hota hai.
+   Token badalna ho to purani jagah search karo:
+   `grep -rn "google-site-verification" public/`
 4. Deploy hone ke baad Search Console me **Verify** dabayein.
+   ⚠️ Verify se pehle `view-source:https://panikajeevansathi.onrender.com/` me
+   wahi token dikhna chahiye. Purana token dikh raha ho to Render me
+   **Clear build cache & deploy** chalayein.
 5. **Sitemaps** → `sitemap.xml` type karein → **Submit** → "Success" dikhna chahiye
 6. **URL Inspection** → `https://panikajeevansathi.onrender.com/` → **Request Indexing**
    (`/about.html`, `/contact.html`, `/login.html` ke liye bhi — roz 10 ki limit)
