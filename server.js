@@ -1,12 +1,11 @@
 'use strict';
 /**
- * PANIKA JEEVAN SATHI — application server.
+ * TEERNOVA — Application Server
  *
  *   node server.js          →  http://localhost:3000
  *
  * Zero npm dependencies: Node.js >= 22.5 (uses the built-in node:sqlite driver).
- * All data lives in ./data (SQLite database + uploaded photos), so the site can
- * be moved to another server by copying that folder.
+ * All data lives in ./data (SQLite database + uploaded files).
  */
 
 const http = require('node:http');
@@ -17,41 +16,61 @@ const dbLib = require('./lib/db');
 const authLib = require('./lib/auth');
 const settingsLib = require('./lib/settings');
 const apiLib = require('./lib/api');
-const ownerLib = require('./lib/owner');
 const photosLib = require('./lib/photos');
+const supabaseLib = require('./lib/supabase-driver');
+const agentsDbLib = require('./lib/agents-db');
 
 const ROOT = __dirname;
-const PUBLIC_DIR = path.join(ROOT, 'public');
+const PUBLIC_DIR = ROOT; // files at repo root (GitHub Pages compatibility)
 const DATA_DIR = process.env.PJS_DATA_DIR || path.join(ROOT, 'data');
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
 
+/**
+ * TEERNOVA — Transformd from PANIKA JEEVAN SATHI
+ * Live Teer Results • Smart Statistics • Trusted Information
+ */
+
 /* ------------------------------------------------------------------ storage */
 
+let supabaseConfig = null;
+if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+  supabaseConfig = {
+    url: process.env.SUPABASE_URL.trim(),
+    key: process.env.SUPABASE_KEY.trim(),
+    log: (message) => console.log(message)
+  };
+}
+
 const opened = dbLib.open(DATA_DIR, { log: (message) => console.log(message) });
-const driver = opened.driver;
+let driver = opened.driver;
 const driverError = opened.driverError;
-const remote = opened.remote;
+let remote = opened.remote;
 const secret = authLib.loadSecret(DATA_DIR);
 
-/* Photos: local folder, mirrored to Cloudflare R2 when R2 is configured. */
+let supabaseDriver = null;
+if (supabaseConfig) {
+  try {
+    const { driver: sbDriver, supabase: sbClient } = supabaseLib.createSupabaseDriver(supabaseConfig);
+    driver = sbDriver;
+    remote = { kind: 'supabase', url: supabaseConfig.url };
+    supabaseDriver = { driver: sbDriver, supabase: sbClient };
+    console.log(`  Database : Supabase PostgreSQL — ${supabaseConfig.url}`);
+  } catch (err) {
+    console.error(`  [storage] Supabase driver failed: ${err.message} — falling back to local SQLite.`);
+    supabaseDriver = null;
+  }
+}
+
 const photoSetup = photosLib.createFromEnv({
   dataDir: DATA_DIR,
-  dirName: apiLib.UPLOAD_DIR_NAME,
+  dirName: 'uploads',
   log: (message) => console.log(message)
 });
 const photos = photoSetup.store;
 
 if (driverError) {
-  console.warn(
-    `[storage] node:sqlite unavailable (${driverError.message}). Falling back to the JSON store in ${DATA_DIR}.`
-  );
-}
-if (photoSetup.config && driver.kind !== 'd1') {
-  console.warn('[storage] R2 is configured but the database is local — check PJS_STORAGE / CF_* variables.');
-}
-if (!photoSetup.config && driver.kind === 'd1') {
-  console.warn('[storage] The database is remote but R2 is not configured: uploaded photos will be lost when the host restarts.');
+  console.warn(`[storage] node:sqlite unavailable (${driverError.message}). Falling back to JSON store.`);
 }
 
 const api = apiLib.createApi({
@@ -60,6 +79,12 @@ const api = apiLib.createApi({
   dataDir: DATA_DIR,
   photos,
   remoteStatus() {
+    if (supabaseDriver) {
+      return {
+        database: { kind: 'supabase', ...supabaseDriver.driver.stats() },
+        photos: photos.stats()
+      };
+    }
     return {
       database: remote ? { kind: 'd1', ...driver.stats() } : { kind: driver.kind },
       photos: photos.stats()
@@ -67,13 +92,15 @@ const api = apiLib.createApi({
   }
 });
 
-/** Write queued changes (database + photos) to the remote services. */
 async function persist() {
   try {
-    if (driver.flush) await driver.flush();
+    if (supabaseDriver) {
+      await supabaseDriver.driver.flush();
+    } else if (driver.flush) {
+      await driver.flush();
+    }
     await photos.flush();
   } catch (err) {
-    // The queue is kept, so the next request, the timer or shutdown retries.
     console.error(`[storage] could not save yet: ${err.message} — will retry.`);
   }
 }
@@ -81,24 +108,18 @@ async function persist() {
 /* ------------------------------------------------------- first-run bootstrap */
 
 function ensureAdmin() {
-  const primary = (process.env.ADMIN_EMAIL || ownerLib.DEFAULT_OWNER_EMAIL).trim().toLowerCase();
+  const primary = (process.env.ADMIN_EMAIL || 'admin@teernova.com').trim().toLowerCase();
   const provided = process.env.ADMIN_PASSWORD;
   const password = provided && String(provided).length >= 8 ? String(provided) : authLib.randomToken(8) + 'Aa1';
   const now = Date.now();
 
-  for (const email of ownerLib.ownerEmails()) {
+  for (const email of [primary]) {
     const existing = driver.one('users', { email });
     if (!existing) continue;
     if (existing.role === 'admin' && existing.status === 'active' && Number(existing.email_verified) === 1) continue;
-    driver.update(
-      'users',
-      { id: existing.id },
-      { role: 'admin', status: 'active', email_verified: 1, verification_token: null }
-    );
-    console.log('');
-    console.log(`  Promoted existing member to administrator: ${email}`);
-    console.log('  Log in at /admin.html with this account’s existing password — it is no longer a normal user.');
-    console.log('');
+    driver.update('users', { id: existing.id }, {
+      role: 'admin', status: 'active', email_verified: 1, verification_token: null
+    });
   }
 
   if (driver.one('users', { email: primary })) return;
@@ -106,7 +127,7 @@ function ensureAdmin() {
   const user = driver.insert('users', {
     email: primary,
     password_hash: authLib.hashPassword(password),
-    name: ownerLib.defaultOwnerName(),
+    name: 'TEERNOVA Administrator',
     role: 'admin',
     status: 'active',
     email_verified: 1,
@@ -118,32 +139,13 @@ function ensureAdmin() {
     last_login: 0,
     created_at: now
   });
-  driver.insert('profiles', {
-    user_id: user.id,
-    updated_at: now,
-    visibility: 'hidden',
-    searchable: 0,
-    hide_photo: 0,
-    hide_contact: 1,
-    profile_complete: 0
-  });
 
   console.log('');
-  console.log('  Administrator account created');
+  console.log('  TEERNOVA Administrator account created');
   console.log(`  Email    : ${primary}`);
   console.log(`  Password : ${password}`);
   console.log('  Panel    : /admin.html');
-  console.log('  This is the site-owner account — not a normal member.');
   console.log('');
-  try {
-    fs.writeFileSync(
-      path.join(DATA_DIR, 'admin-credentials.txt'),
-      `email: ${primary}\npassword: ${password}\nLog in at /admin.html\nChange this password from Settings after first login.\n`,
-      { mode: 0o600 }
-    );
-  } catch (_) {
-    /* ignore */
-  }
 }
 
 function ensureDefaultSettings() {
@@ -156,11 +158,6 @@ async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Load the remote database (Cloudflare D1) before the site accepts traffic.
- * Serving an empty site because D1 could not be reached would look exactly
- * like total data loss, so we retry and then exit loudly instead.
- */
 async function loadRemoteDatabase() {
   const attempts = Number(process.env.PJS_BOOT_RETRIES || 6);
   let lastError = null;
@@ -176,24 +173,39 @@ async function loadRemoteDatabase() {
   console.error('');
   console.error('  ⚠  THE DATABASE COULD NOT BE REACHED — THE SITE WILL NOT START');
   console.error(`     ${lastError && lastError.message}`);
-  console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN on this service,');
-  console.error('     then redeploy. Starting anyway would wipe the site back to zero members.');
+  console.error('     Check CF_ACCOUNT_ID, CF_D1_DATABASE_ID and CF_D1_API_TOKEN.');
   console.error('');
   process.exit(1);
 }
 
 async function main() {
-  if (opened.ready) {
+  if (supabaseDriver) {
+    const tables = Object.keys(dbLib.TABLES);
+    try {
+      const rowsByTable = await supabaseLib.loadSupabaseTables(supabaseDriver.supabase, tables);
+      for (const [table, rows] of Object.entries(rowsByTable)) {
+        supabaseDriver.driver.state.tables[table] = rows;
+      }
+      supabaseDriver.driver.state.seq = supabaseLib.computeSequences(rowsByTable);
+      console.log(`  Database : Supabase PostgreSQL — ${Object.values(rowsByTable).reduce((n, r) => n + r.length, 0)} rows loaded`);
+    } catch (err) {
+      console.error('');
+      console.error(`  ⚠  SUPABASE COULD NOT BE REACHED — THE SITE WILL NOT START`);
+      console.error(`     ${err.message}`);
+      console.error('     Check SUPABASE_URL and SUPABASE_KEY, then redeploy.');
+      console.error('');
+      process.exit(1);
+    }
+  } else if (opened.ready) {
     const info = await loadRemoteDatabase();
-    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded from ${info.tables} tables`);
+    console.log(`  Database : Cloudflare D1 — ${info.rows} rows loaded`);
   }
 
   ensureAdmin();
   ensureDefaultSettings();
   await persist();
 
-  // Safety net: anything the request path could not save is retried here.
-  if (driver.flush) {
+  if (driver.flush || supabaseDriver) {
     const timer = setInterval(() => {
       persist().catch(() => {});
     }, Number(process.env.PJS_FLUSH_INTERVAL_MS || 5000));
@@ -202,11 +214,11 @@ async function main() {
 
   server.listen(PORT, HOST, () => {
     console.log('');
-    console.log('  PANIKA JEEVAN SATHI is running');
+    console.log('  TEERNOVA is running');
     console.log(`  URL     : http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
-    console.log(`  Storage : ${driver.kind} (${DATA_DIR})`);
-    console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored to R2)' : ''}`);
-    console.log('  Free forever — no payments, no locked profiles.');
+    console.log(`  Storage : ${supabaseDriver ? 'supabase' : driver.kind} (${DATA_DIR})`);
+    console.log(`  Photos  : ${photos.kind}${photos.remote ? ' (mirrored)' : ''}`);
+    console.log('  Live Teer Results • Smart Statistics • Trusted Information');
     console.log('');
   });
 }
@@ -278,32 +290,7 @@ function resolveStatic(pathname) {
   return target;
 }
 
-/* ----------------------------------------------------------- robots/sitemap */
-
-// Pages meant for search engines (public marketing/legal pages only).
-const PUBLIC_PAGES = ['/', '/about.html', '/contact.html', '/login.html', '/privacy.html', '/terms.html'];
-
-// Members-only or account pages — crawlers should stay out.
-const PRIVATE_PAGES = [
-  'admin.html',
-  'settings.html',
-  'dashboard.html',
-  'matches.html',
-  'messages.html',
-  'notifications.html',
-  'interests.html',
-  'shortlist.html',
-  'edit-profile.html',
-  'profile.html',
-  'search.html',
-  'reset-password.html',
-  'verify-email.html'
-];
-
 function publicOrigin(req) {
-  // SITE_URL pins the canonical production origin (robots.txt + sitemap.xml),
-  // so search engines always see the public URL even behind a proxy or when
-  // the app is also reachable through an internal host.
   const pinned = process.env.SITE_URL;
   if (pinned && /^https?:\/\//i.test(pinned)) return pinned.replace(/\/+$/, '');
   const host = req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`;
@@ -337,7 +324,6 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname.startsWith('/uploads/')) {
     const name = path.basename(url.pathname);
-    // On hosts without a disk the photo is fetched from R2 and cached.
     const file = await photos.ensure(name);
     if (!file) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -353,26 +339,26 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, Object.assign({ 'Content-Type': 'text/plain; charset=utf-8' }, SECURITY_HEADERS));
     res.end(
       'User-agent: *\n' +
-        'Allow: /\n' +
-        PRIVATE_PAGES.map((p) => `Disallow: /${p}`).join('\n') +
-        '\nDisallow: /api/\n' +
-        'Disallow: /uploads/\n' +
-        `\nSitemap: ${origin}/sitemap.xml\n`
+      'Allow: /\n' +
+      'Disallow: /admin.html\n' +
+      'Disallow: /settings.html\n' +
+      'Disallow: /dashboard.html\n' +
+      'Disallow: /admin\n' +
+      'Disallow: /api/\n' +
+      `Sitemap: ${origin}/sitemap.xml\n`
     );
     return;
   }
 
   if (url.pathname === '/sitemap.xml') {
     const origin = publicOrigin(req);
-    const urls = PUBLIC_PAGES.map(
-      (p) => `  <url><loc>${origin}${p}</loc><changefreq>weekly</changefreq></url>`
-    ).join('\n');
+    const urls = ['/', '/results.html', '/history.html', '/statistics.html', '/sessions.html', '/demo.html', '/about.html'];
     res.writeHead(200, Object.assign({ 'Content-Type': MIME['.xml'] }, SECURITY_HEADERS));
     res.end(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-        urls +
-        '\n</urlset>\n'
+      '<urlset xmlns="http://www.sitemaps.org/sitemap/0.9">\n' +
+      urls.map((p) => `  <url><loc>${origin}${p}</loc><changefreq>daily</changefreq></url>`).join('\n') +
+      '\n</urlset>\n'
     );
     return;
   }
@@ -394,13 +380,8 @@ main().catch((err) => {
 
 async function shutdown() {
   console.log('\n  Shutting down…');
-  // Give queued writes their last chance to reach the remote services.
   await persist();
-  try {
-    await driver.close();
-  } catch (_) {
-    /* ignore */
-  }
+  try { await driver.close(); } catch (_) {}
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(0), 2500).unref();
 }

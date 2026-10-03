@@ -1,4 +1,4 @@
-const SITE = 'https://panikajeevansathi.onrender.com';
+const SITE = 'https://teerwale.onrender.com';
 
 const routes = [
   '/',
@@ -23,7 +23,7 @@ let passed = 0;
 let failed = 0;
 
 console.log('==============================================');
-console.log(' PANIKA JEEVAN SATHI — REAL ROUTE CHECK');
+console.log(' TEER WALE — REAL ROUTE CHECK');
 console.log('==============================================');
 
 for (const route of routes) {

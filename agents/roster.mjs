@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — AI Agent Roster
+ * TEER WALE — AI Agent Roster
  * =====================================
  *
  * Poore system ke saare AI agents ki ek hi jagah definition. Har agent ko

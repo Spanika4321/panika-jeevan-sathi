@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process';
 const root = process.cwd();
 
 const files = {
-  'agents/README.md': `# PANIKA JEEVAN SATHI Agent Team
+  'agents/README.md': `# TEER WALE Agent Team
 
 Hierarchy:
 - Guardian = Sardar / existing safety and health authority
@@ -23,8 +23,8 @@ Rules:
 `,
 
   'agents/config.json': JSON.stringify({
-    project: 'PANIKA JEEVAN SATHI',
-    site: 'https://panikajeevansathi.onrender.com',
+    project: 'TEER WALE',
+    site: 'https://teerwale.onrender.com',
     guardian: 'sardar',
     manager: 'manager',
     workers: ['pooja', 'priya'],

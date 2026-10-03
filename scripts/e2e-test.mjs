@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — end-to-end test.
+ * TEER WALE — end-to-end test.
  *
  * Boots a real server on a temporary data folder and exercises the complete
  * member journey:
@@ -103,7 +103,7 @@ async function waitForServer(proc) {
   throw new Error('Server did not start in time');
 }
 
-const ADMIN_EMAIL = 'admin@panikajeevansathi.com';
+const ADMIN_EMAIL = 'admin@teerwale.com';
 const ADMIN_PASSWORD = 'AdminTest#2026';
 
 async function main() {
@@ -497,7 +497,7 @@ async function main() {
       title: 'Together since 2024',
       couple: 'Ankit & Pooja',
       location: 'Bilaspur',
-      body: 'We met on PANIKA JEEVAN SATHI and our families connected within a month.',
+      body: 'We met on TEER WALE and our families connected within a month.',
       approved: 1
     });
     check('admin adds success story', res.status === 200);
@@ -629,7 +629,7 @@ async function main() {
     const traversal = await fetch(BASE + '/../server.js');
     check('path traversal is blocked', traversal.status !== 200);
 
-    for (const blocked of ['/data/admin-credentials.txt', '/data/panika-jeevan-sathi.db', '/server.js', '/lib/api.js']) {
+    for (const blocked of ['/data/admin-credentials.txt', '/data/teer-wale.db', '/server.js', '/lib/api.js']) {
       const r = await fetch(BASE + blocked);
       check('server file not reachable over HTTP: ' + blocked, r.status !== 200, `got ${r.status}`);
     }

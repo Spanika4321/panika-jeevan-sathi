@@ -91,7 +91,7 @@ function repairRecoveryClone() {
 }
 
 console.log('================================================');
-console.log(' PANIKA JEEVAN SATHI — EMPLOYEE WORK LOOP');
+console.log(' TEER WALE — EMPLOYEE WORK LOOP');
 console.log('================================================');
 console.log(`Batch size: ${BATCH_SIZE}`);
 console.log(`Maximum rounds: ${MAX_ROUNDS}`);

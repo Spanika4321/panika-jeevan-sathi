@@ -19,7 +19,7 @@ const run = (cmd, args = []) => {
 };
 
 console.log('==============================================');
-console.log(' PANIKA JEEVAN SATHI — EMPLOYEE VERCEL DOCTOR');
+console.log(' TEER WALE — EMPLOYEE VERCEL DOCTOR');
 console.log('==============================================');
 
 const report = {
@@ -70,7 +70,7 @@ if (!vercelVersion.ok) {
     console.log('Vercel project listing: AVAILABLE');
 
     if (
-      list.out.toLowerCase().includes('panika-jeevan-sathi') ||
+      list.out.toLowerCase().includes('teer-wale') ||
       list.out.toLowerCase().includes('panika')
     ) {
       report.vercel.project_found = true;
@@ -78,7 +78,7 @@ if (!vercelVersion.ok) {
     } else {
       report.vercel.project_found = false;
       report.diagnosis.push(
-        'Connected Vercel account में PANIKA JEEVAN SATHI project नहीं मिला।'
+        'Connected Vercel account में TEER WALE project नहीं मिला।'
       );
       console.log('Vercel project: NOT FOUND');
     }

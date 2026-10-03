@@ -1,8 +1,8 @@
 {
-  "name": "panika-jeevan-sathi",
-  "version": "2.0.0",
+  "name": "teernova",
+  "version": "1.0.0",
   "private": true,
-  "description": "PANIKA JEEVAN SATHI — 100% free community matrimonial website (registration, profiles, search, interests, shortlist, messaging, notifications, admin panel).",
+  "description": "TEERNOVA — Live Teer Results • Smart Statistics • Trusted Information",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -27,14 +27,18 @@
     "node": ">=22.5.0"
   },
   "keywords": [
-    "matrimonial",
-    "panika",
-    "manikpuri",
-    "kabirpanthi",
-    "adivasi",
-    "free"
+    "teer",
+    "teerresult",
+    "fr",
+    "sr",
+    "teerresults",
+    "assam",
+    "teernova"
   ],
   "license": "UNLICENSED",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.113.0"
+  },
   "devDependencies": {
     "playwright": "^1.62.1"
   }

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TEERNOVA Pay — Checkout</title>
+  <meta name="description" content="TEERNOVA ka custom payment gateway. UPI, secure payments.">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="app-header">
+      <div class="header-inner">
+        <a href="/" class="brand">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>TEERNOVA Pay</span>
+        </a>
+        <nav class="header-nav">
+          <a href="/">Home</a>
+          <a href="/results.html">Results</a>
+          <a href="/statistics.html">Statistics</a>
+          <a href="/checkout.html" class="active">Pay</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="checkout-main">
+      <div class="checkout-container">
+        <div class="checkout-header">
+          <div class="checkout-brand">
+            <svg class="pay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="4" width="20" height="16" rx="3"/>
+              <path d="M7 9h10M7 12h10M7 15h6"/>
+              <circle cx="18" cy="15" r="2" fill="currentColor"/>
+            </svg>
+            <h1>TEERNOVA Pay</h1>
+          </div>
+          <p class="checkout-subtitle">Secure UPI Payment Gateway — TEERNOVA ka khud ka payment system</p>
+        </div>
+
+        <section id="checkoutView" class="checkout-section">
+          <h2>Choose Your Plan</h2>
+          <p class="section-desc">Select a plan below to get started with TEERNOVA Pay.</p>
+          <div id="plansContainer" class="plans-grid"></div>
+          <div class="checkout-actions">
+            <button id="proceedBtn" class="btn btn-primary btn-lg" style="display:none" onclick="createPayment()">
+              Proceed to Payment →
+            </button>
+          </div>
+        </section>
+
+        <div id="selectedPlanWrap" style="display:none; margin-top:16px; padding:16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+          <strong>Selected:</strong> <span id="selectedPlan">—</span>
+          <input type="hidden" id="selectedPlanId">
+        </div>
+
+        <div id="paymentLoading" style="display:none; text-align:center; padding:40px;">
+          <div class="spinner"></div>
+          <p>Payment intent creating...</p>
+        </div>
+
+        <div id="paymentView" style="display:none">
+          <div id="paymentSection" class="payment-section">
+            <div class="payment-header">
+              <h2>Payment Details</h2>
+              <div class="payment-id-badge">ID: <span id="paymentId">—</span></div>
+            </div>
+
+            <div class="payment-summary-card">
+              <div class="ps-row"><span>Plan</span><strong id="paymentPlanDisplay">—</strong></div>
+              <div class="ps-row"><span>Amount</span><strong id="paymentAmount">—</strong></div>
+              <div class="ps-row"><span>Payment Method</span><strong>UPI</strong></div>
+            </div>
+
+            <div class="upi-section">
+              <div class="upi-box">
+                <div class="upi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="5" width="18" height="14" rx="3"/>
+                    <path d="M7 9h10M7 12h7M7 15h5"/>
+                    <circle cx="18" cy="15" r="2" fill="currentColor"/>
+                  </svg>
+                </div>
+                <h3>UPI Payment</h3>
+                <p>Apne UPI app mein payment karein:</p>
+                <div class="upi-id-display">
+                  <span class="upi-label">UPI ID:</span>
+                  <span class="upi-value" id="upiId">—</span>
+                </div>
+                <div class="upi-qr-section">
+                  <div class="qr-placeholder" id="qrSection">
+                    <div class="qr-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <rect x="7" y="7" width="3" height="3"/>
+                        <rect x="14" y="7" width="3" height="3"/>
+                        <rect x="7" y="14" width="3" height="3"/>
+                        <rect x="14" y="14" width="3" height="3"/>
+                        <rect x="10" y="10" width="3" height="3"/>
+                      </svg>
+                    </div>
+                    <p class="qr-text">Scan karein ya UPI app open karein</p>
+                  </div>
+                  <div class="qr-transaction">
+                    <strong>Transaction ID:</strong>
+                    <span id="qrTransactionId">—</span>
+                  </div>
+                </div>
+                <a id="upiIntentLink" href="#" class="btn btn-primary btn-lg upi-btn" style="display:none">
+                  UPI App Open Karein
+                </a>
+              </div>
+            </div>
+
+            <div class="instructions-section">
+              <h4>Step-by-step Instructions</h4>
+              <div id="paymentInstructions" class="instructions-list"></div>
+            </div>
+
+            <div class="verify-section" id="verifySection" style="display:none">
+              <h4>Payment Complete? Verify Karnē</h4>
+              <p>Payment karne ke baad, apna transaction ID dalein verify karne ke liye.</p>
+              <div class="verify-form">
+                <div class="verify-input-group">
+                  <label>Transaction ID / UPI Reference</label>
+                  <input type="text" id="verifyTransactionId" placeholder="Transaction ID dalein"
+                    class="form-input" autocomplete="off">
+                </div>
+                <button id="verifyButton" class="btn btn-success btn-lg" onclick="verifyPayment()">
+                  Payment Verify Karein
+                </button>
+              </div>
+              <div id="verifyResult" class="verify-result" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="userSection" style="display:none; margin-top:24px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+          <div class="user-info"><strong>Logged in:</strong> <span id="userName">—</span></div>
+          <div class="user-credits"><strong>Demo Credit Balance:</strong> <span id="creditBalance">0</span> credits</div>
+          <div id="subscriptionStatus"></div>
+          <div id="paymentHistory"></div>
+        </div>
+
+        <div class="checkout-footer">
+          <div class="security-badges">
+            <span class="badge">🔒 UPI Secure</span>
+            <span class="badge">✅ TEERNOVA Verified</span>
+            <span class="badge">🛡️ 100% Secure</span>
+          </div>
+          <p class="footer-note">TEERNOVA Pay — TEERNOVA ka custom payment system.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>© 2026 TEERNOVA — Live Teer Results • Smart Statistics • Trusted Information</p>
+    </footer>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+  'use strict';
+  const PAGE = { title: 'TEERNOVA Pay — Checkout', description: 'TEERNOVA ka custom payment gateway.' };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  let state = { plans: [], currentIntent: null, user: null };
+
+  async function api(url, opts={}) {
+    const r = await fetch(url, { headers:{'Content-Type':'application/json'}, ...opts });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Request failed');
+    return d;
+  }
+
+  function selectPlan(id) {
+    document.querySelectorAll('.plan-card').forEach(c => {
+      c.style.borderColor = c.dataset.plan === id ? '#2563eb' : '#e5e7eb';
+      c.style.background = c.dataset.plan === id ? '#eff6ff' : '';
+    });
+    $('selectedPlan').textContent = state.plans.find(p=>p.id===id)?.name || '';
+    $('selectedPlanId').value = id;
+    $('proceedBtn').style.display = 'inline-block';
+  }
+
+  async function createPayment() {
+    const planId = $('selectedPlanId').value;
+    if (!planId) return alert('Plan select karein.');
+    $('checkoutView').style.display='none';
+    $('paymentLoading').style.display='block';
+    try {
+      const res = await api('/api/payments/create-intent', {
+        method:'POST', body: JSON.stringify({plan_id: planId})
+      });
+      state.currentIntent = res.intent;
+      showPaymentView(res.intent);
+    } catch(e) {
+      alert(e.message || 'Error');
+      $('checkoutView').style.display='block';
+    } finally {
+      $('paymentLoading').style.display='none';
+    }
+  }
+
+  function showPaymentView(intent) {
+    $('paymentView').style.display='block';
+    $('paymentId').textContent = intent.id;
+    $('paymentAmount').textContent = '₹'+intent.amount;
+    $('paymentPlanDisplay').textContent = intent.plan_id;
+    if (intent.upi_intent_url) {
+      $('upiIntentLink').href = intent.upi_intent_url;
+      $('upiIntentLink').style.display='inline-block';
+    }
+    const instr = intent.payment_instructions || {};
+    $('upiId').textContent = instr.upi_id || 'payments@teernova';
+    $('paymentInstructions').innerHTML = (instr.instructions||[]).map(i=>
+      '<div class="instruction-step">'+esc(i)+'</div>').join('');
+    if (intent.qrcode_data) {
+      $('qrTransactionId').textContent = intent.qrcode_data.transaction_id || intent.id;
+    }
+    $('verifySection').style.display='block';
+    $('paymentSection').scrollIntoView({behavior:'smooth'});
+  }
+
+  async function verifyPayment() {
+    const intentId = state.currentIntent?.id;
+    const txId = $('verifyTransactionId').value.trim();
+    if (!intentId) return alert('Intent not found.');
+    if (!txId) return alert('Transaction ID dalein.');
+    $('verifyButton').disabled=true;
+    $('verifyButton').textContent='Verifying...';
+    $('verifyResult').style.display='none';
+    try {
+      const res = await api('/api/payments/verify', {
+        method:'POST', body: JSON.stringify({
+          intent_id: intentId, transaction_id: txId,
+          upi_transaction_id: txId, payment_method:'upi'
+        })
+      });
+      $('verifyResult').style.display='block';
+      $('verifyResult').className='verify-result success';
+      $('verifyResult').innerHTML =
+        '<div class="verify-icon success">✓</div>'+
+        '<h4>Payment Successful!</h4>'+
+        '<p>Transaction: <strong>'+esc(res.payment?.transaction_id||res.payment?.id||'')+'</strong></p>'+
+        '<p>Plan: '+esc(state.currentIntent?.plan_id||'')+' | ₹'+state.currentIntent?.amount+'</p>'+
+        (res.subscription_activated?'<p class="success-badge">✓ Premium subscription activated!</p>':'')+
+        (state.currentIntent?.demo_credits?'<p class="success-badge">✓ '+state.currentIntent.demo_credits+' demo credits add ho gaye!</p>':'')+
+        '<a href="/" class="btn btn-primary">Back to Home</a>';
+    } catch(e) {
+      $('verifyResult').style.display='block';
+      $('verifyResult').className='verify-result error';
+      $('verifyResult').innerHTML=
+        '<div class="verify-icon error">✕</div>'+
+        '<h4>Error</h4><p>'+esc(e.message||'Verification failed. Transaction ID check karein.')+'</p>'+
+        '<button class="btn btn-outline" onclick="location.reload()">Try Again</button>';
+      $('verifyButton').disabled=false;
+      $('verifyButton').textContent='Payment Verify Karein';
+    }
+  }
+
+  async function loadHistory() {
+    if (!state.user) return;
+    try {
+      const res = await api('/api/payments/history');
+      const histEl = $('paymentHistory');
+      if (!res.payments?.length) { histEl.innerHTML='<p class="text-muted">Koi payment history nahi.</p>'; return; }
+      histEl.innerHTML = '<h3>Payment History</h3>'+res.payments.map(p=>
+        '<div class="history-item">'+
+        '<div class="hist-row"><span class="hist-label">Plan:</span><span class="hist-value">'+esc(p.plan_name||p.plan_id)+'</span></div>'+
+        '<div class="hist-row"><span class="hist-label">Amount:</span><span class="hist-value">₹'+p.amount+'</span></div>'+
+        '<div class="hist-row"><span class="hist-label">Status:</span><span class="hist-status status-'+p.status+'">'+esc(p.status)+'</span></div>'+
+        '<div class="hist-row"><span class="hist-label">Date:</span><span class="hist-value">'+formatDate(p.created_at)+'</span></div>'+
+        (p.transaction_id?'<div class="hist-row"><span class="hist-label">TX:</span><span class="hist-value">'+esc(p.transaction_id)+'</span></div>':'')+
+        '</div>').join('');
+      const subEl = $('subscriptionStatus');
+      if (res.subscription) {
+        const s = res.subscription;
+        subEl.innerHTML = '<div class="subscription-card">'+
+          '<h4>Current Subscription</h4>'+
+          '<div>'+esc(s.plan_id)+'</div>'+
+          '<div class="sub-status status-'+s.status+'">'+esc(s.status)+'</div>'+
+          (s.days_remaining>0?'<div class="sub-days">'+s.days_remaining+' days remaining</div>':'')+
+          '</div>';
+      } else {
+        subEl.innerHTML='<p class="text-muted">No active subscription.</p>';
+      }
+      $('creditBalance').textContent = res.credit_balance || 0;
+    } catch(e) {}
+  }
+
+  function formatDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+
+  document.addEventListener('DOMContentLoaded', async ()=>{
+    try {
+      const res = await api('/api/payments/plans');
+      state.plans = Object.entries(res.plans||{}).map(([id,p])=>({id,...p}));
+      $('plansContainer').innerHTML = state.plans.map(plan=>
+        '<div class="plan-card" data-plan="'+plan.id+'" onclick="selectPlan(\''+plan.id+'\')">'+
+        '<div class="plan-header">'+
+          '<h3>'+esc(plan.name)+'</h3>'+
+          '<div class="plan-price">₹'+plan.price+'</div>'+
+          '<div class="plan-desc">'+esc(plan.description)+'</div>'+
+          (plan.features?'<div class="plan-features">'+plan.features.map(f=>'<span class="feature-dot">✓ '+esc(f)+'</span>').join('')+'</div>':'')+
+          (plan.credits?'<div class="plan-credits">🎯 '+plan.credits+' demo credits</div>':'')+
+          (plan.duration_days?'<div class="plan-duration">'+plan.duration_days+' days validity</div>':'')+
+          '<div class="plan-cta">Select Plan →</div>'+
+        '</div></div>').join('');
+    } catch(e) { console.error(e); }
+
+    try {
+      const r = await fetch('/api/auth/me');
+      if (r.ok) {
+        state.user = await r.json();
+        if (state.user) {
+          $('userSection').style.display='block';
+          $('userName').textContent = state.user.name || state.user.email;
+          await loadHistory();
+        }
+      }
+    } catch(e) {}
+  });
+  </script>
+</body>
+</html>

@@ -11,7 +11,7 @@ const run = (cmd, args = []) => {
 };
 
 console.log('==============================================');
-console.log(' PANIKA JEEVAN SATHI — FINAL EMPLOYEE BATCH');
+console.log(' TEER WALE — FINAL EMPLOYEE BATCH');
 console.log('==============================================');
 console.log('WORK BATCH: 200');
 console.log('');
@@ -47,7 +47,7 @@ if (!run('npm', ['test'])) {
 console.log('');
 console.log('5/6 Creating Hindi employee report...');
 
-const report = `# PANIKA JEEVAN SATHI — Employee Report
+const report = `# TEER WALE — Employee Report
 
 तारीख: ${new Date().toISOString()}
 

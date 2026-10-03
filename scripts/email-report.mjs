@@ -38,7 +38,7 @@ const html = `
 <!doctype html>
 <html lang="hi">
 <body>
-<h2>PANIKA JEEVAN SATHI — Employee Report</h2>
+<h2>TEER WALE — Employee Report</h2>
 
 <p><b>समय:</b> ${now}</p>
 
@@ -68,9 +68,9 @@ const response = await fetch('https://api.resend.com/emails', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    from: 'PANIKA JEEVAN SATHI <onboarding@resend.dev>',
+    from: 'TEER WALE <onboarding@resend.dev>',
     to: [recipient],
-    subject: `PANIKA JEEVAN SATHI — Employee Report ${new Date().toLocaleString('en-IN')}`,
+    subject: `TEER WALE — Employee Report ${new Date().toLocaleString('en-IN')}`,
     html
   })
 });

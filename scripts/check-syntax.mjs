@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const PUBLIC = path.join(ROOT, 'public');
+const PUBLIC = ROOT;
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pjs-syntax-'));
 
 let checked = 0;

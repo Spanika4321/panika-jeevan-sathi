@@ -1,9 +1,9 @@
-# PANIKA JEEVAN SATHI — Render Blueprint (Free plan)
+# TEERNOVA — Render Blueprint (Free plan)
 #
 # Deploy: Render dashboard → New + → Blueprint → pick this repository.
-# This Blueprint creates the service `panikajeevansathi`, so the public URL is:
+# This Blueprint creates the service `teerwale`, so the public URL is:
 #
-#     https://panikajeevansathi.onrender.com
+#     https://teerwale.onrender.com
 #
 # IMPORTANT — why there is no disk here:
 # Render's Free plan has an *ephemeral* filesystem and cannot attach a
@@ -24,11 +24,11 @@
 
 services:
   - type: web
-    name: panikajeevansathi
+    name: teerwale
     runtime: node
     plan: free
     region: singapore # closest Render region to India
-    buildCommand: node -v # zero dependencies: nothing to install
+    buildCommand: npm install  # installs @supabase/supabase-js + other deps
     startCommand: node server.js
     healthCheckPath: /api/health
     autoDeploy: true # redeploy automatically when main changes
@@ -40,15 +40,26 @@ services:
       - key: PJS_STORAGE
         value: auto # auto → D1 when CF_* is set, else local SQLite
       - key: SITE_URL
-        value: https://panikajeevansathi.onrender.com # canonical origin for robots/sitemap
+        value: https://teerwale.onrender.com # canonical origin for robots/sitemap
       - key: SESSION_SECRET
         generateValue: true # keeps members logged in across restarts
       - key: ADMIN_EMAIL
-        value: sukulpanika939@gmail.com
+        value: admin@teernova.com
       - key: ADMIN_PASSWORD
         generateValue: true # printed once in the deploy log; change it after login
 
+      # ---- Supabase (database + storage) — set these in the Render dashboard ----
+      # When SUPABASE_URL + SUPABASE_KEY are set, the site uses Supabase instead
+      # of local SQLite — data NEVER lost on sleep/redeploy.
+      # Get these from https://supabase.com → your project → Settings → API
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+
       # ---- Cloudflare D1 (database) — set these in the Render dashboard ----
+      # Alternative persistent database. Takes precedence over local SQLite.
+      # Leave blank to use local SQLite (data lost on sleep/redeploy — demo only).
       - key: CF_ACCOUNT_ID
         sync: false
       - key: CF_D1_DATABASE_ID
@@ -57,6 +68,7 @@ services:
         sync: false
 
       # ---- Cloudflare R2 (photos) — set these in the Render dashboard ------
+      # Persistent photo storage. Leave blank for local uploads folder only.
       - key: R2_ACCOUNT_ID
         sync: false
       - key: R2_BUCKET

@@ -1,4 +1,4 @@
-# PANIKA JEEVAN SATHI — AI Agent Storage
+# TEER WALE — AI Agent Storage
 
 Ye folder **12 AI agents ki permanent memory** hai. GitHub Actions ka runner
 har baar naya (ephemeral) hota hai, isliye bina storage ke agents har run par
@@ -142,7 +142,7 @@ bas unki memory har run par committed baseline se shuru hogi.
 | --- | --- | --- |
 | `PJS_AGENT_STORAGE_DIR` | `<repo>/storage` | storage root kahan hai |
 | `PJS_AGENT_STORAGE_BACKEND` | `file` | `file` = disk, `memory` = ephemeral |
-| `SITE_URL` | `https://panikajeevansathi.onrender.com` | Rahul isko ping karta hai |
+| `SITE_URL` | `https://teerwale.onrender.com` | Rahul isko ping karta hai |
 | `PJS_CYCLE_MANAGED` | unset | cycle runner set karta hai (double-entry avoid) |
 
 ## 9. Retention

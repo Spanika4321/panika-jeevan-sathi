@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TEERNOVA provides verified Teer results, historical records and statistics.">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Sessions — TEERNOVA</title>
+  <link rel="canonical" href="https://teernova.onrender.com/sessions.html">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+          <path d="M8 24L16 8L24 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="12" r="3" fill="white"/>
+          <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#1a1a2e"/><stop offset="1" stop-color="#16213e"/></linearGradient></defs>
+        </svg>
+        <span class="logo-text">TEERNOVA</span>
+      </a>
+      <nav class="main-nav">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/results.html" class="nav-link">Results</a>
+        <a href="/history.html" class="nav-link">History</a>
+        <a href="/statistics.html" class="nav-link">Stats</a>
+        <a href="/sessions.html" class="nav-link active">Sessions</a>
+        <a href="/demo.html" class="nav-link">Demo</a>
+        <a href="/about.html" class="nav-link">About</a>
+      </nav>
+      <div class="header-actions">
+        <a href="/login.html" class="btn btn-outline" id="loginBtn">Login</a>
+        <a href="/admin.html" class="btn btn-admin" id="adminBtn" style="display:none">Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="sessions-page">
+      <div class="page-header">
+        <h1>Sessions</h1>
+        <p class="tagline">Admin-configured session schedules for Teer results.</p>
+      </div>
+      <div class="sessions-container">
+        <div class="loading" id="sessionsLoading">
+          <div class="spinner"></div>
+          <p>Loading sessions...</p>
+        </div>
+        <div class="sessions-list" id="sessionsList" style="display:none"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#1a1a2e"/>
+          <path d="M8 24L16 8L24 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="12" r="3" fill="white"/>
+        </svg>
+        <span>TEERNOVA</span>
+      </div>
+      <p class="footer-tagline">Live Teer Results • Smart Statistics • Trusted Information</p>
+      <p class="footer-copy" id="footerCopy"></p>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/results.html">Results</a>
+        <a href="/history.html">History</a>
+        <a href="/statistics.html">Statistics</a>
+        <a href="/sessions.html">Sessions</a>
+        <a href="/demo.html">Demo</a>
+        <a href="/about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <nav class="bottom-nav">
+    <a href="/" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3v18"/></svg><span>Home</span></a>
+    <a href="/results.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Results</span></a>
+    <a href="/history.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>History</span></a>
+    <a href="/statistics.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Stats</span></a>
+    <a href="/demo.html" class="nav-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Demo</span></a>
+  </nav>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('footerCopy').textContent = `© ${new Date().getFullYear()} TEERNOVA. All rights reserved.`;
+
+      try {
+        const res = await fetch('/api/sessions');
+        const data = await res.json();
+        if (data.ok && data.sessions) {
+          renderSessions(data.sessions);
+        }
+      } catch (e) {
+        document.getElementById('sessionsList').innerHTML = '<div class="error">Failed to load sessions.</div>';
+      }
+    });
+
+    function renderSessions(sessions) {
+      const list = document.getElementById('sessionsList');
+      if (!sessions.length) {
+        list.innerHTML = '<div class="no-data">No sessions configured. Contact admin.</div>';
+        return;
+      }
+
+      const categories = {};
+      sessions.forEach(s => {
+        if (!categories[s.category]) categories[s.category] = [];
+        categories[s.category].push(s);
+      });
+
+      const categoryOrder = ['morning', 'day', 'evening', 'night'];
+      let html = '';
+      categoryOrder.forEach(cat => {
+        if (categories[cat]) {
+          html += `<div class="category-section"><h3>${cat.charAt(0).toUpperCase() + cat.slice(1)} Sessions</h3>`;
+          categories[cat].forEach(s => {
+            html += `
+              <div class="session-card">
+                <div class="session-header">
+                  <span class="session-category ${s.category}">${s.category}</span>
+                  <span class="session-name">${escapeHtml(s.name)}</span>
+                  <span class="session-badge ${s.is_active ? 'active' : 'inactive'}">${s.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+                ${s.description ? `<p class="session-desc">${escapeHtml(s.description)}</p>` : ''}
+                <div class="session-footer">
+                  <span>State: ${escapeHtml(s.state)}</span>
+                </div>
+                <a href="/results.html?session=${s.id}" class="view-results-btn">View Results →</a>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+      });
+
+      list.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

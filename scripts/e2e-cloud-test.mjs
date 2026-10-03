@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — cloud-storage end-to-end test.
+ * TEER WALE — cloud-storage end-to-end test.
  *
  * Runs the whole site against local stand-ins for Cloudflare D1 (database) and
  * R2 (photos), i.e. exactly the configuration Render's Free plan will use:

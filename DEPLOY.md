@@ -1,4 +1,4 @@
-# Deploying PANIKA JEEVAN SATHI
+# Deploying TEER WALE
 
 This app is a **Node.js server + SQLite database**. It needs a host that can run a Node process
 and keep files on disk (database + uploaded photos).
@@ -15,8 +15,8 @@ Requirements: **Node.js 22.5+** (uses the built-in `node:sqlite`). No `npm insta
 
 | Environment | URL | Status / notes |
 | --- | --- | --- |
-| **Recommended production (Render, free)** | `https://panikajeevansathi.onrender.com` | Created by the Blueprint below. Pair with Cloudflare D1 + R2 for durable data. |
-| Previous production (cPanel hosting) | `https://panikajeevansathi.coolstore.in` | The old Next.js site. The superseded app can be replaced by this one on the same hosting (see § 1c) so the same domain stays live. |
+| **Recommended production (Render, free)** | `https://teerwale.onrender.com` | Created by the Blueprint below. Pair with Cloudflare D1 + R2 for durable data. |
+| Previous production (cPanel hosting) | `https://teerwale.coolstore.in` | The old Next.js site. The superseded app can be replaced by this one on the same hosting (see § 1c) so the same domain stays live. |
 | **Do not use** | `precious-abundance-production.up.railway.app` | Old Railway sandbox. Railway's free sandbox was removed, which is exactly what the **“Sandbox Not Found”** error means: the deployment container no longer exists. |
 
 **Permanently fixing “Sandbox Not Found”:** the error comes from a dead Railway sandbox, not from
@@ -46,7 +46,7 @@ HTTP response finishes, so nothing depends on the local disk.
 
 1. Sign up at [dash.cloudflare.com](https://dash.cloudflare.com) (free).
 2. Copy your **Account ID** from any page in the dashboard (right-hand column).
-3. **D1 database** → *Storage & Databases → D1 → Create* → name it `panika-jeevan-sathi`.
+3. **D1 database** → *Storage & Databases → D1 → Create* → name it `teer-wale`.
    Copy its **Database ID** (a UUID).
    *Or let the helper do it:* `node scripts/cloud-setup.mjs --token <CF token>`
 4. **API token for D1** → [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)
@@ -58,16 +58,16 @@ HTTP response finishes, so nothing depends on the local disk.
 
 ### B. Deploy on Render (one click)
 
-The Blueprint `render.yaml` creates the service **`panikajeevansathi`**, so the public URL is
-**`https://panikajeevansathi.onrender.com`**.
+The Blueprint `render.yaml` creates the service **`teerwale`**, so the public URL is
+**`https://teerwale.onrender.com`**.
 
 1. Make sure the latest code is on `main` (it is, after merging this branch).
-2. Open: `https://dashboard.render.com/blueprint/new?repo=https://github.com/Spanika4321/panika-jeevan-sathi`
+2. Open: `https://dashboard.render.com/blueprint/new?repo=https://github.com/Spanika4321/teer-wale`
 3. Render reads `render.yaml`, creates the **Free** web service (Singapore region,
    `node server.js`, health check `/api/health`) and asks you to fill in the
    **seven blank values** — paste the Cloudflare values from step A. `SESSION_SECRET`
    and `ADMIN_PASSWORD` are generated for you; `SITE_URL` is pre-set to
-   `https://panikajeevansathi.onrender.com`.
+   `https://teerwale.onrender.com`.
 4. Click **Apply**. Deployment takes ~2 minutes.
 
 **Option 2 — fully automated (Render API key):** copy
@@ -87,7 +87,7 @@ RENDER_API_KEY=rnd_xxx node scripts/deploy-render.mjs \
 ### C. Check it
 
 ```bash
-node scripts/verify-cloud.mjs --url https://panikajeevansathi.onrender.com
+node scripts/verify-cloud.mjs --url https://teerwale.onrender.com
 ```
 
 That checks D1, R2 **and** the live site (pages, health endpoint, storage driver,
@@ -107,26 +107,26 @@ then set `PJS_STORAGE=sqlite`. No Cloudflare setup needed; backups = copy `/app/
 
 ---
 
-## 1c. Restoring the previous URL on cPanel (`panikajeevansathi.coolstore.in`)
+## 1c. Restoring the previous URL on cPanel (`teerwale.coolstore.in`)
 
 The previous production site (a Next.js 16 + PostgreSQL app) was superseded by this
-zero-dependency build. The cPanel account `/home/panikaje` already has **persistent
+zero-dependency build. The cPanel account `/home/teerwale` already has **persistent
 storage**, so this app runs there with a durable SQLite database — no Cloudflare,
 no PostgreSQL, no extra costs.
 
 1. cPanel → **Setup Node.js App** → Create Application:
    - Node.js version: **22.22.3** (or any 22.5+; the app falls back to the JSON store below 22.5)
-   - Application root: `panika-jeevan-sathi`
-   - Application URL: `panikajeevansathi.coolstore.in`
+   - Application root: `teer-wale`
+   - Application URL: `teerwale.coolstore.in`
    - Startup file: `server.js`
-2. Clone/copy this repository into `/home/panikaje/panika-jeevan-sathi`
+2. Clone/copy this repository into `/home/teerwale/teer-wale`
    (or upload a zip and extract — no `npm install` needed).
 3. Environment variables (cPanel → Setup Node.js App → Environment Variables):
-   - `SITE_URL=https://panikajeevansathi.coolstore.in`
+   - `SITE_URL=https://teerwale.coolstore.in`
    - `SESSION_SECRET=` a long random string
    - `ADMIN_EMAIL=sukulpanika939@gmail.com`, `ADMIN_PASSWORD=` a strong password
-   - optional: `SMTP_HOST=mail.panikajeevansathi.coolstore.in`, `SMTP_PORT=465`,
-     `SMTP_USER=contact@panikajeevansathi.coolstore.in`, `SMTP_PASS=…`
+   - optional: `SMTP_HOST=mail.teerwale.coolstore.in`, `SMTP_PORT=465`,
+     `SMTP_USER=contact@teerwale.coolstore.in`, `SMTP_PASS=…`
 4. **Start / Restart** the app. All data lives in `data/` in the app root —
    back it up with the rest of the account. Log in at `/admin.html`.
 
@@ -159,12 +159,12 @@ environment must be re-created — the old sandbox cannot be revived from code.
 ## 3. Docker (any host: VPS, Fly.io, ECS…)
 
 ```bash
-docker build -t panika-jeevan-sathi .
+docker build -t teer-wale .
 docker run -d --name pjs -p 3000:3000 \
   -e SESSION_SECRET="a-long-random-string" \
-  -e SITE_URL="https://panikajeevansathi.onrender.com" \
+  -e SITE_URL="https://teerwale.onrender.com" \
   -v pjs-data:/app/data \
-  panika-jeevan-sathi
+  teer-wale
 ```
 
 Health check: `GET /api/health`.
@@ -172,18 +172,18 @@ Health check: `GET /api/health`.
 ## 4. VPS with systemd
 
 ```bash
-git clone <repo> /opt/panika-jeevan-sathi && cd /opt/panika-jeevan-sathi
+git clone <repo> /opt/teer-wale && cd /opt/teer-wale
 sudo tee /etc/systemd/system/pjs.service > /dev/null <<'UNIT'
 [Unit]
-Description=PANIKA JEEVAN SATHI
+Description=TEER WALE
 After=network.target
 
 [Service]
-WorkingDirectory=/opt/panika-jeevan-sathi
+WorkingDirectory=/opt/teer-wale
 ExecStart=/usr/bin/node server.js
 Environment=PORT=3000
 Environment=HOST=0.0.0.0
-Environment=SITE_URL=https://panikajeevansathi.onrender.com
+Environment=SITE_URL=https://teerwale.onrender.com
 Environment=SESSION_SECRET=change-me-to-a-long-random-string
 Restart=always
 User=www-data

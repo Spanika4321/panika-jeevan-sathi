@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — Cloudflare D1 + R2 connection check.
+ * TEER WALE — Cloudflare D1 + R2 connection check.
  *
  * Run this after filling in the environment variables (locally, on Render's
  * "Shell"/one-off job, or from GitHub Actions) to prove the site can really
  * reach its database and photo bucket:
  *
  *   node scripts/verify-cloud.mjs              # check D1 + R2
- *   node scripts/verify-cloud.mjs --url https://panika-jeevan-sathi.onrender.com
+ *   node scripts/verify-cloud.mjs --url https://teer-wale.onrender.com
  *                                              # ...and the deployed website
  *
  * Exits non-zero (with a plain-English fix) if anything is wrong.

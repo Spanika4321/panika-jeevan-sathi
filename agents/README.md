@@ -1,4 +1,4 @@
-# PANIKA JEEVAN SATHI Agent Team
+# TEER WALE Agent Team
 
 Hierarchy:
 - Guardian = Sardar / existing safety and health authority

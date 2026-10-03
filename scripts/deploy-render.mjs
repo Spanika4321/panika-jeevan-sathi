@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — deploy to Render through the Render API.
+ * TEER WALE — deploy to Render through the Render API.
  *
  * Creates (or updates) the Free-plan web service, pushes every environment
  * variable the site needs, triggers a deploy, waits for it to go live and then
@@ -33,8 +33,8 @@ const flags = new Set(args.filter((a) => a.startsWith('--')));
 
 const KEY = arg('key', process.env.RENDER_API_KEY || '');
 const API = 'https://api.render.com/v1';
-const REPO = arg('repo', 'https://github.com/Spanika4321/panika-jeevan-sathi');
-const NAME = arg('name', 'panikajeevansathi'); // → https://panikajeevansathi.onrender.com
+const REPO = arg('repo', 'https://github.com/Spanika4321/teer-wale');
+const NAME = arg('name', 'teerwale'); // → https://teerwale.onrender.com
 const BRANCH = arg('branch', 'main');
 const REGION = arg('region', 'singapore'); // closest to India
 const PLAN = arg('plan', 'free');
@@ -48,7 +48,7 @@ const provided = {
   NODE_VERSION: arg('node-version', '22.22.3'),
   HOST: '0.0.0.0',
   PJS_STORAGE: 'auto',
-  SITE_URL: arg('site-url', 'https://panikajeevansathi.onrender.com'),
+  SITE_URL: arg('site-url', 'https://teerwale.onrender.com'),
   ADMIN_EMAIL: arg('admin-email', process.env.ADMIN_EMAIL || 'sukulpanika939@gmail.com'),
   CF_ACCOUNT_ID: arg('cf-account-id', process.env.CF_ACCOUNT_ID || ''),
   CF_D1_DATABASE_ID: arg('cf-d1-database-id', process.env.CF_D1_DATABASE_ID || ''),

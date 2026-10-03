@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — AI Agent Storage Engine
+ * TEER WALE — AI Agent Storage Engine
  * =============================================
  *
  * Har AI agent (Guardian, Manager, Pooja, Priya …) ko ek apni *permanent*
@@ -1063,7 +1063,7 @@ export function init({ agents = [] } = {}) {
   }
 
   if (!exists(REGISTRY_FILE())) {
-    writeRegistry({ version: 1, project: 'PANIKA JEEVAN SATHI', created_at: now(), agents: [] });
+    writeRegistry({ version: 1, project: 'TEER WALE', created_at: now(), agents: [] });
   }
   if (!exists(QUEUE_FILE())) {
     writeQueue({ pending: [], running: [], done: [], failed: [] });
@@ -1102,7 +1102,7 @@ export function status() {
   });
 
   return {
-    project: 'PANIKA JEEVAN SATHI',
+    project: 'TEER WALE',
     generated_at: now(),
     version: VERSION,
     backend: BACKEND,

@@ -9,7 +9,7 @@ const MAX_ROUNDS=20;
 const BATCH=200;
 
 console.log('==============================================');
-console.log(' PANIKA JEEVAN SATHI — AUTO EMPLOYEE SYSTEM');
+console.log(' TEER WALE — AUTO EMPLOYEE SYSTEM');
 console.log('==============================================');
 console.log(`BATCH: ${BATCH}`);
 console.log(`MAX ROUNDS: ${MAX_ROUNDS}`);

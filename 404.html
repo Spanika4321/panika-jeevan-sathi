@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TEERNOVA — Page not found">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Page not found — TEERNOVA</title>
+  <link rel="canonical" href="https://teernova.onrender.com/">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+          <path d="M8 24L16 8L24 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="12" r="3" fill="white"/>
+          <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#1a1a2e"/><stop offset="1" stop-color="#16213e"/></linearGradient></defs>
+        </svg>
+        <span class="logo-text">TEERNOVA</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="not-found-container">
+      <div class="not-found-content">
+        <svg width="80" height="80" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#1a1a2e" opacity="0.3"/>
+          <text x="16" y="22" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">404</text>
+        </svg>
+        <h1>Page Not Found</h1>
+        <p>The page you are looking for doesn't exist or has been moved.</p>
+        <a href="/" class="btn btn-primary">Go to Home</a>
+        <a href="/results.html" class="btn btn-outline">View Results</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#1a1a2e"/>
+          <path d="M8 24L16 8L24 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="12" r="3" fill="white"/>
+        </svg>
+        <span>TEERNOVA</span>
+      </div>
+      <p class="footer-tagline">Live Teer Results • Smart Statistics • Trusted Information</p>
+      <p class="footer-copy">© <span id="footerYear"></span> TEERNOVA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

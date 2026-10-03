@@ -6,11 +6,11 @@ const run=(cmd,args=[])=>{
   catch(e){return{ok:false,out:String(e.stdout||e.stderr||e.message||'')}}
 };
 
-const site='https://panikajeevansathi.onrender.com';
-const domain='panikajeevansathi.coolstore.in';
+const site='https://teerwale.onrender.com';
+const domain='teerwale.coolstore.in';
 
 console.log('==============================================');
-console.log(' PANIKA JEEVAN SATHI — ₹0 SURVIVAL MANAGER');
+console.log(' TEER WALE — ₹0 SURVIVAL MANAGER');
 console.log('==============================================');
 
 console.log('\n[1] LOCAL AGENTS');

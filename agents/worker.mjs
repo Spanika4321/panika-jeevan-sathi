@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — Generic Agent Worker
+ * TEER WALE — Generic Agent Worker
  * ==========================================
  *
  *   node agents/worker.mjs <agent-id>
@@ -168,7 +168,7 @@ function runKavita() {
 }
 
 async function runRahul() {
-  const siteUrl = process.env.SITE_URL || 'https://panikajeevansathi.onrender.com';
+  const siteUrl = process.env.SITE_URL || 'https://teerwale.onrender.com';
   const missing = missingRequirements(agent);
 
   // Honest sampling: agar network available nahi to SKIPPED, FAIL nahi.
@@ -393,8 +393,8 @@ function runMeera() {
   const status = store.status();
 
   const subject = cycle
-    ? `PANIKA JEEVAN SATHI — cycle ${cycle.status} (${status.agents.length} agents)`
-    : 'PANIKA JEEVAN SATHI — agent storage cycle report';
+    ? `TEER WALE — cycle ${cycle.status} (${status.agents.length} agents)`
+    : 'TEER WALE — agent storage cycle report';
 
   const body = status.agents
     .map((a) => `• ${a.name}: ${a.status} (runs: ${a.runs})`)

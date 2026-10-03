@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — AI Agent Storage CLI
+ * TEER WALE — AI Agent Storage CLI
  * ==========================================
  *
  *   node scripts/agent-storage.mjs init       # storage tree + 12 agents
@@ -71,8 +71,8 @@ function dirSize(dir) {
 function cmdInit() {
   const result = store.init({ agents: AGENTS });
   // Seed shared namespaces + knowledge so the store is useful from minute one.
-  store.kvSet('project', 'name', 'PANIKA JEEVAN SATHI');
-  store.kvSet('project', 'site', 'https://panikajeevansathi.onrender.com');
+  store.kvSet('project', 'name', 'TEER WALE');
+  store.kvSet('project', 'site', 'https://teerwale.onrender.com');
   store.kvSet('project', 'owner_email_file', '.report-recipient');
   store.kvSet('policy', 'safety', SAFETY);
   store.kvSet('policy', 'hierarchy', HIERARCHY);
@@ -121,7 +121,7 @@ function cmdStatus() {
   const size = dirSize(store.STORAGE_DIR);
 
   console.log('================================================================');
-  console.log(' PANIKA JEEVAN SATHI — AI AGENT STORAGE STATUS');
+  console.log(' TEER WALE — AI AGENT STORAGE STATUS');
   console.log('================================================================');
   console.log(' generated :', status.generated_at);
   console.log(' backend   :', status.backend);
@@ -378,7 +378,7 @@ function cmdReport() {
   const roster = new Map(AGENTS.map((a) => [a.id, a]));
 
   const lines = [];
-  lines.push('# PANIKA JEEVAN SATHI — AI Agent Storage Report');
+  lines.push('# TEER WALE — AI Agent Storage Report');
   lines.push('');
   lines.push(`Generated: ${status.generated_at}`);
   lines.push('');

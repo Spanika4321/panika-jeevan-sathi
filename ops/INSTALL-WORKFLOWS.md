@@ -19,7 +19,7 @@ Push karte waqt aapko ye error dikhta hai to yahin se copy karein:
 
 ## ✅ Tareeka (har file ke liye same 4 steps)
 
-1. GitHub par repo kholein: <https://github.com/Spanika4321/panika-jeevan-sathi>
+1. GitHub par repo kholein: <https://github.com/Spanika4321/teer-wale>
 2. **Add file → Create new file**
 3. File name box mein exactly ye path likhein (table ke hisaab se)
 4. `ops/` mein rakhi hui corresponding file ka **poora content** paste karein

@@ -1,4 +1,4 @@
-const SITE = 'https://panikajeevansathi.onrender.com';
+const SITE = 'https://teerwale.onrender.com';
 
 async function get(path) {
   try {

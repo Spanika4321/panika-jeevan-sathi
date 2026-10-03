@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — Agent Storage Cycle
+ * TEER WALE — Agent Storage Cycle
  * =========================================
  *
  *   node scripts/agent-storage-cycle.mjs            # poora cycle
@@ -126,7 +126,7 @@ function summarise(id, out) {
 
 function main() {
   console.log('================================================================');
-  console.log(' PANIKA JEEVAN SATHI — AI AGENT STORAGE CYCLE');
+  console.log(' TEER WALE — AI AGENT STORAGE CYCLE');
   console.log('================================================================');
 
   const init = store.init({ agents: AGENTS });

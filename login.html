@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TEERNOVA Login — Live Teer Results • Smart Statistics • Trusted Information">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Login — TEERNOVA</title>
+  <link rel="canonical" href="https://teernova.onrender.com/login.html">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+          <path d="M8 24L16 8L24 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="12" r="3" fill="white"/>
+          <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#1a1a2e"/><stop offset="1" stop-color="#16213e"/></linearGradient></defs>
+        </svg>
+        <span class="logo-text">TEERNOVA</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="main-content login-main">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-header">
+          <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#1a1a2e"/>
+            <path d="M8 24L16 8L24 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="16" cy="12" r="3" fill="white"/>
+          </svg>
+          <h1>TEERNOVA</h1>
+          <p class="tagline">Live Teer Results • Smart Statistics • Trusted Information</p>
+        </div>
+        <div class="login-tabs">
+          <button class="tab-btn active" data-tab="login">Login</button>
+          <button class="tab-btn" data-tab="register">Register</button>
+        </div>
+        <div class="tab-content" id="loginTab">
+          <form id="loginForm">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-full">Login</button>
+            </div>
+            <div class="form-group">
+              <a href="/admin.html" class="btn btn-outline btn-full admin-login-link">Admin Login</a>
+            </div>
+            <div class="form-group forgot-password">
+              <a href="/reset-password.html">Forgot Password?</a>
+            </div>
+          </form>
+          <div class="form-message" id="loginMessage"></div>
+        </div>
+        <div class="tab-content" id="registerTab" style="display:none">
+          <form id="registerForm">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="registerName" class="form-input" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="registerEmail" class="form-input" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="registerPassword" class="form-input" placeholder="Min 8 characters, letters + numbers" required>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-full">Register</button>
+            </div>
+          </form>
+          <div class="form-message" id="registerMessage"></div>
+        </div>
+      </div>
+      <div class="login-footer">
+        <p>Don't have an account? <a href="#" id="switchToRegister">Register here</a></p>
+        <p><a href="/">← Back to Home</a></p>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('footerCopy').textContent = `© ${new Date().getFullYear()} TEERNOVA. All rights reserved.`;
+
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = btn.dataset.tab;
+          loginTab.style.display = tab === 'login' ? 'block' : 'none';
+          registerTab.style.display = tab === 'register' ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('switchToRegister').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-tab="register"]').classList.add('active');
+        loginTab.style.display = 'none';
+        registerTab.style.display = 'block';
+      });
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const msg = document.getElementById('loginMessage');
+
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+
+          if (data.ok) {
+            window.location.href = data.user.role === 'admin' ? '/admin.html' : '/';
+          } else {
+            msg.innerHTML = `<p class="error">${data.error || 'Login failed'}</p>`;
+          }
+        } catch (e) {
+          msg.innerHTML = '<p class="error">Network error. Please try again.</p>';
+        }
+      });
+
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const msg = document.getElementById('registerMessage');
+
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+          });
+          const data = await res.json();
+
+          if (data.ok) {
+            msg.innerHTML = '<p class="success">Registration successful! You can now login.</p>';
+            setTimeout(() => {
+              document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+              document.querySelector('[data-tab="login"]').classList.add('active');
+              loginTab.style.display = 'block';
+              registerTab.style.display = 'none';
+            }, 2000);
+          } else {
+            msg.innerHTML = `<p class="error">${data.error || 'Registration failed'}</p>`;
+          }
+        } catch (e) {
+          msg.innerHTML = '<p class="error">Network error. Please try again.</p>';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

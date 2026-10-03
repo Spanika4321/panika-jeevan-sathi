@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-08-30T18:58:07.047Z",
-  "site": "https://panikajeevansathi.onrender.com",
+  "site": "https://teerwale.onrender.com",
   "round": 14,
   "batch": 200,
   "passed": 198,
@@ -10,18 +10,18 @@
     {
       "name": "Register page",
       "path": "/register.html",
-      "url": "https://panikajeevansathi.onrender.com/register.html",
+      "url": "https://teerwale.onrender.com/register.html",
       "status": 404,
       "ok": false,
-      "final_url": "https://panikajeevansathi.onrender.com/register.html"
+      "final_url": "https://teerwale.onrender.com/register.html"
     },
     {
       "name": "Forgot password",
       "path": "/forgot-password.html",
-      "url": "https://panikajeevansathi.onrender.com/forgot-password.html",
+      "url": "https://teerwale.onrender.com/forgot-password.html",
       "status": 404,
       "ok": false,
-      "final_url": "https://panikajeevansathi.onrender.com/forgot-password.html"
+      "final_url": "https://teerwale.onrender.com/forgot-password.html"
     }
   ],
   "policy": {

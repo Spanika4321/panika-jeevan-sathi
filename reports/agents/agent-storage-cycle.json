@@ -49,7 +49,7 @@
       "role": "Uptime & Performance Worker",
       "status": "BLOCKED",
       "duration_ms": 15042,
-      "summary": "BLOCKED — Network se https://panikajeevansathi.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
+      "summary": "BLOCKED — Network se https://teerwale.onrender.com reach nahi ho paya — koi fake status nahi diya gaya."
     },
     {
       "id": "sneha",
@@ -108,7 +108,7 @@
   "doctor": {
     "ok": true,
     "backend": "file",
-    "dir": "/home/user/panika-jeevan-sathi/storage",
+    "dir": "/home/user/teer-wale/storage",
     "agents": 12,
     "files": 107,
     "snapshots": 1,
@@ -128,7 +128,7 @@
       {
         "name": "storage root exists",
         "ok": true,
-        "detail": "/home/user/panika-jeevan-sathi/storage"
+        "detail": "/home/user/teer-wale/storage"
       },
       {
         "name": "agent registry readable",
@@ -158,11 +158,11 @@
     ]
   },
   "status": {
-    "project": "PANIKA JEEVAN SATHI",
+    "project": "TEER WALE",
     "generated_at": "2026-08-31T00:29:34.098Z",
     "version": "1.0.0",
     "backend": "file",
-    "dir": "/home/user/panika-jeevan-sathi/storage",
+    "dir": "/home/user/teer-wale/storage",
     "agents": [
       {
         "id": "guardian",

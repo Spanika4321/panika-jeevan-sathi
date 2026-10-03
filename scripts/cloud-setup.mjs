@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PANIKA JEEVAN SATHI — one-time Cloudflare setup helper.
+ * TEER WALE — one-time Cloudflare setup helper.
  *
  * Creates the D1 database the site will use and prints the exact environment
  * variables to paste into Render. R2 buckets and R2 access keys are created in
@@ -8,7 +8,7 @@
  * script prints direct links for those two steps.
  *
  *   node scripts/cloud-setup.mjs --token <Cloudflare API token>
- *   node scripts/cloud-setup.mjs --token <token> --account-id <id> --name panika-jeevan-sathi
+ *   node scripts/cloud-setup.mjs --token <token> --account-id <id> --name teer-wale
  *
  * The token needs "D1:Edit" on the account.
  */
@@ -20,7 +20,7 @@ function arg(name, fallback = '') {
 }
 
 const token = arg('token', process.env.CF_API_TOKEN || '');
-const name = arg('name', 'panika-jeevan-sathi');
+const name = arg('name', 'teer-wale');
 let accountId = arg('account-id', process.env.CF_ACCOUNT_ID || '');
 const apiBase = 'https://api.cloudflare.com/client/v4';
 
@@ -52,7 +52,7 @@ async function cf(pathname, options = {}) {
   return json;
 }
 
-console.log('\nPANIKA JEEVAN SATHI — Cloudflare setup\n');
+console.log('\nTEER WALE — Cloudflare setup\n');
 
 /* --------------------------------------------------------------- 1. account */
 

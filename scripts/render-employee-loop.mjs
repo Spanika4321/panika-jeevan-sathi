@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const SITE = 'https://panikajeevansathi.onrender.com';
+const SITE = 'https://teerwale.onrender.com';
 const BATCH = 200;
 const MAX_ROUNDS = 20;
 
@@ -93,7 +93,7 @@ async function runBatch(round) {
 }
 
 console.log('==============================================');
-console.log(' PANIKA JEEVAN SATHI — RENDER EMPLOYEE');
+console.log(' TEER WALE — RENDER EMPLOYEE');
 console.log('==============================================');
 console.log('MODE: CHECK → DIAGNOSE → REPORT → VERIFY');
 console.log(`BATCH: ${BATCH}`);
